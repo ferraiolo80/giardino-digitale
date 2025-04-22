@@ -34,5 +34,27 @@
   <div id="plant-info"></div>
 
   <script src="plants.js"></script>
+<script type="module">
+  import { identifyPlant } from './plantid.js';
+
+  async function handleImage() {
+    const file = document.getElementById('upload').files[0];
+    if (!file) return alert('Seleziona un\'immagine');
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result.replace(/^data:image\/[a-z]+;base64,/, "");
+      const result = await identifyPlant(base64);
+
+      console.log(result); // debug
+      const bestMatch = result?.suggestions?.[0]?.plant_name || "Nessuna pianta trovata";
+      document.getElementById("risultato").textContent = "Risultato: " + bestMatch;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  window.handleImage = handleImage;
+</script>
+
 </body>
 </html>
