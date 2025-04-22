@@ -1,0 +1,9 @@
+
+{
+  "name": "giardino-digitale",
+  "version": "1.0.0",
+  "description": "App familiare per il riconoscimento e la cura delle piante",
+  "scripts": {
+    "start": "echo 'Benvenuto nel Giardino Digitale!'"
+  }
+}
