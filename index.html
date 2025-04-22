@@ -1,13 +1,38 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Giardino Digitale</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f5f5f5;
+      color: #333;
+    }
+    h1 {
+      color: #4CAF50;
+    }
+    #plant-info {
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+    .status {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>Benvenuto nel Giardino Digitale di Ferraiolo!</h1>
-  <p>App pensata per uso familiare. Se sei un amico delle piante, benvenuto nel nostro giardino digitale!</p>
+  <h1>Giardino Digitale 🌿</h1>
+  <p>Benvenuto nel giardino digitale di Ferraiolo! 🌼</p>
+  <input type="text" id="plantName" placeholder="Inserisci il nome di una pianta">
+  <button onclick="showPlantInfo()">Cerca</button>
+
+  <div id="plant-info"></div>
+
+  <script src="plants.js"></script>
 </body>
 </html>
