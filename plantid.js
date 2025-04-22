@@ -1,4 +1,4 @@
-const PLANT_ID_API_KEY = "Gbc8yIF2nS7BkUdTJpRAnna32cHHI8umTpn5RJjKUBvcDqyN8J";
+const PLANT_ID_API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
 
 export async function identifyPlant(base64Image) {
   const response = await fetch("https://api.plant.id/v2/identify", {
