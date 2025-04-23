@@ -11,42 +11,24 @@
   </style>
 </head>
 <body>
-<h1>Giardino Digitale</h1>
-
-<!-- Ricerca manuale -->
-<div>
-  <input type="text" id="plant-name" placeholder="Scrivi il nome della pianta">
-  <button id="cerca-btn">Cerca</button>
-</div>
-
-<!-- Riconoscimento da foto -->
-<div>
-  <input type="file" id="upload-image" accept="image/*">
-  <button id="upload-btn">Riconosci da immagine</button>
-</div>
-
-<!-- Risultati riconoscimento o ricerca -->
-<div id="risultato"></div>
-
-<!-- Il tuo giardino personale -->
-<h2>Il mio giardino</h2>
-<div id="giardino"></div>
-
+<body style="background-color: #e9f5ff; font-family: sans-serif; padding: 20px;">
   <h1>🌿 Giardino Digitale</h1>
 
   <h2>Cerca una pianta</h2>
-  <input type="text" id="searchInput" placeholder="Nome della pianta">
-  <button onclick="searchPlant()">Cerca</button>
+  <input type="text" id="plant-name" placeholder="Scrivi il nome della pianta" />
+  <button id="cerca-btn">Cerca</button>
 
-  <h2>oppure riconosci da foto</h2>
-  <input type="file" id="imageInput" accept="image/*">
-  <button onclick="identifyPlant()">Identifica</button>
+  <h3>oppure riconosci da foto</h3>
+  <input type="file" id="upload-image" accept="image/*" />
+  <button id="upload-btn">Identifica</button>
 
-  <div id="risultato"></div>
+  <div id="risultato" style="margin-top: 20px;"></div>
 
   <h2>🌱 Il mio giardino</h2>
   <div id="giardino"></div>
 
   <script src="app.js"></script>
+</body>
+
 </body>
 </html>
