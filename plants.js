@@ -1,33 +1,27 @@
-const plantDatabase = {
-  "ortensia": {
-    nome: "Ortensia",
-    luce: "Luminosa ma senza sole diretto",
-    irrigazione: "Terreno umido, non inzuppato"
+[
+  {
+    "name": "Ortensia",
+    "sunlight": "Mezz’ombra",
+    "watering": "Terreno umido, annaffiare regolarmente"
   },
-  "basilico": {
-    nome: "Basilico",
-    luce: "Sole diretto",
-    irrigazione: "Terreno sempre leggermente umido"
+  {
+    "name": "Basilico",
+    "sunlight": "Sole pieno",
+    "watering": "Annaffiare ogni 1-2 giorni"
   },
-  "aloe": {
-    nome: "Aloe Vera",
-    luce: "Soleggiata",
-    irrigazione: "Annaffiare solo quando il terreno è asciutto"
+  {
+    "name": "Aloe Vera",
+    "sunlight": "Luce intensa, non diretta",
+    "watering": "Poca acqua, ogni 2 settimane"
+  },
+  {
+    "name": "Azalea",
+    "sunlight": "Mezz’ombra, evitare sole diretto",
+    "watering": "Terreno costantemente umido, mai secco"
+  },
+  {
+    "name": "Lavanda",
+    "sunlight": "Sole pieno",
+    "watering": "Poca acqua, terreno ben drenato"
   }
-};
-
-function showPlantInfo() {
-  const name = document.getElementById("plantName").value.toLowerCase();
-  const info = plantDatabase[name];
-  const output = document.getElementById("plant-info");
-
-  if (info) {
-    output.innerHTML = `
-      <h2>${info.nome}</h2>
-      <p><strong>Luce:</strong> ${info.luce}</p>
-      <p><strong>Irrigazione:</strong> ${info.irrigazione}</p>
-    `;
-  } else {
-    output.innerHTML = "<p>Pianta non trovata. Prova con 'ortensia', 'basilico' o 'aloe'.</p>";
-  }
-}
+]
