@@ -1,22 +1,30 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Giardino Digitale</title>
   <style>
-    body { font-family: sans-serif; padding: 1rem; background: #f5f5f5; }
-    .pianta { background: white; padding: 1rem; margin: 1rem 0; border-radius: 8px; }
-    button { margin-top: 0.5rem; }
+    body { font-family: sans-serif; padding: 20px; background: #f0f8ff; }
+    input, button { padding: 10px; margin: 5px; }
+    .pianta { border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin: 10px 0; background: #fff; }
   </style>
 </head>
 <body>
-  <h1>Giardino Digitale</h1>
-  <input type="text" id="search" placeholder="Cerca una pianta...">
-  <button onclick="cercaPianta()">Cerca</button>
+  <h1>🌿 Giardino Digitale</h1>
+
+  <h2>Cerca una pianta</h2>
+  <input type="text" id="searchInput" placeholder="Nome della pianta">
+  <button onclick="searchPlant()">Cerca</button>
+
+  <h2>oppure riconosci da foto</h2>
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="identifyPlant()">Identifica</button>
+
   <div id="risultato"></div>
-  <hr>
-  <h2>Il mio giardino</h2>
-  <div id="mioGiardino"></div>
+
+  <h2>🌱 Il mio giardino</h2>
+  <div id="giardino"></div>
 
   <script src="app.js"></script>
 </body>
