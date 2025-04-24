@@ -1,4 +1,4 @@
-const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
+const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf"; 
 let plantsDB = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 
@@ -21,7 +21,8 @@ function formatPlantCard(plant) {
     <div class="pianta">
       <strong>${plant.name}</strong><br/>
       ☀️ Luce: ${plant.sun || "?"}<br/>
-      💧 Acqua: ${plant.water || "?"}
+      💧 Acqua: ${plant.water || "?"}<br/>
+      <button onclick='removeFromGarden("${plant.name}")'>Rimuovi</button>
     </div>`;
 }
 
@@ -42,6 +43,12 @@ function addToGarden(plant) {
     localStorage.setItem("myGarden", JSON.stringify(myGarden));
     renderMyGarden();
   }
+}
+
+function removeFromGarden(name) {
+  myGarden = myGarden.filter(p => p.name !== name);
+  localStorage.setItem("myGarden", JSON.stringify(myGarden));
+  renderMyGarden();
 }
 
 // === IDENTIFICAZIONE FOTO ===
@@ -75,3 +82,4 @@ async function identifyPlant() {
 
   document.getElementById("risultato").innerHTML = formatPlantCard(pianta) + `<button onclick='addToGarden(${JSON.stringify(pianta)})'>Salva nel mio giardino</button>`;
 }
+
