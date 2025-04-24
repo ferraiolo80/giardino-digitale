@@ -32,12 +32,12 @@ function renderMyGarden() {
 
 function formatPlantCard(plant, index) {
   return `
-    <div class="pianta" style="margin-bottom: 1em;">
+    <div class="pianta" style="margin-bottom: 1.5em; padding: 1em; border: 1px solid #ccc; border-radius: 10px;">
       <input type="text" value="${plant.name}" onchange="updatePlantField(${index}, 'name', this.value)"><br/>
-      <div style="margin-top: 0.5em;">☀️ Luce: <input type="text" value="${plant.sun || "?"}" onchange="updatePlantField(${index}, 'sun', this.value)"></div>
-      <div style="margin-top: 0.5em;">💧 Acqua: <input type="text" value="${plant.water || "?"}" onchange="updatePlantField(${index}, 'water', this.value)"></div>
-      <div style="margin-top: 0.5em;">🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"></div>
-      <button style="margin-top: 0.5em;" onclick='removeFromGarden("${plant.name}")'>Rimuovi</button>
+      <div style="margin-top: 1em;">☀️ Luce: <input type="text" value="${plant.sun || "?"}" onchange="updatePlantField(${index}, 'sun', this.value)"></div>
+      <div style="margin-top: 1em;">💧 Acqua: <input type="text" value="${plant.water || "?"}" onchange="updatePlantField(${index}, 'water', this.value)"></div>
+      <div style="margin-top: 1em;">🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"></div>
+      <button style="margin-top: 1em;" onclick='removeFromGarden("${plant.name}")'>Rimuovi</button>
     </div>`;
 }
 
@@ -53,13 +53,39 @@ function searchPlant() {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const match = [...plantsDB, ...myGarden].find(p => p.name.toLowerCase() === query);
   const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = ""; // Nasconde il giardino durante la ricerca
+  document.getElementById("giardino").innerHTML = "";
 
   if (match) {
     container.innerHTML = formatPlantCard(match, -1) + `<button onclick='addToGarden(${JSON.stringify(match)})'>Salva nel mio giardino</button>`;
   } else {
-    container.innerHTML = "❌ Pianta non trovata.";
+    identifyPlantByName(query);
   }
+}
+
+async function identifyPlantByName(query) {
+  const res = await fetch("https://api.plant.id/v2/identify", {
+    method: "POST",
+    headers: { "Api-Key": API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ plant_language: "it", images: [], organs: ["leaf"], /* fallback search */ query })
+  });
+
+  const data = await res.json();
+  const suggestion = data?.suggestions?.[0];
+  const container = document.getElementById("risultato");
+
+  if (!suggestion) {
+    container.innerHTML = "❌ Pianta non trovata.";
+    return;
+  }
+
+  const pianta = {
+    name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
+    sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
+    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato",
+    soil: suggestion.plant_details?.soil_texture?.[0] || "non specificato"
+  };
+
+  container.innerHTML = formatPlantCard(pianta, -1) + `<button onclick='addToGarden(${JSON.stringify(pianta)})'>Salva nel mio giardino</button>`;
 }
 
 function addToGarden(plant) {
@@ -107,6 +133,6 @@ async function identifyPlant() {
   };
 
   const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = ""; // Nasconde il giardino durante la visualizzazione del risultato
+  document.getElementById("giardino").innerHTML = "";
   container.innerHTML = formatPlantCard(pianta, -1) + `<button onclick='addToGarden(${JSON.stringify(pianta)})'>Salva nel mio giardino</button>`;
 }
