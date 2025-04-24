@@ -76,18 +76,62 @@ async function updatePlantField(index, field, value) {
   }
 }
 
-function searchPlant() {
+async function searchPlant() {
   const query = document.getElementById("searchInput").value.toLowerCase();
-  const match = [...plantsDB, ...myGarden].find(p => p.name.toLowerCase() === query);
   const container = document.getElementById("risultato");
   document.getElementById("giardino").innerHTML = "";
 
+  // 1. Cerca nel file plants.json
+  let match = plantsDB.find(p => p.name.toLowerCase() === query);
   if (match) {
     container.innerHTML = formatPlantCard(match, -1) +
       `<button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
-  } else {
-    container.innerHTML = "❌ Pianta non trovata.";
+    return;
   }
+
+  // 2. Cerca nel mio giardino (Firebase)
+  match = myGarden.find(p => p.name.toLowerCase() === query);
+  if (match) {
+    container.innerHTML = formatPlantCard(match, -1) +
+      `<button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
+    return;
+  }
+
+  // 3. Usa PlantID se non è stato trovato nulla
+  container.innerHTML = "🔍 Cerco online con PlantID...";
+
+  const res = await fetch("https://api.plant.id/v2/identify", {
+    method: "POST",
+    headers: { "Api-Key": API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      "organs": ["leaf"],
+      "plant_language": "it",
+      "plant_details": ["common_names", "watering", "sunlight", "soil_texture"],
+      "similar_images": false,
+      "images": [],
+      "custom_id": "ricerca-nome",
+      "latitude": 0,
+      "longitude": 0,
+      "name": query
+    })
+  });
+
+  const data = await res.json();
+  const suggestion = data?.suggestions?.[0];
+  if (!suggestion) {
+    container.innerHTML = "❌ Pianta non trovata.";
+    return;
+  }
+
+  const pianta = {
+    name: suggestion.plant_name,
+    sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
+    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato",
+    soil: suggestion.plant_details?.soil_texture?.[0] || "non specificato"
+  };
+
+  container.innerHTML = formatPlantCard(pianta, -1) +
+    `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
 }
 
 async function addToGarden(plant) {
