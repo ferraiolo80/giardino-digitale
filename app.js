@@ -1,58 +1,77 @@
-let plantsData = [];
+lconst API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
+let plantsDB = [];
+let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 
-// Carica le piante da plants.json
-fetch('plants.json')
-  .then(res => res.json())
-  .then(data => {
-    plantsData = data;
-    mostraGiardino();
+window.onload = async () => {
+  const res = await fetch("plants.json");
+  plantsDB = await res.json();
+  renderMyGarden();
+};
+
+function renderMyGarden() {
+  const container = document.getElementById("giardino");
+  container.innerHTML = "";
+  myGarden.forEach(plant => {
+    container.innerHTML += formatPlantCard(plant);
+  });
+}
+
+function formatPlantCard(plant) {
+  return `
+    <div class="pianta">
+      <strong>${plant.name}</strong><br/>
+      ☀️ Luce: ${plant.sun || "?"}<br/>
+      💧 Acqua: ${plant.water || "?"}
+    </div>`;
+}
+
+function searchPlant() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const match = [...plantsDB, ...myGarden].find(p => p.name.toLowerCase() === query);
+  const container = document.getElementById("risultato");
+  if (match) {
+    container.innerHTML = formatPlantCard(match) + `<button onclick='addToGarden(${JSON.stringify(match)})'>Salva nel mio giardino</button>`;
+  } else {
+    container.innerHTML = "❌ Pianta non trovata.";
+  }
+}
+
+function addToGarden(plant) {
+  if (!myGarden.find(p => p.name === plant.name)) {
+    myGarden.push(plant);
+    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    renderMyGarden();
+  }
+}
+
+// === IDENTIFICAZIONE FOTO ===
+
+async function identifyPlant() {
+  const input = document.getElementById("imageInput");
+  if (!input.files.length) return alert("Carica una foto prima!");
+
+  const formData = new FormData();
+  formData.append("images", input.files[0]);
+  formData.append("similar_images", true);
+
+  const res = await fetch("https://api.plant.id/v2/identify", {
+    method: "POST",
+    headers: { "Api-Key": API_KEY },
+    body: formData
   });
 
-function cercaPianta() {
-  const query = document.getElementById('search').value.trim().toLowerCase();
-  const result = plantsData.find(p => p.name.toLowerCase() === query) || trovaNelGiardino(query);
-
-  const container = document.getElementById('risultato');
-  container.innerHTML = '';
-
-  if (result) {
-    container.innerHTML = creaHTMLpianta(result, true);
-  } else {
-    container.innerHTML = `<p>Pianta non trovata.</p>`;
-  }
-}
-
-function creaHTMLpianta(pianta, mostraBottone = false) {
-  let html = `
-    <div class="pianta">
-      <strong>${pianta.name}</strong><br>
-      Sole: ${pianta.sunlight}<br>
-      Acqua: ${pianta.watering}<br>
-  `;
-
-  if (mostraBottone && !trovaNelGiardino(pianta.name.toLowerCase())) {
-    html += `<button onclick='salvaNelGiardino(${JSON.stringify(pianta)})'>Salva nel mio giardino</button>`;
+  const data = await res.json();
+  const suggestion = data?.suggestions?.[0];
+  if (!suggestion) {
+    document.getElementById("risultato").innerText = "❌ Nessuna pianta riconosciuta.";
+    return;
   }
 
-  html += '</div>';
-  return html;
-}
+  const pianta = {
+    name: suggestion.plant_name,
+    sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
+    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato"
+  };
 
-function salvaNelGiardino(pianta) {
-  const giardino = JSON.parse(localStorage.getItem('giardino')) || [];
-  giardino.push(pianta);
-  localStorage.setItem('giardino', JSON.stringify(giardino));
-  mostraGiardino();
-  alert('Pianta salvata!');
-}
-
-function mostraGiardino() {
-  const container = document.getElementById('mioGiardino');
-  const giardino = JSON.parse(localStorage.getItem('giardino')) || [];
-  container.innerHTML = giardino.map(p => creaHTMLpianta(p)).join('');
-}
-
-function trovaNelGiardino(nome) {
-  const giardino = JSON.parse(localStorage.getItem('giardino')) || [];
-  return giardino.find(p => p.name.toLowerCase() === nome);
+  document.getElementById("risultato").innerHTML = formatPlantCard(pianta) + `<button onclick='addToGarden(${JSON.stringify(pianta)})'>Salva nel mio giardino</button>`;
 }
