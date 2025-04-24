@@ -1,4 +1,4 @@
-lconst API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
+const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
 let plantsDB = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 
