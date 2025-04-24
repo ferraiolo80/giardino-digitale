@@ -47,9 +47,14 @@ function renderMyGarden() {
   const container = document.getElementById("giardino");
   if (!container) return;
   container.innerHTML = "";
-  myGarden.forEach((plant, index) => {
-    container.innerHTML += formatPlantCard(plant, index);
-  });
+
+  const filter = (document.getElementById("filterInput")?.value || "").toLowerCase();
+
+  myGarden
+    .filter(p => p.name.toLowerCase().includes(filter))
+    .forEach((plant, index) => {
+      container.innerHTML += formatPlantCard(plant, index);
+    });
 }
 
 function formatPlantCard(plant, index) {
