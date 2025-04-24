@@ -1,14 +1,36 @@
-const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf"; 
+// === CONFIGURAZIONE FIREBASE ===
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+  authDomain: "giardinodigitale.firebaseapp.com",
+  projectId: "giardinodigitale",
+  storageBucket: "giardinodigitale.firebasestorage.app",
+  messagingSenderId: "96265504027",
+  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// === DATABASE LOCALE E ONLINE ===
 let plantsDB = [];
-let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+let myGarden = []; // inizializzato vuoto
 let gardenVisible = true;
 
 window.onload = async () => {
   const res = await fetch("plants.json");
   plantsDB = await res.json();
+  await loadMyGardenOnline();
   renderMyGarden();
   setupToggleGarden();
 };
+
+async function loadMyGardenOnline() {
+  const snapshot = await getDocs(collection(db, "giardino"));
+  myGarden = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
 
 function setupToggleGarden() {
   const btn = document.getElementById("toggleGiardino");
@@ -37,14 +59,14 @@ function formatPlantCard(plant, index) {
       <div style="margin-top: 0.5em;">☀️ Luce: <input type="text" value="${plant.sun || "?"}" onchange="updatePlantField(${index}, 'sun', this.value)"></div>
       <div style="margin-top: 0.5em;">💧 Acqua: <input type="text" value="${plant.water || "?"}" onchange="updatePlantField(${index}, 'water', this.value)"></div>
       <div style="margin-top: 0.5em;">🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"></div>
-      <button style="margin-top: 0.5em;" onclick='removeFromGarden("${plant.name}")'>Rimuovi</button>
+      <button style="margin-top: 0.5em;" onclick='confirmRemoveFromGarden("${plant.id}")'>Rimuovi</button>
     </div>`;
 }
 
-function updatePlantField(index, field, value) {
+async function updatePlantField(index, field, value) {
   if (index >= 0) {
     myGarden[index][field] = value;
-    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    await setDoc(doc(db, "giardino", myGarden[index].id), myGarden[index]);
     renderMyGarden();
   }
 }
@@ -53,7 +75,7 @@ function searchPlant() {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const match = [...plantsDB, ...myGarden].find(p => p.name.toLowerCase() === query);
   const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = ""; // Nasconde il giardino durante la ricerca
+  document.getElementById("giardino").innerHTML = "";
 
   if (match) {
     container.innerHTML = formatPlantCard(match, -1) +
@@ -63,7 +85,7 @@ function searchPlant() {
   }
 }
 
-function addToGarden(plant) {
+async function addToGarden(plant) {
   if (typeof plant === "string") {
     try {
       plant = JSON.parse(plant);
@@ -74,22 +96,28 @@ function addToGarden(plant) {
   }
 
   if (!myGarden.find(p => p.name === plant.name)) {
+    const docRef = await addDoc(collection(db, "giardino"), plant);
+    plant.id = docRef.id;
     myGarden.push(plant);
-    localStorage.setItem("myGarden", JSON.stringify(myGarden));
     renderMyGarden();
   }
 
-  document.getElementById("risultato").innerHTML = ""; // Nasconde il riquadro del risultato dopo il salvataggio
+  document.getElementById("risultato").innerHTML = "";
 }
 
-function removeFromGarden(name) {
-  myGarden = myGarden.filter(p => p.name !== name);
-  localStorage.setItem("myGarden", JSON.stringify(myGarden));
+function confirmRemoveFromGarden(id) {
+  if (confirm("Vuoi davvero rimuovere questa pianta dal tuo giardino?")) {
+    removeFromGarden(id);
+  }
+}
+
+async function removeFromGarden(id) {
+  await deleteDoc(doc(db, "giardino", id));
+  myGarden = myGarden.filter(p => p.id !== id);
   renderMyGarden();
 }
 
 // === IDENTIFICAZIONE FOTO ===
-
 async function identifyPlant() {
   const input = document.getElementById("imageInput");
   if (!input.files.length) return alert("Carica una foto prima!");
@@ -119,7 +147,7 @@ async function identifyPlant() {
   };
 
   const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = ""; // Nasconde il giardino durante la visualizzazione del risultato
+  document.getElementById("giardino").innerHTML = "";
   container.innerHTML = formatPlantCard(pianta, -1) +
     `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
 }
