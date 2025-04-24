@@ -11,19 +11,26 @@ window.onload = async () => {
 function renderMyGarden() {
   const container = document.getElementById("giardino");
   container.innerHTML = "";
-  myGarden.forEach(plant => {
-    container.innerHTML += formatPlantCard(plant);
+  myGarden.forEach((plant, index) => {
+    container.innerHTML += formatPlantCard(plant, index);
   });
 }
 
-function formatPlantCard(plant) {
+function formatPlantCard(plant, index) {
   return `
     <div class="pianta">
-      <strong>${plant.name}</strong><br/>
-      ☀️ Luce: ${plant.sun || "?"}<br/>
-      💧 Acqua: ${plant.water || "?"}<br/>
+      <input type="text" value="${plant.name}" onchange="updatePlantField(${index}, 'name', this.value)"><br/>
+      ☀️ Luce: <input type="text" value="${plant.sun || "?"}" onchange="updatePlantField(${index}, 'sun', this.value)"><br/>
+      💧 Acqua: <input type="text" value="${plant.water || "?"}" onchange="updatePlantField(${index}, 'water', this.value)"><br/>
+      🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"><br/>
       <button onclick='removeFromGarden("${plant.name}")'>Rimuovi</button>
     </div>`;
+}
+
+function updatePlantField(index, field, value) {
+  myGarden[index][field] = value;
+  localStorage.setItem("myGarden", JSON.stringify(myGarden));
+  renderMyGarden();
 }
 
 function searchPlant() {
@@ -31,7 +38,7 @@ function searchPlant() {
   const match = [...plantsDB, ...myGarden].find(p => p.name.toLowerCase() === query);
   const container = document.getElementById("risultato");
   if (match) {
-    container.innerHTML = formatPlantCard(match) + `<button onclick='addToGarden(${JSON.stringify(match)})'>Salva nel mio giardino</button>`;
+    container.innerHTML = formatPlantCard(match, -1) + `<button onclick='addToGarden(${JSON.stringify(match)})'>Salva nel mio giardino</button>`;
   } else {
     container.innerHTML = "❌ Pianta non trovata.";
   }
@@ -75,11 +82,11 @@ async function identifyPlant() {
   }
 
   const pianta = {
-    name: suggestion.plant_name,
+    name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
     sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
-    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato"
+    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato",
+    soil: suggestion.plant_details?.soil_texture?.[0] || "non specificato"
   };
 
-  document.getElementById("risultato").innerHTML = formatPlantCard(pianta) + `<button onclick='addToGarden(${JSON.stringify(pianta)})'>Salva nel mio giardino</button>`;
+  document.getElementById("risultato").innerHTML = formatPlantCard(pianta, -1) + `<button onclick='addToGarden(${JSON.stringify(pianta)})'>Salva nel mio giardino</button>`;
 }
-
