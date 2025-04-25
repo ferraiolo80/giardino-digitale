@@ -23,5 +23,10 @@
     "name": "Lavanda",
     "sunlight": "Sole pieno",
     "watering": "Poca acqua, terreno ben drenato"
+  },
+  {
+    "name": "Geranio",
+    "sunlight": "Sole pieno",
+    "watering": "Poca acqua, terreno ben drenato"
   }
 ]
