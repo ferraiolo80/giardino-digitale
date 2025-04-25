@@ -77,3 +77,8 @@ function addToGarden(plant) {
     myGarden.push(plant);
     localStorage.setItem("myGarden", JSON.stringify(myGarden));
     renderMyGarden();
+
+function removeFromGarden(name) {
+  myGarden = myGarden.filter(p => p.name !== name);
+  localStorage.setItem("myGarden", JSON.stringify(myGarden));
+  renderMyGarden();
