@@ -188,6 +188,35 @@ async function identifyPlant() {
     return;
   }
 
+  // Provo a recuperare una temperatura se esiste
+  let temperature = "non specificato";
+  const growthTemp = suggestion.plant_details?.growth_temperature_minimum?.deg_celsius;
+  if (growthTemp !== undefined) {
+    temperature = `Min. ${growthTemp}°C`;
+  }
+
+  const pianta = {
+    name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
+    sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
+    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato",
+    soil: suggestion.plant_details?.soil_texture?.[0] || "non specificato",
+    temperature: temperature
+  };
+
+  const container = document.getElementById("risultato");
+  document.getElementById("giardino").innerHTML = "";
+  container.innerHTML = formatPlantCard(pianta, -1) +
+    `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
+}
+);
+
+  const data = await res.json();
+  const suggestion = data?.suggestions?.[0];
+  if (!suggestion) {
+    document.getElementById("risultato").innerText = "❌ Nessuna pianta riconosciuta.";
+    return;
+  }
+
   // Estraiamo i testi da tradurre
   const englishSun = suggestion.plant_details?.sunlight?.[0] || "not specified";
   const englishWater = suggestion.plant_details?.watering_general_benchmark?.value || "not specified";
