@@ -3,30 +3,48 @@
     "name": "Ortensia",
     "sunlight": "Mezz’ombra",
     "watering": "Terreno umido, annaffiare regolarmente"
-  },
+    "temperature": "10-22°C"
+    },
   {
     "name": "Basilico",
     "sunlight": "Sole pieno",
     "watering": "Annaffiare ogni 1-2 giorni"
+    "temperature": "20-30°C"
   },
   {
     "name": "Aloe Vera",
     "sunlight": "Luce intensa, non diretta",
     "watering": "Poca acqua, ogni 2 settimane"
+    "temperature": "15-25°C"
   },
   {
     "name": "Azalea",
     "sunlight": "Mezz’ombra, evitare sole diretto",
     "watering": "Terreno costantemente umido, mai secco"
+    "temperature": "8-16°C"
   },
   {
     "name": "Lavanda",
     "sunlight": "Sole pieno",
     "watering": "Poca acqua, terreno ben drenato"
+    "temperature": "5-35°C"
   },
   {
     "name": "Geranio",
     "sunlight": "Sole pieno",
     "watering": "Poca acqua, terreno ben drenato e possibilmente dopo il tramonto"
+    "temperature": "15-25°C"
+  }
+  {
+    "name": "Ficus",
+    "sun": "luce indiretta",
+    "water": "una volta a settimana",
+    "temperature": "18-24°C"
+  },
+  {
+    "name": "Sansevieria",
+    "sun": "luce media o bassa",
+    "water": "una volta al mese",
+    "temperature": "13-27°C"
   }
 ]
