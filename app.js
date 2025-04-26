@@ -68,12 +68,13 @@ function formatPlantCard(plant, index) {
     </div>`;
 }
 
-async function updatePlantField(index, field, value) {
-  if (index >= 0) {
+function updatePlantField(index, field, value) {
+  if (index >= 0 && myGarden[index]) {
     myGarden[index][field] = value;
-    await setDoc(doc(db, "giardino", myGarden[index].id), myGarden[index]);
+    localStorage.setItem("myGarden", JSON.stringify(myGarden));
     renderMyGarden();
   }
+
 }
 
 async function searchPlant() {
