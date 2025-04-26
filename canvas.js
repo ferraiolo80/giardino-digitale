@@ -37,6 +37,7 @@ function formatPlantCard(plant, index) {
       <div style="margin-top: 0.5em;">☀️ Luce: <input type="text" value="${plant.sun || "?"}" onchange="updatePlantField(${index}, 'sun', this.value)"></div>
       <div style="margin-top: 0.5em;">💧 Acqua: <input type="text" value="${plant.water || "?"}" onchange="updatePlantField(${index}, 'water', this.value)"></div>
       <div style="margin-top: 0.5em;">🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"></div>
+      <div style="margin-top: 0.5em;">🌡️ Temperatura: <input type="text" value="${plant.temperature || "?"}" onchange="updatePlantField(${index}, 'temperature', this.value)"></div>
       <button style="margin-top: 0.5em;" onclick='removeFromGarden("${plant.name}")'>Rimuovi</button>
     </div>`;
 }
