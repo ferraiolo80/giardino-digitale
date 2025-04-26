@@ -18,7 +18,7 @@ const db = getFirestore(app);
 let plantsDB = [];
 let myGarden = [];
 let gardenVisible = true;
-const API_KEY = "INSERISCI_LA_TUA_API_KEY_DI_PLANT_ID";
+const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
 
 // === AVVIO ===
 window.onload = async () => {
