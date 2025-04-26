@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
   authDomain: "giardinodigitale.firebaseapp.com",
   projectId: "giardinodigitale",
-  storageBucket: "giardinodigitale.firebasestorage.app",
+  storageBucket: "giardinodigitale.appspot.com",
   messagingSenderId: "96265504027",
   appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
 };
@@ -14,11 +14,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// === DATABASE LOCALE E ONLINE ===
+// === VARIABILI GLOBALI ===
 let plantsDB = [];
-let myGarden = []; // inizializzato vuoto
+let myGarden = [];
 let gardenVisible = true;
+const API_KEY = "INSERISCI_LA_TUA_API_KEY_DI_PLANT_ID";
 
+// === AVVIO ===
 window.onload = async () => {
   const res = await fetch("plants.json");
   plantsDB = await res.json();
@@ -27,11 +29,37 @@ window.onload = async () => {
   setupToggleGarden();
 };
 
+// === FUNZIONI FIREBASE ===
 async function loadMyGardenOnline() {
   const snapshot = await getDocs(collection(db, "giardino"));
   myGarden = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
+async function addToGarden(plant) {
+  if (typeof plant === "string") {
+    try {
+      plant = JSON.parse(plant);
+    } catch (e) {
+      console.error("Errore parsing:", e);
+      return;
+    }
+  }
+  if (!myGarden.find(p => p.name === plant.name)) {
+    const docRef = await addDoc(collection(db, "giardino"), plant);
+    plant.id = docRef.id;
+    myGarden.push(plant);
+    renderMyGarden();
+  }
+  document.getElementById("risultato").innerHTML = "";
+}
+
+async function removeFromGarden(id) {
+  await deleteDoc(doc(db, "giardino", id));
+  myGarden = myGarden.filter(p => p.id !== id);
+  renderMyGarden();
+}
+
+// === FUNZIONI GENERALI ===
 function setupToggleGarden() {
   const btn = document.getElementById("toggleGiardino");
   if (btn) {
@@ -68,21 +96,26 @@ function formatPlantCard(plant, index) {
     </div>`;
 }
 
-function updatePlantField(index, field, value) {
+async function updatePlantField(index, field, value) {
   if (index >= 0 && myGarden[index]) {
     myGarden[index][field] = value;
-    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    await setDoc(doc(db, "giardino", myGarden[index].id), myGarden[index]);
     renderMyGarden();
   }
-
 }
 
+function confirmRemoveFromGarden(id) {
+  if (confirm("Vuoi davvero rimuovere questa pianta dal tuo giardino?")) {
+    removeFromGarden(id);
+  }
+}
+
+// === RICERCA PER NOME ===
 async function searchPlant() {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const container = document.getElementById("risultato");
   document.getElementById("giardino").innerHTML = "";
 
-  // 1. Cerca nel file plants.json
   let match = plantsDB.find(p => p.name.toLowerCase() === query);
   if (match) {
     container.innerHTML = formatPlantCard(match, -1) +
@@ -90,7 +123,6 @@ async function searchPlant() {
     return;
   }
 
-  // 2. Cerca nel mio giardino (Firebase)
   match = myGarden.find(p => p.name.toLowerCase() === query);
   if (match) {
     container.innerHTML = formatPlantCard(match, -1) +
@@ -98,9 +130,11 @@ async function searchPlant() {
     return;
   }
 
-  // 3. Usa PlantID se non è stato trovato nulla
   container.innerHTML = "🔍 Cerco online con PlantID...";
+  await searchPlantOnline(query);
+}
 
+async function searchPlantOnline(nameQuery) {
   const res = await fetch("https://api.plant.id/v2/identify", {
     method: "POST",
     headers: { "Api-Key": API_KEY, "Content-Type": "application/json" },
@@ -113,64 +147,31 @@ async function searchPlant() {
       "custom_id": "ricerca-nome",
       "latitude": 0,
       "longitude": 0,
-      "name": query
+      "name": nameQuery
     })
   });
 
   const data = await res.json();
   const suggestion = data?.suggestions?.[0];
+  const container = document.getElementById("risultato");
+
   if (!suggestion) {
     container.innerHTML = "❌ Pianta non trovata.";
     return;
   }
 
-  const pianta = {
-    name: suggestion.plant_name,
-    sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
-    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato",
-    soil: suggestion.plant_details?.soil_texture?.[0] || "non specificato"
-  };
-
+  const pianta = await translatePlantDetails(suggestion);
   container.innerHTML = formatPlantCard(pianta, -1) +
     `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
 }
 
-async function addToGarden(plant) {
-  if (typeof plant === "string") {
-    try {
-      plant = JSON.parse(plant);
-    } catch (e) {
-      console.error("Errore nel parsing della pianta:", e);
-      return;
-    }
-  }
-
-  if (!myGarden.find(p => p.name === plant.name)) {
-    const docRef = await addDoc(collection(db, "giardino"), plant);
-    plant.id = docRef.id;
-    myGarden.push(plant);
-    renderMyGarden();
-  }
-
-  document.getElementById("risultato").innerHTML = "";
-}
-
-function confirmRemoveFromGarden(id) {
-  if (confirm("Vuoi davvero rimuovere questa pianta dal tuo giardino?")) {
-    removeFromGarden(id);
-  }
-}
-
-async function removeFromGarden(id) {
-  await deleteDoc(doc(db, "giardino", id));
-  myGarden = myGarden.filter(p => p.id !== id);
-  renderMyGarden();
-}
-
-// === IDENTIFICAZIONE FOTO ===
+// === RICONOSCIMENTO DA FOTO ===
 async function identifyPlant() {
   const input = document.getElementById("imageInput");
-  if (!input.files.length) return alert("Carica una foto prima!");
+  if (!input.files.length) {
+    alert("Carica una foto prima!");
+    return;
+  }
 
   const formData = new FormData();
   formData.append("images", input.files[0]);
@@ -184,91 +185,51 @@ async function identifyPlant() {
 
   const data = await res.json();
   const suggestion = data?.suggestions?.[0];
+  const container = document.getElementById("risultato");
+  document.getElementById("giardino").innerHTML = "";
+
   if (!suggestion) {
-    document.getElementById("risultato").innerText = "❌ Nessuna pianta riconosciuta.";
+    container.innerText = "❌ Nessuna pianta riconosciuta.";
     return;
   }
 
-  // Provo a recuperare una temperatura se esiste
-  let temperature = "non specificato";
-  const growthTemp = suggestion.plant_details?.growth_temperature_minimum?.deg_celsius;
-  if (growthTemp !== undefined) {
-    temperature = `Min. ${growthTemp}°C`;
-  }
-
-  const pianta = {
-    name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
-    sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
-    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato",
-    soil: suggestion.plant_details?.soil_texture?.[0] || "non specificato",
-    temperature: temperature
-  };
-
-  const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = "";
+  const pianta = await translatePlantDetails(suggestion);
   container.innerHTML = formatPlantCard(pianta, -1) +
     `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
 }
-);
 
-  const data = await res.json();
-  const suggestion = data?.suggestions?.[0];
-  if (!suggestion) {
-    document.getElementById("risultato").innerText = "❌ Nessuna pianta riconosciuta.";
-    return;
-  }
-
-  // Estraiamo i testi da tradurre
+// === TRADUZIONE DETTAGLI PIANTA ===
+async function translatePlantDetails(suggestion) {
   const englishSun = suggestion.plant_details?.sunlight?.[0] || "not specified";
   const englishWater = suggestion.plant_details?.watering_general_benchmark?.value || "not specified";
   const englishSoil = suggestion.plant_details?.soil_texture?.[0] || "not specified";
 
-  // Funzione per tradurre una stringa in italiano
-  async function translate(text) {
-    const res = await fetch("https://libretranslate.com/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        q: text,
-        source: "en",
-        target: "it",
-        format: "text"
-      })
-    });
-    const result = await res.json();
-    return result.translatedText || text;
-  }
-
-  // Traduciamo tutti i campi
   const [sun, water, soil] = await Promise.all([
     translate(englishSun),
     translate(englishWater),
     translate(englishSoil)
   ]);
 
-  const pianta = {
+  return {
     name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
     sun,
     water,
     soil
   };
-
-  const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = "";
-  container.innerHTML = formatPlantCard(pianta, -1) +
-    `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
 }
 
+async function translate(text) {
+  const res = await fetch("https://libretranslate.com/translate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      q: text,
+      source: "en",
+      target: "it",
+      format: "text"
+    })
+  });
 
-  const pianta = {
-    name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
-    sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
-    water: suggestion.plant_details?.watering_general_benchmark?.value || "non specificato",
-    soil: suggestion.plant_details?.soil_texture?.[0] || "non specificato"
-  };
-
-  const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = "";
-  container.innerHTML = formatPlantCard(pianta, -1) +
-    `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
+  const result = await res.json();
+  return result.translatedText || text;
 }
