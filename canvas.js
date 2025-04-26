@@ -25,7 +25,16 @@ function renderMyGarden() {
   const container = document.getElementById("giardino");
   if (!container) return;
   container.innerHTML = "";
-  myGarden.forEach((plant, index) => {
+const nameFilter = document.getElementById("filterInput").value.toLowerCase();
+const tempFilter = parseFloat(document.getElementById("tempFilter").value);
+
+myGarden
+  .filter(p => {
+    const nameMatch = p.name.toLowerCase().includes(nameFilter);
+    const tempMatch = isNaN(tempFilter) || parseFloat(p.temperature) >= tempFilter;
+    return nameMatch && tempMatch;
+  })
+  .forEach((plant, index) => {
     container.innerHTML += formatPlantCard(plant, index);
   });
 }
