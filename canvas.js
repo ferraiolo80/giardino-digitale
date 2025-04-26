@@ -1,11 +1,15 @@
-const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf"; 
+const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
 let plantsDB = [];
-let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+let myGarden = [];
 let gardenVisible = true;
 
 window.onload = async () => {
-  const res = await fetch("plants.json");
-  plantsDB = await res.json();
+  const plantsRes = await fetch("plants.json");
+  plantsDB = await plantsRes.json();
+  
+  const gardenRes = await fetch("myGarden.json");
+  myGarden = await gardenRes.json();
+
   renderMyGarden();
   setupToggleGarden();
 };
@@ -25,16 +29,7 @@ function renderMyGarden() {
   const container = document.getElementById("giardino");
   if (!container) return;
   container.innerHTML = "";
-const nameFilter = document.getElementById("filterInput").value.toLowerCase();
-const tempFilter = parseFloat(document.getElementById("tempFilter").value);
-
-myGarden
-  .filter(p => {
-    const nameMatch = p.name.toLowerCase().includes(nameFilter);
-    const tempMatch = isNaN(tempFilter) || parseFloat(p.temperature) >= tempFilter;
-    return nameMatch && tempMatch;
-  })
-  .forEach((plant, index) => {
+  myGarden.forEach((plant, index) => {
     container.innerHTML += formatPlantCard(plant, index);
   });
 }
@@ -47,14 +42,14 @@ function formatPlantCard(plant, index) {
       <div style="margin-top: 0.5em;">💧 Acqua: <input type="text" value="${plant.water || "?"}" onchange="updatePlantField(${index}, 'water', this.value)"></div>
       <div style="margin-top: 0.5em;">🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"></div>
       <div style="margin-top: 0.5em;">🌡️ Temperatura: <input type="text" value="${plant.temperature || "?"}" onchange="updatePlantField(${index}, 'temperature', this.value)"></div>
-      <button style="margin-top: 0.5em;" onclick='removeFromGarden("${plant.name}")'>Rimuovi</button>
+      <button style="margin-top: 0.5em;" onclick='removeFromGarden(${index})'>Rimuovi</button>
     </div>`;
 }
 
 function updatePlantField(index, field, value) {
   if (index >= 0) {
     myGarden[index][field] = value;
-    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    saveMyGarden();
     renderMyGarden();
   }
 }
@@ -63,13 +58,13 @@ function searchPlant() {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const match = [...plantsDB, ...myGarden].find(p => p.name.toLowerCase() === query);
   const container = document.getElementById("risultato");
-  document.getElementById("giardino").innerHTML = ""; // Nasconde il giardino durante la ricerca
+  document.getElementById("giardino").innerHTML = "";
 
   if (match) {
     container.innerHTML = formatPlantCard(match, -1) +
       `<button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
   } else {
-    identifyPlant(); // Prova con PlantID se non la trova nel database locale
+    identifyPlant();
   }
 }
 
@@ -85,25 +80,21 @@ function addToGarden(plant) {
 
   if (!myGarden.find(p => p.name === plant.name)) {
     myGarden.push(plant);
-    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    saveMyGarden();
     renderMyGarden();
-
-function removeFromGarden(name) {
-  myGarden = myGarden.filter(p => p.name !== name);
-  localStorage.setItem("myGarden", JSON.stringify(myGarden));
-  renderMyGarden();
-
-  async function translateToItalian(text) {
-  const res = await fetch("https://libretranslate.de/translate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      q: text,
-      source: "en",
-      target: "it",
-      format: "text"
-    })
-  });
-  const data = await res.json();
-  return data.translatedText;
+  }
 }
+
+function removeFromGarden(index) {
+  if (index >= 0) {
+    myGarden.splice(index, 1);
+    saveMyGarden();
+    renderMyGarden();
+  }
+}
+
+function saveMyGarden() {
+  // Qui ora il salvataggio vero (online) non funziona ancora, quindi per ora facciamo finta.
+  console.log("📦 Dati da salvare:", JSON.stringify(myGarden, null, 2));
+}
+
