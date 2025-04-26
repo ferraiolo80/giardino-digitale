@@ -21,6 +21,12 @@
   
   <h2>🌱 Il mio giardino</h2>
   <input type="text" id="filterInput" placeholder="Filtra per nome..." oninput="renderMyGarden()" style="margin-bottom: 1em; padding: 0.5em; width: 100%;">
+  <div style="margin-bottom: 1em;">
+  <label for="tempFilter">🌡️ Mostra solo piante adatte a temperature ≥ </label>
+  <input type="number" id="tempFilter" min="-10" max="50" value="" placeholder="es. 10" style="width: 4em;" oninput="renderMyGarden()">
+  °C
+</div>
+
   <div id="giardino"></div>
 
   <script src="app.js"></script>
