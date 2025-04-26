@@ -188,6 +188,48 @@ async function identifyPlant() {
     return;
   }
 
+  // Estraiamo i testi da tradurre
+  const englishSun = suggestion.plant_details?.sunlight?.[0] || "not specified";
+  const englishWater = suggestion.plant_details?.watering_general_benchmark?.value || "not specified";
+  const englishSoil = suggestion.plant_details?.soil_texture?.[0] || "not specified";
+
+  // Funzione per tradurre una stringa in italiano
+  async function translate(text) {
+    const res = await fetch("https://libretranslate.com/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        q: text,
+        source: "en",
+        target: "it",
+        format: "text"
+      })
+    });
+    const result = await res.json();
+    return result.translatedText || text;
+  }
+
+  // Traduciamo tutti i campi
+  const [sun, water, soil] = await Promise.all([
+    translate(englishSun),
+    translate(englishWater),
+    translate(englishSoil)
+  ]);
+
+  const pianta = {
+    name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
+    sun,
+    water,
+    soil
+  };
+
+  const container = document.getElementById("risultato");
+  document.getElementById("giardino").innerHTML = "";
+  container.innerHTML = formatPlantCard(pianta, -1) +
+    `<button onclick='addToGarden(${JSON.stringify(pianta).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
+}
+
+
   const pianta = {
     name: prompt("Nome da visualizzare per questa pianta:", suggestion.plant_name) || suggestion.plant_name,
     sun: suggestion.plant_details?.sunlight?.[0] || "non specificato",
