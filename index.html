@@ -3,33 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>Giardino Digitale</title>
-  </head>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
   <h1>🌿 Giardino Digitale</h1>
 
-  <h3>Cerca una pianta</h3>
-  <input type="text" id="searchInput" placeholder="Nome pianta">
-  <button onclick="searchPlant()">Cerca</button>
+  <section>
+    <h2>Cerca una pianta</h2>
+    <input type="text" id="searchInput" placeholder="Nome della pianta">
+    <button onclick="searchPlant()">Cerca</button>
+  </section>
 
-  <h3>oppure riconosci da foto</h3>
-  <input type="file" id="imageInput" accept="image/*">
-  <button onclick="identifyPlant()">Identifica</button>
+  <section>
+    <h2>Oppure riconosci da foto</h2>
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="identifyPlant()">Identifica</button>
+    <p id="identificaInfo" style="color: green; margin-top: 10px;"></p>
+  </section>
 
-  <div id="risultato"></div>
-  
+  <section id="risultato"></section>
+
   <button id="toggleGiardino">Nascondi il mio giardino</button>
-  
-  <h2>🌱 Il mio giardino</h2>
-  <input type="text" id="filterInput" placeholder="Filtra per nome..." oninput="renderMyGarden()" style="margin-bottom: 1em; padding: 0.5em; width: 100%;">
-  <div style="margin-bottom: 1em;">
-  <label for="tempFilter">🌡️ Mostra solo piante adatte a temperature ≥ </label>
-  <input type="number" id="tempFilter" min="-10" max="50" value="" placeholder="es. 10" style="width: 4em;" oninput="renderMyGarden()">
-  °C
-  </div>
 
-  <div id="giardino"></div>
+  <section id="giardinoSection">
+    <h2>🌱 Il mio giardino</h2>
 
-  <script src="app.js"></script>
+    <input type="text" id="filtroNome" placeholder="Filtra per nome..." oninput="filtraGiardino()">
+    <br><br>
+    <label>
+      <input type="checkbox" id="filtroTemperatura" onchange="filtraGiardino()"> 
+      Mostra solo piante adatte a temperature ≥ 
+    </label>
+    <input type="number" id="temperaturaMinima" value="10" style="width: 60px;" onchange="filtraGiardino()"> °C
+
+    <div id="giardino"></div>
+  </section>
+
   <script src="canvas.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
