@@ -97,8 +97,7 @@ function saveMyGarden() {
 }
 
 async function identifyPlant(event) {
-  const fileInput = document.getElementById('fileInput');
-  const file = fileInput.files[0];
+  const file = event.target.files[0];
   
   if (!file) {
     alert("⚠️ Nessun file selezionato.");
@@ -109,7 +108,7 @@ async function identifyPlant(event) {
   formData.append("images", file);
 
   try {
-    const res = await fetch("https://plant.id/api/v3/identify", {
+    const res = await fetch("https://api.plant.id/v2/identify", {
       method: "POST",
       headers: {
         "Api-Key": API_KEY
@@ -118,29 +117,40 @@ async function identifyPlant(event) {
     });
 
     const data = await res.json();
-    console.log("🌱 Risultato identificazione:", data);
+    console.log("🌿 Risposta API:", data);
 
     const container = document.getElementById("risultato");
     container.innerHTML = "";
 
     if (data.suggestions && data.suggestions.length > 0) {
       const plantName = data.suggestions[0].plant_name;
-      const found = plantsDB.find(p => p.name.toLowerCase() === plantName.toLowerCase());
+      const match = plantsDB.find(p => p.name.toLowerCase() === plantName.toLowerCase());
 
-      if (found) {
-        container.innerHTML = formatPlantCard(found, -1) +
-          `<button onclick='addToGarden(${JSON.stringify(found).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
+      if (match) {
+        container.innerHTML = `
+          <div class="pianta">
+            <h3>${match.name}</h3>
+            <p>☀️ Luce: ${match.sunlight || match.sun}</p>
+            <p>💧 Acqua: ${match.watering || match.water}</p>
+            <p>🌡️ Temperatura: ${match.temperature}</p>
+            <button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>
+          </div>
+        `;
       } else {
-        container.innerHTML = `🌱 Pianta identificata: <b>${plantName}</b><br>Non è presente nel database interno.`;
+        container.innerHTML = `
+          🌱 Pianta riconosciuta: <b>${plantName}</b><br>
+          (Non presente nel database interno.)
+        `;
       }
     } else {
-      container.innerHTML = "❌ Nessuna pianta riconosciuta. Riprova con una foto più chiara!";
+      container.innerHTML = "❌ Nessuna pianta riconosciuta. Prova a scattare una foto più chiara!";
     }
   } catch (error) {
-    console.error("Errore identificazione:", error);
+    console.error("Errore nella richiesta:", error);
     alert("🚨 Errore durante il riconoscimento della pianta. Riprova.");
   }
 }
+
 
 function filterByTemperature() {
   const minTemp = parseFloat(document.getElementById("minTemp").value);
