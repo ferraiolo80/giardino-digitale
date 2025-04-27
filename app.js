@@ -61,11 +61,28 @@ function searchPlant() {
   container.innerHTML = "";
 
   if (match) {
-    container.innerHTML = formatPlantCard(match, -1) +
-      `<button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>`;
-  } else {
-    document.getElementById('fileInput').click();
-  }
+  container.innerHTML = `
+    <div class="pianta">
+      <h3>${match.name}</h3>
+      <p>☀️ Luce: ${match.sunlight || match.sun}</p>
+      <p>💧 Acqua: ${match.watering || match.water}</p>
+      <p>🌡️ Temperatura: ${match.temperature}</p>
+      <button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>
+    </div>
+  `;
+} else {
+  // Se la pianta è riconosciuta ma non nel database
+  const newPlant = {
+    name: plantName,
+    sunlight: "Informazioni da completare",
+    watering: "Informazioni da completare",
+    temperature: "Informazioni da completare"
+  };
+
+  container.innerHTML = `
+    🌱 Pianta riconosciuta: <b>${plantName}</b> (non presente nel database interno.)<br><br>
+    <button onclick='addToGarden(${JSON.stringify(newPlant).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>
+  `;
 }
 
 function addToGarden(plant) {
