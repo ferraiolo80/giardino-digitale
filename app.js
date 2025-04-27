@@ -1,200 +1,107 @@
-const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
-let plantsDB = [];
-let myGarden = [];
-let gardenVisible = true;
+// app.js
 
-window.onload = async () => {
-  const plantsRes = await fetch("plants.json");
-  plantsDB = await plantsRes.json();
-  
-  const gardenRes = await fetch("myGarden.json");
-  myGarden = await gardenRes.json();
+let piante = [];
 
-  renderMyGarden();
-  setupToggleGarden();
-};
-
-function setupToggleGarden() {
-  const btn = document.getElementById("toggleGiardino");
-  if (btn) {
-    btn.onclick = () => {
-      gardenVisible = !gardenVisible;
-      document.getElementById("giardino").style.display = gardenVisible ? "block" : "none";
-      btn.innerText = gardenVisible ? "Nascondi il mio giardino" : "Mostra il mio giardino";
-    };
-  }
-}
-
-function renderMyGarden() {
-  const container = document.getElementById("giardino");
-  if (!container) return;
-  container.innerHTML = "";
-  myGarden.forEach((plant, index) => {
-    container.innerHTML += formatPlantCard(plant, index);
-  });
-}
-
-function formatPlantCard(plant, index) {
-  return `
-    <div class="pianta">
-      <input type="text" value="${plant.name}" onchange="updatePlantField(${index}, 'name', this.value)">
-      <div>☀️ Luce: <input type="text" value="${plant.sunlight || plant.sun || "?"}" onchange="updatePlantField(${index}, 'sunlight', this.value)"></div>
-      <div>💧 Acqua: <input type="text" value="${plant.watering || plant.water || "?"}" onchange="updatePlantField(${index}, 'watering', this.value)"></div>
-      <div>🌡️ Temperatura Min: <input type="text" value="${plant.tempMin || "?"}" onchange="updatePlantField(${index}, 'tempMin', this.value)"> °C</div>
-      <div>🌡️ Temperatura Max: <input type="text" value="${plant.tempMax || "?"}" onchange="updatePlantField(${index}, 'tempMax', this.value)"> °C</div>
-      <button onclick='removeFromGarden(${index})'>Rimuovi</button>
-    </div>`;
-}
-
-function updatePlantField(index, field, value) {
-  if (index >= 0) {
-    myGarden[index][field] = value;
-    saveMyGarden();
-    renderMyGarden();
-  }
-}
-
-function searchPlant() {
-  const query = document.getElementById("searchInput").value.toLowerCase();
-  const match = plantsDB.find(p => p.name.toLowerCase() === query);
-  const container = document.getElementById("risultato");
-  container.innerHTML = "";
-
-  if (match) {
-  container.innerHTML = `
-    <div class="pianta">
-      <h3>${match.name}</h3>
-      <p>☀️ Luce: ${match.sunlight || match.sun}</p>
-      <p>💧 Acqua: ${match.watering || match.water}</p>
-      <p>🌡️ Temperatura: ${match.temperature}</p>
-      <button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>
-    </div>
-  `;
-} else {
-  const newPlant = {
-    name: plantName,
-    sunlight: "Informazioni da completare",
-    watering: "Informazioni da completare",
-    temperature: "Informazioni da completare"
-  };
-
-  container.innerHTML = `
-    🌱 Pianta riconosciuta: <b>${plantName}</b> (non presente nel database interno.)<br><br>
-    <button onclick='addToGarden(${JSON.stringify(newPlant).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>
-  `;
-}
-
-function addToGarden(plant) {
-  if (typeof plant === "string") {
+async function caricaDati() {
     try {
-      plant = JSON.parse(plant);
-    } catch (e) {
-      console.error("Errore nel parsing della pianta:", e);
-      return;
+        const response = await fetch('plants.json');
+        piante = await response.json();
+        mostraGiardino(piante);
+    } catch (error) {
+        console.error('Errore nel caricamento dei dati:', error);
     }
-  }
-  if (!myGarden.find(p => p.name === plant.name)) {
-    myGarden.push(plant);
-    saveMyGarden();
-    renderMyGarden();
-  }
 }
 
-function removeFromGarden(index) {
-  if (index >= 0) {
-    myGarden.splice(index, 1);
-    saveMyGarden();
-    renderMyGarden();
-  }
-}
+function mostraGiardino(listaPiante) {
+    const container = document.getElementById('giardino');
+    container.innerHTML = '';
 
-function saveMyGarden() {
-  console.log("📦 Dati salvati:", JSON.stringify(myGarden, null, 2));
-}
-
-async function identifyPlant(event) {
-  const file = event.target.files[0];
-  
-  if (!file) {
-    alert("⚠️ Nessun file selezionato.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("images", file);
-
-  try {
-    const res = await fetch("https://api.plant.id/v2/identify", {
-      method: "POST",
-      headers: {
-        "Api-Key": API_KEY
-      },
-      body: formData
+    listaPiante.forEach(pianta => {
+        const card = document.createElement('div');
+        card.className = 'pianta';
+        card.innerHTML = `
+            <h3>${pianta.name}</h3>
+            <p><strong>Luce:</strong> ${pianta.sunlight}</p>
+            <p><strong>Acqua:</strong> ${pianta.watering}</p>
+            <p><strong>Temperatura:</strong> ${pianta.temperature_min}&deg;C - ${pianta.temperature_max}&deg;C</p>
+        `;
+        container.appendChild(card);
     });
+}
 
-    const data = await res.json();
-    console.log("🌿 Risposta API:", data);
+document.getElementById('cercaPianta').addEventListener('click', async () => {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    if (!query) return;
 
-    const container = document.getElementById("risultato");
-    container.innerHTML = "";
-
-    if (data.suggestions && data.suggestions.length > 0) {
-      const plantName = data.suggestions[0].plant_name;
-      const match = plantsDB.find(p => p.name.toLowerCase() === plantName.toLowerCase());
-
-      if (match) {
-        container.innerHTML = `
-          <div class="pianta">
-            <h3>${match.name}</h3>
-            <p>☀️ Luce: ${match.sunlight || match.sun}</p>
-            <p>💧 Acqua: ${match.watering || match.water}</p>
-            <p>🌡️ Temperatura: ${match.temperature}</p>
-            <button onclick='addToGarden(${JSON.stringify(match).replace(/'/g, "\\'")})'>Salva nel mio giardino</button>
-          </div>
-        `;
-      } else {
-        container.innerHTML = `
-          🌱 Pianta riconosciuta: <b>${plantName}</b><br>
-          (Non presente nel database interno.)
-        `;
-      }
+    const pianta = piante.find(p => p.name.toLowerCase() === query);
+    if (pianta) {
+        mostraGiardino([pianta]);
     } else {
-      container.innerHTML = "❌ Nessuna pianta riconosciuta. Prova a scattare una foto più chiara!";
+        document.getElementById('fileInput').click();
     }
-  } catch (error) {
-    console.error("Errore nella richiesta:", error);
-    alert("🚨 Errore durante il riconoscimento della pianta. Riprova.");
-  }
-}
+});
 
+document.getElementById('fileInput').addEventListener('change', async () => {
+    const file = document.getElementById('fileInput').files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
 
-function filterByTemperature() {
-  const minTemp = parseFloat(document.getElementById("minTemp").value);
-  const maxTemp = parseFloat(document.getElementById("maxTemp").value);
+        try {
+            const response = await fetch('https://api.plant.id/v2/identify', {
+                method: 'POST',
+                headers: {
+                    'Api-Key': 'YOUR_API_KEY'
+                },
+                body: formData
+            });
 
-  if (isNaN(minTemp) || isNaN(maxTemp)) {
-    alert("⚠️ Inserisci temperature valide!");
-    return;
-  }
+            const data = await response.json();
+            const nomePianta = data?.suggestions?.[0]?.plant_name;
 
-  const filtered = plantsDB.filter(plant => {
-    if (!plant.temperature) return false;
-    const tempRange = plant.temperature.split("-").map(t => parseFloat(t));
-    if (tempRange.length !== 2) return false;
-    const [min, max] = tempRange;
-    return min <= maxTemp && max >= minTemp;
-  });
+            if (nomePianta) {
+                const risultato = document.getElementById('risultato');
+                risultato.innerHTML = `<p>\ud83c\udf31 Pianta riconosciuta: <strong>${nomePianta}</strong><br>(Non presente nel database interno.)</p>`;
+            } else {
+                alert('Pianta non riconosciuta. Prova un'altra foto!');
+            }
+        } catch (error) {
+            console.error('Errore nell'identificazione della pianta:', error);
+        }
+    }
+});
 
-  const container = document.getElementById("risultato");
-  container.innerHTML = "";
+document.getElementById('filtraTemperatura').addEventListener('click', () => {
+    const tempMin = parseFloat(document.getElementById('temperaturaMin').value);
+    const tempMax = parseFloat(document.getElementById('temperaturaMax').value);
 
-  if (filtered.length > 0) {
-    filtered.forEach(plant => {
-      container.innerHTML += formatPlantCard(plant, -1) +
-        `<button onclick='addToGarden(${JSON.stringify(plant).replace(/'/g, "\\'")})'>Salva nel mio giardino</button><br/><br/>`;
+    if (isNaN(tempMin) || isNaN(tempMax)) {
+        alert('Inserisci valori validi per temperatura minima e massima.');
+        return;
+    }
+
+    const pianteFiltrate = piante.filter(p => {
+        return p.temperature_min !== undefined && p.temperature_max !== undefined &&
+               p.temperature_min >= tempMin && p.temperature_max <= tempMax;
     });
-  } else {
-    container.innerHTML = "❌ Nessuna pianta adatta trovata.";
-  }
-}
+
+    if (pianteFiltrate.length === 0) {
+        alert('Nessuna pianta adatta trovata.');
+    }
+
+    mostraGiardino(pianteFiltrate);
+});
+
+document.getElementById('toggleGiardino').addEventListener('click', () => {
+    const giardino = document.getElementById('sezioneGiardino');
+    if (giardino.style.display === 'none') {
+        giardino.style.display = 'block';
+        document.getElementById('toggleGiardino').textContent = 'Nascondi il mio giardino';
+    } else {
+        giardino.style.display = 'none';
+        document.getElementById('toggleGiardino').textContent = 'Mostra il mio giardino';
+    }
+});
+
+window.onload = caricaDati;
 
