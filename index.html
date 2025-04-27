@@ -2,40 +2,36 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Giardino Digitale</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <h1>🌱 Giardino Digitale</h1>
 
-  <h1>🌱 Giardino Digitale 🌱</h1>
+  <div class="search-section">
+    <input type="text" id="searchInput" placeholder="Cerca una pianta...">
+    <button onclick="searchPlant()">Cerca</button>
+    <button onclick="document.getElementById('fileInput').click()">Identifica da foto</button>
+    <input type="file" id="fileInput" accept="image/*" onchange="identifyPlant(event)" style="display:none;">
+  </div>
 
-  <input type="text" id="searchInput" placeholder="Cerca pianta per nome...">
-  <button onclick="searchPlant()">Cerca</button>
-  
-  <br><br>
-
-  <label>Temperatura minima (°C):</label>
-  <input type="number" id="tempMin" placeholder="es. 10">
-  
-  <label>Temperatura massima (°C):</label>
-  <input type="number" id="tempMax" placeholder="es. 25">
-  
-  <button onclick="filterByTemperature()">Mostra piante adatte</button>
-
-  <br><br>
-
-  <input type="file" id="fileInput" accept="image/*" onchange="identifyPlant(event)" style="display:none;">
-  <button onclick="document.getElementById('fileInput').click()">📷 Identifica da Foto</button>
-
-  <br><br>
+  <div class="filter-section">
+    <label>🌡️ Temperatura minima:
+      <input type="number" id="minTemp" placeholder="°C">
+    </label>
+    <label>🌡️ Temperatura massima:
+      <input type="number" id="maxTemp" placeholder="°C">
+    </label>
+    <button onclick="filterByTemperature()">Filtra</button>
+  </div>
 
   <div id="risultato"></div>
-  
-  <button id="toggleGiardino">Nascondi il mio giardino</button>
+
+  <h2 id="toggleGiardino">Nascondi il mio giardino</h2>
   <div id="giardino"></div>
 
   <script src="app.js"></script>
-  <script src="canvas.js"></script>
-
 </body>
 </html>
+
