@@ -2,49 +2,57 @@
   {
     "name": "Ortensia",
     "sunlight": "Mezz’ombra",
-    "watering": "Terreno umido, annaffiare regolarmente"
-    "temperature": "10-22°C"
+    "watering": "Terreno umido, annaffiare regolarmente",
+    "temperature_min": 10,
+    "temperature_max": 22
   },
   {
     "name": "Basilico",
     "sunlight": "Sole pieno",
-    "watering": "Annaffiare ogni 1-2 giorni"
-    "temperature": "20-30°C"
+    "watering": "Annaffiare ogni 1-2 giorni",
+    "temperature_min": 20,
+    "temperature_max": 30
   },
   {
     "name": "Aloe Vera",
     "sunlight": "Luce intensa, non diretta",
-    "watering": "Poca acqua, ogni 2 settimane"
-    "temperature": "15-25°C"
+    "watering": "Poca acqua, ogni 2 settimane",
+    "temperature_min": 15,
+    "temperature_max": 25
   },
   {
     "name": "Azalea",
     "sunlight": "Mezz’ombra, evitare sole diretto",
-    "watering": "Terreno costantemente umido, mai secco"
-    "temperature": "8-16°C"
+    "watering": "Terreno costantemente umido, mai secco",
+    "temperature_min": 8,
+    "temperature_max": 16
   },
   {
     "name": "Lavanda",
     "sunlight": "Sole pieno",
-    "watering": "Poca acqua, terreno ben drenato"
-    "temperature": "5-35°C"
+    "watering": "Poca acqua, terreno ben drenato",
+    "temperature_min": 5,
+    "temperature_max": 35
   },
   {
     "name": "Geranio",
     "sunlight": "Sole pieno",
-    "watering": "Poca acqua, terreno ben drenato e possibilmente dopo il tramonto"
-    "temperature": "15-25°C"
-  }
+    "watering": "Poca acqua, terreno ben drenato e possibilmente dopo il tramonto",
+    "temperature_min": 15,
+    "temperature_max": 25
+  },
   {
     "name": "Ficus",
-    "sun": "luce indiretta",
-    "water": "una volta a settimana",
-    "temperature": "18-24°C"
+    "sunlight": "Luce indiretta",
+    "watering": "Una volta a settimana",
+    "temperature_min": 18,
+    "temperature_max": 24
   },
   {
     "name": "Sansevieria",
-    "sun": "luce media o bassa",
-    "water": "una volta al mese",
-    "temperature": "13-27°C"
+    "sunlight": "Luce media o bassa",
+    "watering": "Una volta al mese",
+    "temperature_min": 13,
+    "temperature_max": 27
   }
 ]
