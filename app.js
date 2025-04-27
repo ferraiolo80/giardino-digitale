@@ -71,7 +71,6 @@ function searchPlant() {
     </div>
   `;
 } else {
-  // Se la pianta è riconosciuta ma non nel database
   const newPlant = {
     name: plantName,
     sunlight: "Informazioni da completare",
