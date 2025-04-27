@@ -6,40 +6,36 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🌿 Giardino Digitale</h1>
 
-  <section>
-    <h2>Cerca una pianta</h2>
-    <input type="text" id="searchInput" placeholder="Nome della pianta">
-    <button onclick="searchPlant()">Cerca</button>
-  </section>
+  <h1>🌱 Giardino Digitale 🌱</h1>
 
-  <section>
-    <h2>Oppure riconosci da foto</h2>
-    <input type="file" id="fileInput" accept="image/*">
-    <button onclick="identifyPlant()">Identifica</button>
-    <p id="identificaInfo" style="color: green; margin-top: 10px;"></p>
-  </section>
+  <input type="text" id="searchInput" placeholder="Cerca pianta per nome...">
+  <button onclick="searchPlant()">Cerca</button>
+  
+  <br><br>
 
-  <section id="risultato"></section>
+  <label>Temperatura minima (°C):</label>
+  <input type="number" id="tempMin" placeholder="es. 10">
+  
+  <label>Temperatura massima (°C):</label>
+  <input type="number" id="tempMax" placeholder="es. 25">
+  
+  <button onclick="filterByTemperature()">Mostra piante adatte</button>
 
+  <br><br>
+
+  <input type="file" id="fileInput" accept="image/*" onchange="identifyPlant(event)" style="display:none;">
+  <button onclick="document.getElementById('fileInput').click()">📷 Identifica da Foto</button>
+
+  <br><br>
+
+  <div id="risultato"></div>
+  
   <button id="toggleGiardino">Nascondi il mio giardino</button>
+  <div id="giardino"></div>
 
-  <section id="giardinoSection">
-    <h2>🌱 Il mio giardino</h2>
-
-    <input type="text" id="filtroNome" placeholder="Filtra per nome..." oninput="filtraGiardino()">
-    <br><br>
-    <label>
-      <input type="checkbox" id="filtroTemperatura" onchange="filtraGiardino()"> 
-      Mostra solo piante adatte a temperature ≥ 
-    </label>
-    <input type="number" id="temperaturaMinima" value="10" style="width: 60px;" onchange="filtraGiardino()"> °C
-
-    <div id="giardino"></div>
-  </section>
-
-  <script src="canvas.js"></script>
   <script src="app.js"></script>
+  <script src="canvas.js"></script>
+
 </body>
 </html>
