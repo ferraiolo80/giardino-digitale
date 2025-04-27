@@ -173,4 +173,3 @@ function filterByTemperature() {
     resultContainer.innerText = "Nessuna pianta adatta trovata.";
   }
 }
-
