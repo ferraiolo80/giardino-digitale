@@ -1,40 +1,49 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Giardino Digitale</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giardino Digitale</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🌱 Giardino Digitale</h1>
+    <header>
+        <h1>🌱 Giardino Digitale</h1>
+    </header>
 
-  <div class="search-section">
-    <input type="text" id="searchInput" placeholder="Cerca una pianta...">
-    <button onclick="searchPlant()">Cerca</button>
-    <button onclick="document.getElementById('fileInput').click()">Identifica da foto</button>
-    <input type="file" id="fileInput" accept="image/*" onchange="identifyPlant(event)" style="display:none;">
-  </div>
+    <main>
+        <section class="search-section">
+            <input type="text" id="searchInput" placeholder="Cerca una pianta...">
+            <button onclick="searchPlant()">Cerca</button>
+            <button onclick="triggerPhotoIdentification()">Identifica da foto</button>
 
-  <div class="filter-section">
-    <label>🌡️ Temperatura minima:
-      <input type="number" id="minTemp" placeholder="°C">
-    </label>
-    <label>🌡️ Temperatura massima:
-      <input type="number" id="maxTemp" placeholder="°C">
-    </label>
-    <button onclick="filterByTemperature()">Filtra</button>
-  </div>
+            <div class="temperature-filter">
+                <label>🖊️ Temperatura minima:
+                    <input type="number" id="minTemp" placeholder="°C">
+                </label>
+                <label>🖊️ Temperatura massima:
+                    <input type="number" id="maxTemp" placeholder="°C">
+                </label>
+                <button onclick="filterByTemperature()">Filtra</button>
+            </div>
+        </section>
 
-  <div id="risultato"></div>
+        <section id="photoSection" style="display: none;">
+            <input type="file" id="photoInput" accept="image/*">
+            <button onclick="identifyPlant()">Identifica</button>
+        </section>
 
-  <button id="toggleGiardino" class="bottone-toggle">Nascondi il mio giardino</button>
+        <section id="plantDetails"></section>
 
-  <h2>🌱 Il mio giardino</h2>
+        <section id="gardenSection">
+            <h2>🌿 Il mio giardino</h2>
+            <input type="text" id="filterInput" oninput="filterPlants()" placeholder="Filtra per nome...">
+            <ul id="gardenList"></ul>
+            <button onclick="toggleGarden()" id="toggleGardenButton">Nascondi il mio giardino</button>
+        </section>
+    </main>
 
-  <div id="giardino"></div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
 
