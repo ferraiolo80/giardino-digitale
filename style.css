@@ -54,3 +54,16 @@ button:hover {
 #toggleGiardino:hover {
   background: #1976D2;
 }
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #f0f0f0;
+  color: #333;
+  text-align: center;
+  padding: 1em;
+  font-weight: bold;
+  z-index: 1000;
+}
+
