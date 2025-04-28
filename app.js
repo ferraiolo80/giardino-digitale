@@ -147,25 +147,35 @@ function removeFromGarden(index) {
 }
 
 function filterByTemperature() {
-  const min = parseInt(document.getElementById("tempMinFilter").value);
-  const max = parseInt(document.getElementById("tempMaxFilter").value);
+  const tempMin = parseFloat(document.getElementById("tempMinFilter").value);
+  const tempMax = parseFloat(document.getElementById("tempMaxFilter").value);
 
-  const risultato = document.getElementById("risultato");
-  risultato.innerHTML = "";
+  if (isNaN(tempMin) || isNaN(tempMax)) {
+    alert("Inserisci temperature valide!");
+    return;
+  }
 
-  const filtered = plants.filter(p => {
-    if (p.tempMin != null && p.tempMax != null) {
-      return p.tempMin <= max && p.tempMax >= min;
+  const filteredPlants = plants.filter(plant => {
+    const min = parseFloat(plant.tempMin);
+    const max = parseFloat(plant.tempMax);
+    if (isNaN(min) || isNaN(max)) {
+      return false; // Se mancano dati sulla temperatura, escludi
     }
-    return false;
+    return min >= tempMin && max <= tempMax;
   });
 
-  if (filtered.length > 0) {
-    filtered.forEach(plant => renderPlant(plant));
+  const container = document.getElementById("risultato");
+  container.innerHTML = "";
+
+  if (filteredPlants.length === 0) {
+    container.innerHTML = "<p>Nessuna pianta adatta trovata.</p>";
   } else {
-    risultato.innerHTML = "<p>Nessuna pianta adatta trovata.</p>";
+    filteredPlants.forEach((plant, index) => {
+      createPlantCard(plant, index, container);
+    });
   }
 }
+
 
 function identifyPlant() {
   document.getElementById("fileInput").click();
