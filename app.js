@@ -35,15 +35,16 @@ function renderMyGarden() {
   });
 }
 
-function formatPlantCard(plant, index) {
+function formatPlantCard(plant, index, inGarden = false) {
   return `
-    <div class="pianta">
+    <div class="pianta" style="margin-bottom: 1em;">
       <input type="text" value="${plant.name}" onchange="updatePlantField(${index}, 'name', this.value)"><br/>
-      ☀️ Luce: <input type="text" value="${plant.sunlight || plant.sun || '?'}" onchange="updatePlantField(${index}, 'sunlight', this.value)"><br/>
-      💧 Acqua: <input type="text" value="${plant.watering || plant.water || '?'}" onchange="updatePlantField(${index}, 'watering', this.value)"><br/>
-      🌡️ Temperatura Min: <input type="text" value="${plant.tempMin || '?'}" onchange="updatePlantField(${index}, 'tempMin', this.value)"><br/>
-      🌡️ Temperatura Max: <input type="text" value="${plant.tempMax || '?'}" onchange="updatePlantField(${index}, 'tempMax', this.value)"><br/>
-      <button onclick="removeFromGarden(${index})">Rimuovi</button>
+      <div style="margin-top: 0.5em;">☀️ Luce: <input type="text" value="${plant.sunlight || plant.sun || "?"}" onchange="updatePlantField(${index}, 'sunlight', this.value)"></div>
+      <div style="margin-top: 0.5em;">💧 Acqua: <input type="text" value="${plant.watering || plant.water || "?"}" onchange="updatePlantField(${index}, 'watering', this.value)"></div>
+      <div style="margin-top: 0.5em;">🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"></div>
+      <div style="margin-top: 0.5em;">🌡️ Temperatura Min: <input type="text" value="${plant.tempMin || "?"}" onchange="updatePlantField(${index}, 'tempMin', this.value)"></div>
+      <div style="margin-top: 0.5em;">🌡️ Temperatura Max: <input type="text" value="${plant.tempMax || "?"}" onchange="updatePlantField(${index}, 'tempMax', this.value)"></div>
+      ${inGarden ? `<button style="margin-top: 0.5em;" onclick="removeFromGarden(${index})">Rimuovi</button>` : ""}
     </div>`;
 }
 
