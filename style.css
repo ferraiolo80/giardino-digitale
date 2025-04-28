@@ -1,131 +1,56 @@
-/* Reset di base */
-body, h1, h2, h3, h4, h5, h6, p, ul {
-  margin: 0;
-  padding: 0;
-}
-
-/* Corpo della pagina */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f9f4;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f0f8ff;
   color: #333;
-  padding: 20px;
 }
 
-/* Titolo principale */
 h1 {
-  font-size: 2em;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #2e7d32;
+  text-align: center;
 }
 
-/* Sezione di ricerca */
-.search-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  align-items: center;
-}
-
-.search-section input[type="text"] {
-  padding: 8px;
-  font-size: 1em;
-  flex: 1;
-  min-width: 200px;
-}
-
-.search-section button {
-  padding: 8px 16px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.search-section button:hover {
-  background-color: #45a049;
-}
-
-/* Sezione filtri */
-.filter-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.filter-section label {
-  font-weight: bold;
-}
-
-.filter-section input[type="number"] {
-  width: 80px;
-  padding: 5px;
-}
-
-/* Bottone filtra */
-#filterButton {
-  padding: 6px 12px;
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#filterButton:hover {
-  background-color: #1976D2;
-}
-
-/* Risultato identificazione */
-#searchResult {
+.search-container, .filter-container {
   margin: 20px 0;
-  font-size: 1.1em;
+  text-align: center;
 }
 
-#searchResult strong {
-  color: #2e7d32;
-}
-
-/* Giardino */
-#gardenSection {
+#risultato, #giardino {
   margin-top: 30px;
-  padding: 20px;
-  background-color: #e8f5e9;
+}
+
+.pianta {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: white;
   border-radius: 10px;
 }
 
-#gardenTitle {
-  font-size: 1.5em;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #2e7d32;
+input[type="text"], input[type="number"] {
+  padding: 8px;
+  margin: 5px 0;
+  width: 90%;
+  max-width: 300px;
 }
 
-/* Lista piante nel giardino */
-#gardenList {
-  margin-top: 10px;
-}
-
-/* Pulsante Nascondi il mio giardino */
-#toggleGardenButton {
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #81c784;
+button {
+  padding: 10px 20px;
+  margin: 10px 5px;
+  background: #4CAF50;
   color: white;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 5px;
 }
 
-#toggleGardenButton:hover {
-  background-color: #66bb6a;
+button:hover {
+  background: #45a049;
+}
+
+#toggleGiardino {
+  background: #2196F3;
+}
+
+#toggleGiardino:hover {
+  background: #1976D2;
 }
