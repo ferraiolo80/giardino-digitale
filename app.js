@@ -1,6 +1,29 @@
 const API_KEY = "maF4AdHcoe2hZpxT7aMYwWcLCCNVarvNf0ux5b92et15OeRmCf";
 let plantsDB = [];
 let myGarden = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Prima prova a caricare dal localStorage
+  const storedGarden = localStorage.getItem('myGarden');
+  if (storedGarden) {
+    myGarden = JSON.parse(storedGarden);
+    renderMyGarden();
+  }
+
+  // Poi prova a caricare da Firebase
+  const userGardenRef = db.collection('myGarden');
+  userGardenRef.get().then((snapshot) => {
+    myGarden = [];
+    snapshot.forEach((doc) => {
+      myGarden.push(doc.data());
+    });
+    saveMyGarden();  // aggiorna anche il localStorage
+    renderMyGarden();
+  }).catch((error) => {
+    console.error("Errore nel caricamento da Firebase:", error);
+  });
+});
+
 let gardenVisible = true;
 
 window.onload = async () => {
