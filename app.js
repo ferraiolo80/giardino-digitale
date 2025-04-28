@@ -31,7 +31,7 @@ function renderMyGarden() {
   if (!container) return;
   container.innerHTML = "";
   myGarden.forEach((plant, index) => {
-    container.innerHTML += formatPlantCard(plant, index);
+    container.innerHTML += formatPlantCard(plant, index, true); // Qui passiamo true!
   });
 }
 
