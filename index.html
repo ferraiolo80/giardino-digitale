@@ -30,11 +30,12 @@
 
   <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
 
-  <!-- Firebase SDK -->
+  <!-- Librerie Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
   <script>
-    // Configurazione Firebase
+    // Configura Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
       authDomain: "giardinodigitale.firebaseapp.com",
@@ -45,12 +46,13 @@
     };
 
     // Inizializza Firebase
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
   </script>
 
-  <!-- Tuo script app -->
+  <!-- I tuoi script -->
   <script src="canvas.js"></script>
   <script src="app.js"></script>
+
 </body>
 </html>
