@@ -54,6 +54,14 @@ function renderMyGarden() {
   });
 }
 
+function removeFromGarden(index) {
+  if (index >= 0 && index < myGarden.length) {
+    myGarden.splice(index, 1);
+    saveMyGarden();
+    renderMyGarden();
+  }
+}
+
 function formatPlantCard(plant, index, inGarden = false) {
   return `
     <div class="pianta" style="margin-bottom: 1em;">
