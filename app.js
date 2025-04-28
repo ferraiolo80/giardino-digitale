@@ -84,5 +84,19 @@ function updatePlantField(index, field, value) {
 }
 
 function saveMyGarden() {
-  console.log("📦 Dati da salvare:", JSON.stringify(myGarden, null, 2));
+  localStorage.setItem('myGarden', JSON.stringify(myGarden));
+
+  // Salva anche su Firebase
+  const userGardenRef = db.collection('myGarden');
+  // Prima cancella tutto il vecchio giardino
+  userGardenRef.get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+      doc.ref.delete();
+    });
+    // Poi salva le piante attuali
+    myGarden.forEach(plant => {
+      userGardenRef.add(plant);
+    });
+  });
 }
+
