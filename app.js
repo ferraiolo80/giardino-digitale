@@ -106,20 +106,30 @@ function updatePlantField(index, field, value) {
   }
 }
 
-function saveMyGarden() {
-  localStorage.setItem('myGarden', JSON.stringify(myGarden));
+// Salva "Il mio Giardino" su Firebase
+async function saveMyGarden() {
+  try {
+    const gardenRef = db.collection("myGarden");
+    const snapshot = await gardenRef.get();
 
-  // Salva anche su Firebase
-  const userGardenRef = db.collection('myGarden');
-  // Prima cancella tutto il vecchio giardino
-  userGardenRef.get().then((snapshot) => {
-    snapshot.forEach((doc) => {
-      doc.ref.delete();
+    // Cancella tutto quello che c'era prima
+    const batch = db.batch();
+    snapshot.forEach(doc => {
+      batch.delete(doc.ref);
     });
-    // Poi salva le piante attuali
+    await batch.commit();
+
+    // Carica di nuovo le piante aggiornate
+    const newBatch = db.batch();
     myGarden.forEach(plant => {
-      userGardenRef.add(plant);
+      const newDoc = gardenRef.doc();
+      newBatch.set(newDoc, plant);
     });
-  });
+    await newBatch.commit();
+
+    console.log("Giardino salvato su Firebase!");
+  } catch (error) {
+    console.error("Errore nel salvataggio del giardino su Firebase:", error);
+  }
 }
 
