@@ -1,3 +1,12 @@
+// Funzioni per mostrare/nascondere il loader
+function showLoader() {
+  document.getElementById('loader').style.display = 'block';
+}
+
+function hideLoader() {
+  document.getElementById('loader').style.display = 'none';
+}
+
 let plants = [];
 let myGarden = [];
 
@@ -200,3 +209,21 @@ function handleFile(event) {
   };
   reader.readAsDataURL(file);
 }
+const toggleButton = document.getElementById('toggleGiardino');
+const giardinoDiv = document.getElementById('giardino');
+const giardinoTitle = document.getElementById('giardinoTitle');
+
+if (toggleButton && giardinoDiv && giardinoTitle) {
+  toggleButton.addEventListener('click', () => {
+    if (giardinoDiv.style.display === 'none') {
+      giardinoDiv.style.display = 'block';
+      giardinoTitle.style.display = 'block';
+      toggleButton.textContent = 'Nascondi il mio giardino';
+    } else {
+      giardinoDiv.style.display = 'none';
+      giardinoTitle.style.display = 'none';
+      toggleButton.textContent = 'Mostra il mio giardino';
+    }
+  });
+}
+
