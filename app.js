@@ -1,277 +1,138 @@
-// Funzioni per mostrare/nascondere il loader
-function showLoader() {
-  document.getElementById('loader').style.display = 'block';
-}
+// === VARIABILI GLOBALI ===
+const plants = [];
+const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+const gardenContainer = document.getElementById("garden-container");
+const searchInput = document.getElementById("searchInput");
+const categoryFilter = document.getElementById("categoryFilter");
+const tempFilter = document.getElementById("tempFilter");
 
-function hideLoader() {
-  document.getElementById('loader').style.display = 'none';
-}
+// === FUNZIONI DI RENDERING ===
+function renderPlants(plantArray) {
+  gardenContainer.innerHTML = "";
+  plantArray.forEach((plant) => {
+    const plantCard = document.createElement("div");
+    plantCard.className = "plant-card";
 
-let plants = [];
-let myGarden = [];
+    plantCard.innerHTML = `
+      <h3>${plant.name}</h3>
+      <p><strong>Categoria:</strong> ${plant.category}</p>
+      <p><strong>Luce:</strong> ${plant.light}</p>
+      <p><strong>Acqua:</strong> ${plant.water}</p>
+      <p><strong>Temperatura ideale:</strong> ${plant.temperature}°C</p>
+      ${
+        plant.description
+          ? `<p><strong>Descrizione:</strong> ${plant.description}</p>`
+          : ""
+      }
+      ${
+        plant.image
+          ? `<img src="${plant.image}" alt="${plant.name}" width="100">`
+          : ""
+      }
+      <button onclick="addToMyGarden('${plant.name}')">Aggiungi al mio giardino</button>
+    `;
 
-async function loadPlants() {
-  try {
-    const response = await fetch("plants.json");
-    plants = await response.json();
-  } catch (error) {
-    console.error("Errore nel caricamento di plants.json:", error);
-  }
-}
-
-loadPlants();
-
-// 🔵 Carica il giardino da Firebase
-async function loadMyGardenFromFirebase() {
-  try {
-    const snapshot = await db.collection("myGarden").get();
-    myGarden = snapshot.docs.map(doc => doc.data());
-    renderMyGarden();
-    console.log("Giardino caricato da Firebase!");
-  } catch (error) {
-    console.error("Errore nel caricamento del giardino da Firebase:", error);
-  }
-}
-
-// Chiama subito
-loadMyGardenFromFirebase();
-
-async function saveMyGarden() {
-  try {
-    const gardenRef = db.collection("myGarden");
-    const snapshot = await gardenRef.get();
-
-    // Cancella tutto
-    const batch = db.batch();
-    snapshot.forEach(doc => {
-      batch.delete(doc.ref);
-    });
-    await batch.commit();
-
-    // Risalva il nuovo giardino
-    const newBatch = db.batch();
-    myGarden.forEach(plant => {
-      const newDoc = gardenRef.doc();
-      newBatch.set(newDoc, plant);
-    });
-    await newBatch.commit();
-
-    console.log("Giardino salvato su Firebase!");
-  } catch (error) {
-    console.error("Errore nel salvataggio del giardino su Firebase:", error);
-  }
-}
-
-function searchPlant() {
-  const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
-  if (!searchTerm) return;
-
-  const found = plants.find(p => p.name.toLowerCase() === searchTerm);
-  const risultato = document.getElementById("risultato");
-  risultato.innerHTML = "";
-
-  if (found) {
-    renderPlant(found);
-  } else {
-    document.getElementById("fileInput").click();
-  }
-}
-
-function renderPlant(plant) {
-  const risultato = document.getElementById("risultato");
-  risultato.innerHTML = "";
-
-  const card = document.createElement("div");
-  card.className = "pianta";
-
-  card.innerHTML = `
-    <h3>${plant.name}</h3>
-    <p>☀️ Luce: ${plant.sunlight || plant.sun || "?"}</p>
-    <p>💧 Acqua: ${plant.watering || plant.water || "?"}</p>
-    <p>🌱 Terreno: ${plant.soil || "?"}</p>
-    <p>🌡️ Temperatura Min: ${plant.tempMin || "?"}</p>
-    <p>🌡️ Temperatura Max: ${plant.tempMax || "?"}</p>
-    <button onclick="addToGarden(${JSON.stringify(plant).replace(/"/g, '&quot;')})">Aggiungi al Giardino</button>
-  `;
-
-  risultato.appendChild(card);
-}
-
-function addToGarden(plant) {
-  myGarden.push(plant);
-  saveMyGarden();
-  renderMyGarden();
+    gardenContainer.appendChild(plantCard);
+  });
 }
 
 function renderMyGarden() {
-  const container = document.getElementById("giardino");
-  if (!container) return;
-  container.innerHTML = "";
-  myGarden.forEach((plant, index) => {
-    const card = document.createElement("div");
-    card.className = "pianta";
-    card.style.marginBottom = "1em";
+  const myGardenContainer = document.getElementById("my-garden");
+  if (!myGardenContainer) return;
+  myGardenContainer.innerHTML = "";
 
-    card.innerHTML = `
-      <input type="text" value="${plant.name}" onchange="updatePlantField(${index}, 'name', this.value)"><br/>
-      <div style="margin-top: 0.5em;">☀️ Luce: <input type="text" value="${plant.sunlight || plant.sun || "?"}" onchange="updatePlantField(${index}, 'sunlight', this.value)"></div>
-      <div style="margin-top: 0.5em;">💧 Acqua: <input type="text" value="${plant.watering || plant.water || "?"}" onchange="updatePlantField(${index}, 'watering', this.value)"></div>
-      <div style="margin-top: 0.5em;">🌱 Terreno: <input type="text" value="${plant.soil || "?"}" onchange="updatePlantField(${index}, 'soil', this.value)"></div>
-      <div style="margin-top: 0.5em;">🌡️ Temperatura Min: <input type="text" value="${plant.tempMin || "?"}" onchange="updatePlantField(${index}, 'tempMin', this.value)"></div>
-      <div style="margin-top: 0.5em;">🌡️ Temperatura Max: <input type="text" value="${plant.tempMax || "?"}" onchange="updatePlantField(${index}, 'tempMax', this.value)"></div>
+  myGarden.forEach((plant) => {
+    const div = document.createElement("div");
+    div.className = "my-plant-card";
+    div.innerHTML = `
+      <h4>${plant.name}</h4>
+      <p>Luce: ${plant.light}</p>
+      <p>Acqua: ${plant.water}</p>
+      <p>Temperatura ideale: ${plant.temperature}°C</p>
+      <button onclick="removeFromMyGarden('${plant.name}')">Rimuovi</button>
+      <button onclick="updatePlant('${plant.name}')">Aggiorna info</button>
     `;
-
-    const removeButton = document.createElement("button");
-    removeButton.innerText = "Rimuovi";
-    removeButton.style.marginTop = "0.5em";
-    removeButton.onclick = () => removeFromGarden(index);
-
-    card.appendChild(removeButton);
-    container.appendChild(card);
+    myGardenContainer.appendChild(div);
   });
 }
 
-function updatePlantField(index, field, value) {
-  if (index >= 0 && index < myGarden.length) {
-    myGarden[index][field] = value;
-    saveMyGarden();
-  }
-}
-
-function removeFromGarden(index) {
-  if (index >= 0 && index < myGarden.length) {
-    myGarden.splice(index, 1);
-    saveMyGarden();
+// === FUNZIONI PRINCIPALI ===
+function addToMyGarden(plantName) {
+  const plant = plants.find((p) => p.name === plantName);
+  if (!myGarden.some((p) => p.name === plantName)) {
+    myGarden.push(plant);
+    localStorage.setItem("myGarden", JSON.stringify(myGarden));
     renderMyGarden();
   }
 }
 
-// Funzione per filtrare le piante in base all'intervallo di temperatura
-function filterByTemperature() {
-  const tempMin = parseFloat(document.getElementById("tempMinFilter").value);
-  const tempMax = parseFloat(document.getElementById("tempMaxFilter").value);
+function removeFromMyGarden(plantName) {
+  const index = myGarden.findIndex((p) => p.name === plantName);
+  if (index > -1) {
+    myGarden.splice(index, 1);
+    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    renderMyGarden();
+  }
+}
 
-  if (isNaN(tempMin) || isNaN(tempMax)) {
-    alert("Inserisci valori numerici validi per la temperatura.");
-    return;
+function updatePlant(plantName) {
+  const plant = myGarden.find((p) => p.name === plantName);
+  if (!plant) return;
+
+  const newLight = prompt("Nuova esposizione alla luce:", plant.light);
+  const newWater = prompt("Nuova esigenza idrica:", plant.water);
+  const newTemp = prompt("Nuova temperatura ideale (°C):", plant.temperature);
+
+  if (newLight) plant.light = newLight;
+  if (newWater) plant.water = newWater;
+  if (newTemp && !isNaN(newTemp)) plant.temperature = Number(newTemp);
+
+  localStorage.setItem("myGarden", JSON.stringify(myGarden));
+  renderMyGarden();
+}
+
+// === FILTRI E RICERCA ===
+function applyFilters() {
+  let filtered = [...plants];
+
+  const searchTerm = searchInput.value.toLowerCase();
+  const category = categoryFilter.value;
+  const temp = tempFilter.value;
+
+  if (searchTerm) {
+    filtered = filtered.filter((p) =>
+      p.name.toLowerCase().includes(searchTerm)
+    );
   }
 
-  showLoader("Caricamento piante...");
+  if (category !== "all") {
+    filtered = filtered.filter((p) => p.category === category);
+  }
 
-  const filteredPlants = plants.filter(plant => {
-    const min = extractMinTemp(plant.tempMin);
-    const max = extractMaxTemp(plant.tempMax);
-
-if (isNaN(min) || isNaN(max)) return false;
-
-return min <= tempMax && max >= tempMin;
-  });
-
-  const container = document.getElementById("risultato");
-  container.innerHTML = "";
-
-  if (filteredPlants.length === 0) {
-    container.innerHTML = "<p>Nessuna pianta adatta trovata.</p>";
-  } else {
-    filteredPlants.forEach((plant, index) => {
-      createPlantCard(plant, index, container);
+  if (temp) {
+    const tempNum = parseInt(temp);
+    filtered = filtered.filter((p) => {
+      const plantTemp = parseInt(p.temperature);
+      return !isNaN(plantTemp) && plantTemp <= tempNum;
     });
   }
 
-  hideLoader();
+  renderPlants(filtered);
 }
 
-// Estrai valori da stringhe tipo "10-22°C"
-function extractMinTemp(tempStr) {
-  if (!tempStr) return NaN;
-  const match = tempStr.match(/(\d+)[^\d]*(\d+)/);
-  return match ? parseInt(match[1]) : NaN;
-}
+// === EVENTI ===
+searchInput.addEventListener("input", applyFilters);
+categoryFilter.addEventListener("change", applyFilters);
+tempFilter.addEventListener("input", applyFilters);
 
-function extractMaxTemp(tempStr) {
-  if (!tempStr) return NaN;
-  const match = tempStr.match(/(\d+)[^\d]*(\d+)/);
-  return match ? parseInt(match[2]) : NaN;
-}
-
-// Miglioramenti per versione mobile
-const mediaQuery = window.matchMedia("(max-width: 768px)");
-
-if (mediaQuery.matches) {
-  document.body.style.fontSize = "16px";
-  document.querySelector(".search-container").style.flexDirection = "column";
-  document.querySelector(".filter-container").style.flexDirection = "column";
-
-  const inputs = document.querySelectorAll("input, button");
-  inputs.forEach(el => {
-    el.style.margin = "0.5em 0";
-    el.style.width = "100%";
-    el.style.boxSizing = "border-box";
+// === INIZIALIZZAZIONE ===
+fetch("plants.json")
+  .then((response) => response.json())
+  .then((data) => {
+    plants.push(...data);
+    renderPlants(plants);
+    renderMyGarden();
+  })
+  .catch((error) => {
+    console.error("Errore nel caricamento del database:", error);
   });
-
-  const plantCards = document.querySelectorAll(".pianta");
-  plantCards.forEach(card => {
-    card.style.marginBottom = "1em";
-    card.style.padding = "1em";
-  });
-}
-
-function identifyPlant() {
-  document.getElementById("fileInput").click();
-}
-
-function handleFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    const imageData = e.target.result.split(",")[1];
-    const response = await fetch("https://api.plant.id/v2/identify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Api-Key": "YOUR_PLANT_ID_API_KEY"
-      },
-      body: JSON.stringify({
-        images: [imageData],
-        modifiers: ["similar_images"],
-        plant_language: "it",
-        plant_details: ["common_names", "watering", "sunlight", "soil", "temperature"]
-      })
-    });
-
-    const data = await response.json();
-    if (data && data.suggestions && data.suggestions.length > 0) {
-      const plant = {
-        name: data.suggestions[0].plant_name,
-        sunlight: data.suggestions[0].plant_details?.sunlight?.join(", "),
-        watering: data.suggestions[0].plant_details?.watering,
-        soil: data.suggestions[0].plant_details?.soil,
-        tempMin: data.suggestions[0].plant_details?.temperature_min,
-        tempMax: data.suggestions[0].plant_details?.temperature_max
-      };
-      renderPlant(plant);
-    } else {
-      alert("Nessuna pianta riconosciuta.");
-    }
-  };
-  reader.readAsDataURL(file);
-}
-const toggleButton = document.getElementById('toggleGiardino');
-const giardinoDiv = document.getElementById('giardino');
-const giardinoTitle = document.getElementById('giardinoTitle');
-
-if (toggleButton && giardinoDiv && giardinoTitle) {
-  toggleButton.addEventListener('click', () => {
-    if (giardinoDiv.style.display === 'none') {
-      giardinoDiv.style.display = 'block';
-      giardinoTitle.style.display = 'block';
-      toggleButton.textContent = 'Nascondi il mio giardino';
-    } else {
-      giardinoDiv.style.display = 'none';
-      giardinoTitle.style.display = 'none';
-      toggleButton.textContent = 'Mostra il mio giardino';
-    }
-  });
-}
