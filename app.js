@@ -151,17 +151,20 @@ function filterByTemperature() {
   const tempMax = parseFloat(document.getElementById("tempMaxFilter").value);
 
   if (isNaN(tempMin) || isNaN(tempMax)) {
-    alert("Inserisci temperature valide!");
+    alert("Inserisci valori numerici validi per la temperatura.");
     return;
   }
 
   const filteredPlants = plants.filter(plant => {
-    const min = parseFloat(plant.tempMin);
-    const max = parseFloat(plant.tempMax);
-    if (isNaN(min) || isNaN(max)) {
-      return false; // Se mancano dati sulla temperatura, escludi
-    }
-    return min >= tempMin && max <= tempMax;
+    // Prendi i valori, gestendo tutti i possibili campi
+    const min = parseFloat(plant.tempMin || plant.temperatureMin || extractMinTemp(plant.temperature));
+    const max = parseFloat(plant.tempMax || plant.temperatureMax || extractMaxTemp(plant.temperature));
+
+    // Se mancano o sono NaN, escludi
+    if (isNaN(min) || isNaN(max)) return false;
+
+    // Verifica se sono comprese
+    return min <= tempMin && max >= tempMax;
   });
 
   const container = document.getElementById("risultato");
@@ -176,6 +179,18 @@ function filterByTemperature() {
   }
 }
 
+// Estrai valori da stringhe tipo "10-22°C"
+function extractMinTemp(tempStr) {
+  if (!tempStr) return NaN;
+  const match = tempStr.match(/(\d+)[^\d]*(\d+)/);
+  return match ? parseInt(match[1]) : NaN;
+}
+
+function extractMaxTemp(tempStr) {
+  if (!tempStr) return NaN;
+  const match = tempStr.match(/(\d+)[^\d]*(\d+)/);
+  return match ? parseInt(match[2]) : NaN;
+}
 
 function identifyPlant() {
   document.getElementById("fileInput").click();
