@@ -146,6 +146,7 @@ function removeFromGarden(index) {
   }
 }
 
+// Funzione per filtrare le piante in base all'intervallo di temperatura
 function filterByTemperature() {
   const tempMin = parseFloat(document.getElementById("tempMinFilter").value);
   const tempMax = parseFloat(document.getElementById("tempMaxFilter").value);
@@ -155,16 +156,15 @@ function filterByTemperature() {
     return;
   }
 
-  const filteredPlants = plants.filter(plant => {
-    // Prendi i valori, gestendo tutti i possibili campi
-    const min = parseFloat(plant.tempMin || plant.temperatureMin || extractMinTemp(plant.temperature));
-    const max = parseFloat(plant.tempMax || plant.temperatureMax || extractMaxTemp(plant.temperature));
+  showLoader("Caricamento piante...");
 
-    // Se mancano o sono NaN, escludi
+  const filteredPlants = plants.filter(plant => {
+    const min = parseFloat(plant.tempMin);
+    const max = parseFloat(plant.tempMax);
+
     if (isNaN(min) || isNaN(max)) return false;
 
-    // Verifica se sono comprese
-    return min <= tempMin && max >= tempMax;
+    return min <= tempMax && max >= tempMin;
   });
 
   const container = document.getElementById("risultato");
@@ -177,6 +177,8 @@ function filterByTemperature() {
       createPlantCard(plant, index, container);
     });
   }
+
+  hideLoader();
 }
 
 // Estrai valori da stringhe tipo "10-22°C"
@@ -252,3 +254,24 @@ if (toggleButton && giardinoDiv && giardinoTitle) {
   });
 }
 
+// Miglioramenti per versione mobile
+const mediaQuery = window.matchMedia("(max-width: 768px)");
+
+if (mediaQuery.matches) {
+  document.body.style.fontSize = "16px";
+  document.querySelector(".search-container").style.flexDirection = "column";
+  document.querySelector(".filter-container").style.flexDirection = "column";
+
+  const inputs = document.querySelectorAll("input, button");
+  inputs.forEach(el => {
+    el.style.margin = "0.5em 0";
+    el.style.width = "100%";
+    el.style.boxSizing = "border-box";
+  });
+
+  const plantCards = document.querySelectorAll(".pianta");
+  plantCards.forEach(card => {
+    card.style.marginBottom = "1em";
+    card.style.padding = "1em";
+  });
+}
