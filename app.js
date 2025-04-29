@@ -194,6 +194,28 @@ function extractMaxTemp(tempStr) {
   return match ? parseInt(match[2]) : NaN;
 }
 
+// Miglioramenti per versione mobile
+const mediaQuery = window.matchMedia("(max-width: 768px)");
+
+if (mediaQuery.matches) {
+  document.body.style.fontSize = "16px";
+  document.querySelector(".search-container").style.flexDirection = "column";
+  document.querySelector(".filter-container").style.flexDirection = "column";
+
+  const inputs = document.querySelectorAll("input, button");
+  inputs.forEach(el => {
+    el.style.margin = "0.5em 0";
+    el.style.width = "100%";
+    el.style.boxSizing = "border-box";
+  });
+
+  const plantCards = document.querySelectorAll(".pianta");
+  plantCards.forEach(card => {
+    card.style.marginBottom = "1em";
+    card.style.padding = "1em";
+  });
+}
+
 function identifyPlant() {
   document.getElementById("fileInput").click();
 }
@@ -251,27 +273,5 @@ if (toggleButton && giardinoDiv && giardinoTitle) {
       giardinoTitle.style.display = 'none';
       toggleButton.textContent = 'Mostra il mio giardino';
     }
-  });
-}
-
-// Miglioramenti per versione mobile
-const mediaQuery = window.matchMedia("(max-width: 768px)");
-
-if (mediaQuery.matches) {
-  document.body.style.fontSize = "16px";
-  document.querySelector(".search-container").style.flexDirection = "column";
-  document.querySelector(".filter-container").style.flexDirection = "column";
-
-  const inputs = document.querySelectorAll("input, button");
-  inputs.forEach(el => {
-    el.style.margin = "0.5em 0";
-    el.style.width = "100%";
-    el.style.boxSizing = "border-box";
-  });
-
-  const plantCards = document.querySelectorAll(".pianta");
-  plantCards.forEach(card => {
-    card.style.marginBottom = "1em";
-    card.style.padding = "1em";
   });
 }
