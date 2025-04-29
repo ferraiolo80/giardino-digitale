@@ -159,12 +159,12 @@ function filterByTemperature() {
   showLoader("Caricamento piante...");
 
   const filteredPlants = plants.filter(plant => {
-    const min = parseFloat(plant.tempMin);
-    const max = parseFloat(plant.tempMax);
+    const min = extractMinTemp(plant.tempMin);
+    const max = extractMaxTemp(plant.tempMax);
 
-    if (isNaN(min) || isNaN(max)) return false;
+if (isNaN(min) || isNaN(max)) return false;
 
-    return min <= tempMax && max >= tempMin;
+return min <= tempMax && max >= tempMin;
   });
 
   const container = document.getElementById("risultato");
