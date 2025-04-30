@@ -372,15 +372,21 @@ if (imageIdentifyButton) {
 }
 
 // === INIZIALIZZAZIONE ===
-fetch("plants.json")
-  .then((response) => response.json())
-  .then((data) => {
-    plants.push(...data);
+// fetch("plants.json")
+  async function loadPlantsFromFirebase() {
+  try {
+    const snapshot = await db.collection("plants").get();
+    snapshot.forEach((doc) => {
+      plants.push({ id: doc.id, ...doc.data() });
+    });
     loadMyGardenFromFirebase();
-  })
-  .catch((error) => {
-    console.error("Errore nel caricamento del database:", error);
-  });
+    renderPlants(plants);
+  } catch (error) {
+    console.error("Errore nel caricamento delle piante da Firebase:", error);
+  }
+}
+
+loadPlantsFromFirebase();  // Aggiungi la riga QUI
 
 // === AUTENTICAZIONE (gestione dello stato) ===
 firebase.auth().onAuthStateChanged((user) => {
