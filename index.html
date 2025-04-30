@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Giardino Digitale</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    #app-content {
+      display: none; /* Nascondi il contenuto principale all'inizio */
+    }
+  </style>
 </head>
 <body>
   <h1>🌸 Giardino Digitale 🌿</h1>
@@ -33,33 +38,41 @@
     <div id="auth-status"></div>
   </div>
 
-  <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Cerca una pianta...">
-  </div>
+  <div id="app-content">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Cerca una pianta...">
+    </div>
 
-  <div class="filter-container">
-    <label for="categoryFilter">🌿 Filtra per categoria:</label>
-    <select id="categoryFilter">
-      <option value="all">Tutte le categorie</option>
-      <option value="Fiore">Fiore</option>
-      <option value="Erba aromatica">Erba aromatica</option>
-      <option value="Succulenta">Succulenta</option>
-      <option value="Arbusto">Arbusto</option>
-      <option value="Albero">Albero</option>
-    </select>
-  </div>
+    <div class="search-container">
+      <input type="file" id="imageInput" accept="image/*">
+      <button onclick="identifyPlantFromImage()">Identifica da Foto</button>
+      <div id="image-search-result"></div>
+    </div>
 
-  <div class="filter-container">
-    <label>🌡️ Filtra per temperatura (°C):</label><br>
-    <input type="number" id="tempMinFilter" placeholder="Minima">
-    <input type="number" id="tempMaxFilter" placeholder="Massima">
-  </div>
+    <div class="filter-container">
+      <label for="categoryFilter">🌿 Filtra per categoria (Mio Giardino):</label>
+      <select id="categoryFilter">
+        <option value="all">Tutte le categorie</option>
+        <option value="Fiore">Fiore</option>
+        <option value="Erba aromatica">Erba aromatica</option>
+        <option value="Succulenta">Succulenta</option>
+        <option value="Arbusto">Arbusto</option>
+        <option value="Albero">Albero</option>
+      </select>
+    </div>
 
-  <div id="garden-container">
-  </div>
+    <div class="filter-container">
+      <label>🌡️ Filtra per temperatura (°C) (Mio Giardino):</label><br>
+      <input type="number" id="tempMinFilter" placeholder="Minima">
+      <input type="number" id="tempMaxFilter" placeholder="Massima">
+    </div>
 
-  <h2 id="giardinoTitle">Il mio giardino</h2>
-  <div id="my-garden">
+    <div id="garden-container">
+    </div>
+
+    <h2 id="giardinoTitle">Il mio giardino</h2>
+    <div id="my-garden">
+    </div>
   </div>
 
   <script>
@@ -94,7 +107,7 @@
     const db = firebase.firestore();
   </script>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 
 </body>
 </html>
