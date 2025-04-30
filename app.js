@@ -3,8 +3,8 @@ const plants = [];
 const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 const gardenContainer = document.getElementById("garden-container");
 const searchInput = document.getElementById("searchInput");
-const categoryFilter = document.getElementById("categoryFilter");
-const tempFilter = document.getElementById("tempFilter");
+const tempMinInput = document.getElementById("tempMinFilter");
+const tempMaxInput = document.getElementById("tempMaxFilter");
 
 // === FUNZIONI DI RENDERING ===
 function renderPlants(plantArray) {
@@ -15,20 +15,9 @@ function renderPlants(plantArray) {
 
     plantCard.innerHTML = `
       <h3>${plant.name}</h3>
-      <p><strong>Categoria:</strong> ${plant.category}</p>
-      <p><strong>Luce:</strong> ${plant.light}</p>
-      <p><strong>Acqua:</strong> ${plant.water}</p>
-      <p><strong>Temperatura ideale:</strong> ${plant.temperature}°C</p>
-      ${
-        plant.description
-          ? `<p><strong>Descrizione:</strong> ${plant.description}</p>`
-          : ""
-      }
-      ${
-        plant.image
-          ? `<img src="${plant.image}" alt="${plant.name}" width="100">`
-          : ""
-      }
+      <p><strong>Luce:</strong> ${plant.sunlight}</p>
+      <p><strong>Acqua:</strong> ${plant.watering}</p>
+      <p><strong>Temperatura:</strong> ${plant.tempMin}°C - ${plant.tempMax}°C</p>
       <button onclick="addToMyGarden('${plant.name}')">Aggiungi al mio giardino</button>
     `;
 
@@ -37,7 +26,7 @@ function renderPlants(plantArray) {
 }
 
 function renderMyGarden() {
-  const myGardenContainer = document.getElementById("my-garden");
+  const myGardenContainer = document.getElementById("giardino");
   if (!myGardenContainer) return;
   myGardenContainer.innerHTML = "";
 
@@ -46,9 +35,9 @@ function renderMyGarden() {
     div.className = "my-plant-card";
     div.innerHTML = `
       <h4>${plant.name}</h4>
-      <p>Luce: ${plant.light}</p>
-      <p>Acqua: ${plant.water}</p>
-      <p>Temperatura ideale: ${plant.temperature}°C</p>
+      <p>Luce: ${plant.sunlight}</p>
+      <p>Acqua: ${plant.watering}</p>
+      <p>Temperatura: ${plant.tempMin}°C - ${plant.tempMax}°C</p>
       <button onclick="removeFromMyGarden('${plant.name}')">Rimuovi</button>
       <button onclick="updatePlant('${plant.name}')">Aggiorna info</button>
     `;
@@ -79,51 +68,32 @@ function updatePlant(plantName) {
   const plant = myGarden.find((p) => p.name === plantName);
   if (!plant) return;
 
-  const newLight = prompt("Nuova esposizione alla luce:", plant.light);
-  const newWater = prompt("Nuova esigenza idrica:", plant.water);
-  const newTemp = prompt("Nuova temperatura ideale (°C):", plant.temperature);
+  const newLight = prompt("Nuova esposizione alla luce:", plant.sunlight);
+  const newWater = prompt("Nuova esigenza idrica:", plant.watering);
+  const newMinTemp = prompt("Temperatura minima ideale (°C):", plant.tempMin);
+  const newMaxTemp = prompt("Temperatura massima ideale (°C):", plant.tempMax);
 
-  if (newLight) plant.light = newLight;
-  if (newWater) plant.water = newWater;
-  if (newTemp && !isNaN(newTemp)) plant.temperature = Number(newTemp);
+  if (newLight) plant.sunlight = newLight;
+  if (newWater) plant.watering = newWater;
+  if (!isNaN(newMinTemp)) plant.tempMin = parseInt(newMinTemp);
+  if (!isNaN(newMaxTemp)) plant.tempMax = parseInt(newMaxTemp);
 
   localStorage.setItem("myGarden", JSON.stringify(myGarden));
   renderMyGarden();
 }
 
-// === FILTRI E RICERCA ===
-function applyFilters() {
-  let filtered = [...plants];
-
-  const searchTerm = searchInput.value.toLowerCase();
-  const category = categoryFilter.value;
-  const temp = tempFilter.value;
-
-  if (searchTerm) {
-    filtered = filtered.filter((p) =>
-      p.name.toLowerCase().includes(searchTerm)
+// === FILTRI ===
+function filterByTemperature() {
+  const min = parseInt(tempMinInput.value);
+  const max = parseInt(tempMaxInput.value);
+  const filtered = plants.filter((p) => {
+    return (
+      (!isNaN(min) ? p.tempMin >= min : true) &&
+      (!isNaN(max) ? p.tempMax <= max : true)
     );
-  }
-
-  if (category !== "all") {
-    filtered = filtered.filter((p) => p.category === category);
-  }
-
-  if (temp) {
-    const tempNum = parseInt(temp);
-    filtered = filtered.filter((p) => {
-      const plantTemp = parseInt(p.temperature);
-      return !isNaN(plantTemp) && plantTemp <= tempNum;
-    });
-  }
-
+  });
   renderPlants(filtered);
 }
-
-// === EVENTI ===
-searchInput.addEventListener("input", applyFilters);
-categoryFilter.addEventListener("change", applyFilters);
-tempFilter.addEventListener("input", applyFilters);
 
 // === INIZIALIZZAZIONE ===
 fetch("plants.json")
