@@ -211,7 +211,11 @@ function removeFromMyGarden(plantName) {
   if (index > -1) {
     myGarden.splice(index, 1);
     console.log("Giardino dopo la rimozione:", myGarden);
-    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    if (myGarden.length > 0) { // Controlla se ci sono ancora piante nel giardino
+      localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    } else {
+      localStorage.removeItem("myGarden"); // Rimuovi la chiave se il giardino è vuoto
+    }
     saveMyGardenToFirebase();
     renderMyGarden();
   }
