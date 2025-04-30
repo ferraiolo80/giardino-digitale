@@ -15,5 +15,6 @@ export async function identifyPlant(base64Image) {
   });
 
   const data = await response.json();
+  console.log("Dati API:", data);
   return data;
 }
