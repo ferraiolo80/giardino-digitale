@@ -210,6 +210,7 @@ function removeFromMyGarden(plantName) {
   const index = myGarden.findIndex((p) => p.name === plantName);
   if (index > -1) {
     myGarden.splice(index, 1);
+    console.log("Giardino dopo la rimozione:", myGarden);
     localStorage.setItem("myGarden", JSON.stringify(myGarden));
     saveMyGardenToFirebase();
     renderMyGarden();
