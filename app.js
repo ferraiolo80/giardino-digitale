@@ -111,34 +111,32 @@ async function logout() {
 }
 
 async function identifyPlantFromImage() {
-  const imageInput = document.getElementById('imageInput');
-  const file = imageInput.files[0];
+    const imageInput = document.getElementById('imageInput');
+    const file = imageInput.files[0];
 
-  if (!file) {
-    imageSearchResultDiv.innerText = "Nessuna immagine selezionata.";
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onloadend = async () => {
-    const base64Image = reader.result.split(',')[1]; // Ottieni la parte base64
-
-    try {
-      const plantData = await identifyPlant(base64Image);
-      console.log("Risultato identificazione:", plantData);
-      // Qui puoi gestire i risultati dell'API e visualizzarli all'utente
-      if (plantData && plantData.results && plantData.results.length > 0) {
-        const bestMatch = plantData.results[0].species.name;
-        imageSearchResultDiv.innerText = `Probabile corrispondenza: ${bestMatch}`;
-        // Potresti anche mostrare più dettagli o un pulsante per aggiungere questa pianta al giardino
-      } else {
-        imageSearchResultDiv.innerText = "Nessuna corrispondenza trovata.";
-      }
-    } catch (error) {
-      console.error("Errore nell'identificazione della pianta:", error);
-      imageSearchResultDiv.innerText = "Errore nell'identificazione.";
+    if (!file) {
+        imageSearchResultDiv.innerText = "Nessuna immagine selezionata.";
+        return;
     }
-  };
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+        const base64Image = reader.result.split(',')[1]; // Ottieni la parte base64
+
+        try {
+            const plantData = await identifyPlant(base64Image);
+            console.log("Risultato identificazione:", plantData);
+            if (plantData && plantData.results && plantData.results.length > 0) {
+                const bestMatch = plantData.results[0].species.name;
+                imageSearchResultDiv.innerText = `Probabile corrispondenza: ${bestMatch}`;
+            } else {
+                imageSearchResultDiv.innerText = "Nessuna corrispondenza trovata.";
+            }
+        } catch (error) {
+            console.error("Errore nell'identificazione della pianta:", error);
+            imageSearchResultDiv.innerText = `Errore nell'identificazione: ${error.message}`; // Mostra il messaggio di errore
+        }
+    };
 
   reader.readAsDataURL(file);
 }
