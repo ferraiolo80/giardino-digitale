@@ -12,6 +12,7 @@ const myGardenContainer = document.getElementById("my-garden");
 const authStatusDiv = document.getElementById('auth-status');
 const appContentDiv = document.getElementById('app-content');
 const imageSearchResultDiv = document.getElementById('image-search-result');
+const authContainerDiv = document.getElementById('auth-container');
 
 // === FUNZIONI FIREBASE ===
 async function saveMyGardenToFirebase() {
