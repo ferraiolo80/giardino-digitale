@@ -17,24 +17,24 @@
   <div id="auth-container">
     <h2>Autenticazione</h2>
     <div id="login-form">
-      <h3>Accedi</h3>
-      <input type="email" id="login-email" placeholder="Email">
-      <input type="password" id="login-password" placeholder="Password">
-      <button onclick="loginWithEmailPassword()">Accedi</button>
-      <p>Non hai un account? <a href="#" onclick="showRegisterForm()">Registrati</a></p>
-      <div id="login-error" class="error-message" style="color: red;"></div>
-    </div>
+    <h3>Accedi</h3>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Password">
+    <button id="loginButton">Accedi</button>
+    <p>Non hai un account? <a href="#" onclick="showRegisterForm()">Registrati</a></p>
+    <div id="login-error" class="error-message" style="color: red;"></div>
+  </div>
 
-    <div id="register-form" style="display: none;">
-      <h3>Registrati</h3>
-      <input type="email" id="register-email" placeholder="Email">
-      <input type="password" id="register-password" placeholder="Password">
-      <button onclick="registerWithEmailPassword()">Registrati</button>
-      <p>Hai già un account? <a href="#" onclick="showLoginForm()">Accedi</a></p>
-      <div id="register-error" class="error-message" style="color: red;"></div>
-    </div>
+  <div id="register-form" style="display: none;">
+    <h3>Registrati</h3>
+    <input type="email" id="register-email" placeholder="Email">
+    <input type="password" id="register-password" placeholder="Password">
+    <button id="registerButton">Registrati</button>
+    <p>Hai già un account? <a href="#" onclick="showLoginForm()">Accedi</a></p>
+    <div id="register-error" class="error-message" style="color: red;"></div>
+  </div>
 
-    <button onclick="logout()">Logout</button>
+  <button id="logoutButton">Logout</button>
     <div id="auth-status"></div>
   </div>
 
