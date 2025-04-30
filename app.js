@@ -13,6 +13,9 @@ const authStatusDiv = document.getElementById('auth-status');
 const appContentDiv = document.getElementById('app-content');
 const imageSearchResultDiv = document.getElementById('image-search-result');
 const authContainerDiv = document.getElementById('auth-container');
+const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+const mioGiardinoSection = document.getElementById('my-garden');
+const giardinoTitle = document.getElementById('giardinoTitle');
 
 // === FUNZIONI FIREBASE ===
 async function saveMyGardenToFirebase() {
@@ -232,6 +235,18 @@ function updatePlant(plantName) {
   renderMyGarden();
 }
 
+function toggleMyGardenVisibility() {
+    if (mioGiardinoSection.style.display === 'none') {
+        mioGiardinoSection.style.display = 'block';
+        giardinoTitle.style.display = 'block';
+        toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
+    } else {
+        mioGiardinoSection.style.display = 'none';
+        giardinoTitle.style.display = 'none';
+        toggleMyGardenButton.innerText = 'Mostra il mio giardino';
+    }
+}
+
 // === FILTRI E RICERCA ===
 function applyFilters() {
   let filtered = [...plants];
@@ -283,6 +298,7 @@ searchInput.addEventListener("input", applyFilters);
 categoryFilter.addEventListener("change", applyMyGardenFilters);
 tempMinFilter.addEventListener("input", applyMyGardenFilters);
 tempMaxFilter.addEventListener("input", applyMyGardenFilters);
+toggleMyGardenButton.addEventListener('click', toggleMyGardenVisibility);
 
 // Aggiungi gli event listener per i pulsanti di autenticazione
 document.getElementById('registerButton').addEventListener('click', registerWithEmailPassword);
