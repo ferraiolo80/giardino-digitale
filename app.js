@@ -182,8 +182,8 @@ function renderMyGarden(gardenArray) {
       <p>Luce: ${plant.sunlight}</p>
       <p>Acqua: ${plant.watering}</p>
       <p>Temperatura ideale min: ${plant.tempMin}°C</p>
-      <p>Temperatura ideale max: <span class="math-inline">\{plant\.tempMax\}°C</p\>
-<button onclick\="removeFromMyGarden\('</span>{plant.name}')">Rimuovi</button>
+      <p>Temperatura ideale max: ${plant.tempMax}°C</p>
+      <button onclick="removeFromMyGarden('${plant.name}')">Rimuovi</button>
       <button onclick="updatePlant('${plant.name}')">Aggiorna info</button>
     `;
     myGardenContainer.appendChild(div);
@@ -274,10 +274,38 @@ categoryFilter.addEventListener("change", applyMyGardenFilters);
 tempMinFilter.addEventListener("input", applyMyGardenFilters);
 tempMaxFilter.addEventListener("input", applyMyGardenFilters);
 
+// Aggiungi gli event listener per i pulsanti di autenticazione
+document.getElementById('registerButton').addEventListener('click', registerWithEmailPassword);
+document.getElementById('loginButton').addEventListener('click', loginWithEmailPassword);
+document.getElementById('logoutButton').addEventListener('click', logout);
+
+const imageIdentifyButton = document.getElementById('identifyPlantFromImage');
+if (imageIdentifyButton) {
+  imageIdentifyButton.addEventListener('click', identifyPlantFromImage);
+}
+
 // === INIZIALIZZAZIONE ===
 fetch("plants.json")
   .then((response) => response.json())
   .then((data) => {
     plants.push(...data);
-    // Non chiamare renderPlants qui
     loadMyGardenFromFirebase();
+  })
+  .catch((error) => {
+    console.error("Errore nel caricamento del database:", error);
+  });
+
+// === AUTENTICAZIONE (gestione dello stato) ===
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
+    authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+    appContentDiv.style.display = 'block';
+    loadMyGardenFromFirebase();
+  } else {
+    console.log("Stato autenticazione cambiato, nessun utente loggato.");
+    authStatusDiv.innerText = "Nessun utente autenticato.";
+    appContentDiv.style.display = 'none';
+    renderMyGarden(); // Mostra il giardino da localStorage se presente
+  }
+});
