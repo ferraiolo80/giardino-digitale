@@ -7,11 +7,12 @@ const categoryFilter = document.getElementById("categoryFilter");
 const tempMinFilter = document.getElementById("tempMinFilter");
 const tempMaxFilter = document.getElementById("tempMaxFilter");
 const myGardenContainer = document.getElementById("my-garden");
+const authStatusDiv = document.getElementById('auth-status');
 
 // === FUNZIONI FIREBASE ===
 async function saveMyGardenToFirebase() {
   try {
-    const user = firebase.auth().currentUser; // Ottieni l'utente corrente (potrebbe essere null se non autenticato)
+    const user = firebase.auth().currentUser;
     if (user) {
       await db.collection("gardens").doc(user.uid).set({
         plants: myGarden,
@@ -47,6 +48,54 @@ async function loadMyGardenFromFirebase() {
   } catch (error) {
     console.error("Errore nel caricamento del giardino da Firebase:", error);
     renderMyGarden(); // In caso di errore, prova a caricare da localStorage
+  }
+}
+
+async function registerWithEmailPassword() {
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+  const errorDiv = document.getElementById('register-error');
+
+  try {
+    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    console.log("Utente registrato:", user.uid);
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
+    authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+    loadMyGardenFromFirebase(); // Carica il giardino dopo la registrazione
+  } catch (error) {
+    console.error("Errore di registrazione:", error.message);
+    errorDiv.innerText = error.message;
+  }
+}
+
+async function loginWithEmailPassword() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  const errorDiv = document.getElementById('login-error');
+
+  try {
+    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    console.log("Utente loggato:", user.uid);
+    authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+    loadMyGardenFromFirebase(); // Carica il giardino dopo il login
+  } catch (error) {
+    console.error("Errore di login:", error.message);
+    errorDiv.innerText = error.message;
+  }
+}
+
+async function logout() {
+  try {
+    await firebase.auth().signOut();
+    console.log("Utente disconnesso.");
+    authStatusDiv.innerText = "Nessun utente autenticato.";
+    myGarden = JSON.parse(localStorage.getItem("myGarden")) || []; // Ricarica da localStorage dopo il logout
+    renderMyGarden();
+  } catch (error) {
+    console.error("Errore di logout:", error.message);
   }
 }
 
@@ -184,21 +233,21 @@ fetch("plants.json")
   .then((data) => {
     plants.push(...data);
     renderPlants(plants);
-    // Carica il giardino da Firebase all'inizializzazione
-    loadMyGardenFromFirebase();
+    // La prima volta il giardino viene caricato in onAuthStateChanged
   })
   .catch((error) => {
     console.error("Errore nel caricamento del database:", error);
   });
 
-// === AUTENTICAZIONE (esempio basilare) ===
-// Potresti voler implementare un sistema di autenticazione più completo
+// === AUTENTICAZIONE (gestione dello stato) ===
 firebase.auth().onAuthStateChanged((user) => {
   if (user) {
-    console.log("Utente autenticato:", user.uid);
-    loadMyGardenFromFirebase(); // Ricarica il giardino se l'utente si autentica dopo il caricamento iniziale
+    console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
+    authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+    loadMyGardenFromFirebase();
   } else {
-    console.log("Nessun utente autenticato.");
-    renderMyGarden(); // Mostra comunque il giardino da localStorage
+    console.log("Stato autenticazione cambiato, nessun utente loggato.");
+    authStatusDiv.innerText = "Nessun utente autenticato.";
+    renderMyGarden(); // Mostra il giardino da localStorage se non c'è utente
   }
 });
