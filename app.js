@@ -106,3 +106,39 @@ fetch("plants.json")
   .catch((error) => {
     console.error("Errore nel caricamento del database:", error);
   });
+
+// === FUNZIONE 1: Cerca pianta per nome ===
+function searchPlant() {
+  const query = searchInput.value.toLowerCase();
+  const results = plants.filter((plant) =>
+    plant.name.toLowerCase().includes(query)
+  );
+  renderPlants(results);
+}
+
+// === FUNZIONE 2: Analizza immagine per identificare pianta ===
+function identifyPlant() {
+  const fileInput = document.getElementById("photoInput");
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Per favore carica una foto.");
+    return;
+  }
+
+  handleFile(file);
+}
+
+// === FUNZIONE 3: Simula identificazione pianta da immagine ===
+function handleFile(file) {
+  // In un'app reale useremmo Plant.id o simili
+  const fakePlantName = "Ortensia"; // per test
+
+  const found = plants.find((p) => p.name === fakePlantName);
+  if (found) {
+    alert(`Pianta riconosciuta: ${found.name}`);
+    renderPlants([found]);
+  } else {
+    alert("Pianta non trovata nel database.");
+  }
+}
+
