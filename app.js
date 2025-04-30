@@ -1,12 +1,54 @@
 // === VARIABILI GLOBALI ===
 const plants = [];
-const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 const gardenContainer = document.getElementById("garden-container");
 const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
 const tempMinFilter = document.getElementById("tempMinFilter");
 const tempMaxFilter = document.getElementById("tempMaxFilter");
-const myGardenContainer = document.getElementById("my-garden"); // Ottieni il contenitore del giardino qui
+const myGardenContainer = document.getElementById("my-garden");
+
+// === FUNZIONI FIREBASE ===
+async function saveMyGardenToFirebase() {
+  try {
+    const user = firebase.auth().currentUser; // Ottieni l'utente corrente (potrebbe essere null se non autenticato)
+    if (user) {
+      await db.collection("gardens").doc(user.uid).set({
+        plants: myGarden,
+        userId: user.uid
+      });
+      console.log("Giardino salvato su Firebase per l'utente:", user.uid);
+    } else {
+      console.warn("Nessun utente autenticato, il giardino è salvato solo localmente.");
+    }
+  } catch (error) {
+    console.error("Errore nel salvataggio del giardino su Firebase:", error);
+  }
+}
+
+async function loadMyGardenFromFirebase() {
+  try {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const doc = await db.collection("gardens").doc(user.uid).get();
+      if (doc.exists) {
+        myGarden = doc.data().plants || [];
+        localStorage.setItem("myGarden", JSON.stringify(myGarden)); // Aggiorna anche il localStorage
+        renderMyGarden();
+        console.log("Giardino caricato da Firebase per l'utente:", user.uid);
+      } else {
+        console.log("Nessun giardino trovato su Firebase per questo utente, caricando da localStorage.");
+        renderMyGarden(); // Carica comunque da localStorage se non c'è nulla su Firebase
+      }
+    } else {
+      console.log("Nessun utente autenticato, caricando il giardino da localStorage.");
+      renderMyGarden(); // Carica da localStorage se non c'è utente
+    }
+  } catch (error) {
+    console.error("Errore nel caricamento del giardino da Firebase:", error);
+    renderMyGarden(); // In caso di errore, prova a caricare da localStorage
+  }
+}
 
 // === FUNZIONI DI RENDERING ===
 function renderPlants(plantArray) {
@@ -64,6 +106,7 @@ function addToMyGarden(plantName) {
   if (!myGarden.some((p) => p.name === plantName)) {
     myGarden.push(plant);
     localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    saveMyGardenToFirebase(); // Salva su Firebase quando il giardino viene modificato
     renderMyGarden();
   }
 }
@@ -73,6 +116,7 @@ function removeFromMyGarden(plantName) {
   if (index > -1) {
     myGarden.splice(index, 1);
     localStorage.setItem("myGarden", JSON.stringify(myGarden));
+    saveMyGardenToFirebase(); // Salva su Firebase quando il giardino viene modificato
     renderMyGarden();
   }
 }
@@ -92,6 +136,7 @@ function updatePlant(plantName) {
   if (newTempMax && !isNaN(newTempMax)) plant.tempMax = Number(newTempMax);
 
   localStorage.setItem("myGarden", JSON.stringify(myGarden));
+  saveMyGardenToFirebase(); // Salva su Firebase quando il giardino viene aggiornato
   renderMyGarden();
 }
 
@@ -139,8 +184,21 @@ fetch("plants.json")
   .then((data) => {
     plants.push(...data);
     renderPlants(plants);
-    renderMyGarden();
+    // Carica il giardino da Firebase all'inizializzazione
+    loadMyGardenFromFirebase();
   })
   .catch((error) => {
     console.error("Errore nel caricamento del database:", error);
   });
+
+// === AUTENTICAZIONE (esempio basilare) ===
+// Potresti voler implementare un sistema di autenticazione più completo
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    console.log("Utente autenticato:", user.uid);
+    loadMyGardenFromFirebase(); // Ricarica il giardino se l'utente si autentica dopo il caricamento iniziale
+  } else {
+    console.log("Nessun utente autenticato.");
+    renderMyGarden(); // Mostra comunque il giardino da localStorage
+  }
+});
