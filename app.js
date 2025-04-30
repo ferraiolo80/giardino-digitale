@@ -145,40 +145,54 @@ async function identifyPlantFromImage() {
   reader.readAsDataURL(file);
 }
 function displayPlantDetails(plant) {
-    const plantDetailsDiv = document.getElementById('plant-details');
-    plantDetailsDiv.innerHTML = `
-        <h3>${plant.name}</h3>
-        <p>Probabilità: ${plant.probability}</p>
-        <label for="sunlight">Luce:</label>
-        <input type="text" id="sunlight" value="${plant.sunlight}"><br>
-        <label for="watering">Acqua:</label>
-        <input type="text" id="watering" value="${plant.watering}"><br>
-        <label for="tempMin">Temperatura Minima:</label>
-        <input type="number" id="tempMin" value="${plant.tempMin}"><br>
-        <label for="tempMax">Temperatura Massima:</label>
-        <input type="number" id="tempMax" value="${plant.tempMax}"><br>
-        <label for="category">Categoria:</label>
-        <select id="category">
-            <option value="Fiore">Fiore</option>
-            <option value="Erba aromatica">Erba aromatica</option>
-            <option value="Succulenta">Succulenta</option>
-            <option value="Arbusto">Arbusto</option>
-            <option value="Albero">Albero</option>
-        </select><br>
-        <button id="savePlantButton">Salva pianta</button>
-    `;
+  const plantDetailsDiv = document.getElementById('plant-details');
+  plantDetailsDiv.innerHTML = `
+    <h3>${plant.name}</h3>
+    <p>Probabilità: ${plant.probability}</p>
+    <label for="sunlight">Luce:</label>
+    <input type="text" id="sunlight" value="${plant.sunlight}"><br>
+    <label for="watering">Acqua:</label>
+    <input type="text" id="watering" value="${plant.watering}"><br>
+    <label for="tempMin">Temperatura Minima:</label>
+    <input type="number" id="tempMin" value="${plant.tempMin}"><br>
+    <label for="tempMax">Temperatura Massima:</label>
+    <input type="number" id="tempMax" value="${plant.tempMax}"><br>
+    <label for="category">Categoria:</label>
+    <select id="category">
+      <option value="Fiore">Fiore</option>
+      <option value="Erba aromatica">Erba aromatica</option>
+      <option value="Succulenta">Succulenta</option>
+      <option value="Arbusto">Arbusto</option>
+      <option value="Albero">Albero</option>
+    </select><br>
+    <button id="savePlantButton">Salva pianta</button>
+  `;
 
-    document.getElementById('savePlantButton').addEventListener('click', () => {
-        const updatedPlant = {
-            ...plant,
-            sunlight: document.getElementById('sunlight').value,
-            watering: document.getElementById('watering').value,
-            tempMin: Number(document.getElementById('tempMin').value),
-            tempMax: Number(document.getElementById('tempMax').value),
-            category: document.getElementById('category').value,
-        };
-        savePlantToFirebase(updatedPlant);
-    });
+  document.getElementById('savePlantButton').addEventListener('click', () => {
+    const updatedPlant = {
+      ...plant,
+      sunlight: document.getElementById('sunlight').value,
+      watering: document.getElementById('watering').value,
+      tempMin: Number(document.getElementById('tempMin').value),
+      tempMax: Number(document.getElementById('tempMax').value),
+      category: document.getElementById('category').value,
+    };
+    savePlantToFirebase(updatedPlant);
+  });
+}
+
+async function savePlantToFirebase(newPlant) {
+  try {
+    await db.collection('plants').add(newPlant); // Aggiungi alla collezione 'plants'
+    console.log('Pianta salvata con successo su Firebase:', newPlant);
+    document.getElementById('image-search-result').innerHTML = '<p>Pianta salvata con successo!</p>'; // Feedback all'utente
+    document.getElementById('plant-details').innerHTML = ''; // Pulisci i dettagli della pianta
+    // Puoi anche pulire il form di caricamento dell'immagine se lo desideri
+  } catch (error) {
+    console.error('Errore nel salvataggio della pianta su Firebase:', error);
+    document.getElementById('image-search-result').innerHTML = '<p>Errore nel salvataggio della pianta.</p>'; // Feedback all'utente
+    // Gestisci l'errore (ad esempio, mostra un messaggio più dettagliato)
+  }
 }
 // === FUNZIONI DI RENDERING ===
 function renderPlants(plantArray) {
