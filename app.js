@@ -332,13 +332,14 @@ firebase.auth().onAuthStateChanged((user) => {
     console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
     appContentDiv.style.display = 'block';
-    authContainerDiv.style.display = 'none'; // <---- Correzione: nascondi qui
+    authContainerDiv.style.display = 'none'; // <---- Corretto: nascondi auth-container
     loadMyGardenFromFirebase();
   } else {
     console.log("Stato autenticazione cambiato, nessun utente loggato.");
     authStatusDiv.innerText = "Nessun utente autenticato.";
     appContentDiv.style.display = 'none';
-    authContainerDiv.style.display = 'block'; // <---- Correzione: mostra qui
-    renderMyGarden(); // Mostra il giardino da localStorage se presente
+    authContainerDiv.style.display = 'block'; // <---- Corretto: mostra auth-container
+    myGarden = JSON.parse(localStorage.getItem("myGarden")) || []; // Ricarica da localStorage
+    renderMyGarden();
   }
 });
