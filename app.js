@@ -188,11 +188,11 @@ function renderMyGarden(gardenArray) {
       <p>Acqua: ${plant.watering}</p>
       <p>Temperatura ideale min: ${plant.tempMin}°C</p>
       <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-      <button onclick="removeFromMyGarden('${plant.name}')">Rimuovi</button>
+      <button class="remove-button" data-plant-name="${plant.name}">Rimuovi</button>
       <button onclick="updatePlant('${plant.name}')">Aggiorna info</button>
     `;
     myGardenContainer.appendChild(div);
-    
+
     // Aggiungi event listener al pulsante "Rimuovi"
     const removeButton = div.querySelector('.remove-button');
     removeButton.addEventListener('click', () => {
@@ -201,7 +201,6 @@ function renderMyGarden(gardenArray) {
     });
   });
 }
-
 // === FUNZIONI PRINCIPALI ===
 function addToMyGarden(plantName) {
   const plant = plants.find((p) => p.name === plantName);
