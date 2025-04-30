@@ -18,25 +18,34 @@ function initApp() {
     }
   }
 
-  function renderPlants(plants, container = risultatoDiv) {
-    container.innerHTML = "";
-    if (plants.length === 0) {
-      container.innerHTML = "<p>Nessuna pianta trovata.</p>";
-      return;
-    }
+  function renderPlants(plantArray) {
+  gardenContainer.innerHTML = "";
+  plantArray.forEach((plant) => {
+    const plantCard = document.createElement("div");
+    plantCard.className = "plant-card";
 
-    plants.forEach(plant => {
-      const div = document.createElement("div");
-      div.className = "pianta";
-      div.innerHTML = `
-        <h3>${plant.nome}</h3>
-        <p>Temperatura ideale: ${plant.temperaturaMin}°C - ${plant.temperaturaMax}°C</p>
-        <p>Luce: ${plant.luce}</p>
-        <button onclick="aggiungiAlGiardino('${plant.id}')">Aggiungi al giardino</button>
-      `;
-      container.appendChild(div);
-    });
-  }
+    plantCard.innerHTML = `
+      <h3>${plant.name}</h3>
+      <p><strong>Luce:</strong> ${plant.sunlight}</p>
+      <p><strong>Acqua:</strong> ${plant.watering}</p>
+      <p><strong>Temperatura ideale min:</strong> ${plant.tempMin}°C</p>
+      <p><strong>Temperatura ideale max:</strong> ${plant.tempMax}°C</p>
+      ${
+        plant.description
+          ? `<p><strong>Descrizione:</strong> ${plant.description}</p>`
+          : ""
+      }
+      ${
+        plant.image
+          ? `<img src="${plant.image}" alt="${plant.name}" width="100">`
+          : ""
+      }
+      <button onclick="addToMyGarden('${plant.name}')">Aggiungi al mio giardino</button>
+    `;
+
+    gardenContainer.appendChild(plantCard);
+  });
+}
 
   async function searchPlant() {
     const input = document.getElementById("searchInput").value.toLowerCase();
