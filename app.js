@@ -69,6 +69,7 @@ async function registerWithEmailPassword() {
     document.getElementById('login-form').style.display = 'block';
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
     appContentDiv.style.display = 'block';
+    authContainerDiv.style.display = 'none'; // <---- Aggiunta questa riga
     loadMyGardenFromFirebase(); // Carica il giardino dopo la registrazione
   } catch (error) {
     console.error("Errore di registrazione:", error.message);
@@ -87,6 +88,7 @@ async function loginWithEmailPassword() {
     console.log("Utente loggato:", user.uid);
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
     appContentDiv.style.display = 'block';
+    authContainerDiv.style.display = 'none'; // <---- Aggiunta questa riga
     loadMyGardenFromFirebase(); // Carica il giardino dopo il login
   } catch (error) {
     console.error("Errore di login:", error.message);
@@ -100,6 +102,7 @@ async function logout() {
     console.log("Utente disconnesso.");
     authStatusDiv.innerText = "Nessun utente autenticato.";
     appContentDiv.style.display = 'none';
+    authContainerDiv.style.display = 'block'; // <---- Aggiunta questa riga
     myGarden = JSON.parse(localStorage.getItem("myGarden")) || []; // Ricarica da localStorage dopo il logout
     renderMyGarden();
   } catch (error) {
@@ -235,14 +238,22 @@ function updatePlant(plantName) {
 function applyFilters() {
   let filtered = [...plants];
   const searchTerm = searchInput.value.toLowerCase();
+  const searchResultDiv = document.getElementById('garden-container');
 
   if (searchTerm) {
     filtered = filtered.filter((p) =>
       p.name.toLowerCase().includes(searchTerm)
     );
-  }
 
-  renderPlants(filtered);
+    if (filtered.length === 0) {
+      searchResultDiv.innerHTML = `<p>Nessuna pianta trovata con il nome "${searchTerm}".</p>`;
+      // Rimossa la possibilità di aggiungere qui per ora, ci concentriamo sulla scomparsa del login
+    } else {
+      renderPlants(filtered);
+    }
+  } else {
+    renderPlants([]); // Pulisci la visualizzazione se la ricerca è vuota
+  }
 }
 
 function applyMyGardenFilters() {
@@ -280,7 +291,7 @@ document.getElementById('registerButton').addEventListener('click', registerWith
 document.getElementById('loginButton').addEventListener('click', loginWithEmailPassword);
 document.getElementById('logoutButton').addEventListener('click', logout);
 
-const imageIdentifyButton = document.getElementById('identifyPlantFromImage');
+const imageIdentifyButton = document.getElementById('identifyPlantButton');
 if (imageIdentifyButton) {
   imageIdentifyButton.addEventListener('click', identifyPlantFromImage);
 }
@@ -302,11 +313,13 @@ firebase.auth().onAuthStateChanged((user) => {
     console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
     appContentDiv.style.display = 'block';
+    authContainerDiv.style.display = 'none'; // <---- Correzione: nascondi qui
     loadMyGardenFromFirebase();
   } else {
     console.log("Stato autenticazione cambiato, nessun utente loggato.");
     authStatusDiv.innerText = "Nessun utente autenticato.";
     appContentDiv.style.display = 'none';
+    authContainerDiv.style.display = 'block'; // <---- Correzione: mostra qui
     renderMyGarden(); // Mostra il giardino da localStorage se presente
   }
 });
