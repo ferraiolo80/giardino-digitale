@@ -21,11 +21,13 @@ h1, h2 {
 }
 
 input[type="text"],
-input[type="number"] {
+input[type="number"],
+select {
   padding: 0.5em;
   border-radius: 4px;
   border: 1px solid #ccc;
   min-width: 150px;
+  box-sizing: border-box; /* Aggiunto per gestire meglio la larghezza */
 }
 
 button {
@@ -41,41 +43,28 @@ button:hover {
   background-color: #45a049;
 }
 
-#risultato,
-#giardino {
+#garden-container,
+#my-garden {
   margin: 1em 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Layout a griglia responsivo */
   gap: 1em;
 }
 
-.pianta {
+.plant-card,
+.my-plant-card {
   background: white;
   padding: 1em;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  body {
-    font-size: 16px;
-  }
-
-  .search-container,
-  .filter-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  input,
-  button {
-    width: 100%;
-    margin: 0.5em 0;
-    box-sizing: border-box;
-  }
-
-  .pianta {
-    padding: 1em;
-  }
+.plant-card h3,
+.my-plant-card h4 {
+  margin-top: 0;
+  color: #2c3e50;
 }
+
+.plant-card img {
+  max-width: 100%;
+  height: auto;
