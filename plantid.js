@@ -9,6 +9,7 @@ export async function identifyPlant(base64Image) {
     },
     body: JSON.stringify({
       images: [base64Image],
+      organs: [""]
       similar_images: true,
     }),
   });
