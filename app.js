@@ -192,6 +192,13 @@ function renderMyGarden(gardenArray) {
       <button onclick="updatePlant('${plant.name}')">Aggiorna info</button>
     `;
     myGardenContainer.appendChild(div);
+    
+    // Aggiungi event listener al pulsante "Rimuovi"
+    const removeButton = div.querySelector('.remove-button');
+    removeButton.addEventListener('click', () => {
+      const plantNameToRemove = removeButton.dataset.plantName;
+      removeFromMyGarden(plantNameToRemove);
+    });
   });
 }
 
