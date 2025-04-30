@@ -4,56 +4,63 @@
     "sunlight": "Mezz’ombra",
     "watering": "Terreno umido, annaffiare regolarmente",
     "tempMin": 10,
-    "tempMax": 22
+    "tempMax": 22,
+    "category": "Fiore"
   },
   {
     "name": "Basilico",
     "sunlight": "Sole pieno",
     "watering": "Annaffiare ogni 1-2 giorni",
     "tempMin": 20,
-    "tempMax": 30
+    "tempMax": 30,
+    "category": "Erba aromatica"
   },
   {
     "name": "Aloe Vera",
     "sunlight": "Luce intensa, non diretta",
     "watering": "Poca acqua, ogni 2 settimane",
     "tempMin": 15,
-    "tempMax": 25
+    "tempMax": 25,
+    "category": "Succulenta"
   },
   {
     "name": "Azalea",
     "sunlight": "Mezz’ombra, evitare sole diretto",
     "watering": "Terreno costantemente umido, mai secco",
     "tempMin": 8,
-    "tempMax": 16
+    "tempMax": 16,
+    "category": "Arbusto"
   },
   {
     "name": "Lavanda",
     "sunlight": "Sole pieno",
     "watering": "Poca acqua, terreno ben drenato",
     "tempMin": 5,
-    "tempMax": 35
+    "tempMax": 35,
+    "category": "Fiore"
   },
   {
     "name": "Geranio",
     "sunlight": "Sole pieno",
     "watering": "Poca acqua, terreno ben drenato e possibilmente dopo il tramonto",
     "tempMin": 15,
-    "tempMax": 25
+    "tempMax": 25,
+    "category": "Fiore"
   },
   {
     "name": "Ficus",
     "sunlight": "Luce indiretta",
     "watering": "Una volta a settimana",
     "tempMin": 18,
-    "tempMax": 24
+    "tempMax": 24,
+    "category": "Albero"
   },
   {
     "name": "Sanseveria",
     "sunlight": "Luce media o bassa",
     "watering": "Una volta al mese",
     "tempMin": 13,
-    "tempMax": 27
+    "tempMax": 27,
+    "category": "Succulenta"
   }
 ]
-
