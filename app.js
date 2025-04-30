@@ -1,3 +1,5 @@
+import { identifyPlant } from './plantid.js';
+
 // === VARIABILI GLOBALI ===
 const plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
@@ -8,6 +10,8 @@ const tempMinFilter = document.getElementById("tempMinFilter");
 const tempMaxFilter = document.getElementById("tempMaxFilter");
 const myGardenContainer = document.getElementById("my-garden");
 const authStatusDiv = document.getElementById('auth-status');
+const appContentDiv = document.getElementById('app-content');
+const imageSearchResultDiv = document.getElementById('image-search-result');
 
 // === FUNZIONI FIREBASE ===
 async function saveMyGardenToFirebase() {
@@ -63,6 +67,7 @@ async function registerWithEmailPassword() {
     document.getElementById('register-form').style.display = 'none';
     document.getElementById('login-form').style.display = 'block';
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+    appContentDiv.style.display = 'block';
     loadMyGardenFromFirebase(); // Carica il giardino dopo la registrazione
   } catch (error) {
     console.error("Errore di registrazione:", error.message);
@@ -80,6 +85,7 @@ async function loginWithEmailPassword() {
     const user = userCredential.user;
     console.log("Utente loggato:", user.uid);
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+    appContentDiv.style.display = 'block';
     loadMyGardenFromFirebase(); // Carica il giardino dopo il login
   } catch (error) {
     console.error("Errore di login:", error.message);
@@ -92,11 +98,45 @@ async function logout() {
     await firebase.auth().signOut();
     console.log("Utente disconnesso.");
     authStatusDiv.innerText = "Nessun utente autenticato.";
+    appContentDiv.style.display = 'none';
     myGarden = JSON.parse(localStorage.getItem("myGarden")) || []; // Ricarica da localStorage dopo il logout
     renderMyGarden();
   } catch (error) {
     console.error("Errore di logout:", error.message);
   }
+}
+
+async function identifyPlantFromImage() {
+  const imageInput = document.getElementById('imageInput');
+  const file = imageInput.files[0];
+
+  if (!file) {
+    imageSearchResultDiv.innerText = "Nessuna immagine selezionata.";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const base64Image = reader.result.split(',')[1]; // Ottieni la parte base64
+
+    try {
+      const plantData = await identifyPlant(base64Image);
+      console.log("Risultato identificazione:", plantData);
+      // Qui puoi gestire i risultati dell'API e visualizzarli all'utente
+      if (plantData && plantData.results && plantData.results.length > 0) {
+        const bestMatch = plantData.results[0].species.name;
+        imageSearchResultDiv.innerText = `Probabile corrispondenza: ${bestMatch}`;
+        // Potresti anche mostrare più dettagli o un pulsante per aggiungere questa pianta al giardino
+      } else {
+        imageSearchResultDiv.innerText = "Nessuna corrispondenza trovata.";
+      }
+    } catch (error) {
+      console.error("Errore nell'identificazione della pianta:", error);
+      imageSearchResultDiv.innerText = "Errore nell'identificazione.";
+    }
+  };
+
+  reader.readAsDataURL(file);
 }
 
 // === FUNZIONI DI RENDERING ===
@@ -129,11 +169,12 @@ function renderPlants(plantArray) {
   });
 }
 
-function renderMyGarden() {
+function renderMyGarden(gardenArray) {
+  const arrayToRender = gardenArray || myGarden;
   if (!myGardenContainer) return;
   myGardenContainer.innerHTML = "";
 
-  myGarden.forEach((plant) => {
+  arrayToRender.forEach((plant) => {
     const div = document.createElement("div");
     div.className = "my-plant-card";
     div.innerHTML = `
@@ -141,8 +182,8 @@ function renderMyGarden() {
       <p>Luce: ${plant.sunlight}</p>
       <p>Acqua: ${plant.watering}</p>
       <p>Temperatura ideale min: ${plant.tempMin}°C</p>
-      <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-      <button onclick="removeFromMyGarden('${plant.name}')">Rimuovi</button>
+      <p>Temperatura ideale max: <span class="math-inline">\{plant\.tempMax\}°C</p\>
+<button onclick\="removeFromMyGarden\('</span>{plant.name}')">Rimuovi</button>
       <button onclick="updatePlant('${plant.name}')">Aggiorna info</button>
     `;
     myGardenContainer.appendChild(div);
@@ -155,7 +196,7 @@ function addToMyGarden(plantName) {
   if (!myGarden.some((p) => p.name === plantName)) {
     myGarden.push(plant);
     localStorage.setItem("myGarden", JSON.stringify(myGarden));
-    saveMyGardenToFirebase(); // Salva su Firebase quando il giardino viene modificato
+    saveMyGardenToFirebase();
     renderMyGarden();
   }
 }
@@ -165,7 +206,7 @@ function removeFromMyGarden(plantName) {
   if (index > -1) {
     myGarden.splice(index, 1);
     localStorage.setItem("myGarden", JSON.stringify(myGarden));
-    saveMyGardenToFirebase(); // Salva su Firebase quando il giardino viene modificato
+    saveMyGardenToFirebase();
     renderMyGarden();
   }
 }
@@ -185,18 +226,14 @@ function updatePlant(plantName) {
   if (newTempMax && !isNaN(newTempMax)) plant.tempMax = Number(newTempMax);
 
   localStorage.setItem("myGarden", JSON.stringify(myGarden));
-  saveMyGardenToFirebase(); // Salva su Firebase quando il giardino viene aggiornato
+  saveMyGardenToFirebase();
   renderMyGarden();
 }
 
 // === FILTRI E RICERCA ===
 function applyFilters() {
   let filtered = [...plants];
-
   const searchTerm = searchInput.value.toLowerCase();
-  const category = categoryFilter.value;
-  const minTemp = tempMinFilter.value;
-  const maxTemp = tempMaxFilter.value;
 
   if (searchTerm) {
     filtered = filtered.filter((p) =>
@@ -204,50 +241,43 @@ function applyFilters() {
     );
   }
 
+  renderPlants(filtered);
+}
+
+function applyMyGardenFilters() {
+  let filteredGarden = [...myGarden];
+
+  const category = categoryFilter.value;
+  const minTemp = tempMinFilter.value;
+  const maxTemp = tempMaxFilter.value;
+
   if (category !== "all") {
-    filtered = filtered.filter((p) => p.category === category);
+    filteredGarden = filteredGarden.filter((p) => p.category === category);
   }
 
   if (minTemp) {
     const minTempNum = parseInt(minTemp);
-    filtered = filtered.filter((p) => !isNaN(p.tempMin) && p.tempMin >= minTempNum);
+    filteredGarden = filteredGarden.filter((p) => !isNaN(p.tempMin) && p.tempMin >= minTempNum);
   }
 
   if (maxTemp) {
     const maxTempNum = parseInt(maxTemp);
-    filtered = filtered.filter((p) => !isNaN(p.tempMax) && p.tempMax <= maxTempNum);
+    filteredGarden = filteredGarden.filter((p) => !isNaN(p.tempMax) && p.tempMax <= maxTempNum);
   }
 
-  renderPlants(filtered);
+  renderMyGarden(filteredGarden);
 }
 
 // === EVENTI ===
 searchInput.addEventListener("input", applyFilters);
-categoryFilter.addEventListener("change", applyFilters);
-tempMinFilter.addEventListener("input", applyFilters);
-tempMaxFilter.addEventListener("input", applyFilters);
+categoryFilter.addEventListener("change", applyMyGardenFilters);
+tempMinFilter.addEventListener("input", applyMyGardenFilters);
+tempMaxFilter.addEventListener("input", applyMyGardenFilters);
 
 // === INIZIALIZZAZIONE ===
 fetch("plants.json")
   .then((response) => response.json())
   .then((data) => {
     plants.push(...data);
-    renderPlants(plants);
-    // La prima volta il giardino viene caricato in onAuthStateChanged
-  })
-  .catch((error) => {
-    console.error("Errore nel caricamento del database:", error);
-  });
-
-// === AUTENTICAZIONE (gestione dello stato) ===
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
-    authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+    // Non chiamare renderPlants qui
     loadMyGardenFromFirebase();
-  } else {
-    console.log("Stato autenticazione cambiato, nessun utente loggato.");
-    authStatusDiv.innerText = "Nessun utente autenticato.";
-    renderMyGarden(); // Mostra il giardino da localStorage se non c'è utente
-  }
-});
