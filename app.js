@@ -133,6 +133,7 @@ async function identifyPlantFromImage() {
 
         try {
             const plantData = await identifyPlant(base64Image);
+            console.log("Dati completi identificazione:", plantData); // <-- Aggiungi questa riga
             console.log("Risultato identificazione:", plantData);
             if (plantData && plantData.results && plantData.results.length > 0 && plantData.results[0].species) {
                 const bestMatch = plantData.results[0].species.name;
