@@ -279,17 +279,17 @@ async function addToMyGarden(plantName) {
   }
 }
 
-function removeFromMyGarden(plantName) {
-  const index = myGarden.findIndex((p) => p.name === plantName);
+async function removeFromMyGarden(plantIdToRemove) {
+  const index = myGarden.indexOf(plantIdToRemove); // Trova l'indice dell'ID
   if (index > -1) {
     myGarden.splice(index, 1);
-    console.log("Giardino dopo la rimozione:", myGarden);
-    if (myGarden.length > 0) { // Controlla se ci sono ancora piante nel giardino
+    console.log("Giardino dopo la rimozione (ID):", myGarden);
+    if (myGarden.length > 0) {
       localStorage.setItem("myGarden", JSON.stringify(myGarden));
     } else {
-      localStorage.removeItem("myGarden"); // Rimuovi la chiave se il giardino è vuoto
+      localStorage.removeItem("myGarden");
     }
-    saveMyGardenToFirebase();
+    await saveMyGardenToFirebase(); // Assicurati che sia async se la chiami con await
     renderMyGarden();
   }
 }
