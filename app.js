@@ -233,7 +233,6 @@ function renderPlants(plantArray) {
       const plantNameToAdd = addButton.dataset.plantName;
       addToMyGarden(plantNameToAdd);
     });
-  });
 }
 
 async function renderMyGarden(gardenArray) {
