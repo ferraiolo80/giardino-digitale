@@ -327,21 +327,42 @@ function toggleMyGardenVisibility() {
 // === FILTRI E RICERCA ===
 async function applyFilters() {
   const searchTerm = searchInput.value.toLowerCase();
+  const category = categoryFilter.value;
+  const tempMin = tempMinFilter.value ? Number(tempMinFilter.value) : null;
+  const tempMax = tempMaxFilter.value ? Number(tempMaxFilter.value) : null;
   const searchResultDiv = document.getElementById('garden-container');
 
-  if (searchTerm) {
-    try {
-      // Esegui una query a Firebase sulla collezione 'plants'
-      const querySnapshot = await db
-        .collection('plants')
-        .where('name', '>=', searchTerm) // Trova nomi che iniziano con searchTerm
-        .where('name', '<=', searchTerm + '\uf8ff') // \uf8ff è un carattere Unicode alto che aiuta a fare una ricerca per prefisso
-        .get();
+  try {
+    let query = db.collection('plants');
 
-      const filteredPlantsFromFirebase = [];
-      querySnapshot.forEach((doc) => {
-        filteredPlantsFromFirebase.push({ id: doc.id, ...doc.data() });
-      });
+    if (searchTerm) {
+      query = query
+        .where('name', '>=', searchTerm)
+        .where('name', '<=', searchTerm + '\uf8ff');
+    }
+
+    if (category !== 'Tutte le categorie') {
+      query = query.where('category', '==', category);
+    }
+
+    const querySnapshot = await query.get();
+    let filteredPlantsFromFirebase = [];
+    querySnapshot.forEach((doc) => {
+      filteredPlantsFromFirebase.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Filtra per temperatura *dopo* aver ottenuto i risultati da Firebase
+    if (tempMin !== null) {
+      filteredPlantsFromFirebase = filteredPlantsFromFirebase.filter(
+        (plant) => plant.tempMax >= tempMin
+      );
+    }
+
+    if (tempMax !== null) {
+      filteredPlantsFromFirebase = filteredPlantsFromFirebase.filter(
+        (plant) => plant.tempMin <= tempMax
+      );
+    }
 
       if (filteredPlantsFromFirebase.length === 0) {
         searchResultDiv.innerHTML = `<p>Nessuna pianta trovata con il nome "${searchTerm}".</p>`;
