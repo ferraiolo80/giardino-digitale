@@ -383,9 +383,9 @@ function applyMyGardenFilters() {
 
 // === EVENTI ===
 searchInput.addEventListener("input", applyFilters);
-categoryFilter.addEventListener("change", applyMyGardenFilters);
-tempMinFilter.addEventListener("input", applyMyGardenFilters);
-tempMaxFilter.addEventListener("input", applyMyGardenFilters);
+categoryFilter.addEventListener("change", applyFilters); // Cambiato da applyMyGardenFilters
+tempMinFilter.addEventListener("input", applyFilters);   // Cambiato da applyMyGardenFilters
+tempMaxFilter.addEventListener("input", applyFilters);   // Cambiato da applyMyGardenFilters
 toggleMyGardenButton.addEventListener('click', toggleMyGardenVisibility);
 
 // Aggiungi gli event listener per i pulsanti di autenticazione
