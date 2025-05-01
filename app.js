@@ -128,10 +128,9 @@ async function identifyPlantFromImage() {
 
         try {
             const plantData = await identifyPlant(base64Image);
-            console.log("Risultato identificazione completa:", plantData);
             console.log("Risultato identificazione:", plantData);
-            if (plantData && plantData.suggestions && plantData.suggestions.length > 0 && plantData.suggestions[0].plant_details && plantData.suggestions[0].plant_details.scientific_name) {
-                const bestMatch = plantData.suggestions[0].plant_details.scientific_name;
+            if (plantData && plantData.results && plantData.results.length > 0 && plantData.results[0].species) {
+                const bestMatch = plantData.results[0].species.name;
                 imageSearchResultDiv.innerText = `Probabile corrispondenza: ${bestMatch}`;
             } else {
                 imageSearchResultDiv.innerText = "Nessuna corrispondenza trovata.";
@@ -144,6 +143,7 @@ async function identifyPlantFromImage() {
 
   reader.readAsDataURL(file);
 }
+
 function displayPlantDetails(plant) {
   const plantDetailsDiv = document.getElementById('plant-details');
   plantDetailsDiv.innerHTML = `
