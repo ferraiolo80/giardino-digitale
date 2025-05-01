@@ -219,6 +219,14 @@ function renderPlants(plantArray) {
 
     gardenContainer.appendChild(plantCard);
 
+    const addButton = plantCard.querySelector('.add-to-garden-button');
+    addButton.addEventListener('click', () => {
+      const plantNameToAdd = addButton.dataset.plantName;
+      addToMyGarden(plantNameToAdd);
+    });
+  });
+}
+
     // Aggiungi l'event listener al bottone dopo che è stato creato
     const addButton = plantCard.querySelector('.add-to-garden-button');
     addButton.addEventListener('click', () => {
