@@ -91,8 +91,13 @@ async function loginWithEmailPassword() {
     console.log("Utente loggato:", user.uid);
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
     appContentDiv.style.display = 'block';
-    authContainerDiv.style.display = 'none'; // <---- Aggiunta questa riga
-    loadMyGardenFromFirebase(); // Carica il giardino dopo il login
+    authContainerDiv.style.display = 'none';
+
+    // Aggiungi un piccolo ritardo prima di caricare il giardino
+    setTimeout(() => {
+      loadMyGardenFromFirebase();
+    }, 1000); // 1000 millisecondi (1 secondo)
+
   } catch (error) {
     console.error("Errore di login:", error.message);
     errorDiv.innerText = error.message;
