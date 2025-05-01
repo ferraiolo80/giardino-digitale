@@ -334,6 +334,8 @@ async function applyFilters() {
   const category = categoryFilter.value;
   const tempMin = tempMinFilter.value ? Number(tempMinFilter.value) : null;
   const tempMax = tempMaxFilter.value ? Number(tempMaxFilter.value) : null;
+  console.log("Filtro temperatura min:", tempMin);
+  console.log("Filtro temperatura max:", tempMax);
   const searchResultDiv = document.getElementById('garden-container');
 
   try {
