@@ -380,30 +380,6 @@ async function applyFilters() {
   }
 }
 
-function applyMyGardenFilters() {
-  let filteredGarden = [...myGarden];
-
-  const category = categoryFilter.value;
-  const minTemp = tempMinFilter.value;
-  const maxTemp = tempMaxFilter.value;
-
-  if (category !== "all") {
-    filteredGarden = filteredGarden.filter((p) => p.category === category);
-  }
-
-  if (minTemp) {
-    const minTempNum = parseInt(minTemp);
-    filteredGarden = filteredGarden.filter((p) => !isNaN(p.tempMin) && p.tempMin >= minTempNum);
-  }
-
-  if (maxTemp) {
-    const maxTempNum = parseInt(maxTemp);
-    filteredGarden = filteredGarden.filter((p) => !isNaN(p.tempMax) && p.tempMax <= maxTempNum);
-  }
-
-  renderMyGarden(filteredGarden);
-}
-
 // === EVENTI ===
 searchInput.addEventListener("input", applyFilters);
 categoryFilter.addEventListener("change", applyFilters); // Cambiato da applyMyGardenFilters
