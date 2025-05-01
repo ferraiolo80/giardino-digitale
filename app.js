@@ -232,9 +232,7 @@ function renderPlants(plantArray) {
     addButton.addEventListener('click', () => {
       const plantNameToAdd = addButton.dataset.plantName;
       addToMyGarden(plantNameToAdd);
-    });
-}
-
+  
 async function renderMyGarden(gardenArray) {
   const gardenIds = gardenArray || myGarden; // Ora 'myGarden' contiene solo ID
   if (!myGardenContainer) return;
