@@ -224,32 +224,46 @@ function renderPlants(plantArray) {
   });
 }
 
-function renderMyGarden(gardenArray) {
-  const arrayToRender = gardenArray || myGarden;
+async function renderMyGarden(gardenArray) {
+  const gardenIds = gardenArray || myGarden; // Ora 'myGarden' contiene solo ID
   if (!myGardenContainer) return;
   myGardenContainer.innerHTML = "";
 
-  arrayToRender.forEach((plant) => {
-    const div = document.createElement("div");
-    div.className = "my-plant-card";
-    div.innerHTML = `
-      <h4>${plant.name}</h4>
-      <p>Luce: ${plant.sunlight}</p>
-      <p>Acqua: ${plant.watering}</p>
-      <p>Temperatura ideale min: ${plant.tempMin}°C</p>
-      <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-      <button class="remove-button" data-plant-name="${plant.name}">Rimuovi</button>
-      <button onclick="updatePlant('${plant.name}')">Aggiorna info</button>
-    `;
-    myGardenContainer.appendChild(div);
+  for (const plantId of gardenIds) {
+    try {
+      const doc = await db.collection('plants').doc(plantId).get();
+      if (doc.exists) {
+        const plantData = { id: doc.id, ...doc.data() };
+        const div = document.createElement("div");
+        div.className = "my-plant-card";
+        div.innerHTML = `
+          <h4>${plantData.name}</h4>
+          <p>Luce: ${plantData.sunlight}</p>
+          <p>Acqua: ${plantData.watering}</p>
+          <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
+          <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+          <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
+          <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
+        `;
+        myGardenContainer.appendChild(div);
 
-    // Aggiungi event listener al pulsante "Rimuovi"
-    const removeButton = div.querySelector('.remove-button');
-    removeButton.addEventListener('click', () => {
-      const plantNameToRemove = removeButton.dataset.plantName;
-      removeFromMyGarden(plantNameToRemove);
-    });
-  });
+        // Aggiungi event listener al pulsante "Rimuovi" (ora usa l'ID)
+        const removeButton = div.querySelector('.remove-button');
+        removeButton.addEventListener('click', () => {
+          const plantIdToRemove = removeButton.dataset.plantId;
+          removeFromMyGarden(plantIdToRemove); // Assicurati che anche questa funzione usi gli ID
+        });
+      } else {
+        console.warn(`Pianta con ID ${plantId} non trovata nel database.`);
+        // Potresti voler rimuovere l'ID non valido da myGarden qui
+      }
+    } catch (error) {
+      console.error("Errore nel caricamento della pianta dal giardino:", error);
+    }
+  }
+  // Aggiorna la visibilità del "Mio giardino" se necessario
+  mioGiardinoSection.style.display = myGarden.length > 0 ? 'block' : 'none';
+  giardinoTitle.style.display = myGarden.length > 0 ? 'block' : 'none';
 }
 // === FUNZIONI PRINCIPALI ===
 async function addToMyGarden(plantName) {
