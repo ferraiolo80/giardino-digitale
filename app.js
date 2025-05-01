@@ -207,20 +207,19 @@ function renderPlants(plantArray) {
       <p><strong>Acqua:</strong> ${plant.watering}</p>
       <p><strong>Temperatura ideale min:</strong> ${plant.tempMin}°C</p>
       <p><strong>Temperatura ideale max:</strong> ${plant.tempMax}°C</p>
-      ${
-        plant.description
-          ? `<p><strong>Descrizione:</strong> ${plant.description}</p>`
-          : ""
-      }
-      ${
-        plant.image
-          ? `<img src="${plant.image}" alt="${plant.name}" width="100">`
-          : ""
-      }
-      <button onclick="addToMyGarden('${plant.name}')">Aggiungi al mio giardino</button>
+      ${plant.description ? `<p><strong>Descrizione:</strong> ${plant.description}</p>` : ""}
+      ${plant.image ? `<img src="${plant.image}" alt="${plant.name}" width="100">` : ""}
+      <button class="add-to-garden-button" data-plant-name="${plant.name}">Aggiungi al mio giardino</button>
     `;
 
     gardenContainer.appendChild(plantCard);
+
+    // Aggiungi l'event listener al bottone dopo che è stato creato
+    const addButton = plantCard.querySelector('.add-to-garden-button');
+    addButton.addEventListener('click', () => {
+      const plantNameToAdd = addButton.dataset.plantName;
+      addToMyGarden(plantNameToAdd);
+    });
   });
 }
 
