@@ -226,12 +226,6 @@ function renderPlants(plantArray) {
     });
   });
 }
-
-    // Aggiungi l'event listener al bottone dopo che è stato creato
-    const addButton = plantCard.querySelector('.add-to-garden-button');
-    addButton.addEventListener('click', () => {
-      const plantNameToAdd = addButton.dataset.plantName;
-      addToMyGarden(plantNameToAdd);
   
 async function renderMyGarden(gardenArray) {
   const gardenIds = gardenArray || myGarden; // Ora 'myGarden' contiene solo ID
