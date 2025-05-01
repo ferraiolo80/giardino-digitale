@@ -252,13 +252,16 @@ function renderMyGarden(gardenArray) {
   });
 }
 // === FUNZIONI PRINCIPALI ===
-function addToMyGarden(plantName) {
-  const plant = plants.find((p) => p.name === plantName);
-  if (!myGarden.some((p) => p.name === plantName)) {
-    myGarden.push(plant);
-    localStorage.setItem("myGarden", JSON.stringify(myGarden));
-    saveMyGardenToFirebase();
-    renderMyGarden();
+async function addToMyGarden(plantName) {
+  const plant = plants.find((p) => p.name === plantName); // Ottieni la pianta dall'array locale (per avere l'ID)
+
+  if (plant) { // Verifica che la pianta sia stata trovata
+    if (!myGarden.includes(plant.id)) { // Controlla se l'ID è già nel giardino
+      myGarden.push(plant.id); // Aggiungi l'ID, non l'intera pianta
+      localStorage.setItem("myGarden", JSON.stringify(myGarden));
+      await saveMyGardenToFirebase(); // Assicurati che questa funzione sia async
+      renderMyGarden(); // Assicurati che questa funzione gestisca gli ID
+    }
   }
 }
 
