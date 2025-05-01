@@ -364,17 +364,14 @@ async function applyFilters() {
       );
     }
 
-      if (filteredPlantsFromFirebase.length === 0) {
-        searchResultDiv.innerHTML = `<p>Nessuna pianta trovata con il nome "${searchTerm}".</p>`;
-      } else {
-        renderPlants(filteredPlantsFromFirebase); // Usa i risultati di Firebase
-      }
-    } catch (error) {
-      console.error("Errore durante la ricerca di piante:", error);
-      searchResultDiv.innerHTML = `<p>Errore durante la ricerca.</p>`;
+    if (filteredPlantsFromFirebase.length === 0) {
+      searchResultDiv.innerHTML = `<p>Nessuna pianta trovata con i filtri applicati.</p>`;
+    } else {
+      renderPlants(filteredPlantsFromFirebase); // Usa i risultati di Firebase
     }
-  } else {
-    renderPlants([]); // Pulisci la visualizzazione se la ricerca è vuota
+  } catch (error) {
+    console.error("Errore durante la ricerca di piante:", error);
+    searchResultDiv.innerHTML = `<p>Errore durante la ricerca.</p>`;
   }
 }
 
