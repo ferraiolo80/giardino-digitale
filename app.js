@@ -309,21 +309,32 @@ function toggleMyGardenVisibility() {
 }
 
 // === FILTRI E RICERCA ===
-function applyFilters() {
-  let filtered = [...plants];
+async function applyFilters() {
   const searchTerm = searchInput.value.toLowerCase();
   const searchResultDiv = document.getElementById('garden-container');
 
   if (searchTerm) {
-    filtered = filtered.filter((p) =>
-      p.name.toLowerCase().includes(searchTerm)
-    );
+    try {
+      // Esegui una query a Firebase sulla collezione 'plants'
+      const querySnapshot = await db
+        .collection('plants')
+        .where('name', '>=', searchTerm) // Trova nomi che iniziano con searchTerm
+        .where('name', '<=', searchTerm + '\uf8ff') // \uf8ff è un carattere Unicode alto che aiuta a fare una ricerca per prefisso
+        .get();
 
-    if (filtered.length === 0) {
-      searchResultDiv.innerHTML = `<p>Nessuna pianta trovata con il nome "${searchTerm}".</p>`;
-      // Rimossa la possibilità di aggiungere qui per ora, ci concentriamo sulla scomparsa del login
-    } else {
-      renderPlants(filtered);
+      const filteredPlantsFromFirebase = [];
+      querySnapshot.forEach((doc) => {
+        filteredPlantsFromFirebase.push({ id: doc.id, ...doc.data() });
+      });
+
+      if (filteredPlantsFromFirebase.length === 0) {
+        searchResultDiv.innerHTML = `<p>Nessuna pianta trovata con il nome "${searchTerm}".</p>`;
+      } else {
+        renderPlants(filteredPlantsFromFirebase); // Usa i risultati di Firebase
+      }
+    } catch (error) {
+      console.error("Errore durante la ricerca di piante:", error);
+      searchResultDiv.innerHTML = `<p>Errore durante la ricerca.</p>`;
     }
   } else {
     renderPlants([]); // Pulisci la visualizzazione se la ricerca è vuota
