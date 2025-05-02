@@ -70,7 +70,7 @@ button:hover {
   height: auto;
   .icon-min-temp {
     padding-left: 30px; /* Spazio per l'icona */
-    background-image: url('images/temperature-arrow-up.svg'); /* Sostituisci con il percorso effettivo */
+    background-image: url('temperature-arrow-up.svg'); /* Sostituisci con il percorso effettivo */
     background-repeat: no-repeat;
     background-position: left 5px center;
     background-size: 20px; /* Adatta le dimensioni dell'icona */
@@ -78,7 +78,7 @@ button:hover {
 
 .icon-max-temp {
     padding-left: 30px; /* Spazio per l'icona */
-    background-image: url('images/temperature-arrow-down.svg'); /* Sostituisci con il percorso effettivo */
+    background-image: url('temperature-arrow-down.svg'); /* Sostituisci con il percorso effettivo */
     background-repeat: no-repeat;
     background-position: left 5px center;
     background-size: 20px; /* Adatta le dimensioni dell'icona */
