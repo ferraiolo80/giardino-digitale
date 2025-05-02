@@ -215,8 +215,8 @@ function renderPlants(plantArray) {
       <h3>${plant.name}</h3>
       <p><strong><i class="fas fa-sun"></i> Luce:</strong> ${plant.sunlight}</p>
       <p><strong><i class="fas fa-tint"></i> Acqua:</strong> ${plant.watering}</p>
-      <p><strong><i class="fas fa-temperature-arrow-up"></i> Temperatura ideale min:</strong> ${plant.tempMin}°C</p>
-      <p><strong><i class="fas fa-temperature-arrow-down"></i> Temperatura ideale max:</strong> ${plant.tempMax}°C</p>
+      <p><strong><i class="fas fa-temperature-arrow-up-solid"></i> Temperatura ideale min:</strong> ${plant.tempMin}°C</p>
+      <p><strong><i class="fas fa-temperature-arrow-down-solid"></i> Temperatura ideale max:</strong> ${plant.tempMax}°C</p>
       ${plant.description ? `<p><strong>Descrizione:</strong> ${plant.description}</p>` : ""}
       ${plant.image ? `<img src="${plant.image}" alt="${plant.name}" width="100">` : ""}
       <button class="add-to-garden-button" data-plant-name="${plant.name}" ${buttonDisabled}>${buttonText}</button>
