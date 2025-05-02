@@ -446,3 +446,75 @@ firebase.auth().onAuthStateChanged((user) => {
     renderMyGarden();
   }
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const addNewPlantButton = document.getElementById('addNewPlantButton');
+  const newPlantCard = document.getElementById('newPlantCard');
+  const saveNewPlantButton = document.getElementById('saveNewPlant');
+  const cancelNewPlantButton = document.getElementById('cancelNewPlant');
+
+  if (addNewPlantButton) {
+    addNewPlantButton.addEventListener('click', () => {
+      newPlantCard.style.display = 'block'; // Rendi visibile la card
+    });
+  }
+
+  if (cancelNewPlantButton) {
+    cancelNewPlantButton.addEventListener('click', () => {
+      newPlantCard.style.display = 'none'; // Nascondi la card
+      resetNewPlantForm(); // Pulisci il form (funzione da definire)
+    });
+  }
+
+  if (saveNewPlantButton) {
+    saveNewPlantButton.addEventListener('click', saveNewPlantToFirebase);
+  }
+});
+
+async function saveNewPlantToFirebase() {
+  const name = document.getElementById('newPlantName').value;
+  const sunlight = document.getElementById('newPlantSunlight').value;
+  const watering = document.getElementById('newPlantWatering').value;
+  const tempMin = Number(document.getElementById('newPlantTempMin').value);
+  const tempMax = Number(document.getElementById('newPlantTempMax').value);
+  const description = document.getElementById('newPlantDescription').value;
+  const category = document.getElementById('newPlantCategory').value;
+  const image = document.getElementById('newPlantImageURL').value;
+
+  if (!name || !sunlight || !watering || isNaN(tempMin) || isNaN(tempMax) || !category) {
+    alert('Per favore, compila tutti i campi obbligatori.'); // Aggiungi qui una gestione degli errori più elegante
+    return;
+  }
+
+  try {
+    const newPlant = {
+      name: name.trim(),
+      sunlight: sunlight.trim(),
+      watering: watering.trim(),
+      tempMin: tempMin,
+      tempMax: tempMax,
+      description: description.trim(),
+      category: category,
+      image: image.trim()
+    };
+
+    await db.collection('plants').add(newPlant);
+    console.log('Nuova pianta aggiunta a Firebase con successo!');
+    newPlantCard.style.display = 'none'; // Nascondi la card dopo il salvataggio
+    resetNewPlantForm(); // Pulisci il form
+    loadPlantsFromFirebase(); // Ricarica la lista delle piante per visualizzare la nuova aggiunta
+  } catch (error) {
+    console.error('Errore durante l\'aggiunta della nuova pianta a Firebase:', error);
+    alert('Si è verificato un errore durante il salvataggio della pianta.'); // Aggiungi qui una gestione degli errori più elegante
+  }
+}
+
+function resetNewPlantForm() {
+  document.getElementById('newPlantName').value = '';
+  document.getElementById('newPlantSunlight').value = '';
+  document.getElementById('newPlantWatering').value = '';
+  document.getElementById('newPlantTempMin').value = '';
+  document.getElementById('newPlantTempMax').value = '';
+  document.getElementById('newPlantDescription').value = '';
+  document.getElementById('newPlantCategory').value = 'Fiore'; // Resetta alla categoria predefinita
+  document.getElementById('newPlantImageURL').value = '';
+}
