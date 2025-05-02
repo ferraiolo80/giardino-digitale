@@ -51,6 +51,43 @@
       <div id="plant-details"></div>
     </div>
 
+    <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
+
+<div id="newPlantCard" style="display: none;">
+    <h3>Aggiungi una Nuova Pianta</h3>
+    <label for="newPlantName">Nome:</label>
+    <input type="text" id="newPlantName"><br><br>
+
+    <label for="newPlantSunlight">Luce:</label>
+    <input type="text" id="newPlantSunlight"><br><br>
+
+    <label for="newPlantWatering">Acqua:</label>
+    <input type="text" id="newPlantWatering"><br><br>
+
+    <label for="newPlantTempMin">Temperatura Minima (°C):</label>
+    <input type="number" id="newPlantTempMin"><br><br>
+
+    <label for="newPlantTempMax">Temperatura Massima (°C):</label>
+    <input type="number" id="newPlantTempMax"><br><br>
+
+    <label for="newPlantDescription">Descrizione (Opzionale):</label><br>
+    <textarea id="newPlantDescription"></textarea><br><br>
+
+    <label for="newPlantCategory">Categoria:</label>
+    <select id="newPlantCategory">
+        <option value="Fiore">Fiore</option>
+        <option value="Erba aromatica">Erba aromatica</option>
+        <option value="Succulenta">Succulenta</option>
+        <option value="Arbusto">Arbusto</option>
+        <option value="Albero">Albero</option>
+        </select><br><br>
+
+    <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
+    <input type="url" id="newPlantImageURL"><br><br>
+
+    <button id="saveNewPlant">Salva Pianta</button>
+    <button id="cancelNewPlant">Annulla</button>
+</div>
     <div class="filter-container">
       <label for="categoryFilter">🌿 Filtra nel Mio Giardino per categoria:</label>
       <select id="categoryFilter">
