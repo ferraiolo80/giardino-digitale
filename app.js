@@ -213,10 +213,10 @@ function renderPlants(plantArray) {
 
     plantCard.innerHTML = `
       <h3>${plant.name}</h3>
-      <p><strong><i class="fas fa-sun"></i> Luce:</strong> ${plant.sunlight}</p>
-      <p><strong><i class="fas fa-tint"></i> Acqua:</strong> ${plant.watering}</p>
-      <p><strong><i class="fas fa-thermometer-low"></i> Temp. ideale min:</strong> ${plant.tempMin}°C</p>
-      <p><strong><i class="fas fa-thermometer-high"></i> Temp. ideale max:</strong> ${plant.tempMax}°C</p>
+      <p><strong><i class="fas fa-sun" style="margin-right: 5px;"></i> Luce:</strong> ${plant.sunlight}</p>
+      <p><strong><i class="fas fa-tint" style="margin-right: 5px;"></i> Acqua:</strong> ${plant.watering}</p>
+      <p><strong><i class="fas fa-thermometer-low" style="margin-right: 5px;"></i> Temp. min:</strong> ${plant.tempMin}°C</p>
+      <p><strong><i class="fas fa-thermometer-high" style="margin-right: 5px;"></i> Temp. max:</strong> ${plant.tempMax}°C</p>
       ${plant.description ? `<p><strong>Descrizione:</strong> ${plant.description}</p>` : ""}
       ${plant.image ? `<img src="${plant.image}" alt="${plant.name}" width="100">` : ""}
       <button class="add-to-garden-button" data-plant-name="${plant.name}" ${buttonDisabled}>${buttonText}</button>
@@ -225,7 +225,7 @@ function renderPlants(plantArray) {
     gardenContainer.appendChild(plantCard);
 
     const addButton = plantCard.querySelector('.add-to-garden-button');
-    if (!isInMyGarden) { // Aggiungi l'event listener solo se la pianta non è già nel giardino
+    if (!isInMyGarden) {
       addButton.addEventListener('click', () => {
         const plantNameToAdd = addButton.dataset.plantName;
         addToMyGarden(plantNameToAdd);
