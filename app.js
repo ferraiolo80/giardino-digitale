@@ -213,8 +213,8 @@ function renderPlants(plantArray) {
 
     plantCard.innerHTML = `
       <h3>${plant.name}</h3>
-      <p><strong>Luce:</strong> ${plant.sunlight}</p>
-      <p><strong>Acqua:</strong> ${plant.watering}</p>
+      <p><strong><i class="fas fa-sun"></i> Luce:</strong> ${plant.sunlight}</p>
+      <p><strong><i class="fas fa-tint"></i> Acqua:</strong> ${plant.watering}</p>
       <p><strong>Temperatura ideale min:</strong> ${plant.tempMin}°C</p>
       <p><strong>Temperatura ideale max:</strong> ${plant.tempMax}°C</p>
       ${plant.description ? `<p><strong>Descrizione:</strong> ${plant.description}</p>` : ""}
