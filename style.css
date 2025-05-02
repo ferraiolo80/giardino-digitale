@@ -85,3 +85,17 @@ button:hover {
     background-position: right 5px center; /* Sposta l'icona a destra */
     background-size: 20px;
 }
+#my-garden {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Crea colonne che si adattano alla larghezza */
+  gap: 10px; /* Spazio tra le card */
+  padding: 10px;
+}
+
+.my-plant-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px; /* Potrebbe non servire con grid, ma lascialo per sicurezza */
+  border-radius: 5px;
+  text-align: center;
+}
