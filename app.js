@@ -474,6 +474,7 @@ async function saveNewPlantToFirebase() {
     // Ottieni la nuova pianta con il suo ID
     const newPlantSnapshot = await docRef.get();
     const newPlant = { id: newPlantSnapshot.id, ...newPlantSnapshot.data() };
+    console.log('Dati della nuova pianta appena salvata:', newPlant)
 
     // Aggiungi la nuova pianta all'array esistente (se lo stai mantenendo in memoria)
     // e poi rendi di nuovo la lista. Se non hai un array in memoria,
