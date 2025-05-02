@@ -207,6 +207,10 @@ function renderPlants(plantArray) {
     const plantCard = document.createElement("div");
     plantCard.className = "plant-card";
 
+    const isInMyGarden = myGarden.includes(plant.id);
+    const buttonText = isInMyGarden ? "Già nel giardino" : "Aggiungi al mio giardino";
+    const buttonDisabled = isInMyGarden ? "disabled" : "";
+
     plantCard.innerHTML = `
       <h3>${plant.name}</h3>
       <p><strong>Luce:</strong> ${plant.sunlight}</p>
@@ -215,16 +219,18 @@ function renderPlants(plantArray) {
       <p><strong>Temperatura ideale max:</strong> ${plant.tempMax}°C</p>
       ${plant.description ? `<p><strong>Descrizione:</strong> ${plant.description}</p>` : ""}
       ${plant.image ? `<img src="${plant.image}" alt="${plant.name}" width="100">` : ""}
-      <button class="add-to-garden-button" data-plant-name="${plant.name}">Aggiungi al mio giardino</button>
+      <button class="add-to-garden-button" data-plant-name="${plant.name}" ${buttonDisabled}>${buttonText}</button>
     `;
 
     gardenContainer.appendChild(plantCard);
 
     const addButton = plantCard.querySelector('.add-to-garden-button');
-    addButton.addEventListener('click', () => {
-      const plantNameToAdd = addButton.dataset.plantName;
-      addToMyGarden(plantNameToAdd);
-    });
+    if (!isInMyGarden) { // Aggiungi l'event listener solo se la pianta non è già nel giardino
+      addButton.addEventListener('click', () => {
+        const plantNameToAdd = addButton.dataset.plantName;
+        addToMyGarden(plantNameToAdd);
+      });
+    }
   });
 }
   
