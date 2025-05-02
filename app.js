@@ -481,12 +481,12 @@ async function saveNewPlantToFirebase() {
   const image = document.getElementById('newPlantImageURL').value;
 
   if (!name || !sunlight || !watering || isNaN(tempMin) || isNaN(tempMax) || !category) {
-    alert('Per favore, compila tutti i campi obbligatori.'); // Aggiungi qui una gestione degli errori più elegante
+    alert('Per favore, compila tutti i campi obbligatori.');
     return;
   }
 
   try {
-    const newPlant = {
+    const newPlantData = {
       name: name.trim(),
       sunlight: sunlight.trim(),
       watering: watering.trim(),
@@ -497,15 +497,33 @@ async function saveNewPlantToFirebase() {
       image: image.trim()
     };
 
-    await db.collection('plants').add(newPlant);
-    console.log('Nuova pianta aggiunta a Firebase con successo!');
-    newPlantCard.style.display = 'none'; // Nascondi la card dopo il salvataggio
-    resetNewPlantForm(); // Pulisci il form
-    loadPlantsFromFirebase(); // Ricarica la lista delle piante per visualizzare la nuova aggiunta
+    const docRef = await db.collection('plants').add(newPlantData);
+    console.log('Nuova pianta aggiunta a Firebase con successo! ID:', docRef.id);
+    newPlantCard.style.display = 'none';
+    resetNewPlantForm();
+
+    // Ottieni la nuova pianta con il suo ID
+    const newPlantSnapshot = await docRef.get();
+    const newPlant = { id: newPlantSnapshot.id, ...newPlantSnapshot.data() };
+
+    // Aggiungi la nuova pianta all'array esistente (se lo stai mantenendo in memoria)
+    // e poi rendi di nuovo la lista. Se non hai un array in memoria,
+    // puoi semplicemente ricaricare tutte le piante, ma assicurandoti
+    // che renderPlants pulisca correttamente il contenitore prima di aggiungere.
+    loadPlantsFromFirebase(); // Per ora, manteniamo la ricarica completa,
+                               // ma assicuriamoci che renderPlants pulisca.
+
   } catch (error) {
     console.error('Errore durante l\'aggiunta della nuova pianta a Firebase:', error);
-    alert('Si è verificato un errore durante il salvataggio della pianta.'); // Aggiungi qui una gestione degli errori più elegante
+    alert('Si è verificato un errore durante il salvataggio della pianta.');
   }
+}
+
+function renderPlants(plantArray) {
+  gardenContainer.innerHTML = ""; // <--- Assicurati di pulire il contenitore PRIMA di aggiungere le card
+  plantArray.forEach((plant) => {
+    // ... (il tuo codice per creare e appendere le card) ...
+  });
 }
 
 function resetNewPlantForm() {
