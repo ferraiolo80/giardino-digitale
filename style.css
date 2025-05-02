@@ -71,17 +71,17 @@ button:hover {
 }
 
 .icon-min-temp {
-    padding-left: 30px; /* Spazio per l'icona */
-    background-image: url('temperature-arrow-up.svg'); /* Sostituisci con il percorso effettivo */
+    padding-left: 30px;
+    background-image: url('temperature-arrow-up-solid.svg'); /* Percorso corretto */
     background-repeat: no-repeat;
     background-position: left 5px center;
-    background-size: 20px; /* Adatta le dimensioni dell'icona */
+    background-size: 20px;
 }
 
 .icon-max-temp {
-    padding-left: 30px; /* Spazio per l'icona */
-    background-image: url('temperature-arrow-down.svg'); /* Sostituisci con il percorso effettivo */
+    padding-left: 30px;
+    background-image: url('temperature-arrow-down-solid.svg'); /* Percorso corretto */
     background-repeat: no-repeat;
     background-position: left 5px center;
-    background-size: 20px; /* Adatta le dimensioni dell'icona */
+    background-size: 20px;
 }
