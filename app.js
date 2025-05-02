@@ -385,6 +385,7 @@ if (imageIdentifyButton) {
   async function loadPlantsFromFirebase() {
   try {
     const snapshot = await db.collection("plants").get();
+    plants.length = 0;
     snapshot.forEach((doc) => {
       plants.push({ id: doc.id, ...doc.data() });
     });
