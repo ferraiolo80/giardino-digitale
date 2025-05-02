@@ -330,12 +330,12 @@ function toggleMyGardenVisibility() {
   if (mioGiardinoSection.style.display === 'none') {
     mioGiardinoSection.style.display = 'block';
     giardinoTitle.style.display = 'block';
-    toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
+    toggleMyGardenButton.innerHTML = '<i class="fas fa-eye-slash"></i> Nascondi il mio giardino';
     gardenSection.style.display = 'none'; // Nascondi la sezione delle piante della ricerca
   } else {
     mioGiardinoSection.style.display = 'none';
     giardinoTitle.style.display = 'none';
-    toggleMyGardenButton.innerText = 'Mostra il mio giardino';
+    toggleMyGardenButton.innerHTML = '<i class="fas fa-eye"></i> Mostra il mio giardino';
     gardenSection.style.display = 'grid'; // Rendi visibile la sezione delle piante della ricerca (usa 'grid' o 'block' a seconda del tuo CSS)
   }
 }
