@@ -441,53 +441,52 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function saveNewPlantToFirebase() {
-  const name = document.getElementById('newPlantName').value;
-  const sunlight = document.getElementById('newPlantSunlight').value;
-  const watering = document.getElementById('newPlantWatering').value;
-  const tempMin = Number(document.getElementById('newPlantTempMin').value);
-  const tempMax = Number(document.getElementById('newPlantTempMax').value);
-  const description = document.getElementById('newPlantDescription').value;
-  const category = document.getElementById('newPlantCategory').value;
-  const image = document.getElementById('newPlantImageURL').value;
+    const name = document.getElementById('newPlantName').value;
+    const sunlight = document.getElementById('newPlantSunlight').value;
+    const watering = document.getElementById('newPlantWatering').value;
+    const tempMin = Number(document.getElementById('newPlantTempMin').value);
+    const tempMax = Number(document.getElementById('newPlantTempMax').value);
+    const description = document.getElementById('newPlantDescription').value;
+    const category = document.getElementById('newPlantCategory').value;
+    const image = document.getElementById('newPlantImageURL').value;
 
-  if (!name || !sunlight || !watering || isNaN(tempMin) || isNaN(tempMax) || !category) {
-    alert('Per favore, compila tutti i campi obbligatori.');
-    return;
-  }
+    if (!name || !sunlight || !watering || isNaN(tempMin) || isNaN(tempMax) || !category) {
+        alert('Per favore, compila tutti i campi obbligatori.');
+        return;
+    }
 
-  try {
-    const newPlantData = {
-      name: name.trim(),
-      sunlight: sunlight.trim(),
-      watering: watering.trim(),
-      tempMin: tempMin,
-      tempMax: tempMax,
-      description: description.trim(),
-      category: category,
-      image: image.trim()
-    };
+    try {
+        const newPlantData = {
+            name: name.trim(),
+            sunlight: sunlight.trim(),
+            watering: watering.trim(),
+            tempMin: tempMin,
+            tempMax: tempMax,
+            description: description.trim(),
+            category: category,
+            image: image.trim()
+        };
 
-    const docRef = await db.collection('plants').add(newPlantData);
-    console.log('Nuova pianta aggiunta a Firebase con successo! ID:', docRef.id);
-    newPlantCard.style.display = 'none';
-    resetNewPlantForm();
+        const docRef = await db.collection('plants').add(newPlantData);
+        console.log('Nuova pianta aggiunta a Firebase con successo! ID:', docRef.id);
+        newPlantCard.style.display = 'none';
+        resetNewPlantForm();
 
-    // Ottieni la nuova pianta con il suo ID
-    const newPlantSnapshot = await docRef.get();
-    const newPlant = { id: newPlantSnapshot.id, ...newPlantSnapshot.data() };
-    console.log('Dati della nuova pianta appena salvata:', newPlant)
+        // Ottieni l'ID della nuova pianta
+        const newPlantId = docRef.id;
 
-    // Aggiungi la nuova pianta all'array esistente (se lo stai mantenendo in memoria)
-    // e poi rendi di nuovo la lista. Se non hai un array in memoria,
-    // puoi semplicemente ricaricare tutte le piante, ma assicurandoti
-    // che renderPlants pulisca correttamente il contenitore prima di aggiungere.
-    loadPlantsFromFirebase(); // Per ora, manteniamo la ricarica completa,
-                               // ma assicuriamoci che renderPlants pulisca.
+        // Aggiungi l'ID al 'Mio giardino'
+        myGarden.push(newPlantId);
+        localStorage.setItem("myGarden", JSON.stringify(myGarden));
+        await saveMyGardenToFirebase(); // Salva l'aggiornamento di 'myGarden' su Firebase
 
-  } catch (error) {
-    console.error('Errore durante l\'aggiunta della nuova pianta a Firebase:', error);
-    alert('Si è verificato un errore durante il salvataggio della pianta.');
-  }
+        // Rendi immediatamente il 'Mio giardino' per mostrare la nuova pianta
+        renderMyGarden(myGarden);
+
+    } catch (error) {
+        console.error('Errore durante l\'aggiunta della nuova pianta a Firebase:', error);
+        alert('Si è verificato un errore durante il salvataggio della pianta.');
+    }
 }
 
 function renderPlants(plantArray) {
