@@ -474,11 +474,13 @@ async function saveNewPlantToFirebase() {
 
         // Ottieni l'ID della nuova pianta
         const newPlantId = docRef.id;
-
-        // Aggiungi l'ID al 'Mio giardino'
-        myGarden.push(newPlantId);
-        localStorage.setItem("myGarden", JSON.stringify(myGarden));
-        await saveMyGardenToFirebase(); // Salva l'aggiornamento di 'myGarden' su Firebase
+       
+        // Aggiungi l'ID al 'Mio giardino' SOLO se non è già presente
+        if (!myGarden.includes(newPlantId)) {
+            myGarden.push(newPlantId);
+            localStorage.setItem("myGarden", JSON.stringify(myGarden));
+            await saveMyGardenToFirebase(); // Salva l'aggiornamento di 'myGarden' su Firebase
+        }
 
         // Rendi immediatamente il 'Mio giardino' per mostrare la nuova pianta
         renderMyGarden(myGarden);
