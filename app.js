@@ -32,15 +32,15 @@ async function loadMyGardenFromFirebase() {
         console.log("Giardino caricato da Firebase per l'utente:", user.uid);
       } else {
         console.log("Nessun giardino trovato su Firebase per questo utente, caricando da localStorage.");
-        renderMyGarden(); // Carica comunque da localStorage se non c'è nulla su Firebase
+        renderMyGarden(myGarden); // Carica comunque da localStorage se non c'è nulla su Firebase
       }
     } else {
       console.log("Nessun utente autenticato, caricando il giardino da localStorage.");
-      renderMyGarden(); // Carica da localStorage se non c'è utente
+      renderMyGarden(myGarden); // Carica da localStorage se non c'è utente
     }
   } catch (error) {
     console.error("Errore nel caricamento del giardino da Firebase:", error);
-    renderMyGarden(); // In caso di errore, prova a caricare da localStorage
+    renderMyGarden(myGarden); // In caso di errore, prova a caricare da localStorage
   }
 }
 
