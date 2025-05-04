@@ -28,7 +28,7 @@ async function loadMyGardenFromFirebase() {
       if (doc.exists) {
         myGarden = doc.data().plants || [];
         localStorage.setItem("myGarden", JSON.stringify(myGarden)); // Aggiorna anche il localStorage
-        renderMyGarden();
+        renderMyGarden(myGarden);
         console.log("Giardino caricato da Firebase per l'utente:", user.uid);
       } else {
         console.log("Nessun giardino trovato su Firebase per questo utente, caricando da localStorage.");
