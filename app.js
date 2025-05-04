@@ -230,7 +230,7 @@ async function saveMyGardenToFirebase(garden) {
   // Aggiorna la visibilità del "Mio giardino" se necessario
   mioGiardinoSection.style.display = myGarden.length > 0 ? 'block' : 'none';
   giardinoTitle.style.display = myGarden.length > 0 ? 'block' : 'none';
-}
+
 // === FUNZIONI PRINCIPALI ===
 async function addToMyGarden(plantName) {
   const plant = plants.find((p) => p.name === plantName);
