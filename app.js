@@ -97,7 +97,7 @@ async function logout() {
     appContentDiv.style.display = 'none';
     authContainerDiv.style.display = 'block'; // <---- Aggiunta questa riga
     myGarden = JSON.parse(localStorage.getItem("myGarden")) || []; // Ricarica da localStorage dopo il logout
-    renderMyGarden();
+    renderMyGarden(myGarden);
   } catch (error) {
     console.error("Errore di logout:", error.message);
   }
