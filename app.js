@@ -196,7 +196,9 @@ async function renderMyGarden(garden) {
     try {
       const doc = await db.collection('plants').doc(plantId).get();
       if (doc.exists) {
-        const plantData = { id: doc.id, ...doc.data() }; // Ottieni anche l'ID qui
+        const plantData = { id: doc.id, ...doc.data() }; // Ottieni anche l'ID
+        const plantCard = createPlantCard(plantData); // Chiama la nuova funzione
+        myGardenContainer.appendChild(plantCard);
         validGarden.push(plantId); // Aggiungi l'ID valido al nuovo array
         function createPlantCard(plantData) {
   const div = document.createElement("div");
