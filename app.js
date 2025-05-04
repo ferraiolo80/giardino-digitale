@@ -18,22 +18,6 @@ const mioGiardinoSection = document.getElementById('my-garden');
 const giardinoTitle = document.getElementById('giardinoTitle');
 
 // === FUNZIONI FIREBASE ===
-async function saveMyGardenToFirebase() {
-  try {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      await db.collection("gardens").doc(user.uid).set({
-        plants: myGarden,
-        userId: user.uid
-      });
-      console.log("Giardino salvato su Firebase per l'utente:", user.uid);
-    } else {
-      console.warn("Nessun utente autenticato, il giardino è salvato solo localmente.");
-    }
-  } catch (error) {
-    console.error("Errore nel salvataggio del giardino su Firebase:", error);
-  }
-}
 
 async function loadMyGardenFromFirebase() {
   try {
