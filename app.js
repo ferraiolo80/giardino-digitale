@@ -16,6 +16,7 @@ const authContainerDiv = document.getElementById('auth-container');
 const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 const mioGiardinoSection = document.getElementById('my-garden');
 const giardinoTitle = document.getElementById('giardinoTitle');
+const auth = firebase.auth();
 
 // === FUNZIONI FIREBASE ===
 
