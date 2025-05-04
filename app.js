@@ -202,43 +202,47 @@ async function savePlantToFirebase(newPlant) {
 }
 // === FUNZIONI DI RENDERING ===
   
-async function renderMyGarden(gardenArray) {
-  const gardenIds = gardenArray || myGarden; // Ora 'myGarden' contiene solo ID
-  if (!myGardenContainer) return;
-  myGardenContainer.innerHTML = "";
+async function renderMyGarden(garden) {
+  const myGardenContainer = document.getElementById('my-garden');
+  myGardenContainer.innerHTML = ''; // Pulisci il contenitore
+  const validGarden = []; // Nuovo array per contenere solo ID validi
 
-  for (const plantId of gardenIds) {
+  for (const plantId of garden) {
     try {
       const doc = await db.collection('plants').doc(plantId).get();
       if (doc.exists) {
-        const plantData = { id: doc.id, ...doc.data() };
-        const div = document.createElement("div");
-        div.className = "my-plant-card";
-        div.innerHTML = `
-          <h4>${plantData.name}</h4>
-          <p>Luce: ${plantData.sunlight}</p>
-          <p>Acqua: ${plantData.watering}</p>
-          <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-          <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
-          <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
-          <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
-        `;
-        myGardenContainer.appendChild(div);
-
-        // Aggiungi event listener al pulsante "Rimuovi" (ora usa l'ID)
-        const removeButton = div.querySelector('.remove-button');
-        removeButton.addEventListener('click', () => {
-          const plantIdToRemove = removeButton.dataset.plantId;
-          removeFromMyGarden(plantIdToRemove); // Assicurati che anche questa funzione usi gli ID
-        });
+        const plantData = doc.data();
+        validGarden.push(plantId); // Aggiungi l'ID valido al nuovo array
+        const plantCard = createPlantCard(plantData); // Assumo tu abbia questa funzione
+        myGardenContainer.appendChild(plantCard);
       } else {
-        console.warn(`Pianta con ID ${plantId} non trovata nel database.`);
-        // Potresti voler rimuovere l'ID non valido da myGarden qui
+        console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
+        // Non aggiungiamo l'ID non valido al validGarden
       }
     } catch (error) {
-      console.error("Errore nel caricamento della pianta dal giardino:", error);
+      console.error("Errore nel recupero della pianta:", error);
     }
   }
+
+  // Aggiorna il localStorage e Firebase con l'array pulito
+  localStorage.setItem("myGarden", JSON.stringify(validGarden));
+  await saveMyGardenToFirebase(validGarden); // Assicurati che questa funzione accetti l'array come argomento
+}
+
+// Assumo che tu abbia una funzione saveMyGardenToFirebase che accetta l'array 'garden'
+async function saveMyGardenToFirebase(garden) {
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      await db.collection('gardens').doc(user.uid).update({
+        plants: garden
+      });
+      console.log("Il 'Mio Giardino' è stato aggiornato su Firebase.");
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento del 'Mio Giardino' su Firebase:", error);
+    }
+  }
+}
   // Aggiorna la visibilità del "Mio giardino" se necessario
   mioGiardinoSection.style.display = myGarden.length > 0 ? 'block' : 'none';
   giardinoTitle.style.display = myGarden.length > 0 ? 'block' : 'none';
