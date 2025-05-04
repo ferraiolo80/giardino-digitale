@@ -196,9 +196,9 @@ async function renderMyGarden(garden) {
     try {
       const doc = await db.collection('plants').doc(plantId).get();
       if (doc.exists) {
-        const plantData = doc.data();
+        const plantData = { id: doc.id, ...doc.data() }; // Ottieni anche l'ID qui
         validGarden.push(plantId); // Aggiungi l'ID valido al nuovo array
-        const plantCard = createPlantCard(plantData); // Assumo tu abbia questa funzione
+        const plantCard = createPlantCard(plantData); // Usa la nuova funzione
         myGardenContainer.appendChild(plantCard);
       } else {
         console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
@@ -211,7 +211,7 @@ async function renderMyGarden(garden) {
 
   // Aggiorna il localStorage e Firebase con l'array pulito
   localStorage.setItem("myGarden", JSON.stringify(validGarden));
-  await saveMyGardenToFirebase(validGarden); // Assicurati che questa funzione accetti l'array come argomento
+  await saveMyGardenToFirebase(validGarden); // Assicurati che la tua saveMyGardenToFirebase accetti 'garden'
 }
 
 // Assumo che tu abbia una funzione saveMyGardenToFirebase che accetta l'array 'garden'
