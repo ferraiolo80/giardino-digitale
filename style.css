@@ -27,7 +27,7 @@ select {
     border-radius: 4px;
     border: 1px solid #ccc;
     min-width: 150px;
-    box-sizing: border-box; /* Aggiunto per gestire meglio la larghezza */
+    box-sizing: border-box; 
 }
 
 button {
@@ -47,7 +47,7 @@ button:hover {
 #my-garden {
     margin: 1em 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Layout a griglia responsivo */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
     gap: 1em;
 }
 
@@ -71,23 +71,23 @@ button:hover {
 }
 
 .icon-min-temp {
-    padding-right: 30px; /* Spazio per l'icona a destra */
+    padding-right: 30px; 
     background-image: url('temperature-arrow-up-solid.svg');
     background-repeat: no-repeat;
-    background-position: right 5px center; /* Sposta l'icona a destra */
+    background-position: right 5px center; 
     background-size: 20px;
 }
 
 .icon-max-temp {
-    padding-right: 30px; /* Spazio per l'icona a destra */
+    padding-right: 30px; 
     background-image: url('temperature-arrow-down-solid.svg');
     background-repeat: no-repeat;
-    background-position: right 5px center; /* Sposta l'icona a destra */
+    background-position: right 5px center; 
     background-size: 20px;
 }
 #my-garden {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Crea colonne che si adattano alla larghezza */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
   gap: 10px; /* Spazio tra le card */
   padding: 10px;
 }
@@ -95,7 +95,14 @@ button:hover {
 .my-plant-card {
   border: 1px solid #ccc;
   padding: 10px;
-  margin-bottom: 10px; /* Potrebbe non servire con grid, ma lascialo per sicurezza */
+  margin-bottom: 10px; 
   border-radius: 5px;
   text-align: center;
+}
+
+.plant-icon {
+    width: 50px;       
+    height: 50px;      
+    vertical-align: middle; 
+    margin-right: 5px;   
 }
