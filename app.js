@@ -278,6 +278,8 @@ async function saveMyGardenToFirebase(garden) {
 
 // === FUNZIONI PRINCIPALI ===
 async function addToMyGarden(plantName) {
+  console.log("addToMyGarden CALLED. plantName:", plantName);
+  console.log("addToMyGarden - myGarden BEFORE:", JSON.stringify(myGarden));
   const plant = plants.find((p) => p.name === plantName);
 
   if (plant) {
@@ -292,6 +294,8 @@ async function addToMyGarden(plantName) {
 }
 
 async function removeFromMyGarden(plantIdToRemove) {
+  console.log("removeFromMyGarden CALLED. plantIdToRemove:", plantIdToRemove);
+  console.log("removeFromMyGarden - myGarden BEFORE:", JSON.stringify(myGarden));
   const index = myGarden.indexOf(plantIdToRemove); // Trova l'indice dell'ID
   if (index > -1) {
     myGarden.splice(index, 1);
@@ -483,6 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function saveNewPlantToFirebase() {
+  console.log("saveNewPlantToFirebase CALLED");
+  console.log("saveNewPlantToFirebase - myGarden BEFORE:", JSON.stringify(myGarden));
     const name = document.getElementById('newPlantName').value;
     const sunlight = document.getElementById('newPlantSunlight').value;
     const watering = document.getElementById('newPlantWatering').value;
