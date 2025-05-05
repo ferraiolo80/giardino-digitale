@@ -172,12 +172,13 @@ function renderPlants(plantArray) {
         const div = document.createElement("div");
         div.className = "plant-card";
         div.innerHTML = `
-            <img src="${image}" alt="${plant.name}" class="plant-icon"> <h4>${plant.name}</h4>
+            <img src="<span class="math-inline">\{image\}" alt\="</span>{plant.name}" class="plant-icon">
+            <h4><span class="math-inline">\{plant\.name\}</h4\>
             <p>Luce: ${plant.sunlight}</p>
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
             <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-            <button onclick="addToMyGarden('${plant.name}')">Aggiungi al mio giardino</button>
+            <button class="add-to-garden-button" data-plant-name="{plant.name}">Aggiungi al mio giardino</button>
         `;
         gardenContainer.appendChild(div);
     });
@@ -186,4 +187,11 @@ function renderPlants(plantArray) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded CALLED");
     loadPlantsFromFirebase(); 
+    document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('add-to-garden-button')) {
+      const plantName = event.target.dataset.plantName;
+      await addToMyGarden(plantName);
+    }
+  });
 });
+
