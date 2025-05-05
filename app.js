@@ -33,6 +33,8 @@ if (localStorage.getItem('myGarden')) {
 // === FUNZIONI FIREBASE ===
 
 async function loadMyGardenFromFirebase() {
+  console.log("loadMyGardenFromFirebase CALLED");
+  console.log("loadMyGardenFromFirebase - myGarden BEFORE:", JSON.stringify(myGarden));
   try {
     const user = firebase.auth().currentUser;
     if (user) {
@@ -42,13 +44,16 @@ async function loadMyGardenFromFirebase() {
         localStorage.setItem("myGarden", JSON.stringify(myGarden)); // Aggiorna anche il localStorage
         renderMyGarden(myGarden);
         console.log("Giardino caricato da Firebase per l'utente:", user.uid);
+        console.log("loadMyGardenFromFirebase - renderMyGarden CALLED. myGarden:", JSON.stringify(myGarden));
       } else {
         console.log("Nessun giardino trovato su Firebase per questo utente, caricando da localStorage.");
+        console.log("loadMyGardenFromFirebase - renderMyGarden CALLED. myGarden:", JSON.stringify(myGarden));
         renderMyGarden(myGarden); // Carica comunque da localStorage se non c'è nulla su Firebase
       }
     } else {
       console.log("Nessun utente autenticato, caricando il giardino da localStorage.");
       renderMyGarden(myGarden); // Carica da localStorage se non c'è utente
+      console.log("loadMyGardenFromFirebase - renderMyGarden CALLED. myGarden:", JSON.stringify(myGarden));
     }
   } catch (error) {
     console.error("Errore nel caricamento del giardino da Firebase:", error);
