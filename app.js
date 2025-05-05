@@ -84,7 +84,7 @@ function renderPlants(plantArray) {
         const div = document.createElement("div");
         div.className = "plant-card";
         div.innerHTML = `
-            <img src="<span class="math-inline">\{image\}" alt\="</span>{plant.name}" class="plant-icon">  <h4>${plant.name}</h4>
+            <img src="${image}" alt="${plant.name}" class="plant-icon"> <h4>${plant.name}</h4>
             <p>Luce: ${plant.sunlight}</p>
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
