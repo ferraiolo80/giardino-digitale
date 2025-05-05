@@ -72,12 +72,14 @@ firebase.auth().onAuthStateChanged((user) => {
         appContentDiv.style.display = 'block';
         authContainerDiv.style.display = 'none';
         loadMyGardenFromFirebase(); 
+        renderMyGarden(myGarden);
     } else {
         console.log("Stato autenticazione cambiato, nessun utente loggato.");
         authStatusDiv.innerText = "Nessun utente autenticato.";
         appContentDiv.style.display = 'none';
         authContainerDiv.style.display = 'block';
         loadMyGardenFromFirebase(); 
+        renderMyGarden(myGarden);
     }
 });
 
@@ -90,17 +92,21 @@ async function loadMyGardenFromFirebase() {
             if (doc.exists) {
                 myGarden = doc.data().plants || [];
                 localStorage.setItem("myGarden", JSON.stringify(myGarden));
+                renderMyGarden(myGarden);
                 console.log("loadMyGardenFromFirebase - Giardino caricato da Firebase per l'utente:", user.uid);
             } else {
                 console.log("loadMyGardenFromFirebase - Nessun giardino trovato su Firebase per questo utente.");
+                renderMyGarden(myGarden);
                 myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
             }
         } else {
             console.log("loadMyGardenFromFirebase - Nessun utente autenticato.");
+            renderMyGarden(myGarden);
             myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
         }
     } catch (error) {
         console.error("loadMyGardenFromFirebase - Errore nel caricamento del giardino:", error);
+        renderMyGarden(myGarden);
         myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
     }
     console.log("loadMyGardenFromFirebase - myGarden:", JSON.stringify(myGarden));
