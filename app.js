@@ -18,6 +18,18 @@ const mioGiardinoSection = document.getElementById('my-garden');
 const giardinoTitle = document.getElementById('giardinoTitle');
 const auth = firebase.auth();
 
+console.log("SCRIPT APP.JS CARICATO");
+if (localStorage.getItem('myGarden')) {
+  console.log("MYGARDEN DA LOCALSTORAGE ALL'AVVIO:", JSON.parse(localStorage.getItem('myGarden')));
+} else {
+  console.log("NESSUN MYGARDEN NEL LOCALSTORAGE ALL'AVVIO");
+}
+// E COMMENTA TEMPORANEAMENTE LA CHIAMATA A renderMyGarden() FUORI DAL LISTENER onAuthStateChanged PER UTENTI NON LOGGATI
+/*
+  myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+  renderMyGarden();
+*/
+
 // === FUNZIONI FIREBASE ===
 
 async function loadMyGardenFromFirebase() {
