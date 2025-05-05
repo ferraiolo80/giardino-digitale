@@ -78,12 +78,13 @@ async function loadPlantsFromFirebase() {
 
 function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
-    gardenContainer.innerHTML = ""; 
+    gardenContainer.innerHTML = "";
     plantArray.forEach((plant) => {
+        const image = plant.image || 'plant_9215709.png'; 
         const div = document.createElement("div");
         div.className = "plant-card";
         div.innerHTML = `
-            <img src="${plant.imageUrl}" alt="${plant.name}">
+            <img src="${image}" alt="${plant.name}">
             <h4>${plant.name}</h4>
             <p>Luce: ${plant.sunlight}</p>
             <p>Acqua: ${plant.watering}</p>
