@@ -292,6 +292,8 @@ async function addToMyGarden(plantName) {
 }
 
 async function removeFromMyGarden(plantIdToRemove) {
+  console.log("removeFromMyGarden CALLED. plantIdToRemove:", plantIdToRemove);
+  console.log("removeFromMyGarden - myGarden BEFORE:", JSON.stringify(myGarden));
   const index = myGarden.indexOf(plantIdToRemove); // Trova l'indice dell'ID
   if (index > -1) {
     myGarden.splice(index, 1);
