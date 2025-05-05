@@ -307,6 +307,7 @@ async function removeFromMyGarden(plantIdToRemove) {
 }
 
 function updatePlant(plantName) {
+  console.log("updatePlant CALLED. plantName:", plantName); // <-- Aggiungi questo log
   const plant = myGarden.find((p) => p.name === plantName);
   if (!plant) return;
 
