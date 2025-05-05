@@ -34,3 +34,4 @@ firebase.auth().onAuthStateChanged((user) => {
         authContainerDiv.style.display = 'block';
     }
 });
+let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
