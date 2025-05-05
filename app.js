@@ -96,18 +96,18 @@ async function loadMyGardenFromFirebase() {
                 console.log("loadMyGardenFromFirebase - Giardino caricato da Firebase per l'utente:", user.uid);
             } else {
                 console.log("loadMyGardenFromFirebase - Nessun giardino trovato su Firebase per questo utente.");
-                renderMyGarden(myGarden);
                 myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+                renderMyGarden(myGarden);
             }
         } else {
             console.log("loadMyGardenFromFirebase - Nessun utente autenticato.");
-            renderMyGarden(myGarden);
             myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+            renderMyGarden(myGarden);
         }
     } catch (error) {
         console.error("loadMyGardenFromFirebase - Errore nel caricamento del giardino:", error);
-        renderMyGarden(myGarden);
         myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+        renderMyGarden(myGarden);
     }
     console.log("loadMyGardenFromFirebase - myGarden:", JSON.stringify(myGarden));
 }
