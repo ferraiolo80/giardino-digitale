@@ -231,16 +231,6 @@ async function renderMyGarden(garden) {
       console.error("Errore nel recupero della pianta:", error);
     }
   }
-  
-  // Aggiungi event listener al pulsante "Rimuovi" (ora usa l'ID)
-  const removeButton = div.querySelector('.remove-button');
-  removeButton.addEventListener('click', () => {
-    const plantIdToRemove = removeButton.dataset.plantId;
-    removeFromMyGarden(plantIdToRemove); // Assicurati che anche questa funzione usi gli ID
-  });
-
-  return div;
-}
 
   // Aggiorna il localStorage e Firebase con l'array pulito
   localStorage.setItem("myGarden", JSON.stringify(validGarden));
