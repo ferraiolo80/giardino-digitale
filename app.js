@@ -426,8 +426,8 @@ if (imageIdentifyButton) {
     snapshot.forEach((doc) => {
       plants.push({ id: doc.id, ...doc.data() });
     });
-    console.log('Dati caricati da Firebase (array plants):', plants); // <-- Aggiungi questo log
-    loadMyGardenFromFirebase();
+    console.log('Dati caricati da Firebase (array plants):', plants);
+    // loadMyGardenFromFirebase();  <--- RIMUOVI QUESTA RIGA!
     renderPlants(plants);
   } catch (error) {
     console.error("Errore nel caricamento delle piante da Firebase:", error);
