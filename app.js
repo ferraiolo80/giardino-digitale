@@ -102,6 +102,30 @@ async function removeFromMyGarden(plantIdToRemove) {
   }
 }
 
+function createPlantCard(plantData) {
+  console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
+  const div = document.createElement("div");
+  div.className = "my-plant-card";
+  div.innerHTML = `
+    <h4>${plantData.name}</h4>
+    <p>Luce: ${plantData.sunlight}</p>
+    <p>Acqua: ${plantData.watering}</p>
+    <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
+    <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+    <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
+    <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
+  `;
+
+  // Aggiungi event listener al pulsante "Rimuovi" (ora usa l'ID)
+  const removeButton = div.querySelector('.remove-button');
+  removeButton.addEventListener('click', () => {
+    const plantIdToRemove = removeButton.dataset.plantId;
+    removeFromMyGarden(plantIdToRemove);
+  });
+
+  return div;
+}
+
 firebase.auth().onAuthStateChanged((user) => {
     console.log("onAuthStateChanged CALLED. User:", user ? user.uid : null);
     if (user) {
@@ -193,5 +217,5 @@ document.addEventListener('DOMContentLoaded', () => {
       await addToMyGarden(plantName);
     }
   });
-});
+ });
 
