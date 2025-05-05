@@ -147,10 +147,13 @@ firebase.auth().onAuthStateChanged((user) => {
 
 async function loadMyGardenFromFirebase() {
     console.log("loadMyGardenFromFirebase CALLED");
+    console.log("Tentativo di caricare il giardino...");
     try {
         const user = firebase.auth().currentUser;
         if (user) {
+            console.log("Utente autenticato:", user.uid);
             const doc = await db.collection("gardens").doc(user.uid).get();
+            console.log("Riferimento al documento del giardino:", gardenRef.path);
             if (doc.exists) {
                 myGarden = doc.data().plants || [];
                 localStorage.setItem("myGarden", JSON.stringify(myGarden));
@@ -196,7 +199,7 @@ function renderPlants(plantArray) {
         const div = document.createElement("div");
         div.className = "plant-card";
         div.innerHTML = `
-            <img src="<span class="math-inline">\{image\}" alt\="</span>{plant.name}" class="plant-icon">
+            <img src="<span class="math-inline">{image}" alt="</span>{plant.name}" class="plant-icon">
             <h4><span class="math-inline">\{plant\.name\}</h4\>
             <p>Luce: ${plant.sunlight}</p>
             <p>Acqua: ${plant.watering}</p>
