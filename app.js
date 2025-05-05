@@ -197,32 +197,9 @@ async function renderMyGarden(garden) {
       const doc = await db.collection('plants').doc(plantId).get();
       if (doc.exists) {
         const plantData = { id: doc.id, ...doc.data() }; // Ottieni anche l'ID
-        const plantCard = createPlantCard(plantData); // Chiama la nuova funzione
+        const plantCard = createPlantCard(plantData); // Chiama la funzione (definita altrove)
         myGardenContainer.appendChild(plantCard);
         validGarden.push(plantId); // Aggiungi l'ID valido al nuovo array
-        function createPlantCard(plantData) {
-  const div = document.createElement("div");
-  div.className = "my-plant-card";
-  div.innerHTML = `
-    <h4>${plantData.name}</h4>
-    <p>Luce: ${plantData.sunlight}</p>
-    <p>Acqua: ${plantData.watering}</p>
-    <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-    <p>Temperatura ideale max: <span class="math-inline">\{plantData\.tempMax\}°C</p\>
-    <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
-    <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
-  `;
-
-  // Aggiungi event listener al pulsante "Rimuovi" (ora usa l'ID)
-  const removeButton = div.querySelector('.remove-button');
-  removeButton.addEventListener('click', () => {
-    const plantIdToRemove = removeButton.dataset.plantId;
-    removeFromMyGarden(plantIdToRemove); // Assicurati che anche questa funzione usi gli ID
-  });
-
-  return div;
-}
-        myGardenContainer.appendChild(plantCard);
       } else {
         console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
         // Non aggiungiamo l'ID non valido al validGarden
