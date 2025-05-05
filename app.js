@@ -245,7 +245,6 @@ async function renderMyGarden(garden) {
   // Aggiorna il localStorage e Firebase con l'array pulito
   localStorage.setItem("myGarden", JSON.stringify(validGarden));
   await saveMyGardenToFirebase(validGarden); // Assicurati che la tua saveMyGardenToFirebase accetti 'garden'
-}
 
 // Assumo che tu abbia una funzione saveMyGardenToFirebase che accetta l'array 'garden'
 async function saveMyGardenToFirebase(garden) {
