@@ -2,7 +2,7 @@ import { identifyPlant } from './plantid.js';
 
 // === VARIABILI GLOBALI ===
 const plants = [];
-let myGarden = []; // Inizializza come array vuoto
+let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 const gardenContainer = document.getElementById("garden-container");
 const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
@@ -34,4 +34,4 @@ firebase.auth().onAuthStateChanged((user) => {
         authContainerDiv.style.display = 'block';
     }
 });
-let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+
