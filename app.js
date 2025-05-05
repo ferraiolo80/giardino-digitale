@@ -149,3 +149,41 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded CALLED");
     loadPlantsFromFirebase(); 
 });
+
+async function addToMyGarden(plantName) {
+  try {
+    const plant = plants.find((p) => p.name === plantName);
+    if (plant) {
+      if (!myGarden.includes(plant.id)) {
+        myGarden.push(plant.id);
+        localStorage.setItem("myGarden", JSON.stringify(myGarden));
+        await saveMyGardenToFirebase(myGarden); // Assicurati che saveMyGardenToFirebase accetti 'garden'
+        renderMyGarden(myGarden);
+        console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
+      } else {
+        console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
+      }
+    } else {
+      console.warn(`Pianta '${plantName}' non trovata.`);
+    }
+  } catch (error) {
+    console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
+  }
+}
+
+async function removeFromMyGarden(plantIdToRemove) {
+  try {
+    const index = myGarden.indexOf(plantIdToRemove);
+    if (index > -1) {
+      myGarden.splice(index, 1);
+      localStorage.setItem("myGarden", JSON.stringify(myGarden));
+      await saveMyGardenToFirebase(myGarden); // Assicurati che saveMyGardenToFirebase accetti 'garden'
+      renderMyGarden(myGarden);
+      console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
+    } else {
+      console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
+    }
+  } catch (error) {
+    console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
+  }
+}
