@@ -211,6 +211,8 @@ function createPlantCard(plantData) {
 }
 // === FUNZIONI DI RENDERING ===  
 async function renderMyGarden(garden) {
+  console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden); // LOG #1: Log dell'array 'garden' ricevuto
+  console.log("LENGTH OF GARDEN:", garden ? garden.length : 0); // LOG #2: Log della lunghezza dell'array
   const myGardenContainer = document.getElementById('my-garden');
   myGardenContainer.innerHTML = ''; // Pulisci il contenitore
   const validGarden = []; // Nuovo array per contenere solo ID validi
