@@ -432,21 +432,27 @@ firebase.auth().onAuthStateChanged((user) => {
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
     appContentDiv.style.display = 'block';
     authContainerDiv.style.display = 'none';
-    loadMyGardenFromFirebase(); // Sposta la chiamata qui
+    loadMyGardenFromFirebase(); // Carica da Firebase se loggato
   } else {
     console.log("Stato autenticazione cambiato, nessun utente loggato.");
     authStatusDiv.innerText = "Nessun utente autenticato.";
     appContentDiv.style.display = 'none';
     authContainerDiv.style.display = 'block';
-    myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-    renderMyGarden();
+    // SPOSTEREMO LA LOGICA DI CARICAMENTO DA LOCALSTORAGE QUI SOTTO, DENTRO IL DOMContentLoaded
   }
 });
+
 document.addEventListener('DOMContentLoaded', () => {
   const addNewPlantButton = document.getElementById('addNewPlantButton');
   const newPlantCard = document.getElementById('newPlantCard');
   const saveNewPlantButton = document.getElementById('saveNewPlant');
   const cancelNewPlantButton = document.getElementById('cancelNewPlant');
+
+  // Sposta qui la logica per utenti non loggati
+  if (!firebase.auth().currentUser) {
+    myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    renderMyGarden(myGarden);
+  }
 
   if (addNewPlantButton) {
     addNewPlantButton.addEventListener('click', () => {
