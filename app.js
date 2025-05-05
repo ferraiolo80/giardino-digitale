@@ -200,26 +200,33 @@ async function savePlantToFirebase(newPlant) {
 
 // === DEFINIZIONE DELLA FUNZIONE createPlantCard (AL DI FUORI DI renderMyGarden) ===
 function createPlantCard(plantData) {
-  const div = document.createElement("div");
-  div.className = "my-plant-card";
-  div.innerHTML = `
-    <h4>${plantData.name}</h4>
-    <p>Luce: ${plantData.sunlight}</p>
-    <p>Acqua: ${plantData.watering}</p>
-    <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-    <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
-    <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
-    <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
-  `;
+    const div = document.createElement("div");
+    div.className = "my-plant-card";
+    div.innerHTML = `
+        <h4>${plantData.name}</h4>
+        <p>Luce: ${plantData.sunlight}</p>
+        <p>Acqua: ${plantData.watering}</p>
+        <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
+        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
+        <button class="update-button" data-plant-name="${plantData.name}">Aggiorna info</button>
+    `;
 
-  // Aggiungi event listener al pulsante "Rimuovi" (ora usa l'ID)
-  const removeButton = div.querySelector('.remove-button');
-  removeButton.addEventListener('click', () => {
-    const plantIdToRemove = removeButton.dataset.plantId;
-    removeFromMyGarden(plantIdToRemove); // Assicurati che anche questa funzione usi gli ID
-  });
+    // Aggiungi event listener al pulsante "Rimuovi" (ora usa l'ID)
+    const removeButton = div.querySelector('.remove-button');
+    removeButton.addEventListener('click', () => {
+        const plantIdToRemove = removeButton.dataset.plantId;
+        removeFromMyGarden(plantIdToRemove);
+    });
 
-  return div;
+    // Aggiungi event listener al pulsante "Aggiorna"
+    const updateButton = div.querySelector('.update-button');
+    updateButton.addEventListener('click', () => {
+        const plantNameToUpdate = updateButton.dataset.plantName;
+        updatePlant(plantNameToUpdate);
+    });
+
+    return div;
 }
 // === FUNZIONI DI RENDERING ===  
 async function renderMyGarden(garden) {
