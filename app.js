@@ -518,11 +518,8 @@ async function saveNewPlantToFirebase() {
 }
 
 function renderPlants(plantArray) {
-  console.log('Array plant ricevuto da renderPlants:', plantArray); // <-- Aggiungi questo log
-  gardenContainer.innerHTML = ""; // <--- Assicurati di pulire il contenitore PRIMA di aggiungere le card
-  plantArray.forEach((plant) => {
-    // ... (il tuo codice per creare e appendere le card) ...
-  });
+  console.log('Array plant ricevuto da renderPlants:', plantArray);
+  gardenContainer.innerHTML = "";
 }
 
 function resetNewPlantForm() {
