@@ -196,6 +196,7 @@ function renderPlants(plantArray) {
     gardenContainer.innerHTML = "";
     plantArray.forEach((plant) => {
         const image = plant.image || 'plant_9215709.png'; 
+        console.log("URL immagine per", plant.name + ":", image);
         const div = document.createElement("div");
         div.className = "plant-card";
         div.innerHTML = `
