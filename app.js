@@ -1,6 +1,5 @@
 import { identifyPlant } from './plantid.js';
 
-// === VARIABILI GLOBALI ===
 const plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 const gardenContainer = document.getElementById("garden-container");
@@ -19,6 +18,51 @@ const giardinoTitle = document.getElementById('giardinoTitle');
 const auth = firebase.auth();
 
 console.log("SCRIPT APP.JS CARICATO");
+
+async function renderMyGarden(garden) {
+    console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
+    console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
+
+    const myGardenContainer = document.getElementById('my-garden');
+    myGardenContainer.innerHTML = ''; 
+    const validGarden = []; 
+
+    for (const plantId of garden) {
+        try {
+            const doc = await db.collection('plants').doc(plantId).get();
+            if (doc.exists) {
+                const plantData = { id: doc.id, ...doc.data() };
+                const plantCard = createPlantCard(plantData);
+                myGardenContainer.appendChild(plantCard);
+                validGarden.push(plantId); 
+            } else {
+                console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
+            }
+        } catch (error) {
+            console.error("Errore nel recupero della pianta:", error);
+        }
+    }
+
+    
+    localStorage.setItem("myGarden", JSON.stringify(validGarden));
+    await saveMyGardenToFirebase(validGarden); 
+
+    
+    mioGiardinoSection.style.display = validGarden.length > 0 ? 'block' : 'none';
+    giardinoTitle.style.display = validGarden.length > 0 ? 'block' : 'none';
+}
+
+async function saveMyGardenToFirebase(garden) { 
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            await db.collection('gardens').doc(user.uid).update({ plants: garden });
+            console.log("Il 'Mio Giardino' è stato aggiornato su Firebase.");
+        } catch (error) {
+            console.error("Errore durante l'aggiornamento del 'Mio Giardino' su Firebase:", error);
+        }
+    }
+}
 
 firebase.auth().onAuthStateChanged((user) => {
     console.log("onAuthStateChanged CALLED. User:", user ? user.uid : null);
