@@ -61,3 +61,41 @@ async function loadMyGardenFromFirebase() {
     }
     console.log("loadMyGardenFromFirebase - myGarden:", JSON.stringify(myGarden));
 }
+
+async function loadPlantsFromFirebase() {
+    try {
+        const snapshot = await db.collection("plants").get();
+        plants.length = 0;
+        snapshot.forEach((doc) => {
+            plants.push({ id: doc.id, ...doc.data() });
+        });
+        console.log('Dati caricati da Firebase (array plants):', plants);
+        renderPlants(plants);
+    } catch (error) {
+        console.error("Errore nel caricamento delle piante da Firebase:", error);
+    }
+}
+
+function renderPlants(plantArray) {
+    console.log('Array plant ricevuto da renderPlants:', plantArray);
+    gardenContainer.innerHTML = ""; 
+    plantArray.forEach((plant) => {
+        const div = document.createElement("div");
+        div.className = "plant-card";
+        div.innerHTML = `
+            <img src="${plant.imageUrl}" alt="${plant.name}">
+            <h4>${plant.name}</h4>
+            <p>Luce: ${plant.sunlight}</p>
+            <p>Acqua: ${plant.watering}</p>
+            <p>Temperatura ideale min: ${plant.tempMin}°C</p>
+            <p>Temperatura ideale max: ${plant.tempMax}°C</p>
+            <button onclick="addToMyGarden('${plant.name}')">Aggiungi al mio giardino</button>
+        `;
+        gardenContainer.appendChild(div);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOMContentLoaded CALLED");
+    loadPlantsFromFirebase(); 
+});
