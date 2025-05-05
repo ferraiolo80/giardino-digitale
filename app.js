@@ -427,6 +427,8 @@ loadPlantsFromFirebase();  // Aggiungi la riga QUI
 
 // === AUTENTICAZIONE (gestione dello stato) ===
 firebase.auth().onAuthStateChanged((user) => {
+  console.log("onAuthStateChanged CALLED. User:", user);
+  console.log("onAuthStateChanged - myGarden BEFORE:", JSON.stringify(myGarden));
   if (user) {
     console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
     authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
@@ -452,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!firebase.auth().currentUser) {
     myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
     renderMyGarden(myGarden);
+    console.log("onAuthStateChanged - renderMyGarden CALLED. myGarden:", JSON.stringify(myGarden));
   }
 
   if (addNewPlantButton) {
