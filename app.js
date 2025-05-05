@@ -281,7 +281,7 @@ async function removeFromMyGarden(plantIdToRemove) {
       localStorage.removeItem("myGarden");
     }
     await saveMyGardenToFirebase(); // Assicurati che sia async se la chiami con await
-    renderMyGarden();
+    renderMyGarden(myGarden);
   }
 }
 
