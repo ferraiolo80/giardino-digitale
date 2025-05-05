@@ -205,6 +205,7 @@ async function savePlantToFirebase(newPlant) {
 
 // === DEFINIZIONE DELLA FUNZIONE createPlantCard (AL DI FUORI DI renderMyGarden) ===
 function createPlantCard(plantData) {
+  console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id); // <-- Aggiungi questo log
   const div = document.createElement("div");
   div.className = "my-plant-card";
   div.innerHTML = `
