@@ -203,7 +203,7 @@ function renderPlants(plantArray) {
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
             <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-            <button class="add-to-garden-button" data-plant-name="{plant.name}">Aggiungi al mio giardino</button>
+            <button class="add-to-garden-button" data-plant-name="${plant.name}">Aggiungi al mio giardino</button>
         `;
         gardenContainer.appendChild(div);
     });
