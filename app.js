@@ -438,5 +438,5 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
 
     await loadPlantsFromFirebase();
-    update
-    });
+    updateGardenVisibility(); 
+});                     
