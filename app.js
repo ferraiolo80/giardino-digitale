@@ -1,13 +1,13 @@
 import { identifyPlant } from './plantid.js';
+
+const plants = [];
+let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 let isMyGardenEmpty = myGarden.length === 0; 
+
 const plantsContainerDiv = document.getElementById('garden-container'); 
 const mioGiardinoSection = document.getElementById('my-garden'); 
 const giardinoTitle = document.getElementById('giardinoTitle');
 const auth = firebase.auth();
-
-const plants = [];
-
-let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 const gardenContainer = document.getElementById("garden-container");
 const searchInput = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
