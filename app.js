@@ -158,7 +158,7 @@ function createPlantCard(plantData) {
         <p>Luce: ${plantData.sunlight}</p>
         <p>Acqua: ${plantData.watering}</p>
         <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-        <p>Temperatura ideale max: <span class="math-inline">\{plantData\.tempMax\}°C</p\>
+        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
 <button class\="remove\-button" data\-plant\-id\="</span>{plantData.id}">Rimuovi</button>
         <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
     `;
