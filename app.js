@@ -278,7 +278,7 @@ function updateGardenVisibility() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded',async () => {
     console.log("DOMContentLoaded event fired.");
 
     const loginButton = document.getElementById('loginButton');
