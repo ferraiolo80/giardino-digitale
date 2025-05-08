@@ -21,7 +21,7 @@ let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 let isMyGardenEmpty = myGarden.length === 0; 
 
 // Riferimenti agli elementi HTML
-const gardenContainer = document.getElementById('garden-container');
+const gardenContainer = document.getElementById('garden-container'); 
 const myGardenContainer = document.getElementById('my-garden');
 const authContainerDiv = document.getElementById('auth-container');
 const appContentDiv = document.getElementById('app-content');
@@ -71,7 +71,7 @@ async function renderMyGarden(garden) {
     localStorage.setItem("myGarden", JSON.stringify(validGarden));
     await saveMyGardenToFirebase(validGarden); 
 
-    
+    // Aggiorna la visibilità del "Mio giardino"
     updateGardenVisibility();
 }
 
@@ -138,8 +138,8 @@ function createPlantCard(plantData) {
         <p>Luce: ${plantData.sunlight}</p>
         <p>Acqua: ${plantData.watering}</p>
         <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-        <p>Temperatura ideale max: <span class="math-inline">\{plantData\.tempMax\}°C</p\>
-<button class\="remove\-button" data\-plant\-id\="</span>{plantData.id}">Rimuovi</button>
+        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
         <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
     `;
 
@@ -182,4 +182,173 @@ async function loadMyGardenFromFirebase() {
         console.error("Errore nel caricamento del giardino da Firebase:", error);
         garden = JSON.parse(localStorage.getItem("myGarden")) || [];
         myGarden = garden;
-        is
+        isMyGardenEmpty = myGarden.length === 0;
+        renderMyGarden(myGarden);
+    } finally {
+        updateGardenVisibility();
+    }
+}
+
+async function loadPlantsFromFirebase() {
+    try {
+        const querySnapshot = await getDocs(collection(db, 'plants'));
+        plants = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            plants.push({
+                id: doc.id,
+                name: data.name,
+                sunlight: data.sunlight,
+                watering: data.watering,
+                tempMin: data.tempMin,
+                tempMax: data.tempMax,
+                image: data.image || 'plant_9215709.png'
+            });
+        });
+        console.log('Piante caricate da Firebase:', plants);
+        renderPlants(plants);
+    } catch (error) {
+        console.error("Errore nel caricamento delle piante da Firebase:", error);
+    }
+}
+
+function renderPlants(plantArray) {
+    console.log('Array plant ricevuto da renderPlants:', plantArray);
+    gardenContainer.innerHTML = "";
+    plantArray.forEach((plant) => {
+        const image = plant.image || 'plant_9215709.png';
+        const div = document.createElement("div");
+        div.className = "plant-card";
+        div.innerHTML = `
+            <img src="${image}" alt="${plant.name}" class="plant-icon">
+            <h4>${plant.name}</h4>
+            <p>Luce: ${plant.sunlight}</p>
+            <p>Acqua: ${plant.watering}</p>
+            <p>Temperatura ideale min: ${plant.tempMin}°C</p>
+            <p>Temperatura ideale max: ${plant.tempMax}°C</p>
+            <button class="add-to-garden-button" data-plant-name="${plant.name}">Aggiungi al mio giardino</button>
+        `;
+        gardenContainer.appendChild(div);
+    });
+    updateGardenVisibility();
+}
+
+function updateGardenVisibility() {
+    if (isMyGardenEmpty) {
+        if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+        if (giardinoTitle) giardinoTitle.style.display = 'none';
+    } else {
+        if (plantsContainerDiv) plantsContainerDiv.style.display = 'none';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
+        if (giardinoTitle) giardinoTitle.style.display = 'block';
+    }
+}
+
+// Event Listeners per l'autenticazione (aggiunti qui)
+loginButton.addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const errorDiv = document.getElementById('login-error');
+    errorDiv.innerText = '';
+    console.log("Tentativo di login con email:", email, "e password:", password); // GIA' PRESENTE
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        errorDiv.innerText = error.message;
+        console.error("Errore durante il login:", error); // GIA' PRESENTE
+    }
+});
+
+registerButton.addEventListener('click', async () => {
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const errorDiv = document.getElementById('register-error');
+    errorDiv.innerText = '';
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        errorDiv.innerText = error.message;
+    }
+});
+
+logoutButton.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+    } catch (error) {
+        console.error("Errore durante il logout:", error);
+    }
+});
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
+        authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+        appContentDiv.style.display = 'block';
+        authContainerDiv.style.display = 'none';
+        loadMyGardenFromFirebase();
+    } else {
+        console.log("Stato autenticazione cambiato, nessun utente loggato.");
+        authStatusDiv.innerText = "Nessun utente autenticato.";
+        appContentDiv.style.display = 'none';
+        authContainerDiv.style.display = 'block';
+        myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+        isMyGardenEmpty = myGarden.length === 0;
+        renderMyGarden(myGarden);
+    }
+});
+
+document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('add-to-garden-button')) {
+        const plantName = event.target.dataset.plantName;
+        await addToMyGarden(plantName);
+    }
+});
+
+addNewPlantButton.addEventListener('click', () => {
+    newPlantCard.style.display = 'block';
+});
+
+cancelNewPlantButton.addEventListener('click', () => {
+    newPlantCard.style.display = 'none';
+});
+
+saveNewPlantButton.addEventListener('click', async () => {
+    const name = document.getElementById('newPlantName').value;
+    const sunlight = document.getElementById('newPlantSunlight').value;
+    const watering = document.getElementById('newPlantWatering').value;
+    const tempMin = document.getElementById('newPlantTempMin').value;
+    const tempMax = document.getElementById('newPlantTempMax').value;
+    const description = document.getElementById('newPlantDescription').value;
+    const category = document.getElementById('newPlantCategory').value;
+    const imageURL = document.getElementById('newPlantImageURL').value;
+
+    if (name && sunlight && watering && tempMin && tempMax) {
+        try {
+            const docRef = await setDoc(collection(db, 'plants'), {
+                name: name,
+                sunlight: sunlight,
+                watering: watering,
+                tempMin: parseInt(tempMin),
+                tempMax: parseInt(tempMax),
+                description: description,
+                category: category,
+                image: imageURL
+            });
+            console.log("Nuova pianta aggiunta con ID: ", docRef.id);
+            newPlantCard.style.display = 'none';
+            loadPlantsFromFirebase(); // Ricarica le piante per visualizzare la nuova
+        } catch (error) {
+            console.error("Errore nell'aggiunta della nuova pianta:", error);
+        }
+    } else {
+        alert("Per favore, compila tutti i campi obbligatori.");
+    }
+});
+
+// Filtri (da implementare se necessario)
+// ...
+
+// Inizializzazione al caricamento
+loadPlantsFromFirebase();
+updateGardenVisibility();
