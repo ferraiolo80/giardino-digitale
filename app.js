@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorDiv.innerText = '';
             console.log("Tentativo di login con email:", email, "e password:", password);
             try {
-                await firebase.auth().signInWithEmailAndPassword(email, password); // USA firebase.auth()
+                await firebase.auth().signInWithEmailAndPassword(email, password); 
             } catch (error) {
                 errorDiv.innerText = error.message;
                 console.error("Errore durante il login:", error);
