@@ -132,24 +132,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function removeFromMyGarden(plantIdToRemove) {
-        let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        try {
-            const index = myGarden.indexOf(plantIdToRemove);
-            if (index > -1) {
-                myGarden.splice(index, 1);
-                localStorage.setItem("myGarden", JSON.stringify(myGarden));
-                await saveMyGardenToFirebase(myGarden);
-                await renderMyGarden(myGarden);
-                isMyGardenEmpty = myGarden.length === 0;
-                updateGardenVisibility();
-                console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
-            } else {
-                console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
-            }
-        } catch (error) {
-            console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
+    let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    try {
+        const index = myGarden.indexOf(plantIdToRemove);
+        if (index > -1) {
+            myGarden.splice(index, 1);
+            localStorage.setItem("myGarden", JSON.stringify(myGarden));
+            await saveMyGardenToFirebase(myGarden);
+            await renderMyGarden(myGarden);
+            isMyGardenEmpty = myGarden.length === 0;
+            updateGardenVisibility();
+            console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
+        } else {
+            console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
         }
+    } catch (error) {
+        console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
     }
+}
 
     function createPlantCard(plantData) {
         console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
