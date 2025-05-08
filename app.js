@@ -1,4 +1,3 @@
-
 let plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 let isMyGardenEmpty = myGarden.length === 0;
@@ -49,247 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             errorDiv.innerText = '';
             console.log("Tentativo di login con email:", email, "e password:", password);
             try {
-                await firebase.auth().signInWithEmailAndPassword(email, password); 
-            } catch (error) {
-                errorDiv.innerText = error.message;
-                console.error("Errore durante il login:", error);
-            }
-        });
-        console.log("Event listener aggiunto al loginButton.");
-    } else {
-        console.error("Elemento loginButton non trovato nel DOM!");
-    }
-
-async function renderMyGarden(garden) {
-    console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
-    console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
-
-    const myGardenContainer = document.getElementById('my-garden');
-    myGardenContainer.innerHTML = ''; // Pulisci il contenitore
-    const validGarden = []; // Nuovo array per contenere solo ID validi
-
-    for (const plantId of garden) {
-        try {
-            const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
-            if (doc.exists) {
-                const plantData = { id: doc.id, ...doc.data() };
-                const plantCard = createPlantCard(plantData);
-                myGardenContainer.appendChild(plantCard);
-                validGarden.push(plantId); // Aggiungi l'ID valido al nuovo array
-            } else {
-                console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
-            }
-        } catch (error) {
-            console.error("Errore nel recupero della pianta:", error);
-        }
-    }
-
-    // Aggiorna il localStorage e Firebase con l'array pulito
-    localStorage.setItem("myGarden", JSON.stringify(validGarden));
-    await saveMyGardenToFirebase(validGarden); // Assicurati che la tua saveMyGardenToFirebase accetti 'garden'
-
-    // Aggiorna la visibilità del "Mio giardino"
-    updateGardenVisibility();
-}
-
-async function saveMyGardenToFirebase(garden) {
-    const user = firebase.auth().currentUser;
-    if (user) {
-        try {
-            await firebase.firestore().doc(firebase.firestore().collection('gardens'), user.uid).update({ plants: garden });
-            console.log("Il 'Mio Giardino' è stato aggiornato su Firebase.");
-        } catch (error) {
-            console.error("Errore durante l'aggiornamento del 'Mio Giardino' su Firebase:", error);
-        }
-    }
-}
-
-async function addToMyGarden(plantName) {
-    const plants = await loadAllPlants(); // Assicurati di avere questa funzione
-    try {
-        const plant = plants.find((p) => p.name === plantName);
-        if (plant) {
-            let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            if (!myGarden.includes(plant.id)) {
-                myGarden.push(plant.id);
-                localStorage.setItem("myGarden", JSON.stringify(myGarden));
-                await saveMyGardenToFirebase(myGarden);
-                await renderMyGarden(myGarden);
-                isMyGardenEmpty = false;
-                updateGardenVisibility();
-                console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
-            } else {
-                console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
-            }
-        } else {
-            console.warn(`Pianta '${plantName}' non trovata.`);
-        }
-    } catch (error) {
-        console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
-    }
-}
-
-async function removeFromMyGarden(plantIdToRemove) {
-    let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-    try {
-        const index = myGarden.indexOf(plantIdToRemove);
-        if (index > -1) {
-            myGarden.splice(index, 1);
-            localStorage.setItem("myGarden", JSON.stringify(myGarden));
-            await saveMyGardenToFirebase(myGarden);
-            await renderMyGarden(myGarden);
-            isMyGardenEmpty = myGarden.length === 0;
-            updateGardenVisibility();
-            console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
-        } else {
-            console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
-        }
-    } catch (error) {
-        console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
-    }
-}
-
-function createPlantCard(plantData) {
-    console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
-    const div = document.createElement("div");
-    div.className = "my-plant-card";
-    div.innerHTML = `
-        <h4>${plantData.name}</h4>
-        <p>Luce: ${plantData.sunlight}</p>
-        <p>Acqua: ${plantData.watering}</p>
-        <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
-<button class\="remove\-button" data\-plant\-id\="</span>{plantData.id}">Rimuovi</button>
-        <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
-    `;
-
-    const removeButton = div.querySelector('.remove-button');
-    removeButton.addEventListener('click', () => {
-        const plantIdToRemove = removeButton.dataset.plantId;
-        removeFromMyGarden(plantIdToRemove);
-    });
-
-    return div;
-}
-
-async function loadMyGardenFromFirebase() {
-    let garden = [];
-    try {
-        const user = firebase.auth().currentUser;
-        if (user) {
-            const doc = await firebase.firestore().doc(firebase.firestore().collection('gardens'), user.uid).get();
-            if (doc.exists) {
-                garden = doc.data().plants || [];
-                localStorage.setItem("myGarden", JSON.stringify(garden));
-                myGarden = garden;
-                isMyGardenEmpty = myGarden.length === 0;
-                await renderMyGarden(myGarden);
-            } else {
-                console.log("Nessun giardino trovato su Firebase per questo utente, caricando da localStorage.");
-                garden = JSON.parse(localStorage.getItem("myGarden")) || [];
-                myGarden = garden;
-                isMyGardenEmpty = myGarden.length === 0;
-                await renderMyGarden(myGarden);
-            }
-        } else {
-            console.log("Nessun utente autenticato, caricando il giardino da localStorage.");
-            garden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            myGarden = garden;
-            isMyGardenEmpty = myGarden.length === 0;
-            await renderMyGarden(myGarden);
-        }
-    } catch (error) {
-        console.error("Errore nel caricamento del giardino da Firebase:", error);
-        garden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        myGarden = garden;
-        isMyGardenEmpty = myGarden.length === 0;
-        await renderMyGarden(myGarden);
-    } finally {
-        updateGardenVisibility();
-    }
-}
-async function loadAllPlants() {
-    try {
-        const querySnapshot = await firebase.firestore().collection('plants').get();
-        const plants = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            plants.push({
-                id: doc.id,
-                name: data.name,
-                sunlight: data.sunlight,
-                watering: data.watering,
-                tempMin: data.tempMin,
-                tempMax: data.tempMax,
-                image: data.image || 'plant_9215709.png'
-            });
-        });
-        console.log('Piante caricate da Firebase:', plants);
-        return plants;
-    } catch (error) {
-        console.error("Errore nel caricamento delle piante da Firebase:", error);
-        return [];
-    }
-}
-
-async function loadPlantsFromFirebase() {
-    const plantsArray = await loadAllPlants();
-    renderPlants(plantsArray);
-}
-
-function renderPlants(plantArray) {
-    console.log('Array plant ricevuto da renderPlants:', plantArray);
-    const gardenContainer = document.getElementById('garden-container');
-    gardenContainer.innerHTML = "";
-    plantArray.forEach((plant) => {
-        const image = plant.image || 'plant_9215709.png';
-        const div = document.createElement("div");
-        div.className = "plant-card";
-        div.innerHTML = `
-            <img src="<span class="math-inline">\{image\}" alt\="</span>{plant.name}" class="plant-icon">
-            <h4>${plant.name}</h4>
-            <p>Luce: ${plant.sunlight}</p>
-            <p>Acqua: ${plant.watering}</p>
-            <p>Temperatura ideale min: ${plant.tempMin}°C</p>
-            <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-<button class\="add\-to\-garden\-button" data\-plant\-name\="</span>{plant.name}">Aggiungi al mio giardino</button>
-        `;
-        gardenContainer.appendChild(div);
-    });
-    updateGardenVisibility();
-}
-
-function updateGardenVisibility() {
-    const plantsContainerDiv = document.getElementById('garden-container');
-    const mioGiardinoSection = document.getElementById('my-garden');
-    const giardinoTitle = document.getElementById('giardinoTitle');
-    const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-    const isMyGardenEmpty = myGarden.length === 0;
-
-    if (isMyGardenEmpty) {
-        if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
-        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-        if (giardinoTitle) giardinoTitle.style.display = 'none';
-    } else {
-        if (plantsContainerDiv) plantsContainerDiv.style.display = 'none';
-        if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
-        if (giardinoTitle) giardinoTitle.style.display = 'block';
-    }
-}
-
-document.addEventListener('DOMContentLoaded',async () => {
-    console.log("DOMContentLoaded event fired.");
-
-    const loginButton = document.getElementById('loginButton');
-    if (loginButton) {
-        console.log("loginButton trovato nel DOM.");
-        loginButton.addEventListener('click', async () => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('login-error');
-            errorDiv.innerText = '';
-            console.log("Tentativo di login con email:", email, "e password:", password);
-            try {
                 await firebase.auth().signInWithEmailAndPassword(email, password);
             } catch (error) {
                 errorDiv.innerText = error.message;
@@ -299,6 +57,223 @@ document.addEventListener('DOMContentLoaded',async () => {
         console.log("Event listener aggiunto al loginButton.");
     } else {
         console.error("Elemento loginButton non trovato nel DOM!");
+    }
+
+    async function renderMyGarden(garden) {
+        console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
+        console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
+
+        const myGardenContainer = document.getElementById('my-garden');
+        myGardenContainer.innerHTML = ''; // Pulisci il contenitore
+        const validGarden = []; // Nuovo array per contenere solo ID validi
+
+        for (const plantId of garden) {
+            try {
+                const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
+                if (doc.exists) {
+                    const plantData = { id: doc.id, ...doc.data() };
+                    const plantCard = createPlantCard(plantData);
+                    myGardenContainer.appendChild(plantCard);
+                    validGarden.push(plantId); // Aggiungi l'ID valido al nuovo array
+                } else {
+                    console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
+                }
+            } catch (error) {
+                console.error("Errore nel recupero della pianta:", error);
+            }
+        }
+
+        // Aggiorna il localStorage e Firebase con l'array pulito
+        localStorage.setItem("myGarden", JSON.stringify(validGarden));
+        await saveMyGardenToFirebase(validGarden); // Assicurati che la tua saveMyGardenToFirebase accetti 'garden'
+
+        // Aggiorna la visibilità del "Mio giardino"
+        updateGardenVisibility();
+    }
+
+    async function saveMyGardenToFirebase(garden) {
+        const user = firebase.auth().currentUser;
+        if (user) {
+            try {
+                await firebase.firestore().doc(firebase.firestore().collection('gardens'), user.uid).update({ plants: garden });
+                console.log("Il 'Mio Giardino' è stato aggiornato su Firebase.");
+            } catch (error) {
+                console.error("Errore durante l'aggiornamento del 'Mio Giardino' su Firebase:", error);
+            }
+        }
+    }
+
+    async function addToMyGarden(plantName) {
+        const plants = await loadAllPlants(); // Assicurati di avere questa funzione
+        try {
+            const plant = plants.find((p) => p.name === plantName);
+            if (plant) {
+                let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+                if (!myGarden.includes(plant.id)) {
+                    myGarden.push(plant.id);
+                    localStorage.setItem("myGarden", JSON.stringify(myGarden));
+                    await saveMyGardenToFirebase(myGarden);
+                    await renderMyGarden(myGarden);
+                    isMyGardenEmpty = false;
+                    updateGardenVisibility();
+                    console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
+                } else {
+                    console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
+                }
+            } else {
+                console.warn(`Pianta '${plantName}' non trovata.`);
+            }
+        } catch (error) {
+            console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
+        }
+    }
+
+    async function removeFromMyGarden(plantIdToRemove) {
+        let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+        try {
+            const index = myGarden.indexOf(plantIdToRemove);
+            if (index > -1) {
+                myGarden.splice(index, 1);
+                localStorage.setItem("myGarden", JSON.stringify(myGarden));
+                await saveMyGardenToFirebase(myGarden);
+                await renderMyGarden(myGarden);
+                isMyGardenEmpty = myGarden.length === 0;
+                updateGardenVisibility();
+                console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
+            } else {
+                console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
+            }
+        } catch (error) {
+            console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
+        }
+    }
+
+    function createPlantCard(plantData) {
+        console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
+        const div = document.createElement("div");
+        div.className = "my-plant-card";
+        div.innerHTML = `
+            <h4>${plantData.name}</h4>
+            <p>Luce: ${plantData.sunlight}</p>
+            <p>Acqua: ${plantData.watering}</p>
+            <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
+            <p>Temperatura ideale max: <span class="math-inline">\{plantData\.tempMax\}°C</p\>
+<button class\="remove\-button" data\-plant\-id\="</span>{plantData.id}">Rimuovi</button>
+            <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
+        `;
+
+        const removeButton = div.querySelector('.remove-button');
+        removeButton.addEventListener('click', () => {
+            const plantIdToRemove = removeButton.dataset.plantId;
+            removeFromMyGarden(plantIdToRemove);
+        });
+
+        return div;
+    }
+
+    async function loadMyGardenFromFirebase() {
+        let garden = [];
+        try {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const doc = await firebase.firestore().doc(firebase.firestore().collection('gardens'), user.uid).get();
+                if (doc.exists) {
+                    garden = doc.data().plants || [];
+                    localStorage.setItem("myGarden", JSON.stringify(garden));
+                    myGarden = garden;
+                    isMyGardenEmpty = myGarden.length === 0;
+                    await renderMyGarden(myGarden);
+                } else {
+                    console.log("Nessun giardino trovato su Firebase per questo utente, caricando da localStorage.");
+                    garden = JSON.parse(localStorage.getItem("myGarden")) || [];
+                    myGarden = garden;
+                    isMyGardenEmpty = myGarden.length === 0;
+                    await renderMyGarden(myGarden);
+                }
+            } else {
+                console.log("Nessun utente autenticato, caricando il giardino da localStorage.");
+                garden = JSON.parse(localStorage.getItem("myGarden")) || [];
+                myGarden = garden;
+                isMyGardenEmpty = myGarden.length === 0;
+                await renderMyGarden(myGarden);
+            }
+        } catch (error) {
+            console.error("Errore nel caricamento del giardino da Firebase:", error);
+            garden = JSON.parse(localStorage.getItem("myGarden")) || [];
+            myGarden = garden;
+            isMyGardenEmpty = myGarden.length === 0;
+            await renderMyGarden(myGarden);
+        } finally {
+            updateGardenVisibility();
+        }
+    }
+    async function loadAllPlants() {
+        try {
+            const querySnapshot = await firebase.firestore().collection('plants').get();
+            const plants = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                plants.push({
+                    id: doc.id,
+                    name: data.name,
+                    sunlight: data.sunlight,
+                    watering: data.watering,
+                    tempMin: data.tempMin,
+                    tempMax: data.tempMax,
+                    image: data.image || 'plant_9215709.png'
+                });
+            });
+            console.log('Piante caricate da Firebase:', plants);
+            return plants;
+        } catch (error) {
+            console.error("Errore nel caricamento delle piante da Firebase:", error);
+            return [];
+        }
+    }
+
+    async function loadPlantsFromFirebase() {
+        const plantsArray = await loadAllPlants();
+        renderPlants(plantsArray);
+    }
+
+    function renderPlants(plantArray) {
+        console.log('Array plant ricevuto da renderPlants:', plantArray);
+        const gardenContainer = document.getElementById('garden-container');
+        gardenContainer.innerHTML = "";
+        plantArray.forEach((plant) => {
+            const image = plant.image || 'plant_9215709.png';
+            const div = document.createElement("div");
+            div.className = "plant-card";
+            div.innerHTML = `
+                <img src="<span class="math-inline">\{image\}" alt\="</span>{plant.name}" class="plant-icon">
+                <h4>${plant.name}</h4>
+                <p>Luce: ${plant.sunlight}</p>
+                <p>Acqua: ${plant.watering}</p>
+                <p>Temperatura ideale min: ${plant.tempMin}°C</p>
+                <p>Temperatura ideale max: <span class="math-inline">\{plant\.tempMax\}°C</p\>
+<button class\="add\-to\-garden\-button" data\-plant\-name\="</span>{plant.name}">Aggiungi al mio giardino</button>
+            `;
+            gardenContainer.appendChild(div);
+        });
+        updateGardenVisibility();
+    }
+
+    function updateGardenVisibility() {
+        const plantsContainerDiv = document.getElementById('garden-container');
+        const mioGiardinoSection = document.getElementById('my-garden');
+        const giardinoTitle = document.getElementById('giardinoTitle');
+        const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+        const isMyGardenEmpty = myGarden.length === 0;
+
+        if (isMyGardenEmpty) {
+            if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
+            if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+            if (giardinoTitle) giardinoTitle.style.display = 'none';
+        } else {
+            if (plantsContainerDiv) plantsContainerDiv.style.display = 'none';
+            if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
+            if (giardinoTitle) giardinoTitle.style.display = 'block';
+        }
     }
 
     const registerButton = document.getElementById('registerButton');
@@ -438,5 +413,5 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
 
     await loadPlantsFromFirebase();
-    updateGardenVisibility(); 
-});                     
+    updateGardenVisibility();
+});
