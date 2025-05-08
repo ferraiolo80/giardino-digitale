@@ -1,4 +1,12 @@
 import { identifyPlant } from './plantid.js';
+let isMyGardenEmpty = myGarden.length === 0; 
+const plantsContainerDiv = document.getElementById('garden-container'); 
+const mioGiardinoSection = document.getElementById('my-garden'); 
+const giardinoTitle = document.getElementById('giardinoTitle');
+const auth = firebase.auth();
+
+const plants = [];
+let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 
 const plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
@@ -65,43 +73,46 @@ async function saveMyGardenToFirebase(garden) {
 }
 
 async function addToMyGarden(plantName) {
-  try {
-    const plant = plants.find((p) => p.name === plantName);
-    if (plant) {
-      if (!myGarden.includes(plant.id)) {
-        myGarden.push(plant.id);
-        localStorage.setItem("myGarden", JSON.stringify(myGarden));
-        await saveMyGardenToFirebase(myGarden); 
-        renderMyGarden(myGarden);
-        console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
-      } else {
-        console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
-      }
-    } else {
-      console.warn(`Pianta '${plantName}' non trovata.`);
+    try {
+        const plant = plants.find((p) => p.name === plantName);
+        if (plant) {
+            if (!myGarden.includes(plant.id)) {
+                myGarden.push(plant.id);
+                localStorage.setItem("myGarden", JSON.stringify(myGarden));
+                await saveMyGardenToFirebase(myGarden);
+                renderMyGarden(myGarden);
+                isMyGardenEmpty = false; 
+                updateGardenVisibility(); 
+                console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
+            } else {
+                console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
+            }
+        } else {
+            console.warn(`Pianta '${plantName}' non trovata.`);
+        }
+    } catch (error) {
+        console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
     }
-  } catch (error) {
-    console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
-  }
 }
 
 async function removeFromMyGarden(plantIdToRemove) {
-  try {
-    const index = myGarden.indexOf(plantIdToRemove);
-    if (index > -1) {
-      myGarden.splice(index, 1);
-      localStorage.setItem("myGarden", JSON.stringify(myGarden));
-      await saveMyGardenToFirebase(myGarden); 
-      renderMyGarden(myGarden);
-      console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
-    } else {
-      console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
+    try {
+        const index = myGarden.indexOf(plantIdToRemove);
+        if (index > -1) {
+            myGarden.splice(index, 1);
+            localStorage.setItem("myGarden", JSON.stringify(myGarden));
+            await saveMyGardenToFirebase(myGarden);
+            renderMyGarden(myGarden);
+            isMyGardenEmpty = myGarden.length === 0; 
+            updateGardenVisibility(); 
+            console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
+        } else {
+            console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
+        }
+    } catch (error) {
+        console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
     }
-  } catch (error) {
-    console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
-  }
 }
-
 function createPlantCard(plantData) {
   console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
   const div = document.createElement("div");
@@ -192,7 +203,7 @@ function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     gardenContainer.innerHTML = "";
     plantArray.forEach((plant) => {
-        const image = plant.image || 'plant_9215709.png'; 
+        const image = plant.image || 'plant_9215709.png';
         console.log("URL immagine per", plant.name + ":", image);
         const div = document.createElement("div");
         div.className = "plant-card";
@@ -207,8 +218,9 @@ function renderPlants(plantArray) {
         `;
         gardenContainer.appendChild(div);
     });
-}
 
+    updateGardenVisibility(); 
+}
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded CALLED");
     loadPlantsFromFirebase(); 
@@ -220,3 +232,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
  });
 
+function updateGardenVisibility() {
+    if (isMyGardenEmpty) {
+        if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+        if (giardinoTitle) giardinoTitle.style.display = 'none';
+    } else {
+        if (plantsContainerDiv) plantsContainerDiv.style.display = 'none';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
+        if (giardinoTitle) giardinoTitle.style.display = 'block';
+    }
+}
+
+updateGardenVisibility();
