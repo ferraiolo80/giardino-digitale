@@ -92,16 +92,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function saveMyGardenToFirebase(garden) {
-        const user = firebase.auth().currentUser;
-        if (user) {
-            try {
-                await firebase.firestore().doc(firebase.firestore().collection('gardens'), user.uid).update({ plants: garden });
-                console.log("Il 'Mio Giardino' è stato aggiornato su Firebase.");
-            } catch (error) {
-                console.error("Errore durante l'aggiornamento del 'Mio Giardino' su Firebase:", error);
-            }
+    const user = firebase.auth().currentUser;
+    if (user) {
+        try {
+            // Ottieni un riferimento al documento "giardino" dell'utente
+            const gardenRef = firebase.firestore().collection('gardens').doc(user.uid);
+            // Aggiorna il documento con l'array di piante
+            await gardenRef.update({ plants: garden });
+            console.log("Il 'Mio Giardino' è stato aggiornato su Firebase.");
+        } catch (error) {
+            console.error("Errore durante l'aggiornamento del 'Mio Giardino' su Firebase:", error);
         }
     }
+}
 
     async function addToMyGarden(plantName) {
         const plants = await loadAllPlants(); // Assicurati di avere questa funzione
