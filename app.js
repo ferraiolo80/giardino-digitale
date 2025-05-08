@@ -37,10 +37,11 @@ const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 const giardinoTitle = document.getElementById('giardinoTitle');
 const plantsContainerDiv = document.getElementById('garden-container');
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // ... (il tuo codice all'interno di DOMContentLoaded) ...
     const loginButton = document.getElementById('loginButton');
     if (loginButton) {
+        console.log("loginButton trovato nel DOM.");
         loginButton.addEventListener('click', async () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
@@ -54,6 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Errore durante il login:", error);
             }
         });
+        console.log("Event listener aggiunto al loginButton.");
+    } else {
+        console.error("Elemento loginButton non trovato nel DOM!");
     }
 
 async function renderMyGarden(garden) {
@@ -436,3 +440,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     await loadPlantsFromFirebase();
     update
+    });
