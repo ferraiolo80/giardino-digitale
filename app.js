@@ -12,9 +12,9 @@ const firebaseConfig = {
     appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 // Riferimenti agli elementi HTML
 const gardenContainer = document.getElementById('garden-container');
 const myGardenContainer = document.getElementById('my-garden');
