@@ -6,9 +6,7 @@ const giardinoTitle = document.getElementById('giardinoTitle');
 const auth = firebase.auth();
 
 const plants = [];
-let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 
-const plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 const gardenContainer = document.getElementById("garden-container");
 const searchInput = document.getElementById("searchInput");
