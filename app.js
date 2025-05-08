@@ -19,9 +19,6 @@ const appContentDiv = document.getElementById('app-content');
 const imageSearchResultDiv = document.getElementById('image-search-result');
 const authContainerDiv = document.getElementById('auth-container');
 const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-const mioGiardinoSection = document.getElementById('my-garden');
-const giardinoTitle = document.getElementById('giardinoTitle');
-const auth = firebase.auth();
 
 console.log("SCRIPT APP.JS CARICATO");
 
