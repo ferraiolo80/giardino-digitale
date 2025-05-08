@@ -1,153 +1,148 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Giardino Digitale</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <style>
-    #app-content {
-      display: none; /* Nascondi il contenuto principale all'inizio */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Giardino Digitale</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        #app-content {
+            display: none; 
+        }
+    </style>
 </head>
 <body>
-  <h1>🌸 Giardino Digitale 🌿</h1>
+    <h1>🌸 Giardino Digitale 🌿</h1>
 
-  <div id="auth-container">
-    <h2>Autenticazione</h2>
-    <div id="login-form">
-    <h3>Accedi</h3>
-    <input type="email" id="login-email" placeholder="Email">
-    <input type="password" id="login-password" placeholder="Password">
-    <button id="loginButton">Accedi</button>
-    <p>Non hai un account? <a href="#" onclick="showRegisterForm()">Registrati</a></p>
-    <div id="login-error" class="error-message" style="color: red;"></div>
-  </div>
+    <div id="auth-container">
+        <h2>Autenticazione</h2>
+        <div id="login-form">
+            <h3>Accedi</h3>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <button id="loginButton">Accedi</button>
+            <p>Non hai un account? <a href="#" onclick="showRegisterForm()">Registrati</a></p>
+            <div id="login-error" class="error-message" style="color: red;"></div>
+        </div>
 
-  <div id="register-form" style="display: none;">
-    <h3>Registrati</h3>
-    <input type="email" id="register-email" placeholder="Email">
-    <input type="password" id="register-password" placeholder="Password">
-    <button id="registerButton">Registrati</button>
-    <p>Hai già un account? <a href="#" onclick="showLoginForm()">Accedi</a></p>
-    <div id="register-error" class="error-message" style="color: red;"></div>
-  </div>
+        <div id="register-form" style="display: none;">
+            <h3>Registrati</h3>
+            <input type="email" id="register-email" placeholder="Email">
+            <input type="password" id="register-password" placeholder="Password">
+            <button id="registerButton">Registrati</button>
+            <p>Hai già un account? <a href="#" onclick="showLoginForm()">Accedi</a></p>
+            <div id="register-error" class="error-message" style="color: red;"></div>
+        </div>
 
-  <button id="logoutButton">Logout</button>
-    <div id="auth-status"></div>
-  </div>
-
-  <div id="app-content">
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Cerca una pianta...">
+        <button id="logoutButton">Logout</button>
+        <div id="auth-status"></div>
     </div>
 
-    <div class="search-container">
-      <input type="file" id="imageInput" accept="image/*">
-      <button id="identifyFromImage" style="display:none;">Identifica da Foto</button> <p>Oppure, identifica con <a href="https://lens.google.com/" target="_blank" rel="noopener noreferrer">Google Lens <i class="fas fa-search"></i></a></p>
-      <div id="image-search-result"></div>
-      <div id="plant-details"></div>
+    <div id="app-content">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Cerca una pianta...">
+        </div>
+
+        <div class="search-container">
+            <input type="file" id="imageInput" accept="image/*">
+            <button id="identifyFromImage" style="display:none;">Identifica da Foto</button> <p>Oppure, identifica con <a href="https://lens.google.com/" target="_blank" rel="noopener noreferrer">Google Lens <i class="fas fa-search"></i></a></p>
+            <div id="image-search-result"></div>
+            <div id="plant-details"></div>
+        </div>
+
+        <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
+
+    <div id="newPlantCard" style="display: none;">
+        <h3>Aggiungi una Nuova Pianta</h3>
+        <label for="newPlantName">Nome:</label>
+        <input type="text" id="newPlantName"><br><br>
+
+        <label for="newPlantSunlight">Luce:</label>
+        <input type="text" id="newPlantSunlight"><br><br>
+
+        <label for="newPlantWatering">Acqua:</label>
+        <input type="text" id="newPlantWatering"><br><br>
+
+        <label for="newPlantTempMin">Temperatura Minima (°C):</label>
+        <input type="number" id="newPlantTempMin"><br><br>
+
+        <label for="newPlantTempMax">Temperatura Massima (°C):</label>
+        <input type="number" id="newPlantTempMax"><br><br>
+
+        <label for="newPlantDescription">Descrizione (Opzionale):</label><br>
+        <textarea id="newPlantDescription"></textarea><br><br>
+
+        <label for="newPlantCategory">Categoria:</label>
+        <select id="newPlantCategory">
+            <option value="Fiore">Fiore</option>
+            <option value="Erba aromatica">Erba aromatica</option>
+            <option value="Succulenta">Succulenta</option>
+            <option value="Arbusto">Arbusto</option>
+            <option value="Albero">Albero</option>
+            </select><br><br>
+
+        <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
+        <input type="url" id="newPlantImageURL"><br><br>
+
+        <button id="saveNewPlant">Salva Pianta</button>
+        <button id="cancelNewPlant">Annulla</button>
+    </div>
+        <div class="filter-container">
+            <label for="categoryFilter">🌿 Filtra nel Mio Giardino per categoria:</label>
+            <select id="categoryFilter">
+                <option value="Tutte le categorie">Tutte le categorie</option>
+                <option value="Fiore">Fiore</option>
+                <option value="Erba aromatica">Erba aromatica</option>
+                <option value="Succulenta">Succulenta</option>
+                <option value="Arbusto">Arbusto</option>
+                <option value="Albero">Albero</option>
+            </select>
+        </div>
+
+        <div class="filter-container">
+            <label>🌡️ Filtra nel Mio Giardino per temperatura (°C):</label><br>
+            <input type="number" id="tempMinFilter" placeholder="Minima"class="icon-min-temp">
+            <input type="number" id="tempMaxFilter" placeholder="Massima"class="icon-max-temp">
+        </div>
+
+        <button id="toggleMyGarden"><i class="fas fa-eye-slash"></i>Nascondi il mio giardino</button>
+        <h2 id="giardinoTitle">Il mio giardino</h2>
+        <div id="garden-container">
+        </div>
+
+        <div id="my-garden">
+        </div>
     </div>
 
-    <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
+    <script>
+        function showRegisterForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
 
-<div id="newPlantCard" style="display: none;">
-    <h3>Aggiungi una Nuova Pianta</h3>
-    <label for="newPlantName">Nome:</label>
-    <input type="text" id="newPlantName"><br><br>
+        function showLoginForm() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+    </script>
 
-    <label for="newPlantSunlight">Luce:</label>
-    <input type="text" id="newPlantSunlight"><br><br>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 
-    <label for="newPlantWatering">Acqua:</label>
-    <input type="text" id="newPlantWatering"><br><br>
+    <script>
+        // Configura Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+            authDomain: "giardinodigitale.firebaseapp.com",
+            projectId: "giardinodigitale",
+            storageBucket: "giardinodigitale.appspot.com",
+            messagingSenderId: "96265504027",
+            appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+        };
 
-    <label for="newPlantTempMin">Temperatura Minima (°C):</label>
-    <input type="number" id="newPlantTempMin"><br><br>
-
-    <label for="newPlantTempMax">Temperatura Massima (°C):</label>
-    <input type="number" id="newPlantTempMax"><br><br>
-
-    <label for="newPlantDescription">Descrizione (Opzionale):</label><br>
-    <textarea id="newPlantDescription"></textarea><br><br>
-
-    <label for="newPlantCategory">Categoria:</label>
-    <select id="newPlantCategory">
-        <option value="Fiore">Fiore</option>
-        <option value="Erba aromatica">Erba aromatica</option>
-        <option value="Succulenta">Succulenta</option>
-        <option value="Arbusto">Arbusto</option>
-        <option value="Albero">Albero</option>
-        </select><br><br>
-
-    <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
-    <input type="url" id="newPlantImageURL"><br><br>
-
-    <button id="saveNewPlant">Salva Pianta</button>
-    <button id="cancelNewPlant">Annulla</button>
-</div>
-    <div class="filter-container">
-      <label for="categoryFilter">🌿 Filtra nel Mio Giardino per categoria:</label>
-      <select id="categoryFilter">
-        <option value="Tutte le categorie">Tutte le categorie</option>
-        <option value="Fiore">Fiore</option>
-        <option value="Erba aromatica">Erba aromatica</option>
-        <option value="Succulenta">Succulenta</option>
-        <option value="Arbusto">Arbusto</option>
-        <option value="Albero">Albero</option>
-      </select>
-    </div>
-
-    <div class="filter-container">
-      <label>🌡️ Filtra nel Mio Giardino per temperatura (°C):</label><br>
-      <input type="number" id="tempMinFilter" placeholder="Minima"class="icon-min-temp">
-      <input type="number" id="tempMaxFilter" placeholder="Massima"class="icon-max-temp">
-    </div>
-
-    <button id="toggleMyGarden"><i class="fas fa-eye-slash"></i>Nascondi il mio giardino</button>
-    <h2 id="giardinoTitle">Il mio giardino</h2>
-    <div id="garden-container">
-    </div>
-
-    <div id="my-garden">
-    </div>
-  </div>
-
-  <script>
-    function showRegisterForm() {
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('register-form').style.display = 'block';
-    }
-
-    function showLoginForm() {
-      document.getElementById('register-form').style.display = 'none';
-      document.getElementById('login-form').style.display = 'block';
-    }
-  </script>
-
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-
-  <script>
-    // Configura Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-      authDomain: "giardinodigitale.firebaseapp.com",
-      projectId: "giardinodigitale",
-      storageBucket: "giardinodigitale.appspot.com",
-      messagingSenderId: "96265504027",
-      appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
-    };
-
-    // Inizializza Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
-
-  
-  <script type="module" src="app.js"></script>
-</body>
-</html>
+        // Inizializza Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
