@@ -208,7 +208,6 @@ async function loadMyGardenFromFirebase() {
         updateGardenVisibility();
     }
 }
-
 async function loadAllPlants() {
     try {
         const querySnapshot = await firebase.firestore().collection('plants').get();
