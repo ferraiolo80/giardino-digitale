@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app'; // prova
+
 let plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 let isMyGardenEmpty = myGarden.length === 0;
