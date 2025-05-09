@@ -60,28 +60,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function renderMyGarden(garden) {
-        console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
-        console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
+    console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
+    console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
 
-        const myGardenContainer = document.getElementById('my-garden');
-        myGardenContainer.innerHTML = ''; // Pulisci il contenitore
-        const validGarden = []; // Nuovo array per contenere solo ID validi
+    let safeGarden = [];
+    if (Array.isArray(garden)) {
+        safeGarden = garden;
+    } else {
+        console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
+        safeGarden = [];
+        localStorage.setItem("myGarden", JSON.stringify([]));  
+        await saveMyGardenToFirebase([]); // Aggiorna Firebase per sicurezza
+    }
 
-        for (const plantId of garden) {
-            try {
-                const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
-                if (doc.exists) {
-                    const plantData = { id: doc.id, ...doc.data() };
-                    const plantCard = createPlantCard(plantData);
-                    myGardenContainer.appendChild(plantCard);
-                    validGarden.push(plantId); // Aggiungi l'ID valido al nuovo array
-                } else {
-                    console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
-                }
-            } catch (error) {
-                console.error("Errore nel recupero della pianta:", error);
+    const myGardenContainer = document.getElementById('my-garden');
+    myGardenContainer.innerHTML = '';  
+    const validGarden = []; // Nuovo array per contenere solo ID validi
+
+    for (const plantId of safeGarden) {
+        try {
+            const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
+            if (doc.exists) {
+                const plantData = { id: doc.id, ...doc.data() };
+                const plantCard = createPlantCard(plantData);
+                myGardenContainer.appendChild(plantCard);
+                validGarden.push(plantId);  
+            } else {
+                console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
             }
+        } catch (error) {
+            console.error("Errore nel recupero della pianta:", error);
         }
+    }
+
+    // Aggiorna il localStorage e Firebase con l'array pulito
+    localStorage.setItem("myGarden", JSON.stringify(validGarden));
+    await saveMyGardenToFirebase(validGarden); // Assicurati che la tua saveMyGardenToFirebase accetti 'garden'
+
+    // Aggiorna la visibilità del "Mio giardino"
+    updateGardenVisibility();
+}
 
         // Aggiorna il localStorage e Firebase con l'array pulito
         localStorage.setItem("myGarden", JSON.stringify(validGarden));
