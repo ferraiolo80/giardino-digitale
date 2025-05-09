@@ -107,7 +107,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 
     async function addToMyGarden(plantName) {
-        const plants = await loadAllPlants(); // Assicurati di avere questa funzione
+        const plants = await loadAllPlants();  
+        console.log("Piante caricate per l'aggiunta:", plants); 
         try {
             const plant = plants.find((p) => p.name === plantName);
             if (plant) {
