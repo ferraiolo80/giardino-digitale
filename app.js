@@ -347,6 +347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             appContentDiv.style.display = 'block';
             authContainerDiv.style.display = 'none';
             await loadMyGardenFromFirebase();
+            updateGardenToggleButtonState(isMyGardenEmpty)
         } else {
             console.log("Stato autenticazione cambiato, nessun utente loggato.");
             authStatusDiv.innerText = "Nessun utente autenticato.";
@@ -355,6 +356,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
             isMyGardenEmpty = myGarden.length === 0;
             await renderMyGarden(myGarden);
+            updateGardenToggleButtonState(isMyGardenEmpty)
         }
     });
 
@@ -368,6 +370,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+    function updateGardenToggleButtonState(isEmpty) {
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+    const eyeIcon = toggleMyGardenButton.querySelector('i');
+    if (isEmpty) {
+        toggleMyGardenButton.innerText = 'Mostra il mio giardino';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    } else {
+        toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    }
+}
     const addNewPlantButton = document.getElementById('addNewPlantButton');
     if (addNewPlantButton) {
         addNewPlantButton.addEventListener('click', () => {
