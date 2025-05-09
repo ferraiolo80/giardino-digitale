@@ -64,9 +64,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const validGarden = []; // Nuovo array per contenere solo ID validi
 
     for (const plantId of safeGarden) {
+        console.log("ID della pianta prima della query Firebase:", plantId); // Aggiungi questo log
         console.log("ID della pianta prima del try:", plantId, typeof plantId); // Aggiungi questo lo
         console.log("Tentativo di recuperare la pianta con ID:", plantId); 
-        console.log("ID della pianta prima della query Firebase:", plantId); // Aggiungi questo log
         try {
             await new Promise(resolve => setTimeout(resolve, 100)); // 150 millisecondi di ritardo
             console.log("Tentativo di recuperare il documento:", firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).path);
