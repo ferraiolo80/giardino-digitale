@@ -331,11 +331,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.addEventListener('click', async (event) => {
+        if (event.target) {  
         if (event.target.classList.contains('add-to-garden-button')) {
             const plantName = event.target.dataset.plantName;
+            console.log("Tentativo di aggiungere la pianta:", plantName); 
             await addToMyGarden(plantName);
         }
-    });
+    }
+});
 
     const addNewPlantButton = document.getElementById('addNewPlantButton');
     if (addNewPlantButton) {
