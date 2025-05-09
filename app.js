@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const validGarden = []; // Nuovo array per contenere solo ID validi
 
     for (const plantId of safeGarden) {
+        console.log("Tentativo di recuperare la pianta con ID:", plantId); 
         try {
             const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
             if (doc.exists) {
