@@ -2,16 +2,6 @@ let plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 let isMyGardenEmpty = myGarden.length === 0;
 
-// Configura Firebase (assicurati che i tuoi dettagli siano corretti)
-const firebaseConfig = {
-    apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-    authDomain: "giardinodigitale.firebaseapp.com",
-    projectId: "giardinodigitale",
-    storageBucket: "giardinodigitale.appspot.com",
-    messagingSenderId: "96265504027",
-    appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
-};
-
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
