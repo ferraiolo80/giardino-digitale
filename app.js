@@ -158,13 +158,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         div.className = "my-plant-card";
         div.innerHTML = `
             <h4>${plantData.name}</h4>
-            <p>Luce: ${plantData.sunlight}</p>
-            <p>Acqua: ${plantData.watering}</p>
-            <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-            <p>Temperatura ideale max: <span class="math-inline">\{plantData\.tempMax\}°C</p\>
-<button class\="remove\-button" data\-plant\-id\="</span>{plantData.id}">Rimuovi</button>
-            <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
-        `;
+        <p>Luce: ${plantData.sunlight}</p>
+        <p>Acqua: ${plantData.watering}</p>
+        <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
+        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
+        <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
+    `;
 
         const removeButton = div.querySelector('.remove-button');
         removeButton.addEventListener('click', () => {
