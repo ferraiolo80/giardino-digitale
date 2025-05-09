@@ -451,26 +451,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-    if (toggleMyGardenButton) {
-        toggleMyGardenButton.addEventListener('click', () => {
-            const mioGiardinoSection = document.getElementById('my-garden');
-            const giardinoTitle = document.getElementById('giardinoTitle');
-            const eyeIcon = toggleMyGardenButton.querySelector('i');
-            if (mioGiardinoSection.style.display === 'none') {
-                mioGiardinoSection.style.display = 'block';
-                giardinoTitle.style.display = 'block';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-                toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
-            } else {
-                mioGiardinoSection.style.display = 'none';
-                giardinoTitle.style.display = 'none';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-                toggleMyGardenButton.innerText = 'Mostra il mio giardino';
-            }
-        });
-    }
+if (toggleMyGardenButton) {
+    toggleMyGardenButton.addEventListener('click', () => {
+        const mioGiardinoSection = document.getElementById('my-garden');
+        const giardinoTitle = document.getElementById('giardinoTitle');
+        const eyeIcon = toggleMyGardenButton.querySelector('i');
+        if (mioGiardinoSection.style.display === 'none') {
+            mioGiardinoSection.style.display = 'block';
+            giardinoTitle.style.display = 'block';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+            toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
+        } else {
+            mioGiardinoSection.style.display = 'none';
+            giardinoTitle.style.display = 'none';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+            toggleMyGardenButton.innerText = 'Mostra il mio giardino';
+        }
+        // Aggiorna isMyGardenEmpty qui dopo aver cambiato la visibilità
+        isMyGardenEmpty = mioGiardinoSection.style.display === 'none';
+        updateGardenToggleButtonState(isMyGardenEmpty); // Richiama per aggiornare lo stato visivo
+    });
+}
 
     await loadPlantsFromFirebase();
     updateGardenVisibility();
