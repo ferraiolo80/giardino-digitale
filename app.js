@@ -168,27 +168,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 
     function createPlantCard(plantData) {
-        console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
-        const div = document.createElement("div");
-        div.className = "my-plant-card";
-        div.innerHTML = `
-            <h4>${plantData.name}</h4>
+    console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
+    const div = document.createElement("div");
+    div.className = "my-plant-card";
+    div.innerHTML = `
+        <h4>${plantData.name}</h4>
         <p>Luce: ${plantData.sunlight}</p>
         <p>Acqua: ${plantData.watering}</p>
         <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
         <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
-        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi</button>
+        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>
         <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
     `;
 
-        const removeButton = div.querySelector('.remove-button');
-        removeButton.addEventListener('click', () => {
-            const plantIdToRemove = removeButton.dataset.plantId;
-            removeFromMyGarden(plantIdToRemove);
-        });
-
-        return div;
-    }
+    // L'event listener per il bottone "Rimuovi" è ora gestito in renderPlants
+    return div;
+}
 
     async function loadMyGardenFromFirebase() {
     let garden = [];
@@ -261,6 +256,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
+    const myGarden = JSON.parse(localStorage.getItem("myGarden")) || []; // Ottieni il "Mio Giardino" corrente
+
     plantArray.forEach((plant) => {
         const image = plant.image || 'plant_9215709.png';
         const div = document.createElement("div");
@@ -272,13 +269,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
             <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-            <button class="add-to-garden-button" data-plant-name="${plant.name}">Aggiungi al mio giardino</button>
+            ${myGarden.includes(plant.id) ? // Verifica se la pianta è già nel "Mio Giardino"
+                '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
+                '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>'
+            }
         `;
         gardenContainer.appendChild(div);
     });
+
+    // Aggiungiamo gli event listener per i bottoni creati dinamicamente
+    gardenContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('add-to-garden-button')) {
+            const plantName = event.target.dataset.plantName;
+            console.log("Tentativo di aggiungere la pianta:", plantName);
+            await addToMyGarden(plantName);
+        } else if (event.target.classList.contains('remove-button')) {
+            const plantIdToRemove = event.target.dataset.plantId;
+            await removeFromMyGarden(plantIdToRemove);
+        }
+    });
+
     updateGardenVisibility();
 }
-
     function updateGardenVisibility() {
         const plantsContainerDiv = document.getElementById('garden-container');
         const mioGiardinoSection = document.getElementById('my-garden');
