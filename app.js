@@ -243,26 +243,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderPlants(plantArray) {
-        console.log('Array plant ricevuto da renderPlants:', plantArray);
-        const gardenContainer = document.getElementById('garden-container');
-        gardenContainer.innerHTML = "";
-        plantArray.forEach((plant) => {
-            const image = plant.image || 'plant_9215709.png';
-            const div = document.createElement("div");
-            div.className = "plant-card";
-            div.innerHTML = `
-                <img src="<span class="math-inline">\{image\}" alt\="</span>{plant.name}" class="plant-icon">
-                <h4>${plant.name}</h4>
-                <p>Luce: ${plant.sunlight}</p>
-                <p>Acqua: ${plant.watering}</p>
-                <p>Temperatura ideale min: ${plant.tempMin}°C</p>
-                <p>Temperatura ideale max: <span class="math-inline">\{plant\.tempMax\}°C</p\>
-<button class\="add\-to\-garden\-button" data\-plant\-name\="</span>{plant.name}">Aggiungi al mio giardino</button>
-            `;
-            gardenContainer.appendChild(div);
-        });
-        updateGardenVisibility();
-    }
+    console.log('Array plant ricevuto da renderPlants:', plantArray);
+    const gardenContainer = document.getElementById('garden-container');
+    gardenContainer.innerHTML = "";
+    plantArray.forEach((plant) => {
+        const image = plant.image || 'plant_9215709.png';
+        const div = document.createElement("div");
+        div.className = "plant-card";
+        div.innerHTML = `
+            <img src="${image}" alt="${plant.name}" class="plant-icon">
+            <h4>${plant.name}</h4>
+            <p>Luce: ${plant.sunlight}</p>
+            <p>Acqua: ${plant.watering}</p>
+            <p>Temperatura ideale min: ${plant.tempMin}°C</p>
+            <p>Temperatura ideale max: ${plant.tempMax}°C</p>
+            <button class="add-to-garden-button" data-plant-name="${plant.name}">Aggiungi al mio giardino</button>
+        `;
+        gardenContainer.appendChild(div);
+    });
+    updateGardenVisibility();
+}
 
     function updateGardenVisibility() {
         const plantsContainerDiv = document.getElementById('garden-container');
