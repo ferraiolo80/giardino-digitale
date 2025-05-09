@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const validGarden = []; // Nuovo array per contenere solo ID validi
 
     for (const plantId of safeGarden) {
+        console.log("ID della pianta prima del try:", plantId, typeof plantId); // Aggiungi questo lo
         console.log("Tentativo di recuperare la pianta con ID:", plantId); 
         try {
             await new Promise(resolve => setTimeout(resolve, 100)); // 150 millisecondi di ritardo
