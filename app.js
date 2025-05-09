@@ -101,14 +101,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateGardenVisibility();
 }
 
-        // Aggiorna il localStorage e Firebase con l'array pulito
-        localStorage.setItem("myGarden", JSON.stringify(validGarden));
-        await saveMyGardenToFirebase(validGarden); // Assicurati che la tua saveMyGardenToFirebase accetti 'garden'
-
-        // Aggiorna la visibilità del "Mio giardino"
-        updateGardenVisibility();
-    }
-
     async function saveMyGardenToFirebase(garden) {
     const user = firebase.auth().currentUser;
     if (user) {
