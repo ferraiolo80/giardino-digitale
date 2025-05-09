@@ -71,10 +71,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("Tentativo di recuperare il documento:", firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).path);
             const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
             if (doc.exists) {
-                const plantData = { id: doc.id, ...doc.data() };
+                 const plantData = { id: doc.id, ...doc.data() };
                 const plantCard = createPlantCard(plantData);
                 myGardenContainer.appendChild(plantCard);
-                validGarden.push(plantId);  
+                const removeButton = plantCard.querySelector('.remove-button'); // Seleziona il bottone nella card creata
+                if (removeButton) {
+                    removeButton.addEventListener('click', () => {
+                        const plantIdToRemove = removeButton.dataset.plantId;
+                        removeFromMyGarden(plantIdToRemove);
+                    });
+                }
+                validGarden.push(plantId);
             } else {
                 console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
             }
