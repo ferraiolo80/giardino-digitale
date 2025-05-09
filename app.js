@@ -2,9 +2,6 @@ let plants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 let isMyGardenEmpty = myGarden.length === 0;
 
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
 // Riferimenti agli elementi HTML
 const gardenContainer = document.getElementById('garden-container');
 const myGardenContainer = document.getElementById('my-garden');
