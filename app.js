@@ -93,6 +93,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (error) {
             console.error("Errore nel recupero della pianta:", error);
+            console.error("Tipo di errore:", typeof error); // Aggiungi questo log
+            console.error("Proprietà dell'errore:", Object.keys(error)); // Aggiungi questo log
         }
     }
 
