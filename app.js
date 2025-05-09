@@ -107,30 +107,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 
     async function addToMyGarden(plantName) {
-        const plants = await loadAllPlants();  
-        console.log("Piante caricate per l'aggiunta:", plants); 
-        try {
-            const plant = plants.find((p) => p.name === plantName);
-            if (plant) {
-                let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-                if (!myGarden.includes(plant.id)) {
-                    myGarden.push(plant.id);
-                    localStorage.setItem("myGarden", JSON.stringify(myGarden));
-                    await saveMyGardenToFirebase(myGarden);
-                    await renderMyGarden(myGarden);
-                    isMyGardenEmpty = false;
-                    updateGardenVisibility();
-                    console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
-                } else {
-                    console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
+    const plants = await loadAllPlants();
+    try {
+        const plant = plants.find((p) => p.name === plantName);
+        if (plant) {
+            let myGardenRaw = localStorage.getItem("myGarden");
+            let myGarden = [];
+            if (myGardenRaw) {
+                try {
+                    const parsedGarden = JSON.parse(myGardenRaw);
+                    if (Array.isArray(parsedGarden)) {
+                        myGarden = parsedGarden;
+                    } else {
+                        console.warn("Valore non valido trovato in localStorage per 'myGarden'. Inizializzato come array vuoto.");
+                        localStorage.setItem("myGarden", JSON.stringify([]));
+                    }
+                } catch (error) {
+                    console.error("Errore durante l'analisi di 'myGarden' da localStorage:", error);
+                    localStorage.setItem("myGarden", JSON.stringify([]));
                 }
-            } else {
-                console.warn(`Pianta '${plantName}' non trovata.`);
             }
-        } catch (error) {
-            console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
+            if (!myGarden.includes(plant.id)) {
+                myGarden.push(plant.id);
+                localStorage.setItem("myGarden", JSON.stringify(myGarden));
+                await saveMyGardenToFirebase(myGarden);
+                await renderMyGarden(myGarden);
+                isMyGardenEmpty = false;
+                updateGardenVisibility();
+                console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
+            } else {
+                console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
+            }
+        } else {
+            console.warn(`Pianta '${plantName}' non trovata.`);
         }
+    } catch (error) {
+        console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
     }
+}
 
     async function removeFromMyGarden(plantIdToRemove) {
     let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
