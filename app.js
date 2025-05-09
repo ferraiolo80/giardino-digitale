@@ -418,6 +418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         newPlantCard.style.display = 'none';
                     }
                     await loadPlantsFromFirebase(); // Ricarica le piante per visualizzare la nuova
+                    await loadMyGardenFromFirebase();
                 } catch (error) {
                     console.error("Errore nell'aggiunta della nuova pianta:", error);
                 }
