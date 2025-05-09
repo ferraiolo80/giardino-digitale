@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (const plantId of safeGarden) {
         console.log("Tentativo di recuperare la pianta con ID:", plantId); 
         try {
+            await new Promise(resolve => setTimeout(resolve, 100)); // 150 millisecondi di ritardo
             const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
             if (doc.exists) {
                 const plantData = { id: doc.id, ...doc.data() };
