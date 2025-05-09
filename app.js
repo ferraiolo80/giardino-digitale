@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const validGarden = []; // Nuovo array per contenere solo ID validi
 
     for (const plantId of safeGarden) {
+        console.log("Oggetto Firestore:", firebase.firestore()); // AGGIUNGI QUESTO LOG
         console.log("INIZIO CICLO RENDERMYGARDEN CON ID:", plantId); // NUOVO LOG
         console.log("ID della pianta prima della query Firebase:", plantId); // Aggiungi questo log
         console.log("ID della pianta prima del try:", plantId, typeof plantId); // Aggiungi questo lo
