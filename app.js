@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await new Promise(resolve => setTimeout(resolve, 100)); // 150 millisecondi di ritardo
             console.log("Tentativo di recuperare il documento:", firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).path);
             const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
+            console.log("Riferimento al documento Firebase:", docRef.path); // INSERISCI QUI IL SECONDO LOG
             if (doc.exists) {
                 const plantData = { id: doc.id, ...doc.data() };
                 const plantCard = createPlantCard(plantData);
