@@ -66,12 +66,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (const plantId of safeGarden) {
         console.log("ID della pianta prima del try:", plantId, typeof plantId); // Aggiungi questo lo
         console.log("Tentativo di recuperare la pianta con ID:", plantId); 
+        console.log("ID della pianta prima della query Firebase:", plantId); // Aggiungi questo log
         try {
             await new Promise(resolve => setTimeout(resolve, 100)); // 150 millisecondi di ritardo
             console.log("Tentativo di recuperare il documento:", firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).path);
             const doc = await firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).get();
             if (doc.exists) {
-                 const plantData = { id: doc.id, ...doc.data() };
+                const plantData = { id: doc.id, ...doc.data() };
                 const plantCard = createPlantCard(plantData);
                 myGardenContainer.appendChild(plantCard);
                 const removeButton = plantCard.querySelector('.remove-button'); // Seleziona il bottone nella card creata
