@@ -327,7 +327,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
         appContentDiv.style.display = 'block';
         authContainerDiv.style.display = 'none';
         await loadMyGardenFromFirebase();
-        updateGardenVisibility();
+        updateGardenVisibility(); // Spostata qui dopo il caricamento del giardino
     } else {
         console.log("Stato autenticazione cambiato, nessun utente loggato.");
         authStatusDiv.innerText = "Nessun utente autenticato.";
@@ -336,16 +336,32 @@ firebase.auth().onAuthStateChanged(async (user) => {
         const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
         isMyGardenEmpty = myGarden.length === 0;
         await renderMyGarden(myGarden);
-        updateGardenVisibility();
+        updateGardenVisibility(); // Mantenuta qui per gli utenti non loggati
     }
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ... (il tuo codice all'interno di DOMContentLoaded) ...
+    loginButton.addEventListener('click', handleLogin);
+    registerButton.addEventListener('click', handleRegister);
+    logoutButton.addEventListener('click', handleLogout);
+    addNewPlantButton.addEventListener('click', () => {
+        newPlantCard.style.display = 'block';
+    });
+    cancelNewPlant.addEventListener('click', () => {
+        newPlantCard.style.display = 'none';
+        clearNewPlantForm();
+    });
+    saveNewPlant.addEventListener('click', saveNewPlantToFirebase);
+    searchInput.addEventListener('input', handleSearch);
+    categoryFilter.addEventListener('change', handleFilter);
+    tempMinFilter.addEventListener('input', handleTempFilter);
+    tempMaxFilter.addEventListener('input', handleTempFilter);
+    toggleMyGardenButton.addEventListener('click', toggleMyGarden); // Assicurati che questo sia presente
     await loadPlantsFromFirebase();
-    updateGardenVisibility();
+    updateGardenVisibility(); // Mantenuta anche qui, dovrebbe essere sicura ora
 });
-    function updateGardenToggleButtonState(isEmpty) {
+    
+function updateGardenToggleButtonState(isEmpty) {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
     const eyeIcon = toggleMyGardenButton.querySelector('i');
     if (isEmpty) {
