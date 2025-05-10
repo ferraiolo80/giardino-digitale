@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const emptyGardenMessage = document.getElementById('empty-garden-message');
     myGardenContainer.innerHTML = '';
 
+    console.log("Valore di safeGarden prima del controllo di lunghezza:", safeGarden); // AGGIUNGI QUESTO LOG
+
     if (safeGarden.length === 0) {
         if (emptyGardenMessage) {
             emptyGardenMessage.style.display = 'block';
