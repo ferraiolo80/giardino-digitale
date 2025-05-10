@@ -1,4 +1,5 @@
 let plants = [];
+let allPlants = [];
 let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
 let isMyGardenEmpty = myGarden.length === 0;
 // Riferimenti agli elementi HTML
