@@ -155,8 +155,14 @@ async function removeFromMyGarden(plantIdToRemove) {
             localStorage.setItem("myGarden", JSON.stringify(myGarden));
             await saveMyGardenToFirebase(myGarden);
             await renderMyGarden(myGarden);
-            isMyGardenEmpty = myGarden.length === 0; // Aggiorna isMyGardenEmpty
-            updateGardenToggleButtonState(isMyGardenEmpty); // Chiama updateGardenToggleButtonState
+            isMyGardenEmpty = myGarden.length === 0;
+            updateGardenToggleButtonState(isMyGardenEmpty);
+            updateGardenVisibility(); // Chiamata per aggiornare la visibilità
+            if (firebase.auth().currentUser && isMyGardenEmpty) {
+                // Se l'utente è loggato e il giardino è vuoto, forza il rendering delle piante disponibili
+                await loadPlantsFromFirebase();
+                renderPlants(allPlants); // Assicurati che 'allPlants' sia accessibile qui
+            }
             console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
         } else {
             console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
