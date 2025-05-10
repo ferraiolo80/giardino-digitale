@@ -289,14 +289,15 @@ async function removeFromMyGarden(plantIdToRemove) {
     });
 
     updateGardenVisibility();
-}async function updateGardenVisibility() {
-    const plantsContainerDiv = document.getElementById('garden-container');
-    const mioGiardinoSection = document.getElementById('my-garden');
-    const giardinoTitle = document.getElementById('giardinoTitle');
-    const toggleMyGardenButton = document.getElementById('toggleMyGarden'); // Ottieni il riferimento qui
+}
+    async function updateGardenVisibility() {
+        const plantsContainerDiv = document.getElementById('garden-container');
+        const mioGiardinoSection = document.getElementById('my-garden');
+        const giardinoTitle = document.getElementById('giardinoTitle');
+        const toggleMyGardenButton = document.getElementById('toggleMyGarden'); // Ottieni il riferimento qui
 
-    const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-    const isMyGardenEmpty = myGarden.length === 0;
+        const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+        const isMyGardenEmpty = myGarden.length === 0;
 
     if (toggleMyGardenButton) { // Verifica se l'elemento esiste
         updateGardenToggleButtonState(isMyGardenEmpty);
