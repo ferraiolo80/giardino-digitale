@@ -218,11 +218,18 @@ async function removeFromMyGarden(plantIdToRemove) {
     }
 }
 
-    function renderPlants(plantArray) {
+    async function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
-    const myGarden = JSON.parse(localStorage.getItem("myGarden")) || []; // Ottieni il "Mio Giardino" corrente
+    const myGardenLS = JSON.parse(localStorage.getItem("myGarden")) || []; // Ottieni il "Mio Giardino" dal localStorage
+    const user = firebase.auth().currentUser;
+    let myGardenFB = [];
+
+    if (user) {
+        const gardenDoc = await db.collection('gardens').doc(user.uid).get();
+        myGardenFB = gardenDoc.data()?.plants || [];
+    }
 
     plantArray.forEach((plant) => {
         const image = plant.image || 'plant_9215709.png';
@@ -235,15 +242,18 @@ async function removeFromMyGarden(plantIdToRemove) {
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
             <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-            ${myGarden.includes(plant.id) ? // Verifica se la pianta è già nel "Mio Giardino"
-                '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
-                '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>'
+            ${user ? // Se l'utente è loggato, controlla il "Mio Giardino" di Firebase
+                myGardenFB.includes(plant.id) ?
+                    '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
+                    '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>' :
+                myGardenLS.includes(plant.id) ? // Se l'utente non è loggato, controlla il localStorage
+                    '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
+                    '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>'
             }
         `;
         gardenContainer.appendChild(div);
     });
 
-    // Aggiungiamo gli event listener per i bottoni creati dinamicamente
     gardenContainer.addEventListener('click', async (event) => {
         if (event.target.classList.contains('add-to-garden-button')) {
             const plantName = event.target.dataset.plantName;
