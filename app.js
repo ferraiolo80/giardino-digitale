@@ -55,12 +55,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
         safeGarden = [];
-        localStorage.setItem("myGarden", JSON.stringify([]));  
+        localStorage.setItem("myGarden", JSON.stringify([]));
         await saveMyGardenToFirebase([]); // Aggiorna Firebase per sicurezza
     }
 
     const myGardenContainer = document.getElementById('my-garden');
-    myGardenContainer.innerHTML = '';  
+    myGardenContainer.innerHTML = '';
     const validGarden = []; // Nuovo array per contenere solo ID validi
 
     for (const plantId of safeGarden) {
@@ -68,12 +68,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("INIZIO CICLO RENDERMYGARDEN CON ID:", plantId); // NUOVO LOG
         console.log("ID della pianta prima della query Firebase:", plantId); // Aggiungi questo log
         console.log("ID della pianta prima del try:", plantId, typeof plantId); // Aggiungi questo lo
-        console.log("Tentativo di recuperare la pianta con ID:", plantId); 
+        console.log("Tentativo di recuperare la pianta con ID:", plantId);
         try {
             await new Promise(resolve => setTimeout(resolve, 100)); // 150 millisecondi di ritardo
-            console.log("Tentativo di recuperare il documento:", firebase.firestore().doc(firebase.firestore().collection('plants'), plantId).path);
-            const docRef = firebase.firestore().doc(firebase.firestore().collection('plants'), plantId);
-            console.log("Riferimento al documento Firebase:", docRef.path); // INSERISCI QUI IL SECONDO LOG
+            console.log("Tentativo di recuperare il documento (path):", `plants/${plantId}`); // NUOVO LOG
+            const plantsCollection = firebase.firestore().collection('plants');
+            const docRef = plantsCollection.doc(plantId);
+            console.log("Riferimento al documento Firebase (path):", docRef.path); // NUOVO LOG
             const doc = await docRef.get();
             if (doc.exists) {
                 const plantData = { id: doc.id, ...doc.data() };
