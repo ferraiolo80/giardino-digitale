@@ -306,14 +306,16 @@ async function removeFromMyGarden(plantIdToRemove) {
         console.error("Elemento toggleMyGarden non trovato!");
     }
 
-    if (!isUserLoggedIn || isMyGardenEmpty) {
-        if (plantsSection) plantsSection.style.display = 'block';
-        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-        if (giardinoTitle) giardinoTitle.style.display = 'none';
-    } else {
+    if (isUserLoggedIn && !isMyGardenEmpty) {
+        // Utente loggato e il "Mio Giardino" non è vuoto: mostra il "Mio Giardino"
         if (plantsSection) plantsSection.style.display = 'none';
         if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
         if (giardinoTitle) giardinoTitle.style.display = 'block';
+    } else {
+        // Utente non loggato OPPURE utente loggato ma il "Mio Giardino" è vuoto: mostra le piante disponibili
+        if (plantsSection) plantsSection.style.display = 'block';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+        if (giardinoTitle) giardinoTitle.style.display = 'none';
     }
 }
 
