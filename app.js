@@ -50,48 +50,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
     console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
 
-    let safeGarden = [];
-    if (Array.isArray(garden)) {
-        safeGarden = garden;
-    } else {
-        console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
-        safeGarden = [];
-        localStorage.setItem("myGarden", JSON.stringify([]));
-        await saveMyGardenToFirebase([]); // Aggiorna Firebase per sicurezza
-    }
-
     const myGardenContainer = document.getElementById('my-garden');
     const emptyGardenMessage = document.getElementById('empty-garden-message');
     myGardenContainer.innerHTML = '';
 
-    console.log("Valore di safeGarden prima del controllo di lunghezza:", safeGarden); // AGGIUNGI QUESTO LOG
-
-    if (safeGarden.length === 0) {
+    if (!garden || garden.length === 0) {
         if (emptyGardenMessage) {
             emptyGardenMessage.style.display = 'block';
+        } else {
+            // Se per qualche motivo il messaggio non è presente, mostra comunque qualcosa
+            myGardenContainer.innerHTML = '<p>Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
         }
     } else {
         if (emptyGardenMessage) {
             emptyGardenMessage.style.display = 'none';
         }
-        for (const plantId of safeGarden) {
-            console.log("Oggetto Firestore:", firebase.firestore());
-            console.log("INIZIO CICLO RENDERMYGARDEN CON ID:", plantId);
-            console.log("ID della pianta prima della query Firebase:", plantId);
-            console.log("ID della pianta prima del try:", plantId, typeof plantId);
+        for (const plantId of garden) { // Usa direttamente l'argomento 'garden'
             console.log("Tentativo di recuperare la pianta con ID:", plantId);
             try {
-                await new Promise(resolve => setTimeout(resolve, 100)); // 100 millisecondi di ritardo
-                console.log("Tentativo di recuperare il documento (path):", `plants/${plantId}`);
+                await new Promise(resolve => setTimeout(resolve, 100));
                 const plantsCollection = firebase.firestore().collection('plants');
                 const docRef = plantsCollection.doc(plantId);
-                console.log("Riferimento al documento Firebase (path):", docRef.path);
                 const doc = await docRef.get();
                 if (doc.exists) {
                     const plantData = { id: doc.id, ...doc.data() };
                     const plantCard = createPlantCard(plantData);
                     myGardenContainer.appendChild(plantCard);
-                    const removeButton = plantCard.querySelector('.remove-button'); // Seleziona il bottone nella card creata
+                    const removeButton = plantCard.querySelector('.remove-button');
                     if (removeButton) {
                         removeButton.addEventListener('click', () => {
                             const plantIdToRemove = removeButton.dataset.plantId;
@@ -99,15 +84,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         });
                     }
                 } else {
-                    console.warn(`Pianta con ID ${plantId} non trovata nel database. Rimossa dal 'Mio Giardino'.`);
+                    console.warn(`Pianta con ID ${plantId} non trovata nel database.`);
+                    // Potremmo anche rimuoverla dal localStorage qui se necessario
                 }
             } catch (error) {
                 console.error("Errore nel recupero della pianta:", error);
-                console.error("Tipo di errore:", typeof error);
-                console.error("Proprietà dell'errore:", Object.keys(error));
             }
         }
     }
+    updateGardenVisibility();
+}
 
     // Aggiorna il localStorage e Firebase con l'array pulito (anche se qui non lo stiamo modificando direttamente)
     localStorage.setItem("myGarden", JSON.stringify(safeGarden));
@@ -201,41 +187,19 @@ async function removeFromMyGarden(plantIdToRemove) {
 }
 
     async function loadMyGardenFromFirebase() {
-    let garden = [];
-    try {
-        const user = firebase.auth().currentUser;
-        if (user) {
-            // Ottieni un riferimento al documento "giardino" dell'utente
-            const gardenRef = firebase.firestore().collection('gardens').doc(user.uid);
-            const doc = await gardenRef.get();
-            if (doc.exists) {
-                garden = doc.data().plants || [];
-                localStorage.setItem("myGarden", JSON.stringify(garden));
-                myGarden = garden;
-                isMyGardenEmpty = myGarden.length === 0;
-                await renderMyGarden(myGarden);
-            } else {
-                console.log("Nessun giardino trovato su Firebase per questo utente, caricando da localStorage.");
-                garden = JSON.parse(localStorage.getItem("myGarden")) || [];
-                myGarden = garden;
-                isMyGardenEmpty = myGarden.length === 0;
-                await renderMyGarden(myGarden);
-            }
-        } else {
-            console.log("Nessun utente autenticato, caricando il giardino da localStorage.");
-            garden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            myGarden = garden;
-            isMyGardenEmpty = myGarden.length === 0;
-            await renderMyGarden(myGarden);
+    const user = firebase.auth().currentUser;
+    if (user) {
+        try {
+            const doc = await db.collection('gardens').doc(user.uid).get();
+            const firebaseGarden = doc.data()?.plants || [];
+            console.log("Giardino caricato da Firebase:", firebaseGarden);
+            await renderMyGarden(firebaseGarden); // Renderizza il giardino con i dati di Firebase
+        } catch (error) {
+            console.error("Errore nel caricamento del giardino da Firebase:", error);
         }
-    } catch (error) {
-        console.error("Errore nel caricamento del giardino da Firebase:", error);
-        garden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        myGarden = garden;
-        isMyGardenEmpty = myGarden.length === 0;
-        await renderMyGarden(myGarden);
-    } finally {
-        updateGardenVisibility();
+    } else {
+        const localStorageGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+        await renderMyGarden(localStorageGarden); // Se non loggato, renderizza dal localStorage
     }
 }
     async function loadAllPlants() {
@@ -351,19 +315,17 @@ firebase.auth().onAuthStateChanged(async (user) => {
         authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
         appContentDiv.style.display = 'block';
         authContainerDiv.style.display = 'none';
-        await loadMyGardenFromFirebase();
-        // updateGardenVisibility(); <--- RIMOSSA DA QUI
+        await loadMyGardenFromFirebase(); // Carica il giardino da Firebase e chiama renderMyGarden con i dati di Firebase
     } else {
         console.log("Stato autenticazione cambiato, nessun utente loggato.");
         authStatusDiv.innerText = "Nessun utente autenticato.";
         appContentDiv.style.display = 'none';
         authContainerDiv.style.display = 'block';
         const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        isMyGardenEmpty = myGarden.length === 0;
-        await renderMyGarden(myGarden);
-        // updateGardenVisibility(); <--- RIMOSSA DA QUI
+        await renderMyGarden(myGarden); // Carica il giardino dal localStorage per utenti non loggati
     }
 });
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     loginButton.addEventListener('click', handleLogin);
