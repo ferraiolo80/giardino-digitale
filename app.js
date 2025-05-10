@@ -289,14 +289,20 @@ async function removeFromMyGarden(plantIdToRemove) {
     });
 
     updateGardenVisibility();
-}
-    function updateGardenVisibility() {
+}async function updateGardenVisibility() {
     const plantsContainerDiv = document.getElementById('garden-container');
     const mioGiardinoSection = document.getElementById('my-garden');
     const giardinoTitle = document.getElementById('giardinoTitle');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden'); // Ottieni il riferimento qui
+
     const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
     const isMyGardenEmpty = myGarden.length === 0;
-    updateGardenToggleButtonState(isMyGardenEmpty); // Assicurati che lo stato del bottone sia aggiornato qui
+
+    if (toggleMyGardenButton) { // Verifica se l'elemento esiste
+        updateGardenToggleButtonState(isMyGardenEmpty);
+    } else {
+        console.error("Elemento toggleMyGarden non trovato nel DOM!");
+    }
 
     if (isMyGardenEmpty) {
         if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
@@ -320,8 +326,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
         appContentDiv.style.display = 'block';
         authContainerDiv.style.display = 'none';
         await loadMyGardenFromFirebase();
-        // updateGardenToggleButtonState(isMyGardenEmpty); // Questa riga non è necessaria qui, viene chiamata in updateGardenVisibility
-        updateGardenVisibility(); // Chiama updateGardenVisibility per impostare lo stato iniziale
+        updateGardenVisibility();
     } else {
         console.log("Stato autenticazione cambiato, nessun utente loggato.");
         authStatusDiv.innerText = "Nessun utente autenticato.";
@@ -330,15 +335,14 @@ firebase.auth().onAuthStateChanged(async (user) => {
         const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
         isMyGardenEmpty = myGarden.length === 0;
         await renderMyGarden(myGarden);
-        updateGardenToggleButtonState(isMyGardenEmpty); // Imposta lo stato del bottone anche per utenti non loggati
-        updateGardenVisibility(); // Chiama updateGardenVisibility per impostare lo stato iniziale
+        updateGardenVisibility();
     }
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
     // ... (il tuo codice all'interno di DOMContentLoaded) ...
     await loadPlantsFromFirebase();
-    updateGardenVisibility(); // Chiama anche qui all'avvio per utenti già loggati (se la sessione persiste)
+    updateGardenVisibility();
 });
     function updateGardenToggleButtonState(isEmpty) {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
