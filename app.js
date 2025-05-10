@@ -126,29 +126,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const plant = plants.find((p) => p.name === plantName);
         if (plant) {
-            let myGardenRaw = localStorage.getItem("myGarden");
-            let myGarden = [];
-            if (myGardenRaw) {
-                try {
-                    const parsedGarden = JSON.parse(myGardenRaw);
-                    if (Array.isArray(parsedGarden)) {
-                        myGarden = parsedGarden;
-                    } else {
-                        console.warn("Valore non valido trovato in localStorage per 'myGarden'. Inizializzato come array vuoto.");
-                        localStorage.setItem("myGarden", JSON.stringify([]));
-                    }
-                } catch (error) {
-                    console.error("Errore durante l'analisi di 'myGarden' da localStorage:", error);
-                    localStorage.setItem("myGarden", JSON.stringify([]));
-                }
-            }
+            let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
             if (!myGarden.includes(plant.id)) {
                 myGarden.push(plant.id);
                 localStorage.setItem("myGarden", JSON.stringify(myGarden));
                 await saveMyGardenToFirebase(myGarden);
                 await renderMyGarden(myGarden);
-                isMyGardenEmpty = false;
-                updateGardenVisibility();
+                isMyGardenEmpty = myGarden.length === 0; // Aggiorna isMyGardenEmpty
+                updateGardenToggleButtonState(isMyGardenEmpty); // Chiama updateGardenToggleButtonState
                 console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
             } else {
                 console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
@@ -161,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 }
 
-    async function removeFromMyGarden(plantIdToRemove) {
+async function removeFromMyGarden(plantIdToRemove) {
     let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
     try {
         const index = myGarden.indexOf(plantIdToRemove);
@@ -170,8 +155,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             localStorage.setItem("myGarden", JSON.stringify(myGarden));
             await saveMyGardenToFirebase(myGarden);
             await renderMyGarden(myGarden);
-            isMyGardenEmpty = myGarden.length === 0;
-            updateGardenVisibility();
+            isMyGardenEmpty = myGarden.length === 0; // Aggiorna isMyGardenEmpty
+            updateGardenToggleButtonState(isMyGardenEmpty); // Chiama updateGardenToggleButtonState
             console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
         } else {
             console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
