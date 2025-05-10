@@ -290,27 +290,28 @@ async function removeFromMyGarden(plantIdToRemove) {
 
     updateGardenVisibility();
 }
-   async function updateGardenVisibility() {
-    const plantsContainerDiv = document.getElementById('garden-container');
+  async function updateGardenVisibility() {
+    const plantsSection = document.getElementById('plants-section');
     const mioGiardinoSection = document.getElementById('my-garden');
     const giardinoTitle = document.getElementById('giardinoTitle');
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 
     const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    const isUserLoggedIn = firebase.auth().currentUser !== null;
     const isMyGardenEmpty = myGarden.length === 0;
 
     if (toggleMyGardenButton) {
         updateGardenToggleButtonState(isMyGardenEmpty);
     } else {
-        console.error("Elemento toggleMyGarden non trovato nel DOM!");
+        console.error("Elemento toggleMyGarden non trovato!");
     }
 
-    if (isMyGardenEmpty) {
-        if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
+    if (!isUserLoggedIn || isMyGardenEmpty) {
+        if (plantsSection) plantsSection.style.display = 'block';
         if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
         if (giardinoTitle) giardinoTitle.style.display = 'none';
     } else {
-        if (plantsContainerDiv) plantsContainerDiv.style.display = 'none';
+        if (plantsSection) plantsSection.style.display = 'none';
         if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
         if (giardinoTitle) giardinoTitle.style.display = 'block';
     }
