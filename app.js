@@ -263,9 +263,15 @@ async function removeFromMyGarden(plantIdToRemove) {
     }
 
     async function loadPlantsFromFirebase() {
-        const plantsArray = await loadAllPlants();
-        renderPlants(plantsArray);
+    try {
+        const plantsSnapshot = await db.collection('plants').get();
+        allPlants = plantsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log("Piante caricate da Firebase:", allPlants);
+        renderPlants(allPlants);
+    } catch (error) {
+        console.error("Errore nel caricamento delle piante da Firebase:", error);
     }
+}
 
     function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
