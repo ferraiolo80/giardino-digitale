@@ -92,14 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     }
-    updateGardenVisibility();
-}
-
-    // Aggiorna il localStorage e Firebase con l'array pulito (anche se qui non lo stiamo modificando direttamente)
+        // Aggiorna il localStorage e Firebase con l'array pulito (anche se qui non lo stiamo modificando direttamente)
     localStorage.setItem("myGarden", JSON.stringify(safeGarden));
     await saveMyGardenToFirebase(safeGarden);
-
-    // Aggiorna la visibilità del "Mio giardino"
     updateGardenVisibility();
 }
     async function saveMyGardenToFirebase(garden) {
