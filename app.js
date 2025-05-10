@@ -290,16 +290,16 @@ async function removeFromMyGarden(plantIdToRemove) {
 
     updateGardenVisibility();
 }
-    async function updateGardenVisibility() {
-        const plantsContainerDiv = document.getElementById('garden-container');
-        const mioGiardinoSection = document.getElementById('my-garden');
-        const giardinoTitle = document.getElementById('giardinoTitle');
-        const toggleMyGardenButton = document.getElementById('toggleMyGarden'); // Ottieni il riferimento qui
+   async function updateGardenVisibility() {
+    const plantsContainerDiv = document.getElementById('garden-container');
+    const mioGiardinoSection = document.getElementById('my-garden');
+    const giardinoTitle = document.getElementById('giardinoTitle');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 
-        const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        const isMyGardenEmpty = myGarden.length === 0;
+    const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    const isMyGardenEmpty = myGarden.length === 0;
 
-    if (toggleMyGardenButton) { // Verifica se l'elemento esiste
+    if (toggleMyGardenButton) {
         updateGardenToggleButtonState(isMyGardenEmpty);
     } else {
         console.error("Elemento toggleMyGarden non trovato nel DOM!");
@@ -327,7 +327,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
         appContentDiv.style.display = 'block';
         authContainerDiv.style.display = 'none';
         await loadMyGardenFromFirebase();
-        updateGardenVisibility(); // Spostata qui dopo il caricamento del giardino
+        // updateGardenVisibility(); <--- RIMOSSA DA QUI
     } else {
         console.log("Stato autenticazione cambiato, nessun utente loggato.");
         authStatusDiv.innerText = "Nessun utente autenticato.";
@@ -336,7 +336,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
         const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
         isMyGardenEmpty = myGarden.length === 0;
         await renderMyGarden(myGarden);
-        updateGardenVisibility(); // Mantenuta qui per gli utenti non loggati
+        // updateGardenVisibility(); <--- RIMOSSA DA QUI
     }
 });
 
@@ -356,9 +356,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     categoryFilter.addEventListener('change', handleFilter);
     tempMinFilter.addEventListener('input', handleTempFilter);
     tempMaxFilter.addEventListener('input', handleTempFilter);
-    toggleMyGardenButton.addEventListener('click', toggleMyGarden); // Assicurati che questo sia presente
+    toggleMyGardenButton.addEventListener('click', toggleMyGarden);
     await loadPlantsFromFirebase();
-    updateGardenVisibility(); // Mantenuta anche qui, dovrebbe essere sicura ora
+    updateGardenVisibility(); // CHIAMATA UNICA A updateGardenVisibility QUI
 });
     
 function updateGardenToggleButtonState(isEmpty) {
