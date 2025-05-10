@@ -358,7 +358,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     tempMaxFilter.addEventListener('input', handleTempFilter);
     toggleMyGardenButton.addEventListener('click', toggleMyGarden);
     await loadPlantsFromFirebase();
-    updateGardenVisibility(); // CHIAMATA UNICA A updateGardenVisibility QUI
+    setTimeout(() => { // Aggiungiamo un piccolo ritardo
+        updateGardenVisibility();
+    }, 100); // 100 millisecondi di ritardo
 });
     
 function updateGardenToggleButtonState(isEmpty) {
