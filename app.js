@@ -363,17 +363,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 100); // 100 millisecondi di ritardo
 });
     
-function updateGardenToggleButtonState(isEmpty) {
+function updateGardenToggleButtonState(isMyGardenEmpty) {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-    const eyeIcon = toggleMyGardenButton.querySelector('i');
-    if (isEmpty) {
-        toggleMyGardenButton.innerText = 'Mostra il mio giardino';
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
+    if (toggleMyGardenButton) {
+        if (isMyGardenEmpty) {
+            toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye"></i> Mostra il mio giardino';
+        } else {
+            toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Nascondi il mio giardino';
+        }
     } else {
-        toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
+        console.error("Elemento toggleMyGarden non trovato!");
     }
 }
     const addNewPlantButton = document.getElementById('addNewPlantButton');
