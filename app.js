@@ -46,29 +46,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Elemento loginButton non trovato nel DOM!");
     }
 
-    async function renderMyGarden(garden) {
+   async function renderMyGarden(garden) {
     console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
     console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
 
-    let safeGarden = []; // Dichiarazione con valore predefinito
-
+    let safeGarden = [];
     if (Array.isArray(garden)) {
         safeGarden = garden;
     } else {
         console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
+        safeGarden = [];
         localStorage.setItem("myGarden", JSON.stringify([]));
-        await saveMyGardenToFirebase([]); // Aggiorna Firebase per sicurezza
+        await saveMyGardenToFirebase([]);
     }
 
     const myGardenContainer = document.getElementById('my-garden');
     const emptyGardenMessage = document.getElementById('empty-garden-message');
-    myGardenContainer.innerHTML = '';
+    myGardenContainer.innerHTML = ''; // Svuota il contenitore PRIMA
 
     if (safeGarden.length === 0) {
         if (emptyGardenMessage) {
-            emptyGardenMessage.style.display = 'block';
+            myGardenContainer.appendChild(emptyGardenMessage); // Appendi il messaggio AL CONTENITORE
+            emptyGardenMessage.style.display = 'block'; // Assicurati che sia visibile
         } else {
-            myGardenContainer.innerHTML = '<p>Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
+            myGardenContainer.innerHTML = '<p id="empty-garden-message">Il tuo giardino è vuoto. Aggiungi delle piante!</p>'; // Crea e appendi se non esiste
         }
     } else {
         if (emptyGardenMessage) {
