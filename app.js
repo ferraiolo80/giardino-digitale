@@ -291,83 +291,55 @@ async function removeFromMyGarden(plantIdToRemove) {
     updateGardenVisibility();
 }
     function updateGardenVisibility() {
-        const plantsContainerDiv = document.getElementById('garden-container');
-        const mioGiardinoSection = document.getElementById('my-garden');
-        const giardinoTitle = document.getElementById('giardinoTitle');
+    const plantsContainerDiv = document.getElementById('garden-container');
+    const mioGiardinoSection = document.getElementById('my-garden');
+    const giardinoTitle = document.getElementById('giardinoTitle');
+    const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    const isMyGardenEmpty = myGarden.length === 0;
+    updateGardenToggleButtonState(isMyGardenEmpty); // Assicurati che lo stato del bottone sia aggiornato qui
+
+    if (isMyGardenEmpty) {
+        if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+        if (giardinoTitle) giardinoTitle.style.display = 'none';
+    } else {
+        if (plantsContainerDiv) plantsContainerDiv.style.display = 'none';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
+        if (giardinoTitle) giardinoTitle.style.display = 'block';
+    }
+}
+
+firebase.auth().onAuthStateChanged(async (user) => {
+    const authStatusDiv = document.getElementById('auth-status');
+    const appContentDiv = document.getElementById('app-content');
+    const authContainerDiv = document.getElementById('auth-container');
+
+    if (user) {
+        console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
+        authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+        appContentDiv.style.display = 'block';
+        authContainerDiv.style.display = 'none';
+        await loadMyGardenFromFirebase();
+        // updateGardenToggleButtonState(isMyGardenEmpty); // Questa riga non è necessaria qui, viene chiamata in updateGardenVisibility
+        updateGardenVisibility(); // Chiama updateGardenVisibility per impostare lo stato iniziale
+    } else {
+        console.log("Stato autenticazione cambiato, nessun utente loggato.");
+        authStatusDiv.innerText = "Nessun utente autenticato.";
+        appContentDiv.style.display = 'none';
+        authContainerDiv.style.display = 'block';
         const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        const isMyGardenEmpty = myGarden.length === 0;
-
-        if (isMyGardenEmpty) {
-            if (plantsContainerDiv) plantsContainerDiv.style.display = 'grid';
-            if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-            if (giardinoTitle) giardinoTitle.style.display = 'none';
-        } else {
-            if (plantsContainerDiv) plantsContainerDiv.style.display = 'none';
-            if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
-            if (giardinoTitle) giardinoTitle.style.display = 'block';
-        }
-    }
-
-    const registerButton = document.getElementById('registerButton');
-    if (registerButton) {
-        registerButton.addEventListener('click', async () => {
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const errorDiv = document.getElementById('register-error');
-            errorDiv.innerText = '';
-            try {
-                await firebase.auth().createUserWithEmailAndPassword(email, password);
-            } catch (error) {
-                errorDiv.innerText = error.message;
-            }
-        });
-    }
-
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await firebase.auth().signOut();
-            } catch (error) {
-                console.error("Errore durante il logout:", error);
-            }
-        });
-    }
-
-    firebase.auth().onAuthStateChanged(async (user) => {
-        const authStatusDiv = document.getElementById('auth-status');
-        const appContentDiv = document.getElementById('app-content');
-        const authContainerDiv = document.getElementById('auth-container');
-
-        if (user) {
-            console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
-            authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
-            appContentDiv.style.display = 'block';
-            authContainerDiv.style.display = 'none';
-            await loadMyGardenFromFirebase();
-            updateGardenToggleButtonState(isMyGardenEmpty)
-        } else {
-            console.log("Stato autenticazione cambiato, nessun utente loggato.");
-            authStatusDiv.innerText = "Nessun utente autenticato.";
-            appContentDiv.style.display = 'none';
-            authContainerDiv.style.display = 'block';
-            const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            isMyGardenEmpty = myGarden.length === 0;
-            await renderMyGarden(myGarden);
-            updateGardenToggleButtonState(isMyGardenEmpty)
-        }
-    });
-
-    document.addEventListener('click', async (event) => {
-        if (event.target) {  
-        if (event.target.classList.contains('add-to-garden-button')) {
-            const plantName = event.target.dataset.plantName;
-            console.log("Tentativo di aggiungere la pianta:", plantName); 
-            await addToMyGarden(plantName);
-        }
+        isMyGardenEmpty = myGarden.length === 0;
+        await renderMyGarden(myGarden);
+        updateGardenToggleButtonState(isMyGardenEmpty); // Imposta lo stato del bottone anche per utenti non loggati
+        updateGardenVisibility(); // Chiama updateGardenVisibility per impostare lo stato iniziale
     }
 });
 
+document.addEventListener('DOMContentLoaded', async () => {
+    // ... (il tuo codice all'interno di DOMContentLoaded) ...
+    await loadPlantsFromFirebase();
+    updateGardenVisibility(); // Chiama anche qui all'avvio per utenti già loggati (se la sessione persiste)
+});
     function updateGardenToggleButtonState(isEmpty) {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
     const eyeIcon = toggleMyGardenButton.querySelector('i');
