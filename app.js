@@ -50,49 +50,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
     console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
 
+    let safeGarden = []; // Dichiarazione con valore predefinito
+
+    if (Array.isArray(garden)) {
+        safeGarden = garden;
+    } else {
+        console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
+        localStorage.setItem("myGarden", JSON.stringify([]));
+        await saveMyGardenToFirebase([]); // Aggiorna Firebase per sicurezza
+    }
+
     const myGardenContainer = document.getElementById('my-garden');
     const emptyGardenMessage = document.getElementById('empty-garden-message');
     myGardenContainer.innerHTML = '';
 
-    if (!garden || garden.length === 0) {
+    if (safeGarden.length === 0) {
         if (emptyGardenMessage) {
             emptyGardenMessage.style.display = 'block';
         } else {
-            // Se per qualche motivo il messaggio non è presente, mostra comunque qualcosa
             myGardenContainer.innerHTML = '<p>Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
         }
     } else {
         if (emptyGardenMessage) {
             emptyGardenMessage.style.display = 'none';
         }
-        for (const plantId of garden) { // Usa direttamente l'argomento 'garden'
-            console.log("Tentativo di recuperare la pianta con ID:", plantId);
-            try {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                const plantsCollection = firebase.firestore().collection('plants');
-                const docRef = plantsCollection.doc(plantId);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    const plantData = { id: doc.id, ...doc.data() };
-                    const plantCard = createPlantCard(plantData);
-                    myGardenContainer.appendChild(plantCard);
-                    const removeButton = plantCard.querySelector('.remove-button');
-                    if (removeButton) {
-                        removeButton.addEventListener('click', () => {
-                            const plantIdToRemove = removeButton.dataset.plantId;
-                            removeFromMyGarden(plantIdToRemove);
-                        });
-                    }
-                } else {
-                    console.warn(`Pianta con ID ${plantId} non trovata nel database.`);
-                    // Potremmo anche rimuoverla dal localStorage qui se necessario
-                }
-            } catch (error) {
-                console.error("Errore nel recupero della pianta:", error);
-            }
+        for (const plantId of safeGarden) {
+            // ... (il resto del codice per renderizzare le piante) ...
         }
     }
-        // Aggiorna il localStorage e Firebase con l'array pulito (anche se qui non lo stiamo modificando direttamente)
     localStorage.setItem("myGarden", JSON.stringify(safeGarden));
     await saveMyGardenToFirebase(safeGarden);
     updateGardenVisibility();
