@@ -24,11 +24,49 @@ const giardinoTitle = document.getElementById('giardinoTitle');
 const plantsContainerDiv = document.getElementById('garden-container');
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ... (il tuo codice all'interno di DOMContentLoaded) ...
     const loginButton = document.getElementById('loginButton');
-    if (loginButton) {
+    const registerButton = document.getElementById('registerButton');
+    const logoutButton = document.getElementById('logoutButton');
+    const addNewPlantButton = document.getElementById('addNewPlantButton');
+    const newPlantCard = document.getElementById('newPlantCard');
+    const saveNewPlant = document.getElementById('saveNewPlant');
+    const cancelNewPlant = document.getElementById('cancelNewPlant');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const tempMinFilter = document.getElementById('tempMinFilter');
+    const tempMaxFilter = document.getElementById('tempMaxFilter');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+
+    if (loginButton) loginButton.addEventListener('click', handleLogin);
+    if (registerButton) registerButton.addEventListener('click', handleRegister);
+    if (logoutButton) logoutButton.addEventListener('click', handleLogout);
+    if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => newPlantCard.style.display = 'block');
+    if (cancelNewPlant) cancelNewPlant.addEventListener('click', () => { newPlantCard.style.display = 'none'; clearNewPlantForm(); });
+    if (saveNewPlant) saveNewPlant.addEventListener('click', saveNewPlantToFirebase);
+    if (searchInput) searchInput.addEventListener('input', handleSearch);
+    if (categoryFilter) categoryFilter.addEventListener('change', handleFilter);
+    if (tempMinFilter) tempMinFilter.addEventListener('input', handleTempFilter);
+    if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter);
+    if (toggleMyGardenButton) {
+        toggleMyGardenButton.addEventListener('click', () => {
+            const mioGiardinoSection = document.getElementById('my-garden');
+            const giardinoTitle = document.getElementById('giardinoTitle');
+            const eyeIcon = toggleMyGardenButton.querySelector('i');
+            const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
+            mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
+            if (giardinoTitle) giardinoTitle.style.display = mioGiardinoSection.style.display;
+            if (eyeIcon) {
+                eyeIcon.classList.toggle('fa-eye', isCurrentlyVisible);
+                eyeIcon.classList.toggle('fa-eye-slash', !isCurrentlyVisible);
+            }
+            toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
+        });
+    }
+
+    const loginButton_inner = document.getElementById('loginButton'); // Evita conflitti con la variabile esterna
+    if (loginButton_inner) {
         console.log("loginButton trovato nel DOM.");
-        loginButton.addEventListener('click', async () => {
+        loginButton_inner.addEventListener('click', async () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const errorDiv = document.getElementById('login-error');
@@ -46,7 +84,112 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Elemento loginButton non trovato nel DOM!");
     }
 
-  async function renderMyGarden(garden) {
+    await loadPlantsFromFirebase();
+    updateGardenVisibility();
+
+    function updateGardenToggleButtonState(isMyGardenEmpty) {
+        const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+        if (toggleMyGardenButton) {
+            if (isMyGardenEmpty) {
+                toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye"></i> Mostra il mio giardino';
+            } else {
+                toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Nascondi il mio giardino';
+            }
+        } else {
+            console.error("Elemento toggleMyGarden non trovato!");
+        }
+    }
+
+    const addNewPlantButton_outer = document.getElementById('addNewPlantButton'); // Evita conflitti
+    if (addNewPlantButton_outer) {
+        addNewPlantButton_outer.addEventListener('click', () => {
+            const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
+            if (newPlantCard_inner) {
+                newPlantCard_inner.style.display = 'block';
+            }
+        });
+    }
+
+    const cancelNewPlantButton_outer = document.getElementById('cancelNewPlant'); // Evita conflitti
+    if (cancelNewPlantButton_outer) {
+        cancelNewPlantButton_outer.addEventListener('click', () => {
+            const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
+            if (newPlantCard_inner) {
+                newPlantCard_inner.style.display = 'none';
+            }
+        });
+    }
+
+    const saveNewPlantButton_outer = document.getElementById('saveNewPlant'); // Evita conflitti
+    if (saveNewPlantButton_outer) {
+        saveNewPlantButton_outer.addEventListener('click', async () => {
+            const newPlantName = document.getElementById('newPlantName').value;
+            const newPlantSunlight = document.getElementById('newPlantSunlight').value;
+            const newPlantWatering = document.getElementById('newPlantWatering').value;
+            const newPlantTempMin = document.getElementById('newPlantTempMin').value;
+            const newPlantTempMax = document.getElementById('newPlantTempMax').value;
+            const newPlantDescription = document.getElementById('newPlantDescription').value;
+            const newPlantCategory = document.getElementById('newPlantCategory').value;
+            const newPlantImageURL = document.getElementById('newPlantImageURL').value;
+
+            if (newPlantName && newPlantSunlight && newPlantWatering && newPlantTempMin && newPlantTempMax) {
+                try {
+                    const docRef = await firebase.firestore().collection('plants').add({
+                        name: newPlantName,
+                        sunlight: newPlantSunlight,
+                        watering: newPlantWatering,
+                        tempMin: parseInt(newPlantTempMin),
+                        tempMax: parseInt(newPlantTempMax),
+                        description: newPlantDescription,
+                        category: newPlantCategory,
+                        image: newPlantImageURL
+                    });
+                    console.log("Nuova pianta aggiunta con ID: ", docRef.id);
+                    const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
+                    if (newPlantCard_inner) {
+                        newPlantCard_inner.style.display = 'none';
+                    }
+                    await loadPlantsFromFirebase();
+                    await loadMyGardenFromFirebase();
+                } catch (error) {
+                    console.error("Errore nell'aggiunta della nuova pianta:", error);
+                }
+            } else {
+                alert("Per favore, compila tutti i campi obbligatori.");
+            }
+        });
+    }
+
+    const toggleMyGardenButton_outer = document.getElementById('toggleMyGarden'); // Evita conflitti
+    if (toggleMyGardenButton_outer) {
+        toggleMyGardenButton_outer.addEventListener('click', () => {
+            const mioGiardinoSection_inner = document.getElementById('my-garden'); // Evita conflitti
+            const giardinoTitle_inner = document.getElementById('giardinoTitle'); // Evita conflitti
+            const eyeIcon = toggleMyGardenButton_outer.querySelector('i');
+            if (mioGiardinoSection_inner.style.display === 'none') {
+                mioGiardinoSection_inner.style.display = 'block';
+                if (giardinoTitle_inner) giardinoTitle_inner.style.display = 'block';
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                }
+                toggleMyGardenButton_outer.innerText = 'Nascondi il mio giardino';
+            } else {
+                mioGiardinoSection_inner.style.display = 'none';
+                if (giardinoTitle_inner) giardinoTitle_inner.style.display = 'none';
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                }
+                toggleMyGardenButton_outer.innerText = 'Mostra il mio giardino';
+            }
+            isMyGardenEmpty = mioGiardinoSection_inner.style.display === 'none';
+            updateGardenToggleButtonState(isMyGardenEmpty);
+        });
+    }
+}); // **UNICA CHIUSURA DEL DOMContentLoaded - ORA ALLA FINE DEL BLOCCO!**
+
+async function renderMyGarden(garden) {
     console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
     console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
 
@@ -327,169 +470,26 @@ async function removeFromMyGarden(plantIdToRemove) {
 }
 
 firebase.auth().onAuthStateChanged(async (user) => {
-    const authStatusDiv = document.getElementById('auth-status');
-    const appContentDiv = document.getElementById('app-content');
-    const authContainerDiv = document.getElementById('auth-container');
+        const authStatusDiv = document.getElementById('auth-status');
+        const appContentDiv = document.getElementById('app-content');
+        const authContainerDiv = document.getElementById('auth-container');
 
-    if (user) {
-        console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
-        authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
-        appContentDiv.style.display = 'block';
-        authContainerDiv.style.display = 'none';
-        await loadMyGardenFromFirebase(); // Carica il giardino da Firebase e chiama renderMyGarden con i dati di Firebase
-    } else {
-        console.log("Stato autenticazione cambiato, nessun utente loggato.");
-        authStatusDiv.innerText = "Nessun utente autenticato.";
-        appContentDiv.style.display = 'none';
-        authContainerDiv.style.display = 'block';
-        const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        await renderMyGarden(myGarden); // Carica il giardino dal localStorage per utenti non loggati
-    }
-});
-
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const loginButton = document.getElementById('loginButton');
-    const registerButton = document.getElementById('registerButton');
-    const logoutButton = document.getElementById('logoutButton');
-    const addNewPlantButton = document.getElementById('addNewPlantButton');
-    const newPlantCard = document.getElementById('newPlantCard');
-    const saveNewPlant = document.getElementById('saveNewPlant');
-    const cancelNewPlant = document.getElementById('cancelNewPlant');
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const tempMinFilter = document.getElementById('tempMinFilter');
-    const tempMaxFilter = document.getElementById('tempMaxFilter');
-    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-
-    if (loginButton) loginButton.addEventListener('click', handleLogin); // Assicurati che handleLogin sia definita
-    if (registerButton) registerButton.addEventListener('click', handleRegister); // Assicurati che handleRegister sia definita
-    if (logoutButton) logoutButton.addEventListener('click', handleLogout); // Assicurati che handleLogout sia definita
-    if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => newPlantCard.style.display = 'block');
-    if (cancelNewPlant) cancelNewPlant.addEventListener('click', () => { newPlantCard.style.display = 'none'; clearNewPlantForm(); }); // Assicurati che clearNewPlantForm sia definita
-    if (saveNewPlant) saveNewPlant.addEventListener('click', saveNewPlantToFirebase); // Assicurati che saveNewPlantToFirebase sia definita
-    if (searchInput) searchInput.addEventListener('input', handleSearch); // Assicurati che handleSearch sia definita
-    if (categoryFilter) categoryFilter.addEventListener('change', handleFilter); // Assicurati che handleFilter sia definita
-    if (tempMinFilter) tempMinFilter.addEventListener('input', handleTempFilter); // Assicurati che handleTempFilter sia definita
-    if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter); // Assicurati che handleTempFilter sia definita
-    if (toggleMyGardenButton) {
-        toggleMyGardenButton.addEventListener('click', () => {
-            const mioGiardinoSection = document.getElementById('my-garden');
-            const giardinoTitle = document.getElementById('giardinoTitle');
-            const eyeIcon = toggleMyGardenButton.querySelector('i');
-            const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
-            mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
-            if (giardinoTitle) giardinoTitle.style.display = mioGiardinoSection.style.display;
-            if (eyeIcon) {
-                eyeIcon.classList.toggle('fa-eye', isCurrentlyVisible);
-                eyeIcon.classList.toggle('fa-eye-slash', !isCurrentlyVisible);
-            }
-            toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
-            // Aggiorna isMyGardenEmpty basandosi sulla VISIBILITÀ, non sullo stato dei dati qui.
-            // Lo stato dei dati viene gestito in renderMyGarden e removeFromMyGarden.
-        });
-    }
-
-    await loadPlantsFromFirebase();
-    updateGardenVisibility(); // Chiama direttamente, senza ritardo
-});
-function updateGardenToggleButtonState(isMyGardenEmpty) {
-    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-    if (toggleMyGardenButton) {
-        if (isMyGardenEmpty) {
-            toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye"></i> Mostra il mio giardino';
+        if (user) {
+            console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
+            authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+            appContentDiv.style.display = 'block';
+            authContainerDiv.style.display = 'none';
+            await loadMyGardenFromFirebase(); // Carica il giardino da Firebase
+            await loadPlantsFromFirebase(); // **Ricarica le piante dopo il login**
+            updateGardenVisibility(); // **Aggiorna la visibilità dopo il login**
         } else {
-            toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Nascondi il mio giardino';
+            console.log("Stato autenticazione cambiato, nessun utente loggato.");
+            authStatusDiv.innerText = "Nessun utente autenticato.";
+            appContentDiv.style.display = 'none';
+            authContainerDiv.style.display = 'block';
+            const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+            await renderMyGarden(myGarden); // Carica il giardino dal localStorage
+            await loadPlantsFromFirebase(); // **Ricarica le piante anche per utenti non loggati (potrebbe essere superfluo)**
+            updateGardenVisibility(); // **Aggiorna la visibilità anche per utenti non loggati**
         }
-    } else {
-        console.error("Elemento toggleMyGarden non trovato!");
-    }
-}
-    const addNewPlantButton = document.getElementById('addNewPlantButton');
-    if (addNewPlantButton) {
-        addNewPlantButton.addEventListener('click', () => {
-            const newPlantCard = document.getElementById('newPlantCard');
-            if (newPlantCard) {
-                newPlantCard.style.display = 'block';
-            }
-        });
-    }
-
-    const cancelNewPlantButton = document.getElementById('cancelNewPlant');
-    if (cancelNewPlantButton) {
-        cancelNewPlantButton.addEventListener('click', () => {
-            const newPlantCard = document.getElementById('newPlantCard');
-            if (newPlantCard) {
-                newPlantCard.style.display = 'none';
-            }
-        });
-    }
-
-    const saveNewPlantButton = document.getElementById('saveNewPlant');
-    if (saveNewPlantButton) {
-        saveNewPlantButton.addEventListener('click', async () => {
-            const newPlantName = document.getElementById('newPlantName').value;
-            const newPlantSunlight = document.getElementById('newPlantSunlight').value;
-            const newPlantWatering = document.getElementById('newPlantWatering').value;
-            const newPlantTempMin = document.getElementById('newPlantTempMin').value;
-            const newPlantTempMax = document.getElementById('newPlantTempMax').value;
-            const newPlantDescription = document.getElementById('newPlantDescription').value;
-            const newPlantCategory = document.getElementById('newPlantCategory').value;
-            const newPlantImageURL = document.getElementById('newPlantImageURL').value;
-
-            if (newPlantName && newPlantSunlight && newPlantWatering && newPlantTempMin && newPlantTempMax) {
-                try {
-                    const docRef = await firebase.firestore().collection('plants').add({
-                        name: newPlantName,
-                        sunlight: newPlantSunlight,
-                        watering: newPlantWatering,
-                        tempMin: parseInt(newPlantTempMin),
-                        tempMax: parseInt(newPlantTempMax),
-                        description: newPlantDescription,
-                        category: newPlantCategory,
-                        image: newPlantImageURL
-                    });
-                    console.log("Nuova pianta aggiunta con ID: ", docRef.id);
-                    const newPlantCard = document.getElementById('newPlantCard');
-                    if (newPlantCard) {
-                        newPlantCard.style.display = 'none';
-                    }
-                    await loadPlantsFromFirebase(); // Ricarica le piante per visualizzare la nuova
-                    await loadMyGardenFromFirebase();
-                } catch (error) {
-                    console.error("Errore nell'aggiunta della nuova pianta:", error);
-                }
-            } else {
-                alert("Per favore, compila tutti i campi obbligatori.");
-            }
-        });
-    }
-
-    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-if (toggleMyGardenButton) {
-    toggleMyGardenButton.addEventListener('click', () => {
-        const mioGiardinoSection = document.getElementById('my-garden');
-        const giardinoTitle = document.getElementById('giardinoTitle');
-        const eyeIcon = toggleMyGardenButton.querySelector('i');
-        if (mioGiardinoSection.style.display === 'none') {
-            mioGiardinoSection.style.display = 'block';
-            giardinoTitle.style.display = 'block';
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
-            toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
-        } else {
-            mioGiardinoSection.style.display = 'none';
-            giardinoTitle.style.display = 'none';
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
-            toggleMyGardenButton.innerText = 'Mostra il mio giardino';
-        }
-        // Aggiorna isMyGardenEmpty qui dopo aver cambiato la visibilità
-        isMyGardenEmpty = mioGiardinoSection.style.display === 'none';
-        updateGardenToggleButtonState(isMyGardenEmpty); // Richiama per aggiornare lo stato visivo
-    });
-}
-
-    await loadPlantsFromFirebase();
-    updateGardenVisibility();
-});
+    }); // **CHIUSURA DEL LISTENER onAuthStateChanged**
