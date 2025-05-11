@@ -349,28 +349,50 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    loginButton.addEventListener('click', handleLogin);
-    registerButton.addEventListener('click', handleRegister);
-    logoutButton.addEventListener('click', handleLogout);
-    addNewPlantButton.addEventListener('click', () => {
-        newPlantCard.style.display = 'block';
-    });
-    cancelNewPlant.addEventListener('click', () => {
-        newPlantCard.style.display = 'none';
-        clearNewPlantForm();
-    });
-    saveNewPlant.addEventListener('click', saveNewPlantToFirebase);
-    searchInput.addEventListener('input', handleSearch);
-    categoryFilter.addEventListener('change', handleFilter);
-    tempMinFilter.addEventListener('input', handleTempFilter);
-    tempMaxFilter.addEventListener('input', handleTempFilter);
-    toggleMyGardenButton.addEventListener('click', toggleMyGarden);
+    const loginButton = document.getElementById('loginButton');
+    const registerButton = document.getElementById('registerButton');
+    const logoutButton = document.getElementById('logoutButton');
+    const addNewPlantButton = document.getElementById('addNewPlantButton');
+    const newPlantCard = document.getElementById('newPlantCard');
+    const saveNewPlant = document.getElementById('saveNewPlant');
+    const cancelNewPlant = document.getElementById('cancelNewPlant');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const tempMinFilter = document.getElementById('tempMinFilter');
+    const tempMaxFilter = document.getElementById('tempMaxFilter');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+
+    if (loginButton) loginButton.addEventListener('click', handleLogin); // Assicurati che handleLogin sia definita
+    if (registerButton) registerButton.addEventListener('click', handleRegister); // Assicurati che handleRegister sia definita
+    if (logoutButton) logoutButton.addEventListener('click', handleLogout); // Assicurati che handleLogout sia definita
+    if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => newPlantCard.style.display = 'block');
+    if (cancelNewPlant) cancelNewPlant.addEventListener('click', () => { newPlantCard.style.display = 'none'; clearNewPlantForm(); }); // Assicurati che clearNewPlantForm sia definita
+    if (saveNewPlant) saveNewPlant.addEventListener('click', saveNewPlantToFirebase); // Assicurati che saveNewPlantToFirebase sia definita
+    if (searchInput) searchInput.addEventListener('input', handleSearch); // Assicurati che handleSearch sia definita
+    if (categoryFilter) categoryFilter.addEventListener('change', handleFilter); // Assicurati che handleFilter sia definita
+    if (tempMinFilter) tempMinFilter.addEventListener('input', handleTempFilter); // Assicurati che handleTempFilter sia definita
+    if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter); // Assicurati che handleTempFilter sia definita
+    if (toggleMyGardenButton) {
+        toggleMyGardenButton.addEventListener('click', () => {
+            const mioGiardinoSection = document.getElementById('my-garden');
+            const giardinoTitle = document.getElementById('giardinoTitle');
+            const eyeIcon = toggleMyGardenButton.querySelector('i');
+            const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
+            mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
+            if (giardinoTitle) giardinoTitle.style.display = mioGiardinoSection.style.display;
+            if (eyeIcon) {
+                eyeIcon.classList.toggle('fa-eye', isCurrentlyVisible);
+                eyeIcon.classList.toggle('fa-eye-slash', !isCurrentlyVisible);
+            }
+            toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
+            // Aggiorna isMyGardenEmpty basandosi sulla VISIBILITÀ, non sullo stato dei dati qui.
+            // Lo stato dei dati viene gestito in renderMyGarden e removeFromMyGarden.
+        });
+    }
+
     await loadPlantsFromFirebase();
-    setTimeout(() => { // Aggiungiamo un piccolo ritardo
-        updateGardenVisibility();
-    }, 100); // 100 millisecondi di ritardo
+    updateGardenVisibility(); // Chiama direttamente, senza ritardo
 });
-    
 function updateGardenToggleButtonState(isMyGardenEmpty) {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
     if (toggleMyGardenButton) {
