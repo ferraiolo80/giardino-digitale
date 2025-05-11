@@ -153,7 +153,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 async function removeFromMyGarden(plantIdToRemove) {
     await loadPlantsFromFirebase(); // Assicurati che allPlants sia aggiornato
+    console.log("removeFromMyGarden: plantIdToRemove =", plantIdToRemove);
     let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    console.log("removeFromMyGarden: myGarden =", JSON.stringify(myGarden)); // AGGIUNGI QUESTO
     try {
         const index = myGarden.indexOf(plantIdToRemove);
         if (index > -1) {
