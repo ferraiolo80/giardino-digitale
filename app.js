@@ -168,6 +168,11 @@ async function removeFromMyGarden(plantIdToRemove) {
             const firebaseGarden = doc.data()?.plants || [];
             console.log("Giardino caricato da Firebase:", firebaseGarden);
             await renderMyGarden(firebaseGarden); // Renderizza il giardino con i dati di Firebase
+
+            // Pulisci il localStorage dopo aver caricato il giardino da Firebase
+            localStorage.removeItem("myGarden");
+            console.log("localStorage 'myGarden' pulito dopo il login.");
+
         } catch (error) {
             console.error("Errore nel caricamento del giardino da Firebase:", error);
         }
