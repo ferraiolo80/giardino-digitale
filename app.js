@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const myGardenContainer = document.getElementById('my-garden');
     const emptyGardenMessage = document.getElementById('empty-garden-message');
-    myGardenContainer.innerHTML = '';
+    myGardenContainer.innerHTML = ''; // SVUOTA SEMPRE ALL'INIZIO
 
     if (safeGarden.length === 0) {
         myGardenContainer.style.display = 'flex';
