@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await saveMyGardenToFirebase(safeGarden);
     updateGardenVisibility();
 }
+    
     async function saveMyGardenToFirebase(garden) {
     const user = firebase.auth().currentUser;
     if (user) {
