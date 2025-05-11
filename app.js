@@ -248,7 +248,7 @@ async function removeFromMyGarden(plantIdToRemove) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
-    const myGardenLS = JSON.parse(localStorage.getItem("myGarden")) || []; // Ottieni il "Mio Giardino" dal localStorage
+    const myGardenLS = JSON.parse(localStorage.getItem("myGarden")) || [];
     const user = firebase.auth().currentUser;
     let myGardenFB = [];
 
@@ -268,11 +268,11 @@ async function removeFromMyGarden(plantIdToRemove) {
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
             <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-            ${user ? // Se l'utente è loggato, controlla il "Mio Giardino" di Firebase
+            ${user ?
                 myGardenFB.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
                     '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>' :
-                myGardenLS.includes(plant.id) ? // Se l'utente non è loggato, controlla il localStorage
+                myGardenLS.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
                     '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>'
             }
