@@ -156,6 +156,7 @@ async function removeFromMyGarden(plantIdToRemove) {
     console.log("removeFromMyGarden: plantIdToRemove =", plantIdToRemove);
     let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
     console.log("removeFromMyGarden: myGarden =", JSON.stringify(myGarden)); // AGGIUNGI QUESTO
+    console.log("removeFromMyGarden: myGarden BEFORE removal attempt =", JSON.stringify(myGarden)); // AGGIUNGI QUESTO
     try {
         const index = myGarden.indexOf(plantIdToRemove);
         if (index > -1) {
