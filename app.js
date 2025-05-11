@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 
     async function addToMyGarden(plantName) {
-    const plants = await loadAllPlants();
+    const plants = await loadAllPlants(); // Assicurati che questa funzione carichi tutte le piante dal DB
     try {
         const plant = plants.find((p) => p.name === plantName);
         if (plant) {
@@ -108,10 +108,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 myGarden.push(plant.id);
                 localStorage.setItem("myGarden", JSON.stringify(myGarden));
                 await saveMyGardenToFirebase(myGarden);
-                await renderMyGarden(myGarden);
-                isMyGardenEmpty = myGarden.length === 0; // Aggiorna isMyGardenEmpty
-                updateGardenToggleButtonState(isMyGardenEmpty); // Chiama updateGardenToggleButtonState
-                console.log(`Pianta '${plantName}' (ID: ${plant.id}) aggiunta al 'Mio Giardino'.`);
+                await renderMyGarden(myGarden); // Aggiorna la visualizzazione del "Mio giardino"
+                await loadPlantsFromFirebase(); // Ricarica tutte le piante dal DB
+                renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+                isMyGardenEmpty = myGarden.length === 0;
+                updateGardenToggleButtonState(isMyGardenEmpty);
             } else {
                 console.log(`Pianta '${plantName}' (ID: ${plant.id}) è già nel 'Mio Giardino'.`);
             }
@@ -131,16 +132,11 @@ async function removeFromMyGarden(plantIdToRemove) {
             myGarden.splice(index, 1);
             localStorage.setItem("myGarden", JSON.stringify(myGarden));
             await saveMyGardenToFirebase(myGarden);
-            await renderMyGarden(myGarden);
+            await renderMyGarden(myGarden); // Aggiorna la visualizzazione del "Mio giardino"
+            await loadPlantsFromFirebase(); // Ricarica tutte le piante dal DB
+            renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
             isMyGardenEmpty = myGarden.length === 0;
             updateGardenToggleButtonState(isMyGardenEmpty);
-            updateGardenVisibility(); // Chiamata per aggiornare la visibilità
-            if (firebase.auth().currentUser && isMyGardenEmpty) {
-                // Se l'utente è loggato e il giardino è vuoto, forza il rendering delle piante disponibili
-                await loadPlantsFromFirebase();
-                renderPlants(allPlants); // Assicurati che 'allPlants' sia accessibile qui
-            }
-            console.log(`Pianta con ID '${plantIdToRemove}' rimossa dal 'Mio Giardino'.`);
         } else {
             console.warn(`Pianta con ID '${plantIdToRemove}' non trovata nel 'Mio Giardino'.`);
         }
@@ -148,7 +144,6 @@ async function removeFromMyGarden(plantIdToRemove) {
         console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
     }
 }
-
     function createPlantCard(plantData) {
     console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
     const div = document.createElement("div");
