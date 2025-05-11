@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 
     async function addToMyGarden(plantName) {
-    await loadPlantsFromFirebase(); // Carica (o ricarica) tutte le piante dal database
+    await loadPlantsFromFirebase(); // Assicurati che allPlants sia aggiornato
     try {
         const plant = allPlants.find((p) => p.name === plantName);
         if (plant) {
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 }
 async function removeFromMyGarden(plantIdToRemove) {
-    await loadPlantsFromFirebase(); // Aggiungi anche qui per assicurarti che allPlants sia aggiornato
+    await loadPlantsFromFirebase(); // Assicurati che allPlants sia aggiornato
     let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
     try {
         const index = myGarden.indexOf(plantIdToRemove);
