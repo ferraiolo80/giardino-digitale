@@ -99,9 +99,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 
     async function addToMyGarden(plantName) {
-    const plants = await loadAllPlants(); // Assicurati che questa funzione carichi tutte le piante dal DB
+    await loadPlantsFromFirebase(); // Carica (o ricarica) tutte le piante dal database
     try {
-        const plant = plants.find((p) => p.name === plantName);
+        const plant = allPlants.find((p) => p.name === plantName);
         if (plant) {
             let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
             if (!myGarden.includes(plant.id)) {
@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 localStorage.setItem("myGarden", JSON.stringify(myGarden));
                 await saveMyGardenToFirebase(myGarden);
                 await renderMyGarden(myGarden); // Aggiorna la visualizzazione del "Mio giardino"
-                await loadPlantsFromFirebase(); // Ricarica tutte le piante dal DB
                 renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
                 isMyGardenEmpty = myGarden.length === 0;
                 updateGardenToggleButtonState(isMyGardenEmpty);
@@ -123,8 +122,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Errore durante l'aggiunta della pianta al 'Mio Giardino':", error);
     }
 }
-
 async function removeFromMyGarden(plantIdToRemove) {
+    await loadPlantsFromFirebase(); // Aggiungi anche qui per assicurarti che allPlants sia aggiornato
     let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
     try {
         const index = myGarden.indexOf(plantIdToRemove);
@@ -133,7 +132,6 @@ async function removeFromMyGarden(plantIdToRemove) {
             localStorage.setItem("myGarden", JSON.stringify(myGarden));
             await saveMyGardenToFirebase(myGarden);
             await renderMyGarden(myGarden); // Aggiorna la visualizzazione del "Mio giardino"
-            await loadPlantsFromFirebase(); // Ricarica tutte le piante dal DB
             renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
             isMyGardenEmpty = myGarden.length === 0;
             updateGardenToggleButtonState(isMyGardenEmpty);
