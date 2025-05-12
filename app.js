@@ -336,17 +336,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 }); // **UNICA CHIUSURA DEL DOMContentLoaded - ORA ALLA FINE DEL BLOCCO!**
 
 function updateGardenToggleButtonState(isMyGardenEmpty) {
-        const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-        if (toggleMyGardenButton) {
-            if (isMyGardenEmpty) {
-                toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye"></i> Mostra il mio giardino';
-            } else {
-                toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Nascondi il mio giardino';
-            }
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+    if (toggleMyGardenButton) {
+        const eyeIcon = toggleMyGardenButton.querySelector('i');
+        if (isMyGardenEmpty) {
+            toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye"></i> Mostra il mio giardino';
         } else {
-            console.error("Elemento toggleMyGarden non trovato!");
+            toggleMyGardenButton.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Nascondi il mio giardino';
         }
+        // Ripristina l'icona se presente (potrebbe essere superfluo con innerHTML)
+        // if (eyeIcon) {
+        //     toggleMyGardenButton.prepend(eyeIcon);
+        // }
+    } else {
+        console.error("Elemento toggleMyGarden non trovato!");
     }
+}
 
  async function updateGardenVisibility() {
     const plantsSection = document.getElementById('plants-section');
