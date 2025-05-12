@@ -334,7 +334,7 @@ function updateGardenToggleButtonState(isMyGardenEmpty) {
     }
 
  async function updateGardenVisibility() {
-    const plantsSection = document.getElementById('plants-sectconst mioGiardinoSection = document.getElementById('my-garden');
+    const plantsSection = document.getElementById('plants-section');
     const mioGiardinoSection = document.getElementById('my-garden');  
     const giardinoTitle = document.getElementById('giardinoTitle');
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
