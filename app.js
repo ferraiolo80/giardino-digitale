@@ -495,6 +495,7 @@ async function removeFromMyGarden(plantIdToRemove) {
     await loadPlantsFromFirebase(); // Assicurati che allPlants sia aggiornato
     console.log("removeFromMyGarden: plantIdToRemove =", plantIdToRemove);
     let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    console.log("removeFromMyGarden: myGarden prima della rimozione =", JSON.stringify(myGarden)); // AGGIUNGI QUESTO
     console.log("removeFromMyGarden: myGarden =", JSON.stringify(myGarden)); // AGGIUNGI QUESTO
     console.log("removeFromMyGarden: myGarden BEFORE removal attempt =", JSON.stringify(myGarden)); // AGGIUNGI QUESTO
     try {
@@ -503,6 +504,7 @@ async function removeFromMyGarden(plantIdToRemove) {
             myGarden.splice(index, 1);
             localStorage.setItem("myGarden", JSON.stringify(myGarden));
             await saveMyGardenToFirebase(myGarden);
+            console.log("removeFromMyGarden: myGarden dopo la rimozione =", JSON.stringify(myGarden)); // AGGIUNGI QUESTO
             await renderMyGarden(myGarden); // Aggiorna la visualizzazione del "Mio giardino"
             renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
             isMyGardenEmpty = myGarden.length === 0;
