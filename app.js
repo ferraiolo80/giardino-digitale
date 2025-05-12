@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter);
     if (toggleMyGardenButton) {
         toggleMyGardenButton.addEventListener('click', () => {
+            console.log("Tasto Mio Giardino cliccato!"); // INCOLLA QUI QUESTA RIGA
             const mioGiardinoSection = document.getElementById('my-garden');
             const giardinoTitle = document.getElementById('giardinoTitle');
             const eyeIcon = toggleMyGardenButton.querySelector('i');
