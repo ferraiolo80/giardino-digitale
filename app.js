@@ -323,7 +323,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           
             isMyGardenEmpty = mioGiardinoSection_inner.style.display === 'none';
             updateGardenToggleButtonState(isMyGardenEmpty);
-        });
     }
 }); // **UNICA CHIUSURA DEL DOMContentLoaded - ORA ALLA FINE DEL BLOCCO!**
 
