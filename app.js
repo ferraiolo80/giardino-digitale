@@ -192,26 +192,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (categoryFilter) categoryFilter.addEventListener('change', handleFilter);
     if (tempMinFilter) tempMinFilter.addEventListener('input', handleTempFilter);
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter);
-    if (toggleMyGardenButton) {
+   if (toggleMyGardenButton) {
     toggleMyGardenButton.addEventListener('click', () => {
+        console.log("Tasto Mio Giardino cliccato!");
+        const mioGiardinoSection = document.getElementById('my-garden');
+        const giardinoTitle = document.getElementById('giardinoTitle');
         const eyeIcon = toggleMyGardenButton.querySelector('i');
-        if (mioGiardinoSection.style.display === 'none') {
-            mioGiardinoSection.style.display = 'block';
-            if (giardinoTitle) giardinoTitle.style.display = 'block';
-            if (eyeIcon) {
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            }
-            toggleMyGardenButton.innerText = 'Nascondi il mio giardino';
-        } else {
-            mioGiardinoSection.style.display = 'none';
-            if (giardinoTitle) giardinoTitle.style.display = 'none';
-            if (eyeIcon) {
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-            toggleMyGardenButton.innerText = 'Mostra il mio giardino';
+
+        const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
+        mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
+
+        if (giardinoTitle) {
+            giardinoTitle.style.display = mioGiardinoSection.style.display;
         }
+
+        if (eyeIcon) {
+            eyeIcon.classList.toggle('fa-eye', isCurrentlyVisible);
+            eyeIcon.classList.toggle('fa-eye-slash', !isCurrentlyVisible);
+        }
+
+        toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
         isMyGardenEmpty = mioGiardinoSection.style.display === 'none';
         updateGardenToggleButtonState(isMyGardenEmpty);
     });
