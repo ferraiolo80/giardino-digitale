@@ -156,6 +156,16 @@ function handleFilter(event) {
     renderPlants(filteredPlants);
 }
 
+function handleTempFilter() {
+    const minTemp = parseInt(document.getElementById('tempMinFilter').value) || -Infinity;
+    const maxTemp = parseInt(document.getElementById('tempMaxFilter').value) || Infinity;
+
+    const filteredPlants = allPlants.filter(plant =>
+        plant.tempMin >= minTemp && plant.tempMax <= maxTemp
+    );
+    renderPlants(filteredPlants);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
     const registerButton = document.getElementById('registerButton');
