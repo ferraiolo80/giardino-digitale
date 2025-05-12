@@ -86,6 +86,55 @@ async function handleLogout() {
   }
 }
 
+async function saveNewPlantToFirebase() {
+    const newPlantName = document.getElementById('newPlantName').value;
+    const newPlantSunlight = document.getElementById('newPlantSunlight').value;
+    const newPlantWatering = document.getElementById('newPlantWatering').value;
+    const newPlantTempMin = document.getElementById('newPlantTempMin').value;
+    const newPlantTempMax = document.getElementById('newPlantTempMax').value;
+    const newPlantDescription = document.getElementById('newPlantDescription').value;
+    const newPlantCategory = document.getElementById('newPlantCategory').value;
+    const newPlantImageURL = document.getElementById('newPlantImageURL').value;
+
+    if (newPlantName && newPlantSunlight && newPlantWatering && newPlantTempMin && newPlantTempMax) {
+        try {
+            const docRef = await firebase.firestore().collection('plants').add({
+                name: newPlantName,
+                sunlight: newPlantSunlight,
+                watering: newPlantWatering,
+                tempMin: parseInt(newPlantTempMin),
+                tempMax: parseInt(newPlantTempMax),
+                description: newPlantDescription,
+                category: newPlantCategory,
+                image: newPlantImageURL
+            });
+            console.log("Nuova pianta aggiunta con ID: ", docRef.id);
+            const newPlantCardInner = document.getElementById('newPlantCard');
+            if (newPlantCardInner) {
+                newPlantCardInner.style.display = 'none';
+            }
+            await loadPlantsFromFirebase(); // Ricarica l'elenco delle piante
+            await loadMyGardenFromFirebase(); // Ricarica il "Mio Giardino" per eventuali aggiornamenti
+            clearNewPlantForm(); // Se hai una funzione per pulire il form
+        } catch (error) {
+            console.error("Errore nell'aggiunta della nuova pianta:", error);
+        }
+    } else {
+        alert("Per favore, compila tutti i campi obbligatori.");
+    }
+}
+
+function clearNewPlantForm() {
+    document.getElementById('newPlantName').value = '';
+    document.getElementById('newPlantSunlight').value = '';
+    document.getElementById('newPlantWatering').value = '';
+    document.getElementById('newPlantTempMin').value = '';
+    document.getElementById('newPlantTempMax').value = '';
+    document.getElementById('newPlantDescription').value = '';
+    document.getElementById('newPlantCategory').value = '';
+    document.getElementById('newPlantImageURL').value = '';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
     const registerButton = document.getElementById('registerButton');
