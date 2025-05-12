@@ -135,6 +135,15 @@ function clearNewPlantForm() {
     document.getElementById('newPlantImageURL').value = '';
 }
 
+function handleSearch(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    const filteredPlants = allPlants.filter(plant =>
+        plant.name.toLowerCase().includes(searchTerm) ||
+        plant.category.toLowerCase().includes(searchTerm) // Puoi aggiungere altri criteri di ricerca
+    );
+    renderPlants(filteredPlants);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
     const registerButton = document.getElementById('registerButton');
