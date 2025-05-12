@@ -144,6 +144,18 @@ function handleSearch(event) {
     renderPlants(filteredPlants);
 }
 
+function handleFilter(event) {
+    const selectedCategory = event.target.value;
+    let filteredPlants;
+
+    if (selectedCategory === 'all') {
+        filteredPlants = allPlants;
+    } else {
+        filteredPlants = allPlants.filter(plant => plant.category === selectedCategory);
+    }
+    renderPlants(filteredPlants);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
     const registerButton = document.getElementById('registerButton');
