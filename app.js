@@ -23,6 +23,69 @@ const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 const giardinoTitle = document.getElementById('giardinoTitle');
 const plantsContainerDiv = document.getElementById('garden-container');
 
+async function handleLogin() {
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  const errorDiv = document.getElementById('login-error');
+
+  if (emailInput && passwordInput && errorDiv) {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    errorDiv.innerText = '';
+
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      console.log("Login effettuato con successo!");
+      // L'authStateChanged listener si occuperà di aggiornare l'UI
+    } catch (error) {
+      console.error("Errore durante il login:", error);
+      errorDiv.innerText = error.message;
+    }
+  } else {
+    console.error("Elementi del form di login non trovati.");
+  }
+}
+
+async function handleRegister() {
+  const emailInput = document.getElementById('register-email');
+  const passwordInput = document.getElementById('register-password');
+  const confirmPasswordInput = document.getElementById('register-confirm-password');
+  const errorDiv = document.getElementById('register-error');
+
+  if (emailInput && passwordInput && confirmPasswordInput && errorDiv) {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    errorDiv.innerText = '';
+
+    if (password !== confirmPassword) {
+      errorDiv.innerText = "Le password non corrispondono.";
+      return;
+    }
+
+    try {
+      await firebase.auth().createUserWithEmailAndPassword(email, password);
+      console.log("Registrazione effettuata con successo!");
+      // L'authStateChanged listener si occuperà di aggiornare l'UI
+    } catch (error) {
+      console.error("Errore durante la registrazione:", error);
+      errorDiv.innerText = error.message;
+    }
+  } else {
+    console.error("Elementi del form di registrazione non trovati.");
+  }
+}
+
+async function handleLogout() {
+  try {
+    await firebase.auth().signOut();
+    console.log("Logout effettuato con successo!");
+    // L'authStateChanged listener si occuperà di aggiornare l'UI
+  } catch (error) {
+    console.error("Errore durante il logout:", error);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
     const registerButton = document.getElementById('registerButton');
