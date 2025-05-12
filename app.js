@@ -294,9 +294,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toggleMyGardenButton_outer = document.getElementById('toggleMyGarden'); // Evita conflitti
     if (toggleMyGardenButton_outer) {
         toggleMyGardenButton_outer.addEventListener('click', () => {
+            console.log("Tasto Mio Giardino cliccato!");
             const mioGiardinoSection_inner = document.getElementById('my-garden'); // Evita conflitti
             const giardinoTitle_inner = document.getElementById('giardinoTitle'); // Evita conflitti
             const eyeIcon = toggleMyGardenButton_outer.querySelector('i');
+          
+            console.log("Stato display prima del cambio:", mioGiardinoSection.style.display);
+          
             if (mioGiardinoSection_inner.style.display === 'none') {
                 mioGiardinoSection_inner.style.display = 'block';
                 if (giardinoTitle_inner) giardinoTitle_inner.style.display = 'block';
@@ -314,6 +318,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 toggleMyGardenButton_outer.innerText = 'Mostra il mio giardino';
             }
+            console.log("Stato display dopo il cambio:", mioGiardinoSection.style.display);
+    });
+          
             isMyGardenEmpty = mioGiardinoSection_inner.style.display === 'none';
             updateGardenToggleButtonState(isMyGardenEmpty);
         });
