@@ -373,16 +373,16 @@ async function updateGardenVisibility() {
         // Utente loggato e il "Mio Giardino" non è vuoto: mostra il "Mio Giardino"
         if (plantsSection) plantsSection.style.display = 'none';
         // Lasciamo che sia il click del bottone a gestire la display di mioGiardinoSection
-        if (giardinoTitle && mioGiardinoSection.style.display !== 'none') {
-            giardinoTitle.style.display = 'block';
-        } else if (giardinoTitle) {
-            giardinoTitle.style.display = 'none';
+       // if (giardinoTitle && mioGiardinoSection.style.display !== 'none') {
+         //   giardinoTitle.style.display = 'block';
+       // } else if (giardinoTitle) {
+         //   giardinoTitle.style.display = 'none';
         }
     } else {
         // Utente non loggato OPPURE utente loggato ma il "Mio Giardino" è vuoto: mostra le piante disponibili
         if (plantsSection) plantsSection.style.display = 'block';
-        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-        if (giardinoTitle) giardinoTitle.style.display = 'none';
+       // if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+        //if (giardinoTitle) giardinoTitle.style.display = 'none';
     }
 }
 
