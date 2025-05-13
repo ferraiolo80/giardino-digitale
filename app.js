@@ -581,6 +581,7 @@ async function removeFromMyGarden(plantIdToRemove) {
                     watering: data.watering,
                     tempMin: data.tempMin,
                     tempMax: data.tempMax,
+                    category: data.category,
                     image: data.image || 'plant_9215709.png'
                 });
             });
@@ -627,6 +628,7 @@ async function removeFromMyGarden(plantIdToRemove) {
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
             <p>Temperatura ideale max: ${plant.tempMax}°C</p>
+            <p>Categoria: ${plantData.category}</p>
             ${user ?
                 myGardenFB.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
