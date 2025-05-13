@@ -398,7 +398,7 @@ async function renderMyGarden(garden) {
     } else {
         console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
         safeGarden = [];
-        localStorage.setItem("myGarden", JSON.stringify([]));
+        // localStorage.setItem("myGarden", JSON.stringify([]));
         await saveMyGardenToFirebase([]);
     }
 
