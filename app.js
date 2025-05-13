@@ -202,8 +202,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
         mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
 
+        // **MODIFICA ANCHE LA VISIBILITÀ DEL TITOLO VIA JAVASCRIPT**
         if (giardinoTitle) {
-            giardinoTitle.style.display = mioGiardinoSection.style.display;
+            giardinoTitle.style.display = isCurrentlyVisible ? 'none' : 'block';
         }
 
         if (eyeIcon) {
