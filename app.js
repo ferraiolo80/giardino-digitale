@@ -378,7 +378,7 @@ async function updateGardenVisibility() {
         // } else if (giardinoTitle) {
         //     giardinoTitle.style.display = 'none';
         // }
-    } // **ECCO LA PARENTESI GRAFFA MANCANTE!**
+    }  // **GRAFFA AGGIUNTA QUI!**
     else {
         // Utente non loggato OPPURE utente loggato ma il "Mio Giardino" è vuoto: mostra le piante disponibili
         if (plantsSection) plantsSection.style.display = 'block';
