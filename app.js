@@ -527,6 +527,7 @@ async function removeFromMyGarden(plantIdToRemove) {
         <p>Acqua: ${plantData.watering}</p>
         <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
         <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+        <p>Categoria: ${plantData.category}</p>
         <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>
         <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
     `;
