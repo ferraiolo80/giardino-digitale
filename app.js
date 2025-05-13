@@ -632,10 +632,10 @@ async function removeFromMyGarden(plantIdToRemove) {
             ${user ?
                 myGardenFB.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
-                    '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>' :
+                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' 
                 myGardenLS.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
-                    '<button class="add-to-garden-button" data-plant-name="' + plant.name + '">Aggiungi al mio giardino</button>'
+                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>'
             }
         `;
         gardenContainer.appendChild(div);
