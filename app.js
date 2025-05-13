@@ -329,12 +329,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 toggleMyGardenButton_outer.innerText = 'Mostra il mio giardino';
             }
             console.log("Stato display dopo il cambio:", mioGiardinoSection.style.display);
-    });
-          
             isMyGardenEmpty = mioGiardinoSection_inner.style.display === 'none';
             updateGardenToggleButtonState(isMyGardenEmpty);
+        });  
     }
-}); // **UNICA CHIUSURA DEL DOMContentLoaded - ORA ALLA FINE DEL BLOCCO!**
+ // **UNICA CHIUSURA DEL DOMContentLoaded - ORA ALLA FINE DEL BLOCCO!**
 
 function updateGardenToggleButtonState(isMyGardenEmpty) {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
