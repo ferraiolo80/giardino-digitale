@@ -615,7 +615,7 @@ async function removeFromMyGarden(plantIdToRemove) {
 
     async function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
-    console.log("renderPlants chiamata con:", plantArray); // Aggiungi questa riga
+    console.log("renderPlants chiamata con:", plantArray);
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
     const myGardenLS = JSON.parse(localStorage.getItem("myGarden")) || [];
@@ -638,14 +638,14 @@ async function removeFromMyGarden(plantIdToRemove) {
             <p>Acqua: ${plant.watering}</p>
             <p>Temperatura ideale min: ${plant.tempMin}°C</p>
             <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-            <p>Categoria: ${plantData.category}</p>
+            <p>Categoria: ${plant.category}</p>
             ${user ?
                 myGardenFB.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
-                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' 
+                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' : // Corretto qui
                 myGardenLS.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
-                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>'
+                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' // Corretto qui
             }
         `;
         gardenContainer.appendChild(div);
@@ -653,9 +653,9 @@ async function removeFromMyGarden(plantIdToRemove) {
 
     gardenContainer.addEventListener('click', async (event) => {
         if (event.target.classList.contains('add-to-garden-button')) {
-            const plantName = event.target.dataset.plantName;
-            console.log("Tentativo di aggiungere la pianta:", plantName);
-            await addToMyGarden(plantName);
+            const plantId = event.target.dataset.plantId; // Usa plantId
+            console.log("Tentativo di aggiungere la pianta con ID:", plantId);
+            await addToMyGarden(plantId); // Usa plantId
         } else if (event.target.classList.contains('remove-button')) {
             const plantIdToRemove = event.target.dataset.plantId;
             await removeFromMyGarden(plantIdToRemove);
