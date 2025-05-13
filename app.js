@@ -689,3 +689,4 @@ firebase.auth().onAuthStateChanged(async (user) => {
             updateGardenVisibility(); // **Aggiorna la visibilità anche per utenti non loggati**
         }
     }); // **CHIUSURA DEL LISTENER onAuthStateChanged**
+}
