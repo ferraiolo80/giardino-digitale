@@ -217,90 +217,90 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateGardenToggleButtonState(isMyGardenEmpty);
     });
 }
-    const loginButton_inner = document.getElementById('loginButton'); // Evita conflitti con la variabile esterna
-    if (loginButton_inner) {
-        console.log("loginButton trovato nel DOM.");
-        loginButton_inner.addEventListener('click', async () => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('login-error');
-            errorDiv.innerText = '';
-            console.log("Tentativo di login con email:", email, "e password:", password);
-            try {
-                await firebase.auth().signInWithEmailAndPassword(email, password);
-            } catch (error) {
-                errorDiv.innerText = error.message;
-                console.error("Errore durante il login:", error);
-            }
-        });
-        console.log("Event listener aggiunto al loginButton.");
-    } else {
-        console.error("Elemento loginButton non trovato nel DOM!");
-    }
+   // const loginButton_inner = document.getElementById('loginButton'); // Evita conflitti con la variabile esterna
+    //if (loginButton_inner) {
+      //  console.log("loginButton trovato nel DOM.");
+        //loginButton_inner.addEventListener('click', async () => {
+          //  const email = document.getElementById('login-email').value;
+            //const password = document.getElementById('login-password').value;
+            //const errorDiv = document.getElementById('login-error');
+            //errorDiv.innerText = '';
+            //console.log("Tentativo di login con email:", email, "e password:", password);
+            //try {
+              //  await firebase.auth().signInWithEmailAndPassword(email, password);
+            //} catch (error) {
+              //  errorDiv.innerText = error.message;
+                //console.error("Errore durante il login:", error);
+            //}
+        //});
+        //console.log("Event listener aggiunto al loginButton.");
+    //} else {
+      //  console.error("Elemento loginButton non trovato nel DOM!");
+    //}
 
-    await loadPlantsFromFirebase();
-    updateGardenVisibility();
+    //await loadPlantsFromFirebase();
+    //updateGardenVisibility();
 
-    const addNewPlantButton_outer = document.getElementById('addNewPlantButton'); // Evita conflitti
-    if (addNewPlantButton_outer) {
-        addNewPlantButton_outer.addEventListener('click', () => {
-            const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
-            if (newPlantCard_inner) {
-                newPlantCard_inner.style.display = 'block';
-            }
-        });
-    }
+    //const addNewPlantButton_outer = document.getElementById('addNewPlantButton'); // Evita conflitti
+    //if (addNewPlantButton_outer) {
+      //  addNewPlantButton_outer.addEventListener('click', () => {
+        //    const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
+          //  if (newPlantCard_inner) {
+            //    newPlantCard_inner.style.display = 'block';
+           // }
+        //});
+    //}
 
-    const cancelNewPlantButton_outer = document.getElementById('cancelNewPlant'); // Evita conflitti
-    if (cancelNewPlantButton_outer) {
-        cancelNewPlantButton_outer.addEventListener('click', () => {
-            const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
-            if (newPlantCard_inner) {
-                newPlantCard_inner.style.display = 'none';
-            }
-        });
-    }
+    //const cancelNewPlantButton_outer = document.getElementById('cancelNewPlant'); // Evita conflitti
+    //if (cancelNewPlantButton_outer) {
+      //  cancelNewPlantButton_outer.addEventListener('click', () => {
+        //    const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
+          //  if (newPlantCard_inner) {
+            //    newPlantCard_inner.style.display = 'none';
+            //}
+        //});
+    //}
 
-    const saveNewPlantButton_outer = document.getElementById('saveNewPlant'); // Evita conflitti
-    if (saveNewPlantButton_outer) {
-        saveNewPlantButton_outer.addEventListener('click', async () => {
-            const newPlantName = document.getElementById('newPlantName').value;
-            const newPlantSunlight = document.getElementById('newPlantSunlight').value;
-            const newPlantWatering = document.getElementById('newPlantWatering').value;
-            const newPlantTempMin = document.getElementById('newPlantTempMin').value;
-            const newPlantTempMax = document.getElementById('newPlantTempMax').value;
-            const newPlantDescription = document.getElementById('newPlantDescription').value;
-            const newPlantCategory = document.getElementById('newPlantCategory').value;
-            const newPlantImageURL = document.getElementById('newPlantImageURL').value;
+  //const saveNewPlantButton_outer = document.getElementById('saveNewPlant'); // Evita conflitti
+  //  if (saveNewPlantButton_outer) {
+    //   saveNewPlantButton_outer.addEventListener('click', async () => {
+    //      const newPlantName = document.getElementById('newPlantName').value;
+   //       const newPlantSunlight = document.getElementById('newPlantSunlight').value;
+ //         const newPlantWatering = document.getElementById('newPlantWatering').value;
+//          const newPlantTempMin = document.getElementById('newPlantTempMin').value;
+         // const newPlantTempMax = document.getElementById('newPlantTempMax').value;
+       //   const newPlantDescription = document.getElementById('newPlantDescription').value;
+       //   const newPlantCategory = document.getElementById('newPlantCategory').value;
+       //   const newPlantImageURL = document.getElementById('newPlantImageURL').value;
 
-            if (newPlantName && newPlantSunlight && newPlantWatering && newPlantTempMin && newPlantTempMax) {
-                try {
-                    const docRef = await firebase.firestore().collection('plants').add({
-                        name: newPlantName,
-                        sunlight: newPlantSunlight,
-                        watering: newPlantWatering,
-                        tempMin: parseInt(newPlantTempMin),
-                        tempMax: parseInt(newPlantTempMax),
-                        description: newPlantDescription,
-                        category: newPlantCategory,
-                        image: newPlantImageURL
-                    });
-                    console.log("Nuova pianta aggiunta con ID: ", docRef.id);
-                    const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
-                    if (newPlantCard_inner) {
-                        newPlantCard_inner.style.display = 'none';
-                    }
-                    await loadPlantsFromFirebase();
-                    await loadMyGardenFromFirebase();
-                } catch (error) {
-                    console.error("Errore nell'aggiunta della nuova pianta:", error);
-                }
-            } else {
-                alert("Per favore, compila tutti i campi obbligatori.");
-            }
-        });
-    }
-
+            //if (newPlantName && newPlantSunlight && newPlantWatering && newPlantTempMin && newPlantTempMax) {
+                //try {
+                    //const docRef = await firebase.firestore().collection('plants').add({
+                        //name: newPlantName,
+                        //sunlight: newPlantSunlight,
+                        //watering: newPlantWatering,
+                        //tempMin: parseInt(newPlantTempMin),
+                        //tempMax: parseInt(newPlantTempMax),
+                        //description: newPlantDescription,
+                        //category: newPlantCategory,
+                      //  image: newPlantImageURL
+                    //});
+                    //console.log("Nuova pianta aggiunta con ID: ", docRef.id);
+                    //const newPlantCard_inner = document.getElementById('newPlantCard'); // Evita conflitti
+                    //if (newPlantCard_inner) {
+                      //  newPlantCard_inner.style.display = 'none';
+                    //}
+                   // await loadPlantsFromFirebase();
+                 //   await loadMyGardenFromFirebase();
+               // } catch (error) {
+              //      console.error("Errore nell'aggiunta della nuova pianta:", error);
+            //    }
+          //  } else {
+        //        alert("Per favore, compila tutti i campi obbligatori.");
+      //      }
+    //    });
+  //  }
+//
     const toggleMyGardenButton_outer = document.getElementById('toggleMyGarden'); // Evita conflitti
     if (toggleMyGardenButton_outer) {
         toggleMyGardenButton_outer.addEventListener('click', () => {
