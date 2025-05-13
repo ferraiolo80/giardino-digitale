@@ -535,26 +535,37 @@ async function removeFromMyGarden(plantIdToRemove) {
     return div;
 }
 
-    async function loadMyGardenFromFirebase() {
+   async function loadMyGardenFromFirebase() {
     const user = firebase.auth().currentUser;
     if (user) {
         try {
             const doc = await db.collection('gardens').doc(user.uid).get();
             const firebaseGarden = doc.data()?.plants || [];
             console.log("Giardino caricato da Firebase:", firebaseGarden);
-            await renderMyGarden(firebaseGarden); // Renderizza il giardino con i dati di Firebase
+            // **AGGIUNGIAMO QUESTO PER AGGIORNARE LA VARIABILE myGarden**
+            myGarden = firebaseGarden;
+            await renderMyGarden(myGarden); // Renderizza il giardino con i dati di Firebase
 
-            // Pulisci il localStorage dopo aver caricato il giardino da Firebase
+            // Pulisci il localStorage SOLO se il caricamento da Firebase ha successo
             localStorage.removeItem("myGarden");
             console.log("localStorage 'myGarden' pulito dopo il login.");
 
         } catch (error) {
             console.error("Errore nel caricamento del giardino da Firebase:", error);
+            // **IN CASO DI ERRORE, CARICA DAL LOCAL STORAGE COME ULTIMA RISORSA**
+            const localStorageGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+            myGarden = localStorageGarden;
+            await renderMyGarden(myGarden);
         }
     } else {
         const localStorageGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        await renderMyGarden(localStorageGarden); // Se non loggato, renderizza dal localStorage
+        myGarden = localStorageGarden;
+        await renderMyGarden(myGarden); // Se non loggato, renderizza dal localStorage
     }
+    // **ASSICURATI CHE ANCHE QUI myGarden VENGA AGGIORNATO DOPO IL RENDER**
+    isMyGardenEmpty = myGarden.length === 0;
+    updateGardenToggleButtonState(isMyGardenEmpty);
+    updateGardenVisibility();
 }
     async function loadAllPlants() {
         try {
