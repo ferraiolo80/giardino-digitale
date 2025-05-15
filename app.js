@@ -104,7 +104,7 @@ async function renderPlants(plantArray) {
         const div = document.createElement("div");
         div.className = "plant-card";
         div.innerHTML = `
-            <img src="${image}" alt="${plant.name}" class="plant-icon">
+            <img src="<span class="math-inline">\{image\}" alt\="</span>{plant.name}" class="plant-icon">
             <h4>${plant.name}</h4>
             <p>Luce: ${plant.sunlight}</p>
             <p>Acqua: ${plant.watering}</p>
@@ -115,7 +115,7 @@ async function renderPlants(plantArray) {
                 myGardenFB.includes(plant.id) ?
                     '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
                     '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' :
-                    ''  // Se non loggato, non mostrare i bottoni
+                '' // Se l'utente non è loggato, non mostrare alcun pulsante
             }
         `;
         gardenContainer.appendChild(div);
