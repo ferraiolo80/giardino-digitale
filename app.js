@@ -624,27 +624,26 @@ async function removeFromMyGarden(plantIdToRemove) {
 }
  
 firebase.auth().onAuthStateChanged(async (user) => {
-        const authStatusDiv = document.getElementById('auth-status');
-        const appContentDiv = document.getElementById('app-content');
-        const authContainerDiv = document.getElementById('auth-container');
+    const authStatusDiv = document.getElementById('auth-status');
+    const appContentDiv = document.getElementById('app-content');
+    const authContainerDiv = document.getElementById('auth-container');
 
-        if (user) {
-            console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
-            authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
-            appContentDiv.style.display = 'block';
-            authContainerDiv.style.display = 'none';
-            await loadMyGardenFromFirebase(); // Carica il giardino da Firebase
-            await loadPlantsFromFirebase(); // **Ricarica le piante dopo il login**
-            updateGardenVisibility(); // **Aggiorna la visibilità dopo il login**
-        } else {
-            console.log("Stato autenticazione cambiato, nessun utente loggato.");
-            authStatusDiv.innerText = "Nessun utente autenticato.";
-            appContentDiv.style.display = 'none';
-            authContainerDiv.style.display = 'block';
-            const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            await renderMyGarden(myGarden); // Carica il giardino dal localStorage
-            await loadPlantsFromFirebase(); // **Ricarica le piante anche per utenti non loggati (potrebbe essere superfluo)**
-            updateGardenVisibility(); // **Aggiorna la visibilità anche per utenti non loggati**
-        }
-    }); // **CHIUSURA DEL LISTENER onAuthStateChanged**
+    if (user) {
+        console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
+        authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+        appContentDiv.style.display = 'block';
+        authContainerDiv.style.display = 'none';
+        await loadMyGardenFromFirebase(); // Carica il giardino da Firebase
+        await loadPlantsFromFirebase(); // **Ricarica le piante dopo il login**
+        updateGardenVisibility(); // **Aggiorna la visibilità dopo il login**
+    } else {
+        console.log("Stato autenticazione cambiato, nessun utente loggato.");
+        authStatusDiv.innerText = "Nessun utente autenticato.";
+        appContentDiv.style.display = 'none';
+        authContainerDiv.style.display = 'block';
+        myGarden = []; // Assicurati che myGarden sia vuoto
+        await renderMyGarden(myGarden); // Renderizza un giardino vuoto
+        await loadPlantsFromFirebase();
+        updateGardenVisibility();
+    }
 });
