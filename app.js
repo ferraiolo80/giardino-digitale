@@ -510,33 +510,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tempMinFilter) tempMinFilter.addEventListener('input', handleTempFilter);
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter);
     if (toggleMyGardenButton) {
-      toggleMyGardenButton.addEventListener('click', () => {
-          console.log("Tasto Mio Giardino cliccato!");
-          const mioGiardinoSection = document.getElementById('my-garden');
-          const giardinoTitle = document.getElementById('giardinoTitle');
-          const eyeIcon = toggleMyGardenButton.querySelector('i');
+    toggleMyGardenButton.addEventListener('click', () => {
+        console.log("Tasto Mio Giardino cliccato!");
+        const mioGiardinoSection = document.getElementById('my-garden');
+        const giardinoTitle = document.getElementById('giardinoTitle');
+        const eyeIcon = toggleMyGardenButton.querySelector('i');
 
-          console.log("Stato display prima del cambio:", mioGiardinoSection.style.display);
+        if (mioGiardinoSection) {
+            const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
+            mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
+        }
 
-          const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
-          mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
+        if (giardinoTitle) {
+            giardinoTitle.style.display = mioGiardinoSection.style.display; // Usa lo stesso stato di mioGiardinoSection
+        }
 
-          if (giardinoTitle) {
-              giardinoTitle.style.display = isCurrentlyVisible ? 'none' : 'block';
-          }
+        if (eyeIcon) {
+            eyeIcon.classList.toggle('fa-eye', !isCurrentlyVisible);
+            eyeIcon.classList.toggle('fa-eye-slash', isCurrentlyVisible);
+        }
 
-          if (eyeIcon) {
-              eyeIcon.classList.toggle('fa-eye', isCurrentlyVisible);
-              eyeIcon.classList.toggle('fa-eye-slash', !isCurrentlyVisible);
-          }
-
-          toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
-          isMyGardenEmpty = mioGiardinoSection.style.display === 'none';
-          updateGardenToggleButtonState(isMyGardenEmpty);
+        toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
+        isMyGardenEmpty = mioGiardinoSection && mioGiardinoSection.style.display === 'none';
+        updateGardenToggleButtonState(isMyGardenEmpty);
+    });
+}
   
-          console.log("Stato display dopo il cambio:", mioGiardinoSection.style.display);
-      });
-  }
    // const loginButton_inner = document.getElementById('loginButton'); // Evita conflitti con la variabile esterna
     //if (loginButton_inner) {
       //  console.log("loginButton trovato nel DOM.");
