@@ -138,7 +138,7 @@ function handleSearch(event) {
     const searchTerm = event.target.value.toLowerCase();
     const filteredPlants = allPlants.filter(plant =>
         plant.name.toLowerCase().includes(searchTerm) ||
-        plant.category.toLowerCase().includes(searchTerm) // Puoi aggiungere altri criteri di ricerca
+        plant.category.toLowerCase().includes(searchTerm)
     );
     renderPlants(filteredPlants);
 }
