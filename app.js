@@ -268,7 +268,49 @@ function clearNewPlantForm() {
     document.getElementById('newPlantImageURL').value = '';
 }
 
+function createPlantCard(plantData) {
+    console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
+    const div = document.createElement("div");
+    div.className = "my-plant-card";
+    div.innerHTML = `
+        <h4>${plantData.name}</h4>
+        <p>Luce: ${plantData.sunlight}</p>
+        <p>Acqua: ${plantData.watering}</p>
+        <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
+        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+        <p>Categoria: ${plantData.category}</p>
+        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>
+        <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
+    `;
 
+    // L'event listener per il bottone "Rimuovi" è ora gestito in renderPlants
+    return div;
+}
+
+   async function loadMyGardenFromFirebase() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+        try {
+            const doc = await db.collection('gardens').doc(user.uid).get();
+            const firebaseGarden = doc.data()?.plants || [];
+            console.log("Giardino caricato da Firebase:", firebaseGarden);
+            // **AGGIUNGIAMO QUESTO PER AGGIORNARE LA VARIABILE myGarden**
+            myGarden = firebaseGarden;
+            await renderMyGarden(myGarden); // Renderizza il giardino con i dati di Firebase
+        } catch (error) {
+            console.error("Errore nel caricamento del giardino da Firebase:", error);
+            myGarden = []; // In caso di errore, inizializza myGarden come array vuoto
+            await renderMyGarden(myGarden);
+        }
+    } else {
+        myGarden = []; // Se non loggato, inizializza myGarden come array vuoto
+        await renderMyGarden(myGarden); // Se non loggato, renderizza un giardino vuoto
+    }
+    // **ASSICURATI CHE ANCHE QUI myGarden VENGA AGGIORNATO DOPO IL RENDER**
+    isMyGardenEmpty = myGarden.length === 0;
+    updateGardenToggleButtonState(isMyGardenEmpty);
+    updateGardenVisibility();
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
@@ -574,49 +616,7 @@ async function renderMyGarden(garden) {
 }
 
     
-    function createPlantCard(plantData) {
-    console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
-    const div = document.createElement("div");
-    div.className = "my-plant-card";
-    div.innerHTML = `
-        <h4>${plantData.name}</h4>
-        <p>Luce: ${plantData.sunlight}</p>
-        <p>Acqua: ${plantData.watering}</p>
-        <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
-        <p>Categoria: ${plantData.category}</p>
-        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>
-        <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
-    `;
-
-    // L'event listener per il bottone "Rimuovi" è ora gestito in renderPlants
-    return div;
-}
-
-   async function loadMyGardenFromFirebase() {
-    const user = firebase.auth().currentUser;
-    if (user) {
-        try {
-            const doc = await db.collection('gardens').doc(user.uid).get();
-            const firebaseGarden = doc.data()?.plants || [];
-            console.log("Giardino caricato da Firebase:", firebaseGarden);
-            // **AGGIUNGIAMO QUESTO PER AGGIORNARE LA VARIABILE myGarden**
-            myGarden = firebaseGarden;
-            await renderMyGarden(myGarden); // Renderizza il giardino con i dati di Firebase
-        } catch (error) {
-            console.error("Errore nel caricamento del giardino da Firebase:", error);
-            myGarden = []; // In caso di errore, inizializza myGarden come array vuoto
-            await renderMyGarden(myGarden);
-        }
-    } else {
-        myGarden = []; // Se non loggato, inizializza myGarden come array vuoto
-        await renderMyGarden(myGarden); // Se non loggato, renderizza un giardino vuoto
-    }
-    // **ASSICURATI CHE ANCHE QUI myGarden VENGA AGGIORNATO DOPO IL RENDER**
-    isMyGardenEmpty = myGarden.length === 0;
-    updateGardenToggleButtonState(isMyGardenEmpty);
-    updateGardenVisibility();
-}
+    
     async function loadAllPlants() {
         try {
             const querySnapshot = await firebase.firestore().collection('plants').get();
