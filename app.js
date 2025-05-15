@@ -517,25 +517,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             const giardinoTitle = document.getElementById('giardinoTitle');
             const eyeIcon = toggleMyGardenButton.querySelector('i');
     
+            console.log("Stato display prima del cambio:", mioGiardinoSection?.style.display); // Usa optional chaining
+    
             if (mioGiardinoSection) {
                 const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
                 mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
             }
     
             if (giardinoTitle) {
-                giardinoTitle.style.display = mioGiardinoSection.style.display; // Usa lo stesso stato di mioGiardinoSection
+                giardinoTitle.style.display = mioGiardinoSection?.style.display; // Usa optional chaining
             }
     
             if (eyeIcon) {
-                eyeIcon.classList.toggle('fa-eye', !isCurrentlyVisible);
-                eyeIcon.classList.toggle('fa-eye-slash', isCurrentlyVisible);
+                eyeIcon.classList.toggle('fa-eye', !mioGiardinoSection || mioGiardinoSection.style.display === 'none');
+                eyeIcon.classList.toggle('fa-eye-slash', mioGiardinoSection && mioGiardinoSection.style.display !== 'none');
             }
     
-            toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
+            toggleMyGardenButton.innerText = mioGiardinoSection && mioGiardinoSection.style.display !== 'none' ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
             isMyGardenEmpty = mioGiardinoSection && mioGiardinoSection.style.display === 'none';
             updateGardenToggleButtonState(isMyGardenEmpty);
+    
+            console.log("Stato display dopo il cambio:", mioGiardinoSection?.style.display); // Usa optional chaining
         });
-    }
+  }
   
    // const loginButton_inner = document.getElementById('loginButton'); // Evita conflitti con la variabile esterna
     //if (loginButton_inner) {
