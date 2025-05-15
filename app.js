@@ -646,5 +646,5 @@ firebase.auth().onAuthStateChanged(async (user) => {
         await loadPlantsFromFirebase();
         updateGardenVisibility();
     }
-}
+  });
 });
