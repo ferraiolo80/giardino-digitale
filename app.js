@@ -1,7 +1,6 @@
 let plants = [];
 let allPlants = [];
-let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-let isMyGardenEmpty = myGarden.length === 0;
+
 // Riferimenti agli elementi HTML
 const gardenContainer = document.getElementById('garden-container');
 const myGardenContainer = document.getElementById('my-garden');
