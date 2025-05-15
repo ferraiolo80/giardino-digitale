@@ -554,22 +554,14 @@ async function removeFromMyGarden(plantIdToRemove) {
             // **AGGIUNGIAMO QUESTO PER AGGIORNARE LA VARIABILE myGarden**
             myGarden = firebaseGarden;
             await renderMyGarden(myGarden); // Renderizza il giardino con i dati di Firebase
-
-            // Pulisci il localStorage SOLO se il caricamento da Firebase ha successo
-            localStorage.removeItem("myGarden");
-            console.log("localStorage 'myGarden' pulito dopo il login.");
-
         } catch (error) {
             console.error("Errore nel caricamento del giardino da Firebase:", error);
-            // **IN CASO DI ERRORE, CARICA DAL LOCAL STORAGE COME ULTIMA RISORSA**
-            const localStorageGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            myGarden = localStorageGarden;
+            myGarden = []; // In caso di errore, inizializza myGarden come array vuoto
             await renderMyGarden(myGarden);
         }
     } else {
-        const localStorageGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-        myGarden = localStorageGarden;
-        await renderMyGarden(myGarden); // Se non loggato, renderizza dal localStorage
+        myGarden = []; // Se non loggato, inizializza myGarden come array vuoto
+        await renderMyGarden(myGarden); // Se non loggato, renderizza un giardino vuoto
     }
     // **ASSICURATI CHE ANCHE QUI myGarden VENGA AGGIORNATO DOPO IL RENDER**
     isMyGardenEmpty = myGarden.length === 0;
