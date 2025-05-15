@@ -2,6 +2,7 @@ let plants = [];
 let allPlants = [];
 
 // Riferimenti agli elementi HTML
+
 const gardenContainer = document.getElementById('garden-container');
 const myGardenContainer = document.getElementById('my-garden');
 const authContainerDiv = document.getElementById('auth-container');
@@ -84,6 +85,7 @@ async function handleLogout() {
     console.error("Errore durante il logout:", error);
   }
 }
+
 async function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     console.log("renderPlants chiamata con:", plantArray);
@@ -132,6 +134,7 @@ async function renderPlants(plantArray) {
 
     updateGardenVisibility();
 }
+
 function handleSearch(event) {
     const searchTerm = event.target.value.toLowerCase();
     const filteredPlants = allPlants.filter(plant =>
@@ -195,6 +198,7 @@ async function addToMyGarden(plantIdToAdd) { // Cambia plantName in plantIdToAdd
         console.error("Errore durante l'aggiunta della pianta al giardino:", error);
     }
 }
+
 async function removeFromMyGarden(plantIdToRemove) {
     console.log("removeFromMyGarden: plantIdToRemove =", plantIdToRemove);
     console.log("removeFromMyGarden: myGarden prima della rimozione =", JSON.stringify(myGarden));
@@ -255,6 +259,70 @@ async function saveNewPlantToFirebase() {
     } else {
         alert("Per favore, compila tutti i campi obbligatori.");
     }
+}
+
+async function renderMyGarden(garden) {
+    console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
+    console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
+
+    let safeGarden = [];
+    if (Array.isArray(garden)) {
+        safeGarden = garden;
+    } else {
+        console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
+        safeGarden = [];
+        await saveMyGardenToFirebase([]);
+    }
+
+    const myGardenContainer = document.getElementById('my-garden');
+    const emptyGardenMessage = document.getElementById('empty-garden-message');
+    myGardenContainer.innerHTML = ''; // SVUOTA SEMPRE ALL'INIZIO
+
+    if (safeGarden.length === 0) {
+        myGardenContainer.style.display = 'flex';
+        myGardenContainer.style.justifyContent = 'center';
+        myGardenContainer.style.alignItems = 'center';
+        if (emptyGardenMessage) {
+            myGardenContainer.appendChild(emptyGardenMessage);
+            emptyGardenMessage.style.display = 'block';
+        } else {
+            myGardenContainer.innerHTML = '<p id="empty-garden-message">Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
+        }
+    } else {
+        myGardenContainer.style.display = 'grid';
+        myGardenContainer.style.justifyContent = '';
+        myGardenContainer.style.alignItems = '';
+        if (emptyGardenMessage) {
+            emptyGardenMessage.style.display = 'none';
+        }
+        for (const plantId of safeGarden) {
+            console.log("Tentativo di recuperare la pianta con ID:", plantId);
+            try {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                const plantsCollection = firebase.firestore().collection('plants');
+                const docRef = plantsCollection.doc(plantId);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    const plantData = { id: doc.id, ...doc.data() };
+                    const plantCard = createPlantCard(plantData);
+                    myGardenContainer.appendChild(plantCard);
+                    const removeButton = plantCard.querySelector('.remove-button');
+                    if (removeButton) {
+                        removeButton.addEventListener('click', () => {
+                            const plantIdToRemove = removeButton.dataset.plantId;
+                            removeFromMyGarden(plantIdToRemove);
+                        });
+                    }
+                } else {
+                    console.warn(`Pianta con ID ${plantId} non trovata nel database.`);
+                }
+            } catch (error) {
+                console.error("Errore nel recupero della pianta:", error);
+            }
+        }
+    }
+    await saveMyGardenToFirebase(safeGarden);
+    updateGardenVisibility();
 }
 
 function clearNewPlantForm() {
@@ -326,9 +394,7 @@ async function saveMyGardenToFirebase(garden) {
         }
     }
 }
-
-    
-    
+   
     async function loadAllPlants() {
         try {
             const querySnapshot = await firebase.firestore().collection('plants').get();
@@ -588,75 +654,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });  
     }
  // **UNICA CHIUSURA DEL DOMContentLoaded - ORA ALLA FINE DEL BLOCCO!**
-
-
-
-async function renderMyGarden(garden) {
-    console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
-    console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
-
-    let safeGarden = [];
-    if (Array.isArray(garden)) {
-        safeGarden = garden;
-    } else {
-        console.warn("Valore non valido ricevuto per 'garden'. Inizializzato come array vuoto.");
-        safeGarden = [];
-        await saveMyGardenToFirebase([]);
-    }
-
-    const myGardenContainer = document.getElementById('my-garden');
-    const emptyGardenMessage = document.getElementById('empty-garden-message');
-    myGardenContainer.innerHTML = ''; // SVUOTA SEMPRE ALL'INIZIO
-
-    if (safeGarden.length === 0) {
-        myGardenContainer.style.display = 'flex';
-        myGardenContainer.style.justifyContent = 'center';
-        myGardenContainer.style.alignItems = 'center';
-        if (emptyGardenMessage) {
-            myGardenContainer.appendChild(emptyGardenMessage);
-            emptyGardenMessage.style.display = 'block';
-        } else {
-            myGardenContainer.innerHTML = '<p id="empty-garden-message">Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
-        }
-    } else {
-        myGardenContainer.style.display = 'grid';
-        myGardenContainer.style.justifyContent = '';
-        myGardenContainer.style.alignItems = '';
-        if (emptyGardenMessage) {
-            emptyGardenMessage.style.display = 'none';
-        }
-        for (const plantId of safeGarden) {
-            console.log("Tentativo di recuperare la pianta con ID:", plantId);
-            try {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                const plantsCollection = firebase.firestore().collection('plants');
-                const docRef = plantsCollection.doc(plantId);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    const plantData = { id: doc.id, ...doc.data() };
-                    const plantCard = createPlantCard(plantData);
-                    myGardenContainer.appendChild(plantCard);
-                    const removeButton = plantCard.querySelector('.remove-button');
-                    if (removeButton) {
-                        removeButton.addEventListener('click', () => {
-                            const plantIdToRemove = removeButton.dataset.plantId;
-                            removeFromMyGarden(plantIdToRemove);
-                        });
-                    }
-                } else {
-                    console.warn(`Pianta con ID ${plantId} non trovata nel database.`);
-                }
-            } catch (error) {
-                console.error("Errore nel recupero della pianta:", error);
-            }
-        }
-    }
-    await saveMyGardenToFirebase(safeGarden);
-    updateGardenVisibility();
-}
-    
-    
-    
  
 firebase.auth().onAuthStateChanged(async (user) => {
     const authStatusDiv = document.getElementById('auth-status');
