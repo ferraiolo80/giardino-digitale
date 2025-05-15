@@ -162,6 +162,63 @@ function handleTempFilter() {
     );
     renderPlants(filteredPlants);
 }
+
+async function addToMyGarden(plantIdToAdd) { // Cambia plantName in plantIdToAdd
+    try {
+        const user = firebase.auth().currentUser;
+        if (user) {
+            const gardenRef = db.collection('gardens').doc(user.uid);
+            const gardenDoc = await gardenRef.get();
+            let currentGarden = gardenDoc.data()?.plants || [];
+
+            if (!currentGarden.includes(plantIdToAdd)) { // Usa plantIdToAdd
+                currentGarden.push(plantIdToAdd);
+                await gardenRef.update({ plants: currentGarden });
+                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in Firebase.`); // Usa plantIdToAdd
+            } else {
+                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in Firebase.`); // Usa plantIdToAdd
+            }
+            await loadMyGardenFromFirebase(); // Ricarica il giardino da Firebase
+        } else {
+            let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+            if (!myGarden.includes(plantIdToAdd)) { // Usa plantIdToAdd
+                myGarden.push(plantIdToAdd);
+                localStorage.setItem("myGarden", JSON.stringify(myGarden));
+                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in localStorage.`); // Usa plantIdToAdd
+            } else {
+                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in localStorage.`); // Usa plantIdToAdd
+            }
+            renderMyGarden(myGarden); // Aggiorna la visualizzazione
+        }
+        renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+    } catch (error) {
+        console.error("Errore durante l'aggiunta della pianta al giardino:", error);
+    }
+}
+async function removeFromMyGarden(plantIdToRemove) {
+    console.log("removeFromMyGarden: plantIdToRemove =", plantIdToRemove);
+    console.log("removeFromMyGarden: myGarden prima della rimozione =", JSON.stringify(myGarden));
+
+    try {
+        // Rimuovi la pianta dall'array locale
+        myGarden = myGarden.filter(plantId => plantId !== plantIdToRemove);
+
+        // Aggiorna Firebase
+        await saveMyGardenToFirebase(myGarden);
+
+        // Aggiorna la visualizzazione
+        await renderMyGarden(myGarden);
+        renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+
+        isMyGardenEmpty = myGarden.length === 0;
+        updateGardenToggleButtonState(isMyGardenEmpty);
+
+        console.log("removeFromMyGarden: myGarden dopo la rimozione =", JSON.stringify(myGarden));
+    } catch (error) {
+        console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
+    }
+}
+
 async function saveNewPlantToFirebase() {
     const newPlantName = document.getElementById('newPlantName').value;
     const newPlantSunlight = document.getElementById('newPlantSunlight').value;
@@ -516,61 +573,7 @@ async function renderMyGarden(garden) {
     }
 }
 
-    async function addToMyGarden(plantIdToAdd) { // Cambia plantName in plantIdToAdd
-    try {
-        const user = firebase.auth().currentUser;
-        if (user) {
-            const gardenRef = db.collection('gardens').doc(user.uid);
-            const gardenDoc = await gardenRef.get();
-            let currentGarden = gardenDoc.data()?.plants || [];
-
-            if (!currentGarden.includes(plantIdToAdd)) { // Usa plantIdToAdd
-                currentGarden.push(plantIdToAdd);
-                await gardenRef.update({ plants: currentGarden });
-                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in Firebase.`); // Usa plantIdToAdd
-            } else {
-                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in Firebase.`); // Usa plantIdToAdd
-            }
-            await loadMyGardenFromFirebase(); // Ricarica il giardino da Firebase
-        } else {
-            let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            if (!myGarden.includes(plantIdToAdd)) { // Usa plantIdToAdd
-                myGarden.push(plantIdToAdd);
-                localStorage.setItem("myGarden", JSON.stringify(myGarden));
-                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in localStorage.`); // Usa plantIdToAdd
-            } else {
-                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in localStorage.`); // Usa plantIdToAdd
-            }
-            renderMyGarden(myGarden); // Aggiorna la visualizzazione
-        }
-        renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
-    } catch (error) {
-        console.error("Errore durante l'aggiunta della pianta al giardino:", error);
-    }
-}
-async function removeFromMyGarden(plantIdToRemove) {
-    console.log("removeFromMyGarden: plantIdToRemove =", plantIdToRemove);
-    console.log("removeFromMyGarden: myGarden prima della rimozione =", JSON.stringify(myGarden));
-
-    try {
-        // Rimuovi la pianta dall'array locale
-        myGarden = myGarden.filter(plantId => plantId !== plantIdToRemove);
-
-        // Aggiorna Firebase
-        await saveMyGardenToFirebase(myGarden);
-
-        // Aggiorna la visualizzazione
-        await renderMyGarden(myGarden);
-        renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
-
-        isMyGardenEmpty = myGarden.length === 0;
-        updateGardenToggleButtonState(isMyGardenEmpty);
-
-        console.log("removeFromMyGarden: myGarden dopo la rimozione =", JSON.stringify(myGarden));
-    } catch (error) {
-        console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
-    }
-}
+    
     function createPlantCard(plantData) {
     console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
     const div = document.createElement("div");
