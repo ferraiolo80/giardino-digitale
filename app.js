@@ -1,5 +1,6 @@
 let plants = [];
 let allPlants = [];
+let myGarden = []; // Inizializza come array vuoto
 
 // Riferimenti agli elementi HTML
 
@@ -455,7 +456,7 @@ async function updateGardenVisibility() {
     const giardinoTitle = document.getElementById('giardinoTitle');
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 
-    const myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
+    const myGarden = myGarden || []; // Usa la variabile globale myGarden
     const isUserLoggedIn = firebase.auth().currentUser !== null;
     const isMyGardenEmpty = myGarden.length === 0;
 
@@ -510,31 +511,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tempMinFilter) tempMinFilter.addEventListener('input', handleTempFilter);
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter);
     if (toggleMyGardenButton) {
-    toggleMyGardenButton.addEventListener('click', () => {
-        console.log("Tasto Mio Giardino cliccato!");
-        const mioGiardinoSection = document.getElementById('my-garden');
-        const giardinoTitle = document.getElementById('giardinoTitle');
-        const eyeIcon = toggleMyGardenButton.querySelector('i');
-
-        if (mioGiardinoSection) {
-            const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
-            mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
-        }
-
-        if (giardinoTitle) {
-            giardinoTitle.style.display = mioGiardinoSection.style.display; // Usa lo stesso stato di mioGiardinoSection
-        }
-
-        if (eyeIcon) {
-            eyeIcon.classList.toggle('fa-eye', !isCurrentlyVisible);
-            eyeIcon.classList.toggle('fa-eye-slash', isCurrentlyVisible);
-        }
-
-        toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
-        isMyGardenEmpty = mioGiardinoSection && mioGiardinoSection.style.display === 'none';
-        updateGardenToggleButtonState(isMyGardenEmpty);
-    });
-}
+        toggleMyGardenButton.addEventListener('click', () => {
+            console.log("Tasto Mio Giardino cliccato!");
+            const mioGiardinoSection = document.getElementById('my-garden');
+            const giardinoTitle = document.getElementById('giardinoTitle');
+            const eyeIcon = toggleMyGardenButton.querySelector('i');
+    
+            if (mioGiardinoSection) {
+                const isCurrentlyVisible = mioGiardinoSection.style.display !== 'none';
+                mioGiardinoSection.style.display = isCurrentlyVisible ? 'none' : 'block';
+            }
+    
+            if (giardinoTitle) {
+                giardinoTitle.style.display = mioGiardinoSection.style.display; // Usa lo stesso stato di mioGiardinoSection
+            }
+    
+            if (eyeIcon) {
+                eyeIcon.classList.toggle('fa-eye', !isCurrentlyVisible);
+                eyeIcon.classList.toggle('fa-eye-slash', isCurrentlyVisible);
+            }
+    
+            toggleMyGardenButton.innerText = isCurrentlyVisible ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
+            isMyGardenEmpty = mioGiardinoSection && mioGiardinoSection.style.display === 'none';
+            updateGardenToggleButtonState(isMyGardenEmpty);
+        });
+    }
   
    // const loginButton_inner = document.getElementById('loginButton'); // Evita conflitti con la variabile esterna
     //if (loginButton_inner) {
