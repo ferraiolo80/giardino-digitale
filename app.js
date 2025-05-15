@@ -288,8 +288,7 @@ async function renderMyGarden(garden) {
         } else {
             myGardenContainer.innerHTML = '<p id="empty-garden-message">Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
         }
-        }
-    } else {
+      } else {
         myGardenContainer.style.display = 'grid';
         myGardenContainer.style.justifyContent = '';
         myGardenContainer.style.alignItems = '';
