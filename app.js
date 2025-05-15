@@ -450,39 +450,38 @@ function updateGardenToggleButtonState(isMyGardenEmpty) {
     }
 }
 
-async function updateGardenVisibility() {
-    const plantsSection = document.getElementById('plants-section');
-    const mioGiardinoSection = document.getElementById('my-garden');
-    const giardinoTitle = document.getElementById('giardinoTitle');
-    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+ async function updateGardenVisibility() {
+      const plantsSection = document.getElementById('plants-section');
+      const mioGiardinoSection = document.getElementById('my-garden');
+      const giardinoTitle = document.getElementById('giardinoTitle');
+      const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 
-    const myGarden = myGarden || []; // Usa la variabile globale myGarden
-    const isUserLoggedIn = firebase.auth().currentUser !== null;
-    const isMyGardenEmpty = myGarden.length === 0;
+      // Usa nullish coalescing e optional chaining per sicurezza
+      const currentGarden = myGarden ?? []; // Se myGarden è undefined, usa []
+      const isUserLoggedIn = firebase.auth().currentUser !== null;
+      const isMyGardenEmpty = currentGarden.length === 0;
 
-    if (toggleMyGardenButton) {
-        updateGardenToggleButtonState(isMyGardenEmpty);
-    } else {
-        console.error("Elemento toggleMyGarden non trovato!");
-    }
+      if (toggleMyGardenButton) {
+          updateGardenToggleButtonState(isMyGardenEmpty);
+      } else {
+          console.error("Elemento toggleMyGarden non trovato!");
+      }
 
-    if (isUserLoggedIn && !isMyGardenEmpty) {
-        // Utente loggato e il "Mio Giardino" non è vuoto: mostra il "Mio Giardino"
-        if (plantsSection) plantsSection.style.display = 'none';
-        // Lasciamo che sia il click del bottone a gestire la display di mioGiardinoSection
-        // if (giardinoTitle && mioGiardinoSection.style.display !== 'none') {
-        //     giardinoTitle.style.display = 'block';
-        // } else if (giardinoTitle) {
-        //     giardinoTitle.style.display = 'none';
-        // }
-    }  // **GRAFFA AGGIUNTA QUI!**
-    else {
-        // Utente non loggato OPPURE utente loggato ma il "Mio Giardino" è vuoto: mostra le piante disponibili
-        if (plantsSection) plantsSection.style.display = 'block';
-        // if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-        // if (giardinoTitle) giardinoTitle.style.display = 'none';
-    }
-}
+      if (isUserLoggedIn && !isMyGardenEmpty) {
+          // Utente loggato e il "Mio Giardino" non è vuoto: mostra il "Mio Giardino"
+          if (plantsSection) plantsSection.style.display = 'none';
+          if (mioGiardinoSection?.style.display !== 'none') { // Usa optional chaining
+              if (giardinoTitle) giardinoTitle.style.display = 'block';
+          } else if (giardinoTitle) {
+              giardinoTitle.style.display = 'none';
+          }
+      } else {
+          // Utente non loggato OPPURE utente loggato ma il "Mio Giardino" è vuoto: mostra le piante disponibili
+          if (plantsSection) plantsSection.style.display = 'block';
+          if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+          if (giardinoTitle) giardinoTitle.style.display = 'none';
+      }
+  }
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
