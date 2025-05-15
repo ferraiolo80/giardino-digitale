@@ -84,7 +84,84 @@ async function handleLogout() {
     console.error("Errore durante il logout:", error);
   }
 }
+async function renderPlants(plantArray) {
+    console.log('Array plant ricevuto da renderPlants:', plantArray);
+    console.log("renderPlants chiamata con:", plantArray);
+    const gardenContainer = document.getElementById('garden-container');
+    gardenContainer.innerHTML = "";
+    const user = firebase.auth().currentUser;
+    let myGardenFB = [];
 
+    if (user) {
+        const gardenDoc = await db.collection('gardens').doc(user.uid).get();
+        myGardenFB = gardenDoc.data()?.plants || [];
+    }
+
+    plantArray.forEach((plant) => {
+        const image = plant.image || 'plant_9215709.png';
+        const div = document.createElement("div");
+        div.className = "plant-card";
+        div.innerHTML = `
+            <img src="${image}" alt="${plant.name}" class="plant-icon">
+            <h4>${plant.name}</h4>
+            <p>Luce: ${plant.sunlight}</p>
+            <p>Acqua: ${plant.watering}</p>
+            <p>Temperatura ideale min: ${plant.tempMin}°C</p>
+            <p>Temperatura ideale max: ${plant.tempMax}°C</p>
+            <p>Categoria: ${plant.category}</p>
+            ${user ?
+                myGardenFB.includes(plant.id) ?
+                    '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
+                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' :
+                    ''  // Se non loggato, non mostrare i bottoni
+            }
+        `;
+        gardenContainer.appendChild(div);
+    });
+
+    gardenContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('add-to-garden-button')) {
+            const plantId = event.target.dataset.plantId;
+            console.log("Tentativo di aggiungere la pianta con ID:", plantId);
+            await addToMyGarden(plantId);
+        } else if (event.target.classList.contains('remove-button')) {
+            const plantIdToRemove = event.target.dataset.plantId;
+            await removeFromMyGarden(plantIdToRemove);
+        }
+    });
+
+    updateGardenVisibility();
+}
+function handleSearch(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    const filteredPlants = allPlants.filter(plant =>
+        plant.name.toLowerCase().includes(searchTerm) ||
+        plant.category.toLowerCase().includes(searchTerm)
+    );
+    renderPlants(filteredPlants);
+}
+
+function handleFilter(event) {
+    const selectedCategory = event.target.value;
+    let filteredPlants;
+
+    if (selectedCategory === 'all') {
+        filteredPlants = allPlants;
+    } else {
+        filteredPlants = allPlants.filter(plant => plant.category === selectedCategory);
+    }
+    renderPlants(filteredPlants);
+}
+
+function handleTempFilter() {
+    const minTemp = parseInt(document.getElementById('tempMinFilter').value) || -Infinity;
+    const maxTemp = parseInt(document.getElementById('tempMaxFilter').value) || Infinity;
+
+    const filteredPlants = allPlants.filter(plant =>
+        plant.tempMin >= minTemp && plant.tempMax <= maxTemp
+    );
+    renderPlants(filteredPlants);
+}
 async function saveNewPlantToFirebase() {
     const newPlantName = document.getElementById('newPlantName').value;
     const newPlantSunlight = document.getElementById('newPlantSunlight').value;
@@ -134,36 +211,7 @@ function clearNewPlantForm() {
     document.getElementById('newPlantImageURL').value = '';
 }
 
-function handleSearch(event) {
-    const searchTerm = event.target.value.toLowerCase();
-    const filteredPlants = allPlants.filter(plant =>
-        plant.name.toLowerCase().includes(searchTerm) ||
-        plant.category.toLowerCase().includes(searchTerm)
-    );
-    renderPlants(filteredPlants);
-}
 
-function handleFilter(event) {
-    const selectedCategory = event.target.value;
-    let filteredPlants;
-
-    if (selectedCategory === 'all') {
-        filteredPlants = allPlants;
-    } else {
-        filteredPlants = allPlants.filter(plant => plant.category === selectedCategory);
-    }
-    renderPlants(filteredPlants);
-}
-
-function handleTempFilter() {
-    const minTemp = parseInt(document.getElementById('tempMinFilter').value) || -Infinity;
-    const maxTemp = parseInt(document.getElementById('tempMaxFilter').value) || Infinity;
-
-    const filteredPlants = allPlants.filter(plant =>
-        plant.tempMin >= minTemp && plant.tempMax <= maxTemp
-    );
-    renderPlants(filteredPlants);
-}
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
@@ -602,54 +650,7 @@ async function removeFromMyGarden(plantIdToRemove) {
     }
 }
 
-    async function renderPlants(plantArray) {
-    console.log('Array plant ricevuto da renderPlants:', plantArray);
-    console.log("renderPlants chiamata con:", plantArray);
-    const gardenContainer = document.getElementById('garden-container');
-    gardenContainer.innerHTML = "";
-    const user = firebase.auth().currentUser;
-    let myGardenFB = [];
-
-    if (user) {
-        const gardenDoc = await db.collection('gardens').doc(user.uid).get();
-        myGardenFB = gardenDoc.data()?.plants || [];
-    }
-
-    plantArray.forEach((plant) => {
-        const image = plant.image || 'plant_9215709.png';
-        const div = document.createElement("div");
-        div.className = "plant-card";
-        div.innerHTML = `
-            <img src="${image}" alt="${plant.name}" class="plant-icon">
-            <h4>${plant.name}</h4>
-            <p>Luce: ${plant.sunlight}</p>
-            <p>Acqua: ${plant.watering}</p>
-            <p>Temperatura ideale min: ${plant.tempMin}°C</p>
-            <p>Temperatura ideale max: ${plant.tempMax}°C</p>
-            <p>Categoria: ${plant.category}</p>
-            ${user ?
-                myGardenFB.includes(plant.id) ?
-                    '<button class="remove-button" data-plant-id="' + plant.id + '">Rimuovi dal mio giardino</button>' :
-                    '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' :
-                    ''  // Se non loggato, non mostrare i bottoni
-            }
-        `;
-        gardenContainer.appendChild(div);
-    });
-
-    gardenContainer.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('add-to-garden-button')) {
-            const plantId = event.target.dataset.plantId;
-            console.log("Tentativo di aggiungere la pianta con ID:", plantId);
-            await addToMyGarden(plantId);
-        } else if (event.target.classList.contains('remove-button')) {
-            const plantIdToRemove = event.target.dataset.plantId;
-            await removeFromMyGarden(plantIdToRemove);
-        }
-    });
-
-    updateGardenVisibility();
-}
+    
  
 firebase.auth().onAuthStateChanged(async (user) => {
     const authStatusDiv = document.getElementById('auth-status');
