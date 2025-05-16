@@ -136,12 +136,15 @@ async function renderPlants(plantArray) {
     updateGardenVisibility();
 }
 
-function handleSearch(event) {
-    const searchTerm = event.target.value.toLowerCase();
-    const filteredPlants = allPlants.filter(plant =>
-        plant.name.toLowerCase().includes(searchTerm) ||
-        plant.category.toLowerCase().includes(searchTerm)
-    );
+function handleFilter(event) {
+    const selectedCategory = event.target.value;
+    let filteredPlants;
+
+    if (selectedCategory === 'all') {
+        filteredPlants = allPlants; // Usa allPlants per mostrare tutte le piante
+    } else {
+        filteredPlants = allPlants.filter(plant => plant.category === selectedCategory);
+    }
     renderPlants(filteredPlants);
 }
 
