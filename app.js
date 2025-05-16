@@ -148,18 +148,6 @@ function handleFilter(event) {
     renderPlants(filteredPlants);
 }
 
-function handleFilter(event) {
-    const selectedCategory = event.target.value;
-    let filteredPlants;
-
-    if (selectedCategory === 'all') {
-        filteredPlants = allPlants;
-    } else {
-        filteredPlants = allPlants.filter(plant => plant.category === selectedCategory);
-    }
-    renderPlants(filteredPlants);
-}
-
 function handleTempFilter() {
     const minTemp = parseInt(document.getElementById('tempMinFilter').value) || -Infinity;
     const maxTemp = parseInt(document.getElementById('tempMaxFilter').value) || Infinity;
