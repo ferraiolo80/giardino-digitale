@@ -158,7 +158,7 @@ function handleTempFilter() {
     renderPlants(filteredPlants);
 }
 
-async function addToMyGarden(plantIdToAdd) { // Cambia plantName in plantIdToAdd
+async function addToMyGarden(plantIdToAdd) {
     try {
         const user = firebase.auth().currentUser;
         if (user) {
@@ -166,26 +166,19 @@ async function addToMyGarden(plantIdToAdd) { // Cambia plantName in plantIdToAdd
             const gardenDoc = await gardenRef.get();
             let currentGarden = gardenDoc.data()?.plants || [];
 
-            if (!currentGarden.includes(plantIdToAdd)) { // Usa plantIdToAdd
+            if (!currentGarden.includes(plantIdToAdd)) {
                 currentGarden.push(plantIdToAdd);
                 await gardenRef.update({ plants: currentGarden });
-                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in Firebase.`); // Usa plantIdToAdd
+                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in Firebase.`);
             } else {
-                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in Firebase.`); // Usa plantIdToAdd
+                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in Firebase.`);
             }
             await loadMyGardenFromFirebase(); // Ricarica il giardino da Firebase
         } else {
-            let myGarden = JSON.parse(localStorage.getItem("myGarden")) || [];
-            if (!myGarden.includes(plantIdToAdd)) { // Usa plantIdToAdd
-                myGarden.push(plantIdToAdd);
-                localStorage.setItem("myGarden", JSON.stringify(myGarden));
-                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in localStorage.`); // Usa plantIdToAdd
-            } else {
-                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in localStorage.`); // Usa plantIdToAdd
-            }
-            renderMyGarden(myGarden); // Aggiorna la visualizzazione
+            console.log("Utente non autenticato. Operazione non permessa.");
+            alert("Devi essere autenticato per aggiungere piante al tuo giardino."); // Oppure usa un altro modo per informare l'utente
         }
-        // renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+        // renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni - GIA' COMMENTATO
     } catch (error) {
         console.error("Errore durante l'aggiunta della pianta al giardino:", error);
     }
@@ -196,20 +189,26 @@ async function removeFromMyGarden(plantIdToRemove) {
     console.log("removeFromMyGarden: myGarden prima della rimozione =", JSON.stringify(myGarden));
 
     try {
-        // Rimuovi la pianta dall'array locale
-        myGarden = myGarden.filter(plantId => plantId !== plantIdToRemove);
+        const user = firebase.auth().currentUser;
+        if (user) {
+            // Rimuovi la pianta dall'array locale
+            myGarden = myGarden.filter(plantId => plantId !== plantIdToRemove);
 
-        // Aggiorna Firebase
-        await saveMyGardenToFirebase(myGarden);
+            // Aggiorna Firebase
+            await saveMyGardenToFirebase(myGarden);
 
-        // Aggiorna la visualizzazione
-        await renderMyGarden(myGarden);
-        // renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+            // Aggiorna la visualizzazione
+            await renderMyGarden(myGarden);
+            // renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni - COMMENTA O RIMUOVI QUESTA RIGA
 
-        isMyGardenEmpty = myGarden.length === 0;
-        updateGardenToggleButtonState(isMyGardenEmpty);
+            isMyGardenEmpty = myGarden.length === 0;
+            updateGardenToggleButtonState(isMyGardenEmpty);
 
-        console.log("removeFromMyGarden: myGarden dopo la rimozione =", JSON.stringify(myGarden));
+            console.log("removeFromMyGarden: myGarden dopo la rimozione =", JSON.stringify(myGarden));
+        } else {
+            console.log("Utente non autenticato. Operazione non permessa.");
+            alert("Devi essere autenticato per rimuovere piante dal tuo giardino."); // Oppure usa un altro modo per informare l'utente
+        }
     } catch (error) {
         console.error("Errore durante la rimozione della pianta dal 'Mio Giardino':", error);
     }
