@@ -185,7 +185,7 @@ async function addToMyGarden(plantIdToAdd) { // Cambia plantName in plantIdToAdd
             }
             renderMyGarden(myGarden); // Aggiorna la visualizzazione
         }
-        renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+        // renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
     } catch (error) {
         console.error("Errore durante l'aggiunta della pianta al giardino:", error);
     }
