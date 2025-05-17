@@ -204,7 +204,7 @@ async function removeFromMyGarden(plantIdToRemove) {
 
         // Aggiorna la visualizzazione
         await renderMyGarden(myGarden);
-        renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+        // renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
 
         isMyGardenEmpty = myGarden.length === 0;
         updateGardenToggleButtonState(isMyGardenEmpty);
