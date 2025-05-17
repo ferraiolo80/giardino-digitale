@@ -158,6 +158,15 @@ function handleTempFilter() {
     renderPlants(filteredPlants);
 }
 
+function handleSearch(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    const filteredPlants = allPlants.filter(plant =>
+        plant.name.toLowerCase().includes(searchTerm) ||
+        plant.category.toLowerCase().includes(searchTerm)
+    );
+    renderPlants(filteredPlants);
+}
+
 async function addToMyGarden(plantIdToAdd) {
     try {
         const user = firebase.auth().currentUser;
