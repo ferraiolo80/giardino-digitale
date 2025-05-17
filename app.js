@@ -90,6 +90,7 @@ async function handleLogout() {
 async function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     console.log("renderPlants chiamata con:", plantArray);
+    debugger; // Aggiungi questo per attivare il debugger
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
     const user = firebase.auth().currentUser;
@@ -149,6 +150,7 @@ function handleFilter(event) {
         filteredPlants = allPlants.filter(plant => plant.category === selectedCategory);
     }
     renderPlants(filteredPlants);
+    console.trace('handleFilter chiamata da:'); // Traccia la chiamata
 }
 
 function handleTempFilter() {
