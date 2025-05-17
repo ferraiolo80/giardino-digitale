@@ -139,7 +139,10 @@ async function renderPlants(plantArray) {
 function handleFilter(event) {
     const selectedCategory = event.target.value;
     let filteredPlants;
-
+  
+    console.log("Valore selezionato nel filtro:", selectedCategory);
+    console.log("Contenuto di allPlants:", allPlants); // AGGIUNGI QUESTA LINEA
+  
     if (selectedCategory === 'all') {
         filteredPlants = allPlants; // Usa allPlants per mostrare tutte le piante
     } else {
