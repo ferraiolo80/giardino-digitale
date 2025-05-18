@@ -669,7 +669,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     const appContentDiv = document.getElementById('app-content');
     const authContainerDiv = document.getElementById('auth-container');
     const gardenContainer = document.getElementById('garden-container');
-    const toggleMyGardenButton = document.getElementById('toggleMyGardenButton');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden'); // <--- CORRETTO L'ID
     const emptyGardenMessage = document.getElementById('empty-garden-message');
 
     if (user) {
