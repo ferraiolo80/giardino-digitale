@@ -668,6 +668,9 @@ firebase.auth().onAuthStateChanged(async (user) => {
     const authStatusDiv = document.getElementById('auth-status');
     const appContentDiv = document.getElementById('app-content');
     const authContainerDiv = document.getElementById('auth-container');
+    const gardenContainer = document.getElementById('garden-container');
+    const toggleMyGardenButton = document.getElementById('toggleMyGardenButton');
+    const emptyGardenMessage = document.getElementById('empty-garden-message');
 
     if (user) {
         console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
@@ -675,8 +678,29 @@ firebase.auth().onAuthStateChanged(async (user) => {
         appContentDiv.style.display = 'block';
         authContainerDiv.style.display = 'none';
         await loadMyGardenFromFirebase(); // Carica il giardino da Firebase
-        await loadPlantsFromFirebase(); // **Ricarica le piante dopo il login**
-        updateGardenVisibility(); // **Aggiorna la visibilità dopo il login**
+        await loadPlantsFromFirebase(); // Ricarica le piante dopo il login
+
+        if (myGarden && myGarden.length > 0) {
+            await renderMyGarden(myGarden);
+            gardenContainer.style.display = 'none'; // Nascondi l'elenco principale
+            if (toggleMyGardenButton) {
+                toggleMyGardenButton.textContent = 'Nascondi mio giardino';
+                toggleMyGardenButton.style.display = 'block';
+            }
+            if (emptyGardenMessage) {
+                emptyGardenMessage.style.display = 'none';
+            }
+        } else {
+            if (emptyGardenMessage) {
+                emptyGardenMessage.style.display = 'block';
+            }
+            gardenContainer.style.display = 'grid'; // Mostra l'elenco principale
+            if (toggleMyGardenButton) {
+                toggleMyGardenButton.style.display = 'none';
+            }
+            renderPlants(allPlants); // Assicurati che l'elenco principale sia renderizzato
+        }
+        updateGardenVisibility(); // Aggiorna la visibilità dopo il login
     } else {
         console.log("Stato autenticazione cambiato, nessun utente loggato.");
         authStatusDiv.innerText = "Nessun utente autenticato.";
@@ -685,7 +709,12 @@ firebase.auth().onAuthStateChanged(async (user) => {
         myGarden = []; // Assicurati che myGarden sia vuoto
         await renderMyGarden(myGarden); // Renderizza un giardino vuoto
         await loadPlantsFromFirebase();
+        gardenContainer.style.display = 'grid'; // Mostra l'elenco principale per gli utenti non loggati
+        if (toggleMyGardenButton) {
+            toggleMyGardenButton.style.display = 'none';
+        }
+        renderPlants(allPlants); // Renderizza l'elenco principale per gli utenti non loggati
         updateGardenVisibility();
     }
-  });
+});
 });
