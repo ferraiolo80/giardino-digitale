@@ -88,11 +88,12 @@ async function handleLogout() {
 }
 
 async function renderPlants(plantArray) {
+    console.log("renderPlants: Chiamata con array:", plantArray);
     console.trace("renderPlants chiamata con:", plantArray);
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     console.log("renderPlants chiamata con:", plantArray);
     console.log("renderPlants INIZIO: plantArray =", plantArray);
-    // debugger; // Lascio il debugger qui se vuoi usarlo
+    debugger; // Lascio il debugger qui se vuoi usarlo
 
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
@@ -182,32 +183,31 @@ function handleSearch(event) {
     renderPlants(filteredPlants);
 }
 
-async function addToMyGarden(plantIdToAdd) {
-    try {
-        const user = firebase.auth().currentUser;
-        if (user) {
-            const gardenRef = db.collection('gardens').doc(user.uid);
-            const gardenDoc = await gardenRef.get();
-            let currentGarden = gardenDoc.data()?.plants || [];
+async function addToMyGarden(plantId) {
+    console.log("addToMyGarden: Inizio aggiunta pianta con ID:", plantId);
+    const user = firebase.auth().currentUser;
+    if (user) {
+        myGarden.push(plantId);
+        console.log("addToMyGarden: 'myGarden' dopo l'aggiunta:", myGarden);
 
-            if (!currentGarden.includes(plantIdToAdd)) {
-                currentGarden.push(plantIdToAdd);
-                await gardenRef.update({ plants: currentGarden });
-                console.log(`Pianta con ID '${plantIdToAdd}' aggiunta al giardino in Firebase.`);
-            } else {
-                console.log(`Pianta con ID '${plantIdToAdd}' è già nel giardino in Firebase.`);
-            }
-            await loadMyGardenFromFirebase(); // Ricarica il giardino da Firebase
-        } else {
-            console.log("Utente non autenticato. Operazione non permessa.");
-            alert("Devi essere autenticato per aggiungere piante al tuo giardino."); // Oppure usa un altro modo per informare l'utente
-        }
-        // renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni - GIA' COMMENTATO
-    } catch (error) {
-        console.error("Errore durante l'aggiunta della pianta al giardino:", error);
+        console.log("addToMyGarden: Chiamata a saveMyGardenToFirebase con:", myGarden);
+        await saveMyGardenToFirebase(myGarden);
+
+        console.log("addToMyGarden: Chiamata a renderMyGarden con:", myGarden);
+        await renderMyGarden(myGarden);
+
+        console.log("addToMyGarden: Chiamata a renderPlants con:", allPlants);
+        renderPlants(allPlants); // Rerenderizza l'elenco principale per aggiornare i bottoni
+
+        isMyGardenEmpty = myGarden.length === 0;
+        console.log("addToMyGarden: isMyGardenEmpty =", isMyGardenEmpty);
+        updateGardenToggleButtonState(isMyGardenEmpty);
+        console.log("addToMyGarden: Fine aggiunta pianta con ID:", plantId);
+    } else {
+        console.log("addToMyGarden: Utente non autenticato. Impossibile aggiungere al giardino.");
+        alert("Devi essere autenticato per aggiungere piante al tuo giardino.");
     }
 }
-
 async function removeFromMyGarden(plantIdToRemove) {
     console.log("removeFromMyGarden: plantIdToRemove =", plantIdToRemove);
     console.log("removeFromMyGarden: myGarden prima della rimozione =", JSON.stringify(myGarden));
@@ -277,6 +277,7 @@ async function saveNewPlantToFirebase() {
 }
 
 async function renderMyGarden(garden) {
+    console.log("renderMyGarden: Chiamata con giardino:", gardenPlants);
     console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
     console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
 
