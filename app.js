@@ -118,8 +118,8 @@ async function renderPlants(plantArray) {
             <h4>${plant.name}</h4>
             <p><i class="fas fa-sun"></i> Luce: ${plant.sunlight}</p>
             <p><i class="fas fa-tint"></i> Acqua: ${plant.watering}</p>
-            <p><i class="fas fa-thermometer-half"></i> Temperatura ideale min: ${plant.tempMin}°C</p>
-            <p><i class="fas fa-thermometer-half"></i> Temperatura ideale max: ${plant.tempMax}°C</p>
+            <p><i class="fas fa-thermometer-half"></i> Temp ideale min: ${plant.tempMin}°C</p>
+            <p><i class="fas fa-thermometer-half"></i> Temp ideale max: ${plant.tempMax}°C</p>
             <p>Categoria: ${plant.category}</p>
             ${user ?
                 myGardenFB.includes(plant.id) ?
