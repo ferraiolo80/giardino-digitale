@@ -88,20 +88,27 @@ async function handleLogout() {
 }
 
 async function renderPlants(plantArray) {
+    console.trace("renderPlants chiamata con:", plantArray);
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     console.log("renderPlants chiamata con:", plantArray);
-    debugger; // Aggiungi questo per attivare il debugger
+    console.log("renderPlants INIZIO: plantArray =", plantArray);
+    // debugger; // Lascio il debugger qui se vuoi usarlo
+
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
+    console.log("renderPlants DOPO innerHTML: plantArray =", plantArray);
+
     const user = firebase.auth().currentUser;
     let myGardenFB = [];
 
     if (user) {
         const gardenDoc = await db.collection('gardens').doc(user.uid).get();
         myGardenFB = gardenDoc.data()?.plants || [];
+        console.log("renderPlants DOPO Firebase fetch: myGardenFB =", myGardenFB);
     }
 
     plantArray.forEach((plant) => {
+        console.log("renderPlants FOREACH: plant =", plant);
         const image = plant.image || 'plant_9215709.png';
         const div = document.createElement("div");
         div.className = "plant-card";
@@ -123,6 +130,7 @@ async function renderPlants(plantArray) {
         gardenContainer.appendChild(div);
     });
 
+    console.log("renderPlants FINE: plantArray =", plantArray);
     gardenContainer.addEventListener('click', async (event) => {
         if (event.target.classList.contains('add-to-garden-button')) {
             const plantId = event.target.dataset.plantId;
