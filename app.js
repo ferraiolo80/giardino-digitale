@@ -277,7 +277,7 @@ async function saveNewPlantToFirebase() {
 }
 
 async function renderMyGarden(garden) {
-    console.log("renderMyGarden: Chiamata con giardino:", gardenPlants);
+    console.log("renderMyGarden: Chiamata con giardino:", garden);
     console.log("RENDERMYGARDEN CALLED WITH GARDEN:", garden);
     console.log("LENGTH OF GARDEN:", garden ? garden.length : 0);
 
