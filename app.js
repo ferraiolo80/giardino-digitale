@@ -550,6 +550,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mioGiardinoSection = document.getElementById('my-garden'); // Definito fuori
     toggleMyGardenButton?.addEventListener('click', handleToggleMyGarden);
 
+    const gardenContainer = document.getElementById('garden-container');
+        gardenContainer.addEventListener('click', async (event) => {
+            if (event.target.classList.contains('add-to-garden-button')) {
+                const plantId = event.target.dataset.plantId;
+                console.log("Tentativo di aggiungere la pianta con ID:", plantId);
+                await addToMyGarden(plantId);
+            } else if (event.target.classList.contains('remove-button')) {
+                const plantIdToRemove = event.target.dataset.plantId;
+                await removeFromMyGarden(plantIdToRemove);
+            }
+        });
+  
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
     if (logoutButton) logoutButton.addEventListener('click', handleLogout);
