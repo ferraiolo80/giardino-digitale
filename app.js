@@ -147,6 +147,8 @@ async function renderPlants(plantArray) {
 
 function handleFilter(event) {
     const selectedCategory = event.target.value;
+    console.log("Valore selezionato nel filtro:", selectedCategory); // AGGIUNGI QUESTO
+    console.log("Contenuto di allPlants:", allPlants);
     let filteredPlants;
   
     console.log("Valore selezionato nel filtro:", selectedCategory);
