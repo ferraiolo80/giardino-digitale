@@ -93,7 +93,7 @@ async function renderPlants(plantArray) {
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     console.log("renderPlants chiamata con:", plantArray);
     console.log("renderPlants INIZIO: plantArray =", plantArray);
-    debugger; // Lascio il debugger qui se vuoi usarlo
+    //debugger; // Lascio il debugger qui se vuoi usarlo
 
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
@@ -132,17 +132,6 @@ async function renderPlants(plantArray) {
     });
 
     console.log("renderPlants FINE: plantArray =", plantArray);
-    gardenContainer.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('add-to-garden-button')) {
-            const plantId = event.target.dataset.plantId;
-            console.log("Tentativo di aggiungere la pianta con ID:", plantId);
-            await addToMyGarden(plantId);
-        } else if (event.target.classList.contains('remove-button')) {
-            const plantIdToRemove = event.target.dataset.plantId;
-            await removeFromMyGarden(plantIdToRemove);
-        }
-    });
-
     updateGardenVisibility();
 }
 
