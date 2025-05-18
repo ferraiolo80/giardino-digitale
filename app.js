@@ -476,7 +476,7 @@ function updateGardenToggleButtonState(isMyGardenEmpty) {
       if (toggleMyGardenButton) {
           updateGardenToggleButtonState(isMyGardenEmpty);
       } else {
-          console.error("Elemento toggleMyGarden non trovato!");
+          console.error("Elemento toggleMyGardenButton non trovato!");
       }
 
       if (isUserLoggedIn && !isMyGardenEmpty) {
