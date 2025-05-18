@@ -531,7 +531,7 @@ function handleToggleMyGarden() {
 }
 
 // Assicurati di avere un event listener per il click sul bottone toggleMyGarden
-document.getElementById('toggleMyGarden')?.addEventListener('click', handleToggleMyGarden);
+//document.getElementById('toggleMyGarden')?.addEventListener('click', handleToggleMyGarden);
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
