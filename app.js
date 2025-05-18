@@ -713,7 +713,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
         if (toggleMyGardenButton) {
             toggleMyGardenButton.style.display = 'none';
         }
-        renderPlants(allPlants); // Renderizza l'elenco principale per gli utenti non loggati
+        //renderPlants(allPlants); // Renderizza l'elenco principale per gli utenti non loggati
         updateGardenVisibility();
     }
 });
