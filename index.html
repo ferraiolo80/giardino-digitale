@@ -89,16 +89,16 @@
         <button id="cancelNewPlant">Annulla</button>
     </div>
         <div class="filter-container">
-            <label for="categoryFilter">🌿 Filtra nel Mio Giardino per categoria:</label>
-            <select id="categoryFilter">
-                <option value="Tutte le categorie">Tutte le categorie</option>
-                <option value="Fiore">Fiore</option>
-                <option value="Erba aromatica">Erba aromatica</option>
-                <option value="Succulenta">Succulenta</option>
-                <option value="Arbusto">Arbusto</option>
-                <option value="Albero">Albero</option>
-            </select>
-        </div>
+    <label for="categoryFilter">🌿 Filtra nel Mio Giardino per categoria:</label>
+    <select id="categoryFilter" onchange="handleFilter(event)">
+        <option value="all">Tutte le categorie</option> <!- MODIFICATO QUI -->
+        <option value="Fiore">Fiore</option>
+        <option value="Erba aromatica">Erba aromatica</option>
+        <option value="Succulenta">Succulenta</option>
+        <option value="Arbusto">Arbusto</option>
+        <option value="Albero">Albero</option>
+    </select>
+</div>
 
         <div class="filter-container">
             <label>🌡️ Filtra nel Mio Giardino per temperatura (°C):</label><br>
