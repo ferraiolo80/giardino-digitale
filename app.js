@@ -463,37 +463,75 @@ function updateGardenToggleButtonState(isMyGardenEmpty) {
     }
 }
  async function updateGardenVisibility() {
-      const plantsSection = document.getElementById('plants-section');
-      const mioGiardinoSection = document.getElementById('my-garden');
-      const giardinoTitle = document.getElementById('giardinoTitle');
-      const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+    const plantsSection = document.getElementById('plants-section');
+    const gardenContainer = document.getElementById('garden-container'); // Assicurati che questo sia l'ID corretto per l'elenco principale
+    const mioGiardinoSection = document.getElementById('my-garden');
+    const giardinoTitle = document.getElementById('giardinoTitle');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 
-      // Usa nullish coalescing e optional chaining per sicurezza
-      const currentGarden = myGarden ?? []; // Se myGarden è undefined, usa []
-      const isUserLoggedIn = firebase.auth().currentUser !== null;
-      const isMyGardenEmpty = currentGarden.length === 0;
+    const currentGarden = myGarden ?? [];
+    const isUserLoggedIn = firebase.auth().currentUser !== null;
+    const isMyGardenEmpty = currentGarden.length === 0;
+    const isMyGardenVisible = mioGiardinoSection?.style.display !== 'none';
 
-      if (toggleMyGardenButton) {
-          updateGardenToggleButtonState(isMyGardenEmpty);
-      } else {
-          console.error("Elemento toggleMyGarden non trovato!");
-      }
+    if (toggleMyGardenButton) {
+        updateGardenToggleButtonState(isMyGardenEmpty);
+    } else {
+        console.error("Elemento toggleMyGarden non trovato!");
+        return; // Esci dalla funzione se il bottone non esiste
+    }
 
-      if (isUserLoggedIn && !isMyGardenEmpty) {
-          // Utente loggato e il "Mio Giardino" non è vuoto: mostra il "Mio Giardino"
-          if (plantsSection) plantsSection.style.display = 'none';
-          if (mioGiardinoSection?.style.display !== 'none') { // Usa optional chaining
-              if (giardinoTitle) giardinoTitle.style.display = 'block';
-          } else if (giardinoTitle) {
-              giardinoTitle.style.display = 'none';
-          }
-      } else {
-          // Utente non loggato OPPURE utente loggato ma il "Mio Giardino" è vuoto: mostra le piante disponibili
-          if (plantsSection) plantsSection.style.display = 'block';
-          if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-          if (giardinoTitle) giardinoTitle.style.display = 'none';
-      }
-  }
+    if (isUserLoggedIn) {
+        if (!isMyGardenEmpty && isMyGardenVisible) {
+            // Utente loggato, giardino non vuoto e "Mio Giardino" visibile: nascondi l'elenco principale
+            if (plantsSection) plantsSection.style.display = 'none';
+            if (gardenContainer) gardenContainer.style.display = 'none';
+            if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
+            if (giardinoTitle) giardinoTitle.style.display = 'block';
+        } else {
+            // Utente loggato, giardino vuoto OPPURE "Mio Giardino" non visibile: mostra l'elenco principale
+            if (plantsSection) plantsSection.style.display = 'block';
+            if (gardenContainer) gardenContainer.style.display = 'grid'; // Usa 'grid' se è come lo stai visualizzando
+            if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+            if (giardinoTitle) giardinoTitle.style.display = 'none';
+        }
+    } else {
+        // Utente non loggato: mostra sempre l'elenco principale e nascondi il "Mio Giardino"
+        if (plantsSection) plantsSection.style.display = 'block';
+        if (gardenContainer) gardenContainer.style.display = 'grid';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+        if (giardinoTitle) giardinoTitle.style.display = 'none';
+    }
+}
+
+function handleToggleMyGarden() {
+    const plantsSection = document.getElementById('plants-section');
+    const gardenContainer = document.getElementById('garden-container');
+    const mioGiardinoSection = document.getElementById('my-garden');
+    const giardinoTitle = document.getElementById('giardinoTitle');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+
+    const isMyGardenVisible = mioGiardinoSection?.style.display !== 'none';
+
+    if (isMyGardenVisible) {
+        // Nascondi il "Mio Giardino" e mostra l'elenco principale
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
+        if (giardinoTitle) giardinoTitle.style.display = 'none';
+        if (plantsSection) plantsSection.style.display = 'block';
+        if (gardenContainer) gardenContainer.style.display = 'grid';
+        if (toggleMyGardenButton) toggleMyGardenButton.textContent = 'Mostra il mio giardino';
+    } else {
+        // Mostra il "Mio Giardino" e nascondi l'elenco principale
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
+        if (giardinoTitle) giardinoTitle.style.display = 'block';
+        if (plantsSection) plantsSection.style.display = 'none';
+        if (gardenContainer) gardenContainer.style.display = 'none';
+        if (toggleMyGardenButton) toggleMyGardenButton.textContent = 'Nascondi mio giardino';
+    }
+}
+
+// Assicurati di avere un event listener per il click sul bottone toggleMyGarden
+document.getElementById('toggleMyGarden')?.addEventListener('click', handleToggleMyGarden);
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginButton = document.getElementById('loginButton');
@@ -510,6 +548,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
     const giardinoTitle = document.getElementById('giardinoTitle'); // Assicurati che sia definito anche fuori
     const mioGiardinoSection = document.getElementById('my-garden'); // Definito fuori
+    toggleMyGardenButton?.addEventListener('click', handleToggleMyGarden);
 
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
