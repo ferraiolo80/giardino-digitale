@@ -550,8 +550,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (event.target.classList.contains('remove-button')) {
                 const plantIdToRemove = event.target.dataset.plantId;
                 await removeFromMyGarden(plantIdToRemove);
-            }
-        });
+            } else if (event.target.classList.contains('update-plant-button')) { // <--- NUOVA CONDIZIONE
+        const plantIdToUpdate = event.target.dataset.plantId;
+        // Qui dovrai mostrare un form di modifica precompilato con i dati della pianta
+        // Per ora, possiamo solo loggare l'ID
+        console.log("Cliccato Aggiorna Info per la pianta con ID:", plantIdToUpdate);
+        // Potremmo recuperare la pianta e mostrare un modale per la modifica
+        const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate) || myGarden.find(p => p.id === plantIdToUpdate);
+        if (plantToUpdate) {
+            showUpdatePlantForm(plantToUpdate); // Funzione da implementare
+        }
+    }
+});
   
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
