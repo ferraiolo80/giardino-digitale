@@ -255,6 +255,7 @@ async function saveNewPlantToFirebase() {
                 newPlantCardInner.style.display = 'none';
             }
             await loadPlantsFromFirebase(); // Ricarica l'elenco delle piante
+            renderPlants(allPlants);
             await loadMyGardenFromFirebase(); // Ricarica il "Mio Giardino" per eventuali aggiornamenti
             clearNewPlantForm(); // Se hai una funzione per pulire il form
         } catch (error) {
