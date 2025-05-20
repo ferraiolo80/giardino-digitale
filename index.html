@@ -88,6 +88,43 @@
         <button id="saveNewPlant">Salva Pianta</button>
         <button id="cancelNewPlant">Annulla</button>
     </div>
+
+    <div id="updatePlantCard" style="display: none;">
+    <h3>Aggiorna Pianta</h3>
+    <input type="hidden" id="updatePlantId"> <label for="updatePlantName">Nome:</label>
+    <input type="text" id="updatePlantName"><br><br>
+
+    <label for="updatePlantSunlight">Luce:</label>
+    <input type="text" id="updatePlantSunlight"><br><br>
+
+    <label for="updatePlantWatering">Acqua:</label>
+    <input type="text" id="updatePlantWatering"><br><br>
+
+    <label for="updatePlantTempMin">Temperatura Minima (°C):</label>
+    <input type="number" id="updatePlantTempMin"><br><br>
+
+    <label for="updatePlantTempMax">Temperatura Massima (°C):</label>
+    <input type="number" id="updatePlantTempMax"><br><br>
+
+    <label for="updatePlantDescription">Descrizione (Opzionale):</label><br>
+    <textarea id="updatePlantDescription"></textarea><br><br>
+
+    <label for="updatePlantCategory">Categoria:</label>
+    <select id="updatePlantCategory">
+        <option value="Fiore">Fiore</option>
+        <option value="Erba aromatica">Erba aromatica</option>
+        <option value="Succulenta">Succulenta</option>
+        <option value="Arbusto">Arbusto</option>
+        <option value="Albero">Albero</option>
+    </select><br><br>
+
+    <label for="updatePlantImageURL">URL Immagine (Opzionale):</label>
+    <input type="url" id="updatePlantImageURL"><br><br>
+
+    <button id="saveUpdatedPlant">Salva Modifiche</button>
+    <button id="cancelUpdatePlant">Annulla</button>
+</div>
+        
         <div class="filter-container">
     <label for="categoryFilter">🌿 Filtra nel Mio Giardino per categoria:</label>
     <select id="categoryFilter">
