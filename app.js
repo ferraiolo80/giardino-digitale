@@ -347,10 +347,10 @@ function createPlantCard(plantData) {
     div.className = "my-plant-card";
     div.innerHTML = `
         <h4>${plantData.name}</h4>
-        <p>Luce: ${plantData.sunlight}</p>
-        <p>Acqua: ${plantData.watering}</p>
-        <p>Temperatura ideale min: ${plantData.tempMin}°C</p>
-        <p>Temperatura ideale max: ${plantData.tempMax}°C</p>
+        <p><i class="fas fa-sun"></i> Luce: ${plant.sunlight}</p>
+        <p><i class="fas fa-tint"></i> Acqua: ${plant.watering}</p>
+        <p><i class="fas fa-thermometer-half"></i> Temp. ideale min: ${plant.tempMin}°C</p>
+        <p><i class="fas fa-thermometer-half"></i> Temp. ideale max: ${plant.tempMax}°C</p>
         <p>Categoria: ${plantData.category}</p>
         <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>
         <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
