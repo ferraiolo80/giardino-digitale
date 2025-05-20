@@ -354,7 +354,7 @@ function createPlantCard(plantData) {
         <p><i class="fas fa-thermometer-half"></i> Temp. ideale max: ${plant.tempMax}°C</p>
         <p>Categoria: ${plantData.category}</p>
         <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>
-        <button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
+        <button class="update-plant-button" data-plant-id="${plant.id}">Aggiorna Info</button> //<button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
     `;
 
     // L'event listener per il bottone "Rimuovi" è ora gestito in renderPlants
