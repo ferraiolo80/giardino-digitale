@@ -1,6 +1,7 @@
 let plants = [];
 let allPlants = [];
 let myGarden = []; // Inizializza come array vuoto
+let currentPlantIdToUpdate = null;
 
 // Riferimenti agli elementi HTML
 
@@ -540,6 +541,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     const giardinoTitle = document.getElementById('giardinoTitle'); // Assicurati che sia definito anche fuori
     const mioGiardinoSection = document.getElementById('my-garden'); // Definito fuori
     toggleMyGardenButton?.addEventListener('click', handleToggleMyGarden);
+    const saveUpdatedPlantButton = document.getElementById('saveUpdatedPlant');
+    const cancelUpdatePlantButton = document.getElementById('cancelUpdatePlant');
+    const updatePlantCard = document.getElementById('updatePlantCard');
+
+  if (saveUpdatedPlantButton) {
+        saveUpdatedPlantButton.addEventListener('click', async () => {
+            if (currentPlantIdToUpdate) { // Assicurati di avere un ID di pianta da aggiornare
+                const updatedData = {
+                    name: document.getElementById('updatePlantName').value,
+                    sunlight: document.getElementById('updatePlantSunlight').value,
+                    watering: document.getElementById('updatePlantWatering').value,
+                    tempMin: parseInt(document.getElementById('updatePlantTempMin').value),
+                    tempMax: parseInt(document.getElementById('updatePlantTempMax').value),
+                    description: document.getElementById('updatePlantDescription').value,
+                    category: document.getElementById('updatePlantCategory').value,
+                    image: document.getElementById('updatePlantImageURL').value
+                };
+                await updatePlantInFirebase(currentPlantIdToUpdate, updatedData);
+                updatePlantCard.style.display = 'none'; // Nascondi il form
+                clearUpdatePlantForm(); // Pulisci i campi
+            } else {
+                console.error("Nessun ID pianta selezionato per l'aggiornamento.");
+            }
+        });
+    }
+
+    if (cancelUpdatePlantButton) {
+        cancelUpdatePlantButton.addEventListener('click', () => {
+            updatePlantCard.style.display = 'none'; // Nascondi il form
+            clearUpdatePlantForm(); // Pulisci i campi
+        });
+    }
 
     const gardenContainer = document.getElementById('garden-container');
         gardenContainer.addEventListener('click', async (event) => {
@@ -562,6 +595,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
+
+  const myGardenContainer = document.getElementById('my-garden'); // Devi aver definito questa costante in precedenza
+    myGardenContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('remove-button')) {
+            const plantIdToRemove = event.target.dataset.plantId;
+            await removeFromMyGarden(plantIdToRemove);
+        } else if (event.target.classList.contains('update-plant-button')) { // Per i bottoni "Aggiorna Info" nel tuo giardino
+            const plantIdToUpdate = event.target.dataset.plantId;
+            // Trova la pianta nell'array myGarden per precompilare il form
+            const plantToUpdate = myGarden.find(p => p.id === plantIdToUpdate);
+            if (plantToUpdate) {
+                showUpdatePlantForm(plantToUpdate);
+            }
+        }
+    });
   
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
