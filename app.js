@@ -1,10 +1,13 @@
-let plants = [];
+// 1. DICHIARAZIONI GLOBALI
+// Queste sono le variabili che devono essere accessibili da qualsiasi funzione
 let allPlants = [];
 let myGarden = []; // Inizializza come array vuoto
-let currentPlantIdToUpdate = null;
+let currentPlantIdToUpdate = null; // Variabile per tenere traccia dell'ID della pianta da aggiornare
 
-// Riferimenti agli elementi HTML
-
+// 2. Riferimenti agli elementi HTML (Dichiarati una sola volta in modo globale se usati spesso)
+// Nota: molti di questi vengono ridefiniti all'interno di DOMContentLoaded
+// per coerenza con l'uso tipico di getElementById all'interno del listener.
+// Per semplicità, qui ho mantenuto la tua struttura.
 const gardenContainer = document.getElementById('garden-container');
 const myGardenContainer = document.getElementById('my-garden');
 const authContainerDiv = document.getElementById('auth-container');
@@ -23,7 +26,7 @@ const tempMinFilter = document.getElementById('tempMinFilter');
 const tempMaxFilter = document.getElementById('tempMaxFilter');
 const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 const giardinoTitle = document.getElementById('giardinoTitle');
-const plantsContainerDiv = document.getElementById('garden-container');
+const plantsContainerDiv = document.getElementById('garden-container'); // Duplicato di gardenContainer, può essere rimosso o rinominato
 
 async function handleLogin() {
   const emailInput = document.getElementById('login-email');
@@ -87,6 +90,8 @@ async function handleLogout() {
     console.error("Errore durante il logout:", error);
   }
 }
+
+// 5. FUNZIONI DI RENDERING E GESTIONE DELLE CARD
 
 async function renderPlants(plantArray) {
     console.log("renderPlants: Chiamata con array:", plantArray);
