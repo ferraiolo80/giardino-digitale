@@ -174,6 +174,87 @@ function handleSearch(event) {
     renderPlants(filteredPlants);
 }
 
+function showUpdatePlantForm(plant) {
+    currentPlantIdToUpdate = plant.id;
+    document.getElementById('updatePlantId').value = plant.id;
+    document.getElementById('updatePlantName').value = plant.name || '';
+    document.getElementById('updatePlantSunlight').value = plant.sunlight || '';
+    document.getElementById('updatePlantWatering').value = plant.watering || '';
+    document.getElementById('updatePlantTempMin').value = plant.tempMin || '';
+    document.getElementById('updatePlantTempMax').value = plant.tempMax || '';
+    document.getElementById('updatePlantDescription').value = plant.description || '';
+    document.getElementById('updatePlantCategory').value = plant.category || '';
+    document.getElementById('updatePlantImageURL').value = plant.image || '';
+
+    document.getElementById('updatePlantCard').style.display = 'block';
+}
+
+function clearUpdatePlantForm() {
+    currentPlantIdToUpdate = null;
+    document.getElementById('updatePlantId').value = '';
+    document.getElementById('updatePlantName').value = '';
+    document.getElementById('updatePlantSunlight').value = '';
+    document.getElementById('updatePlantWatering').value = '';
+    document.getElementById('updatePlantTempMin').value = '';
+    document.getElementById('updatePlantTempMax').value = '';
+    document.getElementById('updatePlantDescription').value = '';
+    document.getElementById('updatePlantCategory').value = 'Fiore'; // Reset alla prima opzione
+    document.getElementById('updatePlantImageURL').value = '';
+}
+
+async function updatePlantInFirebase(plantId, updatedData) {
+    try {
+        await db.collection('plants').doc(plantId).update(updatedData);
+        console.log("Pianta aggiornata con successo:", plantId);
+        // Dopo l'aggiornamento, ricarica e renderizza per vedere le modifiche
+        await loadPlantsFromFirebase();
+        renderPlants(allPlants);
+        // Se la pianta è anche nel mio giardino, aggiorna anche lì
+        await loadMyGardenFromFirebase();
+        renderMyGarden(myGarden);
+    } catch (error) {
+        console.error("Errore nell'aggiornamento della pianta:", error);
+        alert("Errore nell'aggiornamento della pianta. Controlla la console.");
+    }
+}
+
+async function deletePlantFromDatabase(plantId) {
+    try {
+        // 1. Elimina la pianta dalla collezione principale 'plants'
+        await db.collection('plants').doc(plantId).delete();
+        console.log("Pianta eliminata dal database principale:", plantId);
+
+        // 2. Rimuovi la pianta da TUTTI i giardini degli utenti
+        const gardensSnapshot = await db.collection('gardens').get();
+        const batch = db.batch(); // Usa un batch per eseguire più scritture atomiche
+
+        gardensSnapshot.forEach(doc => {
+            const gardenData = doc.data();
+            // Controlla se il giardino esiste e contiene la pianta da eliminare
+            if (gardenData && gardenData.plants && gardenData.plants.includes(plantId)) {
+                // Filtra l'array delle piante per rimuovere l'ID della pianta eliminata
+                const updatedPlants = gardenData.plants.filter(id => id !== plantId);
+                // Aggiorna il documento del giardino con l'array filtrato
+                batch.update(db.collection('gardens').doc(doc.id), { plants: updatedPlants });
+            }
+        });
+        await batch.commit(); // Esegui tutte le operazioni in batch
+        console.log("Pianta rimossa da tutti i giardini degli utenti.");
+
+        // 3. Aggiorna la UI per riflettere le modifiche
+        await loadPlantsFromFirebase(); // Ricarica tutte le piante (la pianta eliminata non ci sarà più)
+        renderPlants(allPlants); // Renderizza l'elenco principale aggiornato
+        await loadMyGardenFromFirebase(); // Ricarica il giardino dell'utente corrente
+        renderMyGarden(myGarden); // Renderizza il giardino dell'utente corrente (nel caso la pianta fosse lì)
+
+        alert("Pianta eliminata con successo!");
+
+    } catch (error) {
+        console.error("Errore durante l'eliminazione della pianta dal database:", error);
+        alert("Si è verificato un errore durante l'eliminazione della pianta.");
+    }
+}
+
 async function addToMyGarden(plantId) {
     console.log("addToMyGarden: Inizio aggiunta pianta con ID:", plantId);
     const user = firebase.auth().currentUser;
