@@ -127,6 +127,7 @@ async function renderPlants(plantArray) {
                     '<button class="add-to-garden-button" data-plant-id="' + plant.id + '">Aggiungi al mio giardino</button>' :
                 '' // Se l'utente non è loggato, non mostrare alcun pulsante
             }
+            <button class="update-plant-button" data-plant-id="${plant.id}">Aggiorna Info</button>
         `;
         gardenContainer.appendChild(div);
     });
