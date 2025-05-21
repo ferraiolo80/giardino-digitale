@@ -458,27 +458,31 @@ async function loadPlantsFromFirebase() {
 }
 
 // 10. FUNZIONI DI VISIBILITÀ UI
-function updateGardenToggleButtonState(isMyGardenEmpty) {
+function updateGardenToggleButtonState(isMyGardenEmpty, shouldMyGardenBeVisible) {
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-    if (toggleMyGardenButton) {
-        const eyeIcon = toggleMyGardenButton.querySelector('i');
-        if (eyeIcon) {
-            if (isMyGardenEmpty) {
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-                toggleMyGardenButton.textContent = 'Mostra il mio giardino';
-            } else {
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-                toggleMyGardenButton.textContent = 'Nascondi il mio giardino';
-            }
-        } else {
-             // Fallback se l'icona non c'è
-            toggleMyGardenButton.textContent = isMyGardenEmpty ? 'Mostra il mio giardino' : 'Nascondi il mio giardino';
-        }
-    } else {
+    if (!toggleMyGardenButton) {
         console.error("Elemento toggleMyGarden non trovato!");
+        return;
     }
+
+    // Qui non devi più cercare l'icona ogni volta, ma la includi nel innerHTML
+    // o la manipoli tramite classi se l'icona è già un figlio fisso.
+    // L'errore "sparite le icone" suggerisce che il testo viene sovrascritto senza l'icona.
+    // Il modo più robusto è includere l'icona nella stringa innerHTML.
+
+    if (shouldMyGardenBeVisible) {
+        // Se il giardino deve essere visibile, il bottone deve dire "Nascondi"
+        toggleMyGardenButton.innerHTML = '<i class="fas fa-eye-slash"></i> Nascondi il mio giardino';
+    } else {
+        // Se il giardino deve essere nascosto, il bottone deve dire "Mostra"
+        if (isMyGardenEmpty) {
+            toggleMyGardenButton.innerHTML = '<i class="fas fa-eye"></i> Mostra il mio giardino (vuoto)';
+        } else {
+            toggleMyGardenButton.innerHTML = '<i class="fas fa-eye"></i> Mostra il mio giardino';
+        }
+    }
+    // Non è necessario usare querySelector('i') se imposti l'innerHTML completo ogni volta.
+    // Questo previene problemi se l'icona non è un figlio diretto o se il DOM viene ricreato.
 }
 
 async function updateGardenVisibility(showMyGarden = false) {
