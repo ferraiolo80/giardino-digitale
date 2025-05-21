@@ -798,7 +798,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (plantsSection) plantsSection.style.display = 'block';
                 if (emptyGardenMessage) emptyGardenMessage.style.display = 'block'; // Mostra messaggio giardino vuoto
             }
-            updateGardenVisibility(); // Aggiorna lo stato del toggle button e la visibilità generale
+            updateGardenVisibility(false); // Aggiorna lo stato del toggle button e la visibilità generale
         } else {
             console.log("Stato autenticazione cambiato, nessun utente loggato.");
             authStatusDiv.innerText = "Nessun utente autenticato.";
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
             if (giardinoTitle) giardinoTitle.style.display = 'none';
             if (emptyGardenMessage) emptyGardenMessage.style.display = 'none'; // Nascosto per non loggati
-            updateGardenVisibility(); // Aggiorna lo stato del toggle button e la visibilità generale
+            updateGardenVisibility(false); // Aggiorna lo stato del toggle button e la visibilità generale
         }
     });
 });
