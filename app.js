@@ -139,6 +139,7 @@ function createPlantCard(plantData, isMyGardenCard = false) {
         <p><i class="fas fa-thermometer-half"></i> Temp. ideale min: ${plantData.tempMin}°C</p>
         <p><i class="fas fa-thermometer-half"></i> Temp. ideale max: ${plantData.tempMax}°C</p>
         <p>Categoria: ${plantData.category}</p>
+        ${plantData.idealLuxMin ? `<p>Lux Ideali: ${plantData.idealLuxMin} - ${plantData.idealLuxMax} Lux</p>` : ''}
         ${buttonsHtml}
     `;
 
