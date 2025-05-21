@@ -291,8 +291,8 @@ async function deletePlantFromDatabase(plantId) {
         console.log("Pianta rimossa da tutti i giardini degli utenti.");
 
         // 3. Aggiorna la UI per riflettere le modifiche
-        await loadPlantsFromFirebase();
-        await loadMyGardenFromFirebase(); // Aggiorna myGarden dopo la rimozione
+        await loadPlantsFromFirebase(); // Ricarica tutte le piante
+        await loadMyGardenFromFirebase(); // Ricarica il giardino dell'utente corrente
         alert("Pianta eliminata con successo!");
 
     } catch (error) {
