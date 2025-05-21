@@ -34,6 +34,9 @@ const lightFeedbackDiv = document.getElementById('lightFeedback');
 const plantsContainerDiv = document.getElementById('garden-container'); // Duplicato di gardenContainer, può essere rimosso o rinominato
 const newPlantIdealLuxMinInput = document.getElementById('new-idealLuxMin');
 const newPlantIdealLuxMaxInput = document.getElementById('new-idealLuxMax');
+const updatePlantIdealLuxMinInput = document.getElementById('updatePlantIdealLuxMin'); // Corretto ID per l'update form (se presente)
+const updatePlantIdealLuxMaxInput = document.getElementById('updatePlantIdealLuxMax'); // Corretto ID per l'update form (se presente)
+
 
 async function handleLogin() {
   const emailInput = document.getElementById('login-email');
