@@ -10,6 +10,15 @@
         #app-content {
             display: none; 
         }
+        /* Aggiungi qui gli stili per .my-plant-card se vuoi distinguerle */
+        .my-plant-card {
+            border: 2px solid #66bb6a; /* Esempio: bordo verde per le piante del giardino */
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #e8f5e9; /* Esempio: sfondo più chiaro */
+        }
     </style>
 </head>
 <body>
@@ -30,6 +39,7 @@
             <h3>Registrati</h3>
             <input type="email" id="register-email" placeholder="Email">
             <input type="password" id="register-password" placeholder="Password">
+            <input type="password" id="register-confirm-password" placeholder="Conferma Password">
             <button id="registerButton">Registrati</button>
             <p>Hai già un account? <a href="#" onclick="showLoginForm()">Accedi</a></p>
             <div id="register-error" class="error-message" style="color: red;"></div>
@@ -53,104 +63,108 @@
 
         <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
 
-    <div id="newPlantCard" style="display: none;">
-        <h3>Aggiungi una Nuova Pianta</h3>
-        <label for="newPlantName">Nome:</label>
-        <input type="text" id="newPlantName"><br><br>
+        <div id="newPlantCard" style="display: none;">
+            <h3>Aggiungi una Nuova Pianta</h3>
+            <label for="newPlantName">Nome:</label>
+            <input type="text" id="newPlantName"><br><br>
 
-        <label for="newPlantSunlight">Luce:</label>
-        <input type="text" id="newPlantSunlight"><br><br>
+            <label for="newPlantSunlight">Luce:</label>
+            <input type="text" id="newPlantSunlight"><br><br>
 
-        <label for="newPlantWatering">Acqua:</label>
-        <input type="text" id="newPlantWatering"><br><br>
+            <label for="newPlantWatering">Acqua:</label>
+            <input type="text" id="newPlantWatering"><br><br>
 
-        <label for="newPlantTempMin">Temperatura Minima (°C):</label>
-        <input type="number" id="newPlantTempMin"><br><br>
+            <label for="newPlantTempMin">Temperatura Minima (°C):</label>
+            <input type="number" id="newPlantTempMin"><br><br>
 
-        <label for="newPlantTempMax">Temperatura Massima (°C):</label>
-        <input type="number" id="newPlantTempMax"><br><br>
+            <label for="newPlantTempMax">Temperatura Massima (°C):</label>
+            <input type="number" id="newPlantTempMax"><br><br>
 
-        <label for="newPlantDescription">Descrizione (Opzionale):</label><br>
-        <textarea id="newPlantDescription"></textarea><br><br>
+            <label for="newPlantDescription">Descrizione (Opzionale):</label><br>
+            <textarea id="newPlantDescription"></textarea><br><br>
 
-        <label for="newPlantCategory">Categoria:</label>
-        <select id="newPlantCategory">
-            <option value="Fiore">Fiore</option>
-            <option value="Erba aromatica">Erba aromatica</option>
-            <option value="Succulenta">Succulenta</option>
-            <option value="Arbusto">Arbusto</option>
-            <option value="Albero">Albero</option>
+            <label for="newPlantCategory">Categoria:</label>
+            <select id="newPlantCategory">
+                <option value="Fiore">Fiore</option>
+                <option value="Erba aromatica">Erba aromatica</option>
+                <option value="Succulenta">Succulenta</option>
+                <option value="Arbusto">Arbusto</option>
+                <option value="Albero">Albero</option>
             </select><br><br>
 
-        <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
-        <input type="url" id="newPlantImageURL"><br><br>
+            <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
+            <input type="url" id="newPlantImageURL"><br><br>
 
-        <button id="saveNewPlant">Salva Pianta</button>
-        <button id="cancelNewPlant">Annulla</button>
-    </div>
+            <button id="saveNewPlant">Salva Pianta</button>
+            <button id="cancelNewPlant">Annulla</button>
+        </div>
 
-    <div id="updatePlantCard" style="display: none;">
-    <h3>Aggiorna Pianta</h3>
-    <input type="hidden" id="updatePlantId"> <label for="updatePlantName">Nome:</label>
-    <input type="text" id="updatePlantName"><br><br>
+        <div id="updatePlantCard" style="display: none;">
+            <h3>Aggiorna Pianta</h3>
+            <input type="hidden" id="updatePlantId">
+            <label for="updatePlantName">Nome:</label>
+            <input type="text" id="updatePlantName"><br><br>
 
-    <label for="updatePlantSunlight">Luce:</label>
-    <input type="text" id="updatePlantSunlight"><br><br>
+            <label for="updatePlantSunlight">Luce:</label>
+            <input type="text" id="updatePlantSunlight"><br><br>
 
-    <label for="updatePlantWatering">Acqua:</label>
-    <input type="text" id="updatePlantWatering"><br><br>
+            <label for="updatePlantWatering">Acqua:</label>
+            <input type="text" id="updatePlantWatering"><br><br>
 
-    <label for="updatePlantTempMin">Temperatura Minima (°C):</label>
-    <input type="number" id="updatePlantTempMin"><br><br>
+            <label for="updatePlantTempMin">Temperatura Minima (°C):</label>
+            <input type="number" id="updatePlantTempMin"><br><br>
 
-    <label for="updatePlantTempMax">Temperatura Massima (°C):</label>
-    <input type="number" id="updatePlantTempMax"><br><br>
+            <label for="updatePlantTempMax">Temperatura Massima (°C):</label>
+            <input type="number" id="updatePlantTempMax"><br><br>
 
-    <label for="updatePlantDescription">Descrizione (Opzionale):</label><br>
-    <textarea id="updatePlantDescription"></textarea><br><br>
+            <label for="updatePlantDescription">Descrizione (Opzionale):</label><br>
+            <textarea id="updatePlantDescription"></textarea><br><br>
 
-    <label for="updatePlantCategory">Categoria:</label>
-    <select id="updatePlantCategory">
-        <option value="Fiore">Fiore</option>
-        <option value="Erba aromatica">Erba aromatica</option>
-        <option value="Succulenta">Succulenta</option>
-        <option value="Arbusto">Arbusto</option>
-        <option value="Albero">Albero</option>
-    </select><br><br>
+            <label for="updatePlantCategory">Categoria:</label>
+            <select id="updatePlantCategory">
+                <option value="Fiore">Fiore</option>
+                <option value="Erba aromatica">Erba aromatica</option>
+                <option value="Succulenta">Succulenta</option>
+                <option value="Arbusto">Arbusto</option>
+                <option value="Albero">Albero</option>
+            </select><br><br>
 
-    <label for="updatePlantImageURL">URL Immagine (Opzionale):</label>
-    <input type="url" id="updatePlantImageURL"><br><br>
+            <label for="updatePlantImageURL">URL Immagine (Opzionale):</label>
+            <input type="url" id="updatePlantImageURL"><br><br>
 
-    <button id="saveUpdatedPlant">Salva Modifiche</button>
-    <button id="cancelUpdatePlant">Annulla</button>
-</div>
+            <button id="saveUpdatedPlant">Salva Modifiche</button>
+            <button id="cancelUpdatePlant">Annulla</button>
+        </div>
         
         <div class="filter-container">
-    <label for="categoryFilter">🌿 Filtra nel Mio Giardino per categoria:</label>
-    <select id="categoryFilter">
-        <option value="all">Tutte le categorie</option> <!- MODIFICATO QUI -->
-        <option value="Fiore">Fiore</option>
-        <option value="Erba aromatica">Erba aromatica</option>
-        <option value="Succulenta">Succulenta</option>
-        <option value="Arbusto">Arbusto</option>
-        <option value="Albero">Albero</option>
-    </select>
-</div>
+            <label for="categoryFilter">🌿 Filtra per categoria:</label>
+            <select id="categoryFilter">
+                <option value="all">Tutte le categorie</option>
+                <option value="Fiore">Fiore</option>
+                <option value="Erba aromatica">Erba aromatica</option>
+                <option value="Succulenta">Succulenta</option>
+                <option value="Arbusto">Arbusto</option>
+                <option value="Albero">Albero</option>
+            </select>
+        </div>
 
         <div class="filter-container">
-            <label>🌡️ Filtra nel Mio Giardino per temperatura (°C):</label><br>
-            <input type="number" id="tempMinFilter" placeholder="Minima"class="icon-min-temp">
-            <input type="number" id="tempMaxFilter" placeholder="Massima"class="icon-max-temp">
+            <label>🌡️ Filtra per temperatura (°C):</label><br>
+            <input type="number" id="tempMinFilter" placeholder="Minima" class="icon-min-temp">
+            <input type="number" id="tempMaxFilter" placeholder="Massima" class="icon-max-temp">
         </div>
 
-        <button id="toggleMyGarden"><i class="fas fa-eye-slash"></i>Nascondi il mio giardino</button>
-        <h2 id="giardinoTitle">Il mio giardino</h2>
-        <div id="garden-container">
+        <button id="toggleMyGarden"><i class="fas fa-eye-slash"></i> Nascondi il mio giardino</button>
+        
+        <div id="plants-section"> <h2>Tutte le piante</h2>
+            <div id="garden-container">
+            </div>
         </div>
 
+        <h2 id="giardinoTitle" style="display:none;">Il mio giardino</h2>
         <div id="my-garden" class="my-garden-grid">
-    <p id="empty-garden-message" style="display:none;">Il tuo giardino è vuoto. Aggiungi delle piante!</p>
-</div>
+            <p id="empty-garden-message" style="display:none;">Il tuo giardino è vuoto. Aggiungi delle piante!</p>
+        </div>
     </div>
 
     <script>
