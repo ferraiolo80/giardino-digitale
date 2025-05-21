@@ -93,14 +93,51 @@ async function handleLogout() {
 
 // 5. FUNZIONI DI RENDERING E GESTIONE DELLE CARD
 
+function createPlantCard(plantData, isMyGardenCard = false) { // Aggiunto parametro per distinguere
+    console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
+    const image = plantData.image || 'plant_9215709.png';
+    const div = document.createElement("div");
+    div.className = isMyGardenCard ? "my-plant-card" : "plant-card"; // Stile diverso per le card del giardino
+
+    let buttonsHtml = '';
+    const user = firebase.auth().currentUser;
+
+    if (user) {
+        if (isMyGardenCard) {
+            // Per il "Mio Giardino", mostra sempre rimuovi e aggiorna
+            buttonsHtml += `<button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>`;
+            buttonsHtml += `<button class="update-plant-button" data-plant-id="${plantData.id}">Aggiorna Info</button>`;
+        } else {
+            // Per l'elenco principale, mostra aggiungi o rimuovi (se già nel giardino)
+            if (myGarden.includes(plantData.id)) {
+                buttonsHtml += `<button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>`;
+            } else {
+                buttonsHtml += `<button class="add-to-garden-button" data-plant-id="${plantData.id}">Aggiungi al mio giardino</button>`;
+            }
+            buttonsHtml += `<button class="update-plant-button" data-plant-id="${plantData.id}">Aggiorna Info</button>`; // Aggiungi aggiorna anche qui
+        }
+    }
+
+    div.innerHTML = `
+        <img src="${image}" alt="${plantData.name}" class="plant-icon">
+        <h4>${plantData.name}</h4>
+        <p><i class="fas fa-sun"></i> Luce: ${plantData.sunlight}</p>
+        <p><i class="fas fa-tint"></i> Acqua: ${plantData.watering}</p>
+        <p><i class="fas fa-thermometer-half"></i> Temp. ideale min: ${plantData.tempMin}°C</p>
+        <p><i class="fas fa-thermometer-half"></i> Temp. ideale max: ${plantData.tempMax}°C</p>
+        <p>Categoria: ${plantData.category}</p>
+        ${buttonsHtml}
+    `;
+
+    return div;
+}
 async function renderPlants(plantArray) {
     console.log("renderPlants: Chiamata con array:", plantArray);
     console.trace("renderPlants chiamata con:", plantArray);
     console.log('Array plant ricevuto da renderPlants:', plantArray);
     console.log("renderPlants chiamata con:", plantArray);
     console.log("renderPlants INIZIO: plantArray =", plantArray);
-    //debugger; // Lascio il debugger qui se vuoi usarlo
-
+    
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.innerHTML = "";
     console.log("renderPlants DOPO innerHTML: plantArray =", plantArray);
@@ -427,25 +464,6 @@ function clearNewPlantForm() {
     document.getElementById('newPlantDescription').value = '';
     document.getElementById('newPlantCategory').value = '';
     document.getElementById('newPlantImageURL').value = '';
-}
-
-function createPlantCard(plantData) {
-    console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
-    const div = document.createElement("div");
-    div.className = "my-plant-card";
-    div.innerHTML = `
-        <h4>${plantData.name}</h4>
-        <p><i class="fas fa-sun"></i> Luce: ${plant.sunlight}</p>
-        <p><i class="fas fa-tint"></i> Acqua: ${plant.watering}</p>
-        <p><i class="fas fa-thermometer-half"></i> Temp. ideale min: ${plant.tempMin}°C</p>
-        <p><i class="fas fa-thermometer-half"></i> Temp. ideale max: ${plant.tempMax}°C</p>
-        <p>Categoria: ${plantData.category}</p>
-        <button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>
-        <button class="update-plant-button" data-plant-id="${plant.id}">Aggiorna Info</button> //<button onclick="updatePlant('${plantData.name}')">Aggiorna info</button>
-    `;
-
-    // L'event listener per il bottone "Rimuovi" è ora gestito in renderPlants
-    return div;
 }
 
    async function loadMyGardenFromFirebase() {
