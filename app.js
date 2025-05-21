@@ -250,9 +250,15 @@ function showUpdatePlantForm(plant) {
     document.getElementById('updatePlantIdealLuxMin').value = plant.idealLuxMin || '';
     document.getElementById('updatePlantIdealLuxMax').value = plant.idealLuxMax || '';
 
+    // Rendi visibile il form
     document.getElementById('updatePlantCard').style.display = 'block';
-}
 
+    // Aggiungi QUESTA RIGA per lo scroll automatico
+    document.getElementById('updatePlantCard').scrollIntoView({
+        behavior: 'smooth', // Animazione di scroll fluida
+        block: 'start'      // Allinea l'inizio dell'elemento all'inizio della viewport
+    });
+}
 function clearUpdatePlantForm() {
     currentPlantIdToUpdate = null;
     document.getElementById('updatePlantId').value = '';
