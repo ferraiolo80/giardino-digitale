@@ -668,26 +668,42 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Listener per i bottoni del form di aggiornamento
     if (saveUpdatedPlantButton) {
-        saveUpdatedPlantButton.addEventListener('click', async () => {
-            if (currentPlantIdToUpdate) {
-                const updatedData = {
-                    name: document.getElementById('updatePlantName').value,
-                    sunlight: document.getElementById('updatePlantSunlight').value,
-                    watering: document.getElementById('updatePlantWatering').value,
-                    tempMin: parseInt(document.getElementById('updatePlantTempMin').value),
-                    tempMax: parseInt(document.getElementById('updatePlantTempMax').value),
-                    description: document.getElementById('updatePlantDescription').value,
-                    category: document.getElementById('updatePlantCategory').value,
-                    image: document.getElementById('updatePlantImageURL').value
-                };
-                await updatePlantInFirebase(currentPlantIdToUpdate, updatedData);
-                updatePlantCard.style.display = 'none';
-                clearUpdatePlantForm();
-            } else {
-                console.error("Nessun ID pianta selezionato per l'aggiornamento.");
+    saveUpdatedPlantButton.addEventListener('click', async () => {
+        if (currentPlantIdToUpdate) {
+            // RECUPERO VALORI PER L'AGGIORNAMENTO
+            const updatedData = {
+                name: document.getElementById('updatePlantName').value,
+                sunlight: document.getElementById('updatePlantSunlight').value,
+                watering: document.getElementById('updatePlantWatering').value,
+                tempMin: parseInt(document.getElementById('updatePlantTempMin').value),
+                tempMax: parseInt(document.getElementById('updatePlantTempMax').value),
+                description: document.getElementById('updatePlantDescription').value,
+                category: document.getElementById('updatePlantCategory').value,
+                image: document.getElementById('updatePlantImageURL').value,
+                // AGGIUNGI QUESTI NUOVI CAMPI PER LUX MIN E MAX
+                idealLuxMin: parseInt(document.getElementById('updatePlantIdealLuxMin').value), // Assicurati che l'ID sia corretto nel tuo HTML
+                idealLuxMax: parseInt(document.getElementById('updatePlantIdealLuxMax').value)  // Assicurati che l'ID sia corretto nel tuo HTML
+            };
+
+            // Esegui la validazione per i nuovi campi (se vuoi)
+            if (isNaN(updatedData.idealLuxMin) || isNaN(updatedData.idealLuxMax)) {
+                alert("I valori Lux Min e Max devono essere numeri validi.");
+                return;
             }
-        });
-    }
+
+            try {
+                await db.collection("plants").doc(currentPlantIdToUpdate).update(updatedData);
+                alert("Pianta aggiornata con successo!");
+                updatePlantCard.style.display = 'none'; // Nascondi il modulo
+                currentPlantIdToUpdate = null; // Resetta l'ID
+                await loadPlantsFromFirebase(); // Ricarica le piante per aggiornare l'elenco
+            } catch (error) {
+                console.error("Errore durante l'aggiornamento della pianta: ", error);
+                alert("Errore durante l'aggiornamento della pianta.");
+            }
+        }
+    });
+}
 
     if (cancelUpdatePlantButton) {
         cancelUpdatePlantButton.addEventListener('click', () => {
