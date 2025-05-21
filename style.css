@@ -27,7 +27,7 @@ select {
     border-radius: 4px;
     border: 1px solid #ccc;
     min-width: 150px;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 button {
@@ -43,66 +43,244 @@ button:hover {
     background-color: #45a049;
 }
 
+/* Stili per i contenitori delle card (elenco principale e mio giardino) */
+/* Entrambi useranno un layout a griglia */
 #garden-container,
 #my-garden {
     margin: 1em 0;
     display: grid;
+    /* griglia responsiva: min 250px per card, fino a riempire lo spazio */
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-    gap: 1em;
+    gap: 1em; /* Spazio tra le card */
+    padding: 10px; /* Padding interno ai contenitori */
+    justify-content: center; /* Centra le colonne di griglia se c'è spazio extra */
 }
 
+/* Stili di base per tutte le card (sia dell'elenco principale che del mio giardino) */
+/* Le proprietà qui definiscono la struttura interna delle card */
 .plant-card,
 .my-plant-card {
-    background: white;
     padding: 1em;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    /* Per un layout interno flessibile (es. bottoni in fondo) */
+    display: flex; 
+    flex-direction: column;
+    justify-content: space-between; /* Spinge gli elementi ai bordi */
+    height: 100%; /* Assicura che le card nella stessa riga abbiano altezza uguale */
 }
 
-.plant-card h3,
+/* Stili specifici per le card dell'elenco principale (bianche) */
+.plant-card {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+/* Stili specifici per le card del mio giardino (verdi) */
+.my-plant-card {
+    background: #e8f5e9; /* Sfondo verde chiaro */
+    border: 2px solid #66bb6a; /* Bordo verde */
+}
+
+/* Stili per i titoli delle card */
+.plant-card h4,
 .my-plant-card h4 {
     margin-top: 0;
     color: #2c3e50;
+    margin-bottom: 0.5em;
 }
 
-.plant-card img {
+/* Stili per le immagini delle card */
+.plant-card img,
+.my-plant-card img { /* Applicato a entrambe le classi per coerenza */
     max-width: 100%;
     height: auto;
+    max-height: 120px; /* Limita l'altezza dell'immagine */
+    object-fit: contain; /* Assicura che l'immagine sia contenuta senza distorsioni */
+    margin-bottom: 10px;
 }
 
+.plant-icon { /* Specifico per l'icona più piccola se usata altrove, altrimenti rimuovi */
+    width: 50px;
+    height: 50px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* Stili per le icone di temperatura (se stai usando gli SVG) */
 .icon-min-temp {
-    padding-right: 30px; 
+    padding-right: 30px;
     background-image: url('temperature-arrow-up-solid.svg');
     background-repeat: no-repeat;
-    background-position: right 5px center; 
+    background-position: right 5px center;
     background-size: 20px;
 }
 
 .icon-max-temp {
-    padding-right: 30px; 
+    padding-right: 30px;
     background-image: url('temperature-arrow-down-solid.svg');
     background-repeat: no-repeat;
-    background-position: right 5px center; 
+    background-position: right 5px center;
     background-size: 20px;
 }
-#my-garden {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-  gap: 10px; /* Spazio tra le card */
-  padding: 10px;
+
+/* Stili per i bottoni all'interno delle card (se diversi dal bottone generico) */
+.plant-card button,
+.my-plant-card button {
+    margin-top: 10px; /* Spazio sopra i bottoni */
+    width: calc(100% - 10px); /* Larghezza completa, meno il margine orizzontale */
+    box-sizing: border-box; /* Include padding e border nella larghezza */
+    display: block; /* Ogni bottone su una nuova riga */
+    margin-left: auto; /* Centra il bottone se non è al 100% */
+    margin-right: auto;
 }
 
-.my-plant-card {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px; 
-  border-radius: 5px;
-  text-align: center;
+/* Stili specifici per i colori dei bottoni (se non già definiti dal bottone generico) */
+.remove-button { background-color: #f44336; } /* Rosso */
+.update-plant-button { background-color: #2196F3; } /* Blu */
+.add-to-garden-button { background-color: #4CAF50; } /* Verde (stesso del generico) */
+.delete-plant-from-db-button { background-color: #d32f2f; } /* Rosso scuro */
+
+/* Stile per il messaggio "Il tuo giardino è vuoto" */
+#my-garden #empty-garden-message {
+    grid-column: 1 / -1; /* Fa in modo che il messaggio occupi tutte le colonne della griglia */
+    text-align: center;
+    margin-top: 50px; /* Spazio superiore */
+    font-size: 1.2em;
+    color: #666;
+    display: none; /* Inizialmente nascosto, visibile via JS quando il giardino è vuoto */
 }
 
-.plant-icon {
-    width: 50px;       
-    height: 50px;      
-    vertical-align: middle; 
-    margin-right: 5px;   
+/* Stili per i form di aggiunta/aggiornamento */
+#newPlantCard,
+#updatePlantCard {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    margin: 20px auto;
+    max-width: 500px;
+    display: none; /* Nascosti di default */
+}
+
+#newPlantCard label,
+#updatePlantCard label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#newPlantCard input,
+#newPlantCard select,
+#newPlantCard textarea,
+#updatePlantCard input,
+#updatePlantCard select,
+#updatePlantCard textarea {
+    width: calc(100% - 1em); /* Per tenere conto del padding */
+    padding: 0.5em;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#newPlantCard button,
+#updatePlantCard button {
+    margin-top: 10px;
+    width: auto;
+    display: inline-block;
+}
+
+/* Stili per la sezione del sensore di luce */
+#lightSensorSection {
+    background: #f0f8ff; /* Sfondo azzurro chiaro */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    border: 1px solid #cceeff;
+}
+
+#lightSensorSection h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+#lightSensorSection p {
+    margin-bottom: 10px;
+}
+
+#lightSensorSection button {
+    margin: 5px;
+    padding: 10px 15px;
+    font-size: 1em;
+}
+
+#lightFeedback {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    text-align: left;
+}
+
+#lightFeedback h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#lightFeedback ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#lightFeedback li {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+/* Stili per messaggi di errore e successo */
+.error-message {
+    color: red;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.success-message {
+    color: green;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Media Queries per la responsività */
+@media (max-width: 768px) {
+    #garden-container,
+    #my-garden {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Riduci la larghezza minima su schermi più piccoli */
+        gap: 0.8em;
+    }
+
+    .plant-card,
+    .my-plant-card {
+        padding: 0.8em;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    button {
+        width: 100%;
+        margin-bottom: 0.5em;
+    }
+
+    .search-container,
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
