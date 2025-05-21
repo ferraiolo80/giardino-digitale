@@ -367,32 +367,37 @@ async function saveNewPlantToFirebase() {
     const newPlantIdealLuxMin = parseInt(document.getElementById('newPlantIdealLuxMin').value);
     const newPlantIdealLuxMax = parseInt(document.getElementById('newPlantIdealLuxMax').value);
 
-    if (newPlantName && newPlantSunlight && newPlantWatering && newPlantTempMin && newPlantTempMax) {
+    // Migliora la validazione per includere i campi numerici e i nuovi campi lux
+    if (newPlantName && newPlantSunlight && newPlantWatering &&
+        !isNaN(parseInt(newPlantTempMin)) && !isNaN(parseInt(newPlantTempMax)) &&
+        !isNaN(newPlantIdealLuxMin) && !isNaN(newPlantIdealLuxMax)) { // Assicurati che i campi numerici siano numeri validi
         try {
             const docRef = await db.collection('plants').add({
                 name: newPlantName,
                 sunlight: newPlantSunlight,
                 watering: newPlantWatering,
-                tempMin: parseInt(newPlantTempMin),
-                tempMax: parseInt(newPlantTempMax),
+                tempMin: parseInt(newPlantTempMin), // Assicurati che siano convertiti in numero
+                tempMax: parseInt(newPlantTempMax), // Assicurati che siano convertiti in numero
                 description: newPlantDescription,
                 category: newPlantCategory,
-                image: newPlantImageURL
+                image: newPlantImageURL,
+                // AGGIUNGI QUI I CAMPI LUX DIRETTAMENTE NELL'OGGETTO
+                idealLuxMin: newPlantIdealLuxMin,
+                idealLuxMax: newPlantIdealLuxMax
             });
-            if (!isNaN(newPlantIdealLuxMin)) plantData.idealLuxMin = newPlantIdealLuxMin;
-            if (!isNaN(newPlantIdealLuxMax)) plantData.idealLuxMax = newPlantIdealLuxMax;
+
             console.log("Nuova pianta aggiunta con ID: ", docRef.id);
             if (newPlantCard) { // Controlla se l'elemento esiste
                 newPlantCard.style.display = 'none';
             }
-            clearNewPlantForm();
+            clearNewPlantForm(); // Assicurati che questa funzione azzeri anche i campi Lux
             await loadPlantsFromFirebase(); // Ricarica l'elenco principale e renderizza
         } catch (error) {
             console.error("Errore nell'aggiunta della nuova pianta:", error);
-            alert("Errore nell'aggiunta della nuova pianta. Controlla le regole di sicurezza di Firebase.");
+            alert("Errore nell'aggiunta della nuova pianta. Controlla le regole di sicurezza di Firebase e che tutti i campi siano compilati correttamente.");
         }
     } else {
-        alert("Per favore, compila tutti i campi obbligatori.");
+        alert("Per favore, compila tutti i campi obbligatori (inclusi i valori numerici validi per Temperatura e Lux).");
     }
 }
 
