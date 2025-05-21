@@ -169,39 +169,34 @@ async function renderPlants(plantArray) {
     });
 }
 
-async function renderMyGarden(gardenPlantIds) { // gardenPlantIds è un array di ID
-    console.log("renderMyGarden: Chiamata con ID del giardino:", gardenPlantIds);
-    const myGardenContainer = document.getElementById('my-garden');
-    const emptyGardenMessage = document.getElementById('empty-garden-message');
-    myGardenContainer.innerHTML = ''; // SVUOTA SEMPRE ALL'INIZIO
+async function renderMyGarden(gardenPlantIds) {
+    myGardenContainer.innerHTML = ''; // Pulisci il contenitore
+
+    const emptyGardenMessage = document.getElementById('empty-garden-message'); // Ottieni il riferimento
 
     if (gardenPlantIds.length === 0) {
-        myGardenContainer.style.display = 'flex';
-        myGardenContainer.style.justifyContent = 'center';
-        myGardenContainer.style.alignItems = 'center';
+        // Se il giardino è vuoto, mostra solo il messaggio
         if (emptyGardenMessage) {
             emptyGardenMessage.style.display = 'block';
-        } else {
-            myGardenContainer.innerHTML = '<p id="empty-garden-message">Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
+            myGardenContainer.appendChild(emptyGardenMessage); // Assicurati che il messaggio sia nel contenitore
         }
+        // Il layout grid CSS per myGardenContainer si applicherà anche se vuoto,
+        // ma non ci saranno card da disporre.
+        // Se vuoi centrare il messaggio, fallo con CSS:
+        // #my-garden #empty-garden-message { text-align: center; }
     } else {
-        myGardenContainer.style.display = 'grid'; // O il tuo stile predefinito
-        myGardenContainer.style.justifyContent = '';
-        myGardenContainer.style.alignItems = '';
+        // Se ci sono piante, nascondi il messaggio e renderizza le card
         if (emptyGardenMessage) {
-            emptyGardenMessage.style.display = 'none';
+            emptyGardenMessage.style.display = 'none'; // Nascondi il messaggio
         }
 
-        // Recupera gli oggetti pianta completi da allPlants per gli ID nel giardino
-        const plantsToRender = allPlants.filter(plant => gardenPlantIds.includes(plant.id));
-
-        for (const plant of plantsToRender) {
-            const plantCard = createPlantCard(plant, true); // true = è una card del mio giardino
+        const plantsToDisplay = allPlants.filter(plant => gardenPlantIds.includes(plant.id));
+        plantsToDisplay.forEach(plant => {
+            const plantCard = createPlantCard(plant, true); // true per myGardenCard
             myGardenContainer.appendChild(plantCard);
-        }
+        });
     }
-    // saveMyGardenToFirebase(myGarden) viene chiamato già in loadMyGardenFromFirebase o addToMyGarden/removeFromMyGarden
-    updateGardenVisibility();
+    // Non devi più impostare display = 'grid' qui, lo farà il CSS
 }
 
 // 6. FUNZIONI DI FILTRO E RICERCA
