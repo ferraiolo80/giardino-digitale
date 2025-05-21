@@ -481,7 +481,7 @@ function updateGardenToggleButtonState(isMyGardenEmpty) {
     }
 }
 
-async function updateGardenVisibility(showMyGarden = false) { // showMyGarden: true per mostrare il mio giardino, false per l'elenco principale
+async function updateGardenVisibility(showMyGarden = false) {
     const plantsSection = document.getElementById('plants-section');
     const gardenContainer = document.getElementById('garden-container');
     const mioGiardinoSection = document.getElementById('my-garden');
@@ -490,13 +490,14 @@ async function updateGardenVisibility(showMyGarden = false) { // showMyGarden: t
     const emptyGardenMessage = document.getElementById('empty-garden-message');
 
     const user = firebase.auth().currentUser;
-    const isMyGardenEmpty = myGarden.length === 0; // 'myGarden' è la variabile globale con gli ID delle piante del giardino
+    const isMyGardenEmpty = myGarden.length === 0;
 
     // Gestione della visibilità del bottone "Mostra/Nascondi"
     if (toggleMyGardenButton) {
         if (user) {
             toggleMyGardenButton.style.display = 'block';
-            updateGardenToggleButtonState(isMyGardenEmpty); // Aggiorna testo e icona del bottone
+            // CHIAMA LA FUNZIONE QUI, PASSANDO SE IL GIARDINO DOVREBBE ESSERE VISIBILE
+            updateGardenToggleButtonState(isMyGardenEmpty, showMyGarden); // <-- AGGIUNTO showMyGarden
         } else {
             toggleMyGardenButton.style.display = 'none'; // Nascondi il bottone se non loggato
         }
@@ -511,7 +512,6 @@ async function updateGardenVisibility(showMyGarden = false) { // showMyGarden: t
         if (mioGiardinoSection) mioGiardinoSection.style.display = 'grid'; // <-- IMPORANTISSIMO: IMPOSTA A 'grid'
         if (giardinoTitle) giardinoTitle.style.display = 'block';
 
-        // Gestione del messaggio "giardino vuoto" all'interno della sezione del giardino
         if (emptyGardenMessage) {
             if (isMyGardenEmpty) {
                 emptyGardenMessage.style.display = 'block';
@@ -526,23 +526,18 @@ async function updateGardenVisibility(showMyGarden = false) { // showMyGarden: t
 
         if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
         if (giardinoTitle) giardinoTitle.style.display = 'none';
-        if (emptyGardenMessage) emptyGardenMessage.style.display = 'none'; // Il messaggio di vuoto è per il "Mio Giardino"
+        if (emptyGardenMessage) emptyGardenMessage.style.display = 'none';
     }
 }
-
 function handleToggleMyGarden() {
     const mioGiardinoSection = document.getElementById('my-garden');
-    // Determina lo stato attuale della visibilità del mio giardino
-    // Se è 'grid' o 'block' (quindi visibile), vogliamo nasconderlo.
-    // Se è 'none' (nascosto), vogliamo mostrarlo.
+    // Verifica lo stato attuale per sapere se era già visibile o meno
     const isCurrentlyMyGardenVisible = mioGiardinoSection?.style.display !== 'none' && mioGiardinoSection?.style.display !== '';
 
-    // Chiama updateGardenVisibility per invertire lo stato di visualizzazione
-    // Se era visibile, ora vogliamo mostrare l'elenco principale (passa false).
-    // Se era nascosto, ora vogliamo mostrare il mio giardino (passa true).
+    // Se era visibile, ora vogliamo nasconderlo (quindi il prossimo stato desiderato è 'false')
+    // Se era nascosto, ora vogliamo mostrarlo (quindi il prossimo stato desiderato è 'true')
     updateGardenVisibility(!isCurrentlyMyGardenVisible);
 }
-
 async function startLightSensor() {
     if ('AmbientLightSensor' in window) {
         try {
