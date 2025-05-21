@@ -71,6 +71,12 @@
             <label for="newPlantSunlight">Luce:</label>
             <input type="text" id="newPlantSunlight"><br><br>
 
+            <label for="newPlantIdealLuxMin">Lux Ideale Min:</label>
+            <input type="number" id="newPlantIdealLuxMin" placeholder="Es. 5000"><br><br>
+
+            <label for="newPlantIdealLuxMax">Lux Ideale Max:</label>
+            <input type="number" id="newPlantIdealLuxMax" placeholder="Es. 10000"><br><br>
+
             <label for="newPlantWatering">Acqua:</label>
             <input type="text" id="newPlantWatering"><br><br>
 
@@ -108,6 +114,12 @@
             <label for="updatePlantSunlight">Luce:</label>
             <input type="text" id="updatePlantSunlight"><br><br>
 
+            <label for="updatePlantIdealLuxMin">Lux Ideale Min:</label>
+            <input type="number" id="updatePlantIdealLuxMin" placeholder="Es. 5000"><br><br>
+
+            <label for="updatePlantIdealLuxMax">Lux Ideale Max:</label>
+            <input type="number" id="updatePlantIdealLuxMax" placeholder="Es. 10000"><br><br>
+
             <label for="updatePlantWatering">Acqua:</label>
             <input type="text" id="updatePlantWatering"><br><br>
 
@@ -134,6 +146,15 @@
 
             <button id="saveUpdatedPlant">Salva Modifiche</button>
             <button id="cancelUpdatePlant">Annulla</button>
+        </div>
+
+        <div id="lightSensorSection" style="display: block; margin-top: 20px; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+            <h3>Misura la Luce per le Tue Piante</h3>
+            <p>Posiziona il tuo smartphone vicino alla pianta e premi il pulsante per misurare la luce ambiente.</p>
+            <button id="startLightSensor">Avvia Misurazione Luce</button>
+            <button id="stopLightSensor" style="display:none;">Ferma Misurazione</button>
+            <p>Luce Rilevata: <span id="currentLuxValue">N/A</span> Lux</p>
+            <div id="lightFeedback"></div>
         </div>
         
         <div class="filter-container">
