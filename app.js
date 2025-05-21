@@ -31,8 +31,9 @@ const startLightSensorButton = document.getElementById('startLightSensor');
 const stopLightSensorButton = document.getElementById('stopLightSensor');
 const currentLuxValueSpan = document.getElementById('currentLuxValue');
 const lightFeedbackDiv = document.getElementById('lightFeedback');
-
 const plantsContainerDiv = document.getElementById('garden-container'); // Duplicato di gardenContainer, può essere rimosso o rinominato
+const newPlantIdealLuxMinInput = document.getElementById('new-idealLuxMin');
+const newPlantIdealLuxMaxInput = document.getElementById('new-idealLuxMax');
 
 async function handleLogin() {
   const emailInput = document.getElementById('login-email');
