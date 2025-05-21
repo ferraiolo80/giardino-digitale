@@ -3,6 +3,7 @@
 let allPlants = [];
 let myGarden = []; // Inizializza come array vuoto
 let currentPlantIdToUpdate = null; // Variabile per tenere traccia dell'ID della pianta da aggiornare
+let ambientLightSensor = null; // Variabile per il sensore di luce
 
 // 2. Riferimenti agli elementi HTML (Dichiarati una sola volta in modo globale se usati spesso)
 // Nota: molti di questi vengono ridefiniti all'interno di DOMContentLoaded
@@ -26,6 +27,11 @@ const tempMinFilter = document.getElementById('tempMinFilter');
 const tempMaxFilter = document.getElementById('tempMaxFilter');
 const toggleMyGardenButton = document.getElementById('toggleMyGarden');
 const giardinoTitle = document.getElementById('giardinoTitle');
+const startLightSensorButton = document.getElementById('startLightSensor');
+const stopLightSensorButton = document.getElementById('stopLightSensor');
+const currentLuxValueSpan = document.getElementById('currentLuxValue');
+const lightFeedbackDiv = document.getElementById('lightFeedback');
+
 const plantsContainerDiv = document.getElementById('garden-container'); // Duplicato di gardenContainer, può essere rimosso o rinominato
 
 async function handleLogin() {
