@@ -242,6 +242,8 @@ function showUpdatePlantForm(plant) {
     document.getElementById('updatePlantDescription').value = plant.description || '';
     document.getElementById('updatePlantCategory').value = plant.category || 'Fiore';
     document.getElementById('updatePlantImageURL').value = plant.image || '';
+    document.getElementById('updatePlantIdealLuxMin').value = plant.idealLuxMin || '';
+    document.getElementById('updatePlantIdealLuxMax').value = plant.idealLuxMax || '';
 
     document.getElementById('updatePlantCard').style.display = 'block';
 }
@@ -257,6 +259,8 @@ function clearUpdatePlantForm() {
     document.getElementById('updatePlantDescription').value = '';
     document.getElementById('updatePlantCategory').value = 'Fiore';
     document.getElementById('updatePlantImageURL').value = '';
+    document.getElementById('updatePlantIdealLuxMin').value = '';
+    document.getElementById('updatePlantIdealLuxMax').value = '';
 }
 
 async function updatePlantInFirebase(plantId, updatedData) {
@@ -358,6 +362,8 @@ async function saveNewPlantToFirebase() {
     const newPlantDescription = document.getElementById('newPlantDescription').value;
     const newPlantCategory = document.getElementById('newPlantCategory').value;
     const newPlantImageURL = document.getElementById('newPlantImageURL').value;
+    const newPlantIdealLuxMin = parseInt(document.getElementById('newPlantIdealLuxMin').value);
+    const newPlantIdealLuxMax = parseInt(document.getElementById('newPlantIdealLuxMax').value);
 
     if (newPlantName && newPlantSunlight && newPlantWatering && newPlantTempMin && newPlantTempMax) {
         try {
@@ -371,6 +377,8 @@ async function saveNewPlantToFirebase() {
                 category: newPlantCategory,
                 image: newPlantImageURL
             });
+            if (!isNaN(newPlantIdealLuxMin)) plantData.idealLuxMin = newPlantIdealLuxMin;
+            if (!isNaN(newPlantIdealLuxMax)) plantData.idealLuxMax = newPlantIdealLuxMax;
             console.log("Nuova pianta aggiunta con ID: ", docRef.id);
             if (newPlantCard) { // Controlla se l'elemento esiste
                 newPlantCard.style.display = 'none';
@@ -395,6 +403,8 @@ function clearNewPlantForm() {
     document.getElementById('newPlantDescription').value = '';
     document.getElementById('newPlantCategory').value = '';
     document.getElementById('newPlantImageURL').value = '';
+    document.getElementById('newPlantIdealLuxMin').value = '';
+    document.getElementById('newPlantIdealLuxMax').value = '';
 }
 
 async function loadMyGardenFromFirebase() {
@@ -547,6 +557,85 @@ function handleToggleMyGarden() {
     }
 }
 
+async function startLightSensor() {
+    if ('AmbientLightSensor' in window) {
+        try {
+            // Richiedi il permesso
+            const permissionStatus = await navigator.permissions.query({ name: 'ambient-light-sensor' });
+            if (permissionStatus.state === 'denied') {
+                alert('Permesso per il sensore di luce negato. Abilitalo nelle impostazioni del tuo browser/dispositivo.');
+                return;
+            }
+
+            // Inizializza il sensore
+            ambientLightSensor = new AmbientLightSensor();
+
+            ambientLightSensor.onreading = () => {
+                const currentLux = ambientLightSensor.illuminance;
+                currentLuxValueSpan.textContent = currentLux.toFixed(2); // Mostra due decimali
+
+                // Feedback sulla luce per le piante nel mio giardino
+                if (myGarden && myGarden.length > 0 && currentLux != null) {
+                    let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
+                    const plantsInGarden = allPlants.filter(plant => myGarden.includes(plant.id));
+
+                    plantsInGarden.forEach(plant => {
+                        const minLux = plant.idealLuxMin;
+                        const maxLux = plant.idealLuxMax;
+
+                        if (minLux != null && maxLux != null) {
+                            let feedbackMessage = `${plant.name}: `;
+                            if (currentLux < minLux) {
+                                feedbackMessage += `<span style="color: red;">Troppo poca luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
+                            } else if (currentLux > maxLux) {
+                                feedbackMessage += `<span style="color: orange;">Troppa luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
+                            } else {
+                                feedbackMessage += `<span style="color: green;">Luce ideale!</span> (Richiede ${minLux}-${maxLux} Lux)`;
+                            }
+                            feedbackHtml += `<li>${feedbackMessage}</li>`;
+                        } else {
+                            feedbackHtml += `<li>${plant.name}: Nessun dato Lux ideale disponibile.</li>`;
+                        }
+                    });
+                    feedbackHtml += '</ul>';
+                    lightFeedbackDiv.innerHTML = feedbackHtml;
+                } else {
+                    lightFeedbackDiv.innerHTML = '<p>Nessuna pianta nel tuo giardino con dati Lux ideali, o nessun valore rilevato.</p>';
+                }
+            };
+
+            ambientLightSensor.onerror = (event) => {
+                console.error('Errore sensore di luce:', event.error.name, event.error.message);
+                lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
+                stopLightSensor(); // Ferma il sensore in caso di errore
+            };
+
+            ambientLightSensor.start();
+            startLightSensorButton.style.display = 'none';
+            stopLightSensorButton.style.display = 'inline-block';
+            lightFeedbackDiv.innerHTML = '<p>Misurazione in corso...</p>';
+
+        } catch (error) {
+            console.error('Impossibile avviare il sensore di luce:', error);
+            lightFeedbackDiv.innerHTML = `<p style="color: red;">Impossibile avviare il sensore di luce. Assicurati che il tuo dispositivo lo supporti e che tu abbia concesso i permessi. ${error.message}</p>`;
+        }
+    } else {
+        alert('Il tuo browser o dispositivo non supporta il sensore di luce ambientale.');
+        lightFeedbackDiv.innerHTML = '<p style="color: orange;">Il sensore di luce ambientale non è supportato dal tuo dispositivo.</p>';
+    }
+}
+
+function stopLightSensor() {
+    if (ambientLightSensor) {
+        ambientLightSensor.stop();
+        ambientLightSensor = null;
+        startLightSensorButton.style.display = 'inline-block';
+        stopLightSensorButton.style.display = 'none';
+        currentLuxValueSpan.textContent = 'N/A';
+        lightFeedbackDiv.innerHTML = '';
+    }
+}
+
 
 // 11. BLOCCO DOMContentLoaded (tutti i tuoi listener di eventi)
 document.addEventListener('DOMContentLoaded', async () => {
@@ -621,6 +710,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
+    if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
+  
     // Listener per il contenitore principale delle piante (garden-container) - gestione dinamica dei bottoni
     const gardenContainer = document.getElementById('garden-container');
     gardenContainer.addEventListener('click', async (event) => {
