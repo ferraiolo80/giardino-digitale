@@ -93,28 +93,41 @@ async function handleLogout() {
 
 // 5. FUNZIONI DI RENDERING E GESTIONE DELLE CARD
 
-function createPlantCard(plantData, isMyGardenCard = false) { // Aggiunto parametro per distinguere
+function createPlantCard(plantData, isMyGardenCard = false) {
     console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id);
     const image = plantData.image || 'plant_9215709.png';
     const div = document.createElement("div");
-    div.className = isMyGardenCard ? "my-plant-card" : "plant-card"; // Stile diverso per le card del giardino
+    div.className = isMyGardenCard ? "my-plant-card" : "plant-card";
 
     let buttonsHtml = '';
     const user = firebase.auth().currentUser;
 
     if (user) {
+        // Funzione helper per controllare se l'utente attuale è l'admin
+        // (Nota: questa è una copia locale della funzione, meglio averla globale o passarla)
+        // Per ora la mettiamo qui per comodità, ma in un'app grande si refattorizza.
+        const isAdminUser = () => user.email === 'ferraiolo80@hotmail.it'; // <- CAMBIA CON LA TUA EMAIL ADMIN
+
         if (isMyGardenCard) {
             // Per il "Mio Giardino", mostra sempre rimuovi e aggiorna
             buttonsHtml += `<button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>`;
             buttonsHtml += `<button class="update-plant-button" data-plant-id="${plantData.id}">Aggiorna Info</button>`;
         } else {
-            // Per l'elenco principale, mostra aggiungi o rimuovi (se già nel giardino)
+            // Per l'elenco principale:
+            // 1. Bottone "Rimuovi dal mio giardino" o "Aggiungi al mio giardino"
             if (myGarden.includes(plantData.id)) {
                 buttonsHtml += `<button class="remove-button" data-plant-id="${plantData.id}">Rimuovi dal mio giardino</button>`;
             } else {
                 buttonsHtml += `<button class="add-to-garden-button" data-plant-id="${plantData.id}">Aggiungi al mio giardino</button>`;
             }
-            buttonsHtml += `<button class="update-plant-button" data-plant-id="${plantData.id}">Aggiorna Info</button>`; // Aggiungi aggiorna anche qui
+            
+            // 2. Bottone "Aggiorna Info" (visibile a tutti o a chi ha permessi di update)
+            buttonsHtml += `<button class="update-plant-button" data-plant-id="${plantData.id}">Aggiorna Info</button>`;
+
+            // 3. Bottone "Elimina Definitivamente" (visibile solo all'admin)
+            if (isAdminUser()) { // Mostra solo se l'utente è l'admin
+                buttonsHtml += `<button class="delete-plant-from-db-button" data-plant-id="${plantData.id}">Elimina Definitivamente</button>`;
+            }
         }
     }
 
@@ -131,6 +144,7 @@ function createPlantCard(plantData, isMyGardenCard = false) { // Aggiunto parame
 
     return div;
 }
+
 async function renderPlants(plantArray) {
     console.log("renderPlants: Chiamata con array:", plantArray);
     const gardenContainer = document.getElementById('garden-container');
