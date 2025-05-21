@@ -505,7 +505,7 @@ async function updateGardenVisibility() {
         // Utente loggato, il mio giardino è visibile e non è vuoto
         if (plantsSection) plantsSection.style.display = 'none';
         if (gardenContainer) gardenContainer.style.display = 'none';
-        if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'grid';
         if (giardinoTitle) giardinoTitle.style.display = 'block';
         if (emptyGardenMessage) emptyGardenMessage.style.display = 'none'; // Nascondi messaggio giardino vuoto
     } else {
