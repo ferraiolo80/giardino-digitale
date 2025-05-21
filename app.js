@@ -627,29 +627,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             const plantId = event.target.dataset.plantId;
             await addToMyGarden(plantId);
         } else if (event.target.classList.contains('remove-button')) {
+            // Questo gestisce il "Rimuovi dal mio giardino" nell'elenco principale
             const plantIdToRemove = event.target.dataset.plantId;
             await removeFromMyGarden(plantIdToRemove);
         } else if (event.target.classList.contains('update-plant-button')) {
             const plantIdToUpdate = event.target.dataset.plantId;
-            const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate); // Cerca in allPlants
+            const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
             if (plantToUpdate) {
                 showUpdatePlantForm(plantToUpdate);
             } else {
                 console.warn(`Pianta con ID ${plantIdToUpdate} non trovata in allPlants per l'aggiornamento.`);
             }
+        } else if (event.target.classList.contains('delete-plant-from-db-button')) { // <-- NUOVO BLOCCO
+            const plantIdToDelete = event.target.dataset.plantId;
+            if (confirm(`Sei sicuro di voler eliminare DEFINITIVAMENTE la pianta con ID: ${plantIdToDelete}? Questa azione è irreversibile e la rimuoverà anche dai giardini di tutti gli utenti.`)) {
+                await deletePlantFromDatabase(plantIdToDelete);
+            }
         }
-        // Aggiungi qui anche un listener per un eventuale bottone "Elimina" per gli admin (se lo implementerai)
     });
 
     // Listener per il contenitore del tuo giardino (my-garden) - gestione dinamica dei bottoni
     const myGardenContainer = document.getElementById('my-garden');
     myGardenContainer.addEventListener('click', async (event) => {
+        // ... (logica esistente per remove-button e update-plant-button nel tuo giardino) ...
         if (event.target.classList.contains('remove-button')) {
             const plantIdToRemove = event.target.dataset.plantId;
             await removeFromMyGarden(plantIdToRemove);
         } else if (event.target.classList.contains('update-plant-button')) {
             const plantIdToUpdate = event.target.dataset.plantId;
-            // Trova la pianta nell'array allPlants (o myGarden, ma allPlants è più completo)
             const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
             if (plantToUpdate) {
                 showUpdatePlantForm(plantToUpdate);
@@ -657,7 +662,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.warn(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento nel mio giardino.`);
             }
         }
-        // Aggiungi qui anche un listener per un eventuale bottone "Elimina" per gli admin
+        // NON aggiungere il bottone di eliminazione definitiva qui,
+        // perché le piante nel tuo giardino sono solo un riferimento a quelle globali.
+        // La cancellazione definitiva deve avvenire solo dall'elenco principale.
     });
 
     // 12. LISTENER DI STATO AUTENTICAZIONE FIREBASE
