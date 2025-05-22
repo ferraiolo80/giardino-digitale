@@ -168,7 +168,7 @@ function renderPlants(plantArray) {
     }
 }
 
-function renderMyGarden(gardenPlantIds) {
+function renderMyGarden(plantsToDisplay) { // <--- CAMBIO QUI
     const myGardenContainer = document.getElementById('my-garden');
     const emptyGardenMessage = document.getElementById('empty-garden-message');
 
@@ -179,16 +179,17 @@ function renderMyGarden(gardenPlantIds) {
 
     myGardenContainer.innerHTML = ''; // Pulisci il contenitore
 
-    if (gardenPlantIds.length === 0) {
+    if (plantsToDisplay.length === 0) { // <--- CAMBIO QUI (controlla la lunghezza dell'array di oggetti)
         emptyGardenMessage.style.display = 'block';
-        // Aggiungi il messaggio al contenitore se non è già un figlio diretto nel HTML
         if (!myGardenContainer.contains(emptyGardenMessage)) {
             myGardenContainer.appendChild(emptyGardenMessage);
         }
     } else {
         emptyGardenMessage.style.display = 'none';
 
-        const plantsToDisplay = allPlants.filter(plant => gardenPlantIds.includes(plant.id));
+        // Rimuovi la riga di filtraggio perché plantsToDisplay è già filtrato
+        // const plantsToDisplay = allPlants.filter(plant => gardenPlantIds.includes(plant.id)); // <-- RIMUOVI QUESTA RIGA
+
         plantsToDisplay.forEach(plant => {
             const plantCard = createPlantCard(plant, true);
             myGardenContainer.appendChild(plantCard);
