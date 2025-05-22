@@ -36,6 +36,7 @@ const newPlantIdealLuxMinInput = document.getElementById('new-idealLuxMin');
 const newPlantIdealLuxMaxInput = document.getElementById('new-idealLuxMax');
 const updatePlantIdealLuxMinInput = document.getElementById('updatePlantIdealLuxMin'); // Corretto ID per l'update form (se presente)
 const updatePlantIdealLuxMaxInput = document.getElementById('updatePlantIdealLuxMax'); // Corretto ID per l'update form (se presente)
+let isMyGardenCurrentlyVisible = false;
 
 
 async function handleLogin() {
