@@ -778,59 +778,80 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 12. LISTENER DI STATO AUTENTICAZIONE FIREBASE
     firebase.auth().onAuthStateChanged(async (user) => {
-        const authStatusDiv = document.getElementById('auth-status');
-        const appContentDiv = document.getElementById('app-content');
-        const authContainerDiv = document.getElementById('auth-container');
-        const gardenContainer = document.getElementById('garden-container');
-        const toggleMyGardenButton = document.getElementById('toggleMyGarden');
-        const mioGiardinoSection = document.getElementById('my-garden'); // Riferimento corretto
-        const emptyGardenMessage = document.getElementById('empty-garden-message');
-        const plantsSection = document.getElementById('plants-section'); // Assicurati che esista nell'HTML
+    // Mantieni tutti i tuoi const esistenti
+    const authStatusDiv = document.getElementById('auth-status');
+    const appContentDiv = document.getElementById('app-content');
+    const authContainerDiv = document.getElementById('auth-container');
+    const gardenContainer = document.getElementById('garden-container');
+    const toggleMyGardenButton = document.getElementById('toggleMyGarden');
+    const mioGiardinoSection = document.getElementById('my-garden');
+    const emptyGardenMessage = document.getElementById('empty-garden-message');
+    // Rimuovi questo se plants-section non è un div esistente nel tuo HTML che contiene gardenContainer
+    // o se non è usato per controllare la visibilità principale.
+    // Se plants-section è semplicemente il contenitore principale, assicurati che sia display:block per default nel CSS.
+    // Oppure, se plants-section è un contenitore che include sia i filtri che gardenContainer,
+    // allora deve essere gestito correttamente.
+    const plantsSection = document.getElementById('plants-section'); // Lascialo solo se esiste e ha un ruolo specifico
 
-        if (user) {
-            console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
-            authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
-            appContentDiv.style.display = 'block';
-            authContainerDiv.style.display = 'none';
 
-            // Carica tutte le piante e il giardino dell'utente
-            await loadPlantsFromFirebase();
-            await loadMyGardenFromFirebase();
+    if (user) {
+        console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
+        authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+        appContentDiv.style.display = 'block'; // Mostra il contenitore principale dell'app
+        authContainerDiv.style.display = 'none'; // Nascondi i form di login/registrazione
 
-            // Determina cosa mostrare all'avvio
-            if (myGarden && myGarden.length > 0) {
-                // Se il giardino non è vuoto, mostro il giardino e nascondo le altre piante
-                if (mioGiardinoSection) mioGiardinoSection.style.display = 'block';
-                if (giardinoTitle) giardinoTitle.style.display = 'block';
-                if (gardenContainer) gardenContainer.style.display = 'none';
-                if (plantsSection) plantsSection.style.display = 'none';
-                if (emptyGardenMessage) emptyGardenMessage.style.display = 'none';
-            } else {
-                // Se il giardino è vuoto, mostro l'elenco principale
-                if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-                if (giardinoTitle) giardinoTitle.style.display = 'none';
-                if (gardenContainer) gardenContainer.style.display = 'grid';
-                if (plantsSection) plantsSection.style.display = 'block';
-                if (emptyGardenMessage) emptyGardenMessage.style.display = 'block'; // Mostra messaggio giardino vuoto
-            }
-            updateGardenVisibility(false); // Aggiorna lo stato del toggle button e la visibilità generale
-        } else {
-            console.log("Stato autenticazione cambiato, nessun utente loggato.");
-            authStatusDiv.innerText = "Nessun utente autenticato.";
-            appContentDiv.style.display = 'none';
-            authContainerDiv.style.display = 'block';
-
-            myGarden = []; // Pulisci il giardino locale se l'utente si disconnette
-            await renderMyGarden(myGarden); // Renderizza un giardino vuoto
-            await loadPlantsFromFirebase(); // Carica le piante per l'utente non loggato
-            
-            // Per utente non loggato, mostra solo l'elenco principale
-            if (plantsSection) plantsSection.style.display = 'block';
-            if (gardenContainer) gardenContainer.style.display = 'grid';
-            if (mioGiardinoSection) mioGiardinoSection.style.display = 'none';
-            if (giardinoTitle) giardinoTitle.style.display = 'none';
-            if (emptyGardenMessage) emptyGardenMessage.style.display = 'none'; // Nascosto per non loggati
-            updateGardenVisibility(false); // Aggiorna lo stato del toggle button e la visibilità generale
+        // Ottieni e attacca il listener al bottone di logout
+        // (Assicurati che 'logoutButton' sia dichiarato all'inizio del file e il listener sia definito lì,
+        // o definiscilo qui se non è globale)
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            // Rimuovi eventuali listener precedenti per evitare duplicazioni (buona pratica)
+            logoutButton.removeEventListener('click', handleLogout);
+            logoutButton.addEventListener('click', handleLogout);
         }
-    });
+
+        // 1. Carica tutte le piante pubbliche (che riempiranno 'allPlants' e 'gardenContainer' di default)
+        await loadPlantsFromFirebase();
+
+        // 2. Carica le piante dell'utente (che riempiranno 'myGarden')
+        await loadMyGarden(user.uid); // Assicurati che questa funzione sia loadMyGarden e che usi user.uid
+
+        // 3. Determina quale sezione mostrare inizialmente (l'elenco principale o il giardino dell'utente)
+        // Se il giardino dell'utente ha piante, mostriamo il giardino, altrimenti la galleria principale.
+        let showMyGardenInitially = myGarden.length > 0;
+
+        // 4. Utilizza la funzione updateGardenVisibility per gestire tutta la logica di visualizzazione
+        // Questa funzione dovrebbe impostare correttamente display: 'block'/'none' per:
+        // gardenContainer, mioGiardinoSection, giardinoTitle, emptyGardenMessage, toggleMyGardenButton
+        await updateGardenVisibility(showMyGardenInitially);
+
+        // Applica i filtri all'avvio per la sezione corretta (galleria o giardino)
+        // Questo è il passo che abbiamo discusso prima per i filtri sul mio giardino.
+        applyFilters();
+
+    } else {
+        // Nessun utente loggato
+        console.log("Stato autenticazione cambiato, nessun utente loggato.");
+        authStatusDiv.innerText = "Nessun utente autenticato.";
+        appContentDiv.style.display = 'none'; // Nascondi l'app principale
+        authContainerDiv.style.display = 'block'; // Mostra il form di login/registrazione
+
+        myGarden = []; // Pulisci il giardino locale se l'utente si disconnette
+        await renderMyGarden(myGarden); // Renderizza un giardino vuoto (o pulisci il container)
+
+        await loadPlantsFromFirebase(); // Carica le piante pubbliche per la vista non loggata
+
+        // Imposta la visibilità per l'utente non loggato: solo la galleria principale
+        if (gardenContainer) gardenContainer.style.display = 'grid'; // Assicurati che sia visibile
+        if (mioGiardinoSection) mioGiardinoSection.style.display = 'none'; // Nascondi il giardino
+        if (giardinoTitle) giardinoTitle.style.display = 'none'; // Nascondi il titolo del giardino
+        if (emptyGardenMessage) emptyGardenMessage.style.display = 'none'; // Nascondi il messaggio di giardino vuoto
+        if (plantsSection) plantsSection.style.display = 'block'; // Assicurati che il contenitore dei filtri/ricerca sia visibile
+
+        // Nascondi il bottone "Mio Giardino" se non loggati
+        if (toggleMyGardenButton) {
+            toggleMyGardenButton.style.display = 'none';
+        }
+        applyFilters(); // Applica i filtri alla galleria principale (che sarà l'unica visibile)
+    }
 });
