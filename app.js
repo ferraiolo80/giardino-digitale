@@ -502,16 +502,18 @@ function updateGardenToggleButtonState(isMyGardenEmpty, shouldMyGardenBeVisible)
 }
 
 async function updateGardenVisibility(showMyGarden) {
-    // Riferimenti agli elementi (se non sono già globali o non sono passati come parametri)
     const plantsSection = document.getElementById('plants-section');
     const gardenContainer = document.getElementById('garden-container');
-    const mioGiardinoSection = document.getElementById('my-garden'); // Assicurati che sia corretto
+    const mioGiardinoSection = document.getElementById('my-garden');
     const giardinoTitle = document.getElementById('giardinoTitle');
     const toggleMyGardenButton = document.getElementById('toggleMyGarden');
     const emptyGardenMessage = document.getElementById('empty-garden-message');
 
     const user = firebase.auth().currentUser;
     const isMyGardenEmpty = myGarden.length === 0;
+
+    // Aggiorna lo stato globale della visibilità del giardino
+    isMyGardenCurrentlyVisible = showMyGarden; // <-- AGGIUNTO
 
     // Gestione della visibilità del bottone "Mostra/Nascondi"
     if (toggleMyGardenButton) {
@@ -542,7 +544,7 @@ async function updateGardenVisibility(showMyGarden) {
                 renderMyGarden([]); // Assicurati che non ci siano card se è vuoto
             } else {
                 emptyGardenMessage.style.display = 'none';
-                renderMyGarden(myGarden); // Renderizza le piante del mio giardino
+                // renderMyGarden(myGarden); // Non renderizzare qui, applyFilters lo farà
             }
         }
     } else {
@@ -554,13 +556,13 @@ async function updateGardenVisibility(showMyGarden) {
         if (giardinoTitle) giardinoTitle.style.display = 'none'; // Nascondi il titolo del giardino
         if (emptyGardenMessage) emptyGardenMessage.style.display = 'none'; // Nascondi il messaggio di giardino vuoto
 
-        // Renderizza sempre le piante pubbliche quando si mostra la galleria principale
-        renderPlants(allPlants); 
+        // renderPlants(allPlants); // Non renderizzare qui, applyFilters lo farà
     }
 
-    // Applica i filtri alla sezione attualmente visibile dopo aver impostato la visibilità
+    // Chiamata cruciale: Applica i filtri alla sezione attualmente visibile.
     applyFilters(); 
 }
+
 function handleToggleMyGarden() {
     const mioGiardinoSection = document.getElementById('my-garden');
     // Verifica lo stato attuale per sapere se era già visibile o meno
