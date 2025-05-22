@@ -19,6 +19,24 @@
             text-align: center;
             background-color: #e8f5e9; /* Esempio: sfondo più chiaro */
         }
+        .icon-button {
+            background: none;
+            border: none;
+            color: #4CAF50;
+            font-size: 1.8em;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-button:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #388E3C;
+        }
     </style>
 </head>
 <body>
@@ -45,9 +63,14 @@
             <div id="register-error" class="error-message" style="color: red;"></div>
         </div>
 
-        <button id="logoutButton">Logout</button>
         <div id="auth-status"></div>
     </div>
+
+    <div id="app-content">
+        <div style="text-align: right; margin-bottom: 10px;">
+            <button id="logoutButton" class="icon-button">
+                <i class="fas fa-sign-out-alt"></i> </button>
+        </div>
 
     <div id="app-content">
         <div class="search-container">
