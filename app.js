@@ -223,11 +223,11 @@ function applyFilters() {
         return matchesSearch && matchesCategory && matchesTempMin && matchesTempMax;
     });
 
+    // Renderizza le piante filtrate nella sezione corretta
     if (isMyGardenCurrentlyVisible) {
-        // Se stiamo mostrando il mio giardino, renderizza solo gli ID delle piante filtrate
-        renderMyGarden(filteredPlants.map(p => p.id));
+        // CAMBIO QUI: passa direttamente gli oggetti pianta filtrati a renderMyGarden
+        renderMyGarden(filteredPlants); // <-- PASSA GLI OGGETTI PIANTA, NON GLI ID
     } else {
-        // Altrimenti, renderizza gli oggetti pianta completi
         renderPlants(filteredPlants);
     }
 }
