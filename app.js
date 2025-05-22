@@ -205,35 +205,35 @@ async function renderMyGarden(gardenPlantIds) {
 }
 
 // 6. FUNZIONI DI FILTRO E RICERCA
-function handleFilter(event) {
-    const selectedCategory = event.target.value;
-    let filteredPlants;
+function applyFilters() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const category = categoryFilter.value;
+    const tempMin = parseFloat(tempMinFilter.value);
+    const tempMax = parseFloat(tempMaxFilter.value);
 
-    if (selectedCategory === 'all') {
-        filteredPlants = allPlants;
+    // Determina su quale array di piante applicare i filtri
+    const plantsToFilter = isMyGardenCurrentlyVisible ? myGarden : allPlants; // <-- CAMBIATO
+
+    let filteredPlants = plantsToFilter.filter(plant => {
+        const matchesSearch = plant.name.toLowerCase().includes(searchTerm) || 
+                              plant.description.toLowerCase().includes(searchTerm);
+        const matchesCategory = category === 'all' || plant.category === category;
+        const matchesTempMin = isNaN(tempMin) || plant.tempMin >= tempMin;
+        const matchesTempMax = isNaN(tempMax) || plant.tempMax <= tempMax;
+
+        return matchesSearch && matchesCategory && matchesTempMin && matchesTempMax;
+    });
+
+    // Renderizza le piante filtrate nella sezione corretta
+    if (isMyGardenCurrentlyVisible) {
+        renderMyGarden(filteredPlants);
+        // Mostra/nascondi il messaggio di giardino vuoto in base ai risultati filtrati
+        if (emptyGardenMessage) {
+            emptyGardenMessage.style.display = filteredPlants.length === 0 ? 'block' : 'none';
+        }
     } else {
-        filteredPlants = allPlants.filter(plant => plant.category === selectedCategory);
+        renderPlants(filteredPlants);
     }
-    renderPlants(filteredPlants);
-}
-
-function handleTempFilter() {
-    const minTemp = parseInt(document.getElementById('tempMinFilter').value) || -Infinity;
-    const maxTemp = parseInt(document.getElementById('tempMaxFilter').value) || Infinity;
-
-    const filteredPlants = allPlants.filter(plant =>
-        (plant.tempMin >= minTemp || isNaN(plant.tempMin)) && (plant.tempMax <= maxTemp || isNaN(plant.tempMax))
-    );
-    renderPlants(filteredPlants);
-}
-
-function handleSearch(event) {
-    const searchTerm = event.target.value.toLowerCase();
-    const filteredPlants = allPlants.filter(plant =>
-        plant.name.toLowerCase().includes(searchTerm) ||
-        plant.category.toLowerCase().includes(searchTerm)
-    );
-    renderPlants(filteredPlants);
 }
 
 // 7. NUOVE FUNZIONI DI AGGIORNAMENTO E CANCELLAZIONE PIANTE
