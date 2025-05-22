@@ -867,3 +867,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         applyFilters(); // Applica i filtri alla galleria principale (che sarà l'unica visibile)
     }
 });
+});
