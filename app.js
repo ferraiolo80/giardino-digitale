@@ -685,11 +685,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (saveNewPlant) saveNewPlant.addEventListener('click', saveNewPlantToFirebase);
 
     // Listener per la ricerca e i filtri
-    if (searchInput) searchInput.addEventListener('input', handleSearch);
-    if (categoryFilter) categoryFilter.addEventListener('change', handleFilter);
-    if (tempMinFilter) tempMinFilter.addEventListener('input', handleTempFilter);
-    if (tempMaxFilter) tempMaxFilter.addEventListener('input', handleTempFilter);
-
+    if (searchInput) searchInput.addEventListener('input', applyFilters); 
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters); 
+    if (tempMinFilter) tempMinFilter.addEventListener('input', applyFilters); 
+    if (tempMaxFilter) tempMaxFilter.addEventListener('input', applyFilters); 
+  
     // Listener per il pulsante "Mostra/Nascondi il mio giardino"
     if (toggleMyGardenButton) {
         toggleMyGardenButton.addEventListener('click', handleToggleMyGarden);
