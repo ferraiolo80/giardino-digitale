@@ -4,6 +4,9 @@ let myGarden = []; // Inizializza come array vuoto
 let currentPlantIdToUpdate = null; // Variabile per tenere traccia dell'ID della pianta da aggiornare
 let ambientLightSensor = null; // Variabile per il sensore di luce
 let isMyGardenCurrentlyVisible = false; // Variabile per tenere traccia della visibilità del giardino
+let imageModal;
+let zoomedImage;
+let closeButton;
 
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
