@@ -595,6 +595,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlant');
     emptyGardenMessage = document.getElementById('empty-garden-message');
     plantsSection = document.getElementById('plants-section'); // Inizializza plantsSection
+    imageModal = document.getElementById('image-modal');
+    zoomedImage = document.getElementById('zoomed-image');
+    closeButton = document.querySelector('.close-button'); // Usiamo querySelector per la classe
+
+    // Listener per chiudere la modal cliccando sul pulsante X
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            imageModal.style.display = 'none';
+        });
+    }
+
+    // Listener per chiudere la modal cliccando fuori dall'immagine (sullo sfondo)
+    if (imageModal) {
+        imageModal.addEventListener('click', (event) => {
+            // Se il click non è sull'immagine zoomata, chiudi la modal
+            if (event.target === imageModal) {
+                imageModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Nuovo listener per i click sulle immagini delle card
+    // Useremo un listener sul contenitore principale per gestire tutti i click sulle immagini delle piante
+    if (gardenContainer) {
+        gardenContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('plant-icon')) {
+                const imageUrl = event.target.src;
+                if (zoomedImage && imageModal) {
+                    zoomedImage.src = imageUrl;
+                    imageModal.style.display = 'flex'; // Usiamo 'flex' per centrare con justify-content/align-items
+                }
+            }
 
     // Listener per i bottoni di login/registrazione/logout
     if (loginButton) loginButton.addEventListener('click', handleLogin);
@@ -673,7 +705,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
+     });
+    }
 
+    if (myGardenContainer) {
+        myGardenContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('plant-icon')) {
+                const imageUrl = event.target.src;
+                if (zoomedImage && imageModal) {
+                    zoomedImage.src = imageUrl;
+                    imageModal.style.display = 'flex';
+                }
+            }
 
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
