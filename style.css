@@ -52,7 +52,7 @@ button {
     font-size: 1em;
     transition: background-color 0.3s ease;
     /* Impostiamo un colore di default che può essere sovrascritto */
-    background-color: #6c757d; /* Grigio di default, se nessuna classe specifica */
+    background-color: #4CAF50; /* #6c757d;  Grigio di default, se nessuna classe specifica */
 }
 
 button:hover {
