@@ -1,23 +1,23 @@
 body {
     font-family: sans-serif;
-    margin: 0; /* Rimuovi il margin di 1em dal body per maggiore controllo */
+    margin: 0;
     background: #f5f5f5;
     color: #333;
-    display: flex; /* Utilizza flexbox per il layout principale */
-    flex-direction: column; /* Impila gli elementi verticalmente */
-    min-height: 100vh; /* Assicura che il body occupi almeno l'intera altezza della viewport */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 h1, h2 {
     text-align: center;
     color: #2c3e50;
-    margin-top: 1em; /* Aggiungi un po' di spazio sopra i titoli */
+    margin-top: 1em;
     margin-bottom: 0.8em;
 }
 
 main {
-    flex: 1; /* Fa sì che il contenuto principale (dove si trovano i gardenContainer, ecc.) occupi lo spazio rimanente */
-    padding: 1em; /* Aggiungi padding al main per non attaccare i contenuti ai bordi */
+    flex: 1;
+    padding: 1em;
 }
 
 .search-container,
@@ -25,75 +25,74 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.8em; /* Aumentato leggermente il gap per più spazio */
+    gap: 0.8em;
     flex-wrap: wrap;
     margin: 1em 0;
-    padding: 0 1em; /* Padding orizzontale per i contenitori di ricerca/filtro */
+    padding: 0 1em;
 }
 
 input[type="text"],
 input[type="number"],
 select {
-    padding: 0.6em; /* Aumentato leggermente il padding */
-    border-radius: 6px; /* Aumentato il border-radius */
+    padding: 0.6em;
+    border-radius: 6px;
     border: 1px solid #ccc;
-    min-width: 160px; /* Aumentato min-width */
+    min-width: 160px;
     box-sizing: border-box;
-    font-size: 1em; /* Dimensione del font per una migliore leggibilità */
+    font-size: 1em;
 }
 
+/* Regola generale per i bottoni */
 button {
-    padding: 0.6em 1.2em; /* Aumentato il padding per bottoni più grandi */
-    background-color: #4CAF50;
+    padding: 0.6em 1.2em;
     border: none;
     color: white;
-    border-radius: 6px; /* Aumentato il border-radius */
+    border-radius: 6px;
     cursor: pointer;
     font-size: 1em;
-    transition: background-color 0.3s ease; /* Transizione per hover */
+    transition: background-color 0.3s ease;
+    /* Impostiamo un colore di default che può essere sovrascritto */
+    background-color: #6c757d; /* Grigio di default, se nessuna classe specifica */
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #5a6268;
 }
 
 /* Stili per il contenitore delle card (garden-container e my-garden) */
 #garden-container,
 #my-garden {
     display: grid;
-    /* Usa un layout responsive: 
-       - auto-fit: crea quante colonne possono stare
-       - minmax(280px, 1fr): ogni colonna avrà un minimo di 280px e occuperà 1 frazione dello spazio disponibile */
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px; /* Spazio tra le card */
-    padding: 20px; /* Padding interno al contenitore */
-    justify-items: center; /* Centra le card nella griglia */
-    align-items: start; /* Allinea gli elementi all'inizio della riga */
-    max-width: 1200px; /* Larghezza massima per il contenitore delle card */
-    margin: 0 auto; /* Centra il contenitore delle card */
+    gap: 20px;
+    padding: 20px;
+    justify-items: center;
+    align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* Stili per le singole card */
 .plant-card,
 .my-plant-card {
     border: 1px solid #ddd;
-    border-radius: 12px; /* Aumentato per un look più morbido */
+    border-radius: 12px;
     padding: 20px;
     background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera per profondità */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-    display: flex; /* Utilizza flexbox per un layout interno più controllato */
-    flex-direction: column; /* Gli elementi si impilano verticalmente */
-    align-items: center; /* Centra orizzontalmente gli elementi all'interno della card */
-    width: 100%; /* La card occuperà il 100% della sua cella di griglia */
-    max-width: 320px; /* Larghezza massima per le card, per non farle diventare troppo larghe */
-    min-height: 380px; /* Altezza minima per uniformità */
-    justify-content: space-between; /* Spinge il contenuto e i bottoni ai bordi */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 320px;
+    min-height: 380px;
+    justify-content: space-between;
 }
 
 .my-plant-card {
-    border: 2px solid #66bb6a; /* Bordo verde più evidente */
-    background-color: #e8f5e9; /* Sfondo chiaro per le piante del giardino */
+    border: 2px solid #66bb6a;
+    background-color: #e8f5e9;
 }
 
 .plant-card h4,
@@ -101,121 +100,87 @@ button:hover {
     margin-top: 10px;
     margin-bottom: 5px;
     color: #333;
-    font-size: 1.2em; /* Dimensione del titolo della pianta */
+    font-size: 1.2em;
 }
 
 .plant-card p,
 .my-plant-card p {
     font-size: 0.9em;
     color: #555;
-    margin-bottom: 4px; /* Spazio ridotto tra i paragrafi */
-    line-height: 1.4; /* Migliora la leggibilità del testo */
-    display: flex; /* Per allineare icone e testo */
+    margin-bottom: 4px;
+    line-height: 1.4;
+    display: flex;
     align-items: center;
-    gap: 8px; /* Spazio tra icona e testo */
+    gap: 8px;
 }
 
 .plant-card p i,
 .my-plant-card p i {
-    color: #777; /* Colore delle icone */
+    color: #777;
 }
 
 /* Stili per l'immagine della pianta nella card */
 .plant-icon {
-    width: 100px; /* Dimensione fissa per l'icona */
+    width: 100px;
     height: 100px;
-    object-fit: cover; /* Assicura che l'immagine copra l'area senza distorcersi */
-    border-radius: 50%; /* Rende l'immagine circolare */
+    object-fit: cover;
+    border-radius: 50%;
     margin-bottom: 15px;
-    border: 2px solid #eee; /* Bordo sottile per l'immagine */
-    cursor: pointer; /* Indica che è cliccabile */
-    transition: transform 0.2s ease-in-out; /* Animazione al passaggio del mouse/click */
+    border: 2px solid #eee;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
 }
 
 .plant-icon:hover {
-    transform: scale(1.05); /* Piccolo ingrandimento al passaggio del mouse */
+    transform: scale(1.05);
 }
 
-/* Stili per i bottoni all'interno delle card */
+/* Stili specifici per i bottoni all'interno delle card
+   Queste regole hanno una specificità maggiore perché selezionano un bottone
+   all'interno di una card (.plant-card button) o una classe specifica (.add-to-garden-button),
+   e sono posizionate DOPO la regola generale 'button'.
+*/
 .plant-card button,
 .my-plant-card button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px; /* Spazio tra i bottoni e il contenuto sopra */
+    margin-top: 10px;
+    width: 90%;
+    max-width: 200px;
     font-size: 0.85em;
-    transition: background-color 0.3s ease;
-    width: 90%; /* Occupa quasi tutta la larghezza della card */
-    max-width: 200px; /* Per non farli diventare troppo larghi su card grandi */
 }
 
-.plant-card button:hover,
-.my-plant-card button:hover {
+/* Colori specifici per i bottoni - Maggior specificità */
+.add-to-garden-button {
+    background-color: #4CAF50; /* Verde */
+}
+.add-to-garden-button:hover {
     background-color: #45a049;
-}
-
-/* Colori specifici per i bottoni di rimozione/eliminazione */
-.remove-button,
-.delete-plant-from-db-button {
-    background-color: #f44336; /* Rosso */
-}
-
-.remove-button:hover,
-.delete-plant-from-db-button:hover {
-    background-color: #d32f2f; /* Rosso scuro al hover */
 }
 
 .update-plant-button {
     background-color: #2196F3; /* Blu */
 }
-
 .update-plant-button:hover {
-   background-color: #1976D2; /* Blu scuro al hover */
+    background-color: #1976D2;
 }
 
-.add-to-garden-button {
-    background-color: #4CAF50; /* Verde */
+.remove-button, /* Questo è per i bottoni "Rimuovi dal mio giardino" */
+.delete-plant-from-db-button { /* Questo è per i bottoni "Elimina definitivamente" */
+    background-color: #f44336; /* Rosso */
 }
-
-.add-to-garden-button:hover {
-    background-color: #45a049; /* Verde scuro al hover */
+.remove-button:hover,
+.delete-plant-from-db-button:hover {
+    background-color: #d32f2f;
 }
-
-/* Stili per le icone di temperatura (se stai usando gli SVG) */
-/* Ho rimosso il padding-right e background-image dalle classi, 
-   dovresti gestire le icone direttamente nell'HTML con <i> tag o <img> per flessibilità.
-   Se vuoi mantenere le icone SVG come background, assicurati che i percorsi siano corretti e che il testo sia indentato.
-   Per semplicità e coerenza con i tag <i> di font-awesome, ho commentato/rimosso le tue regole originali qui.
-   Se usi font-awesome per le frecce, useranno il colore del testo della <p>.
-*/
-/*
-.icon-min-temp {
-    // background-image: url('temperature-arrow-up-solid.svg');
-    // background-repeat: no-repeat;
-    // background-position: right 5px center;
-    // background-size: 20px;
-}
-
-.icon-max-temp {
-    // background-image: url('temperature-arrow-down-solid.svg');
-    // background-repeat: no-repeat;
-    // background-position: right 5px center;
-    // background-size: 20px;
-}
-*/
 
 
 /* Stile per il messaggio "Il tuo giardino è vuoto" */
 #my-garden #empty-garden-message {
-    grid-column: 1 / -1; /* Fa in modo che il messaggio occupi tutte le colonne della griglia */
+    grid-column: 1 / -1;
     text-align: center;
-    margin-top: 50px; /* Spazio superiore */
+    margin-top: 50px;
     font-size: 1.2em;
     color: #666;
-    display: none; /* Inizialmente nascosto, visibile via JS quando il giardino è vuoto */
+    display: none;
 }
 
 /* Stili per i form di aggiunta/aggiornamento */
@@ -227,7 +192,7 @@ button:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     margin: 20px auto;
     max-width: 500px;
-    display: none; /* Nascosti di default */
+    display: none;
 }
 
 #newPlantCard label,
@@ -243,7 +208,7 @@ button:hover {
 #updatePlantCard input,
 #updatePlantCard select,
 #updatePlantCard textarea {
-    width: calc(100% - 1em); /* Per tenere conto del padding */
+    width: calc(100% - 1em);
     padding: 0.5em;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -260,7 +225,7 @@ button:hover {
 
 /* Stili per la sezione del sensore di luce */
 #lightSensorSection {
-    background: #f0f8ff; /* Sfondo azzurro chiaro */
+    background: #f0f8ff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -327,7 +292,7 @@ button:hover {
 .icon-button {
     background: none;
     border: none;
-    color: #4CAF50; /* Colore verde */
+    color: #4CAF50;
     font-size: 1.8em;
     cursor: pointer;
     padding: 8px;
@@ -348,39 +313,36 @@ button:hover {
 #giardinoTitle {
     text-align: center;
     margin-top: 20px;
-    color: #2c3e50; /* Colore uniforme con gli altri titoli */
-    font-size: 1.8em; /* Rendi il titolo più grande */
+    color: #2c3e50;
+    font-size: 1.8em;
 }
 
 /* --- NUOVI STILI PER LA MODAL (ZOOM IMMAGINE) --- */
-/* Stili per la Modal (pop-up) */
 .modal {
-    display: none; /* Nascosto di default */
-    position: fixed; /* Si sovrappone a tutto */
-    z-index: 1000; /* Assicurati che sia sopra altri elementi */
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Abilita lo scroll se l'immagine è troppo grande */
-    background-color: rgba(0, 0, 0, 0.9); /* Sfondo nero semitrasparente */
-    justify-content: center; /* Centra l'immagine orizzontalmente con flexbox */
-    align-items: center; /* Centra l'immagine verticalmente con flexbox */
-    animation: fadeIn 0.3s ease-in-out; /* Animazione di apparizione */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Contenuto della Modal (l'immagine zoomed) */
 .modal-content {
     margin: auto;
     display: block;
-    max-width: 90%; /* Larghezza massima dell'immagine (90% della viewport) */
-    max-height: 90vh; /* Altezza massima dell'immagine (90% dell'altezza della viewport) */
-    border-radius: 8px; /* Bordi arrotondati per l'immagine zoomata */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); /* Ombra per l'immagine */
-    animation: zoomIn 0.3s ease-in-out; /* Animazione di zoom */
+    max-width: 90%;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    animation: zoomIn 0.3s ease-in-out;
 }
 
-/* Pulsante di chiusura */
 .close-button {
     position: absolute;
     top: 20px;
@@ -390,7 +352,7 @@ button:hover {
     font-weight: bold;
     transition: 0.3s;
     cursor: pointer;
-    z-index: 1001; /* Sopra la modal */
+    z-index: 1001;
 }
 
 .close-button:hover,
@@ -400,7 +362,6 @@ button:hover {
     cursor: pointer;
 }
 
-/* Animazioni CSS */
 @keyframes fadeIn {
     from {opacity: 0;}
     to {opacity: 1;}
@@ -411,12 +372,10 @@ button:hover {
     to {transform: scale(1); opacity: 1;}
 }
 
-/* Puoi aggiungere un fadeOut se vuoi animare anche la chiusura */
 @keyframes fadeOut {
     from {opacity: 1;}
     to {opacity: 0;}
 }
-
 
 /* Media Queries per la responsività */
 @media (max-width: 768px) {
@@ -435,16 +394,15 @@ button:hover {
     }
 }
 
-/* Media Query per schermi più piccoli (es. cellulari) */
 @media (max-width: 600px) {
     #garden-container,
     #my-garden {
-        grid-template-columns: 1fr; /* Una singola colonna su schermi molto piccoli */
+        grid-template-columns: 1fr;
         padding: 10px;
     }
     .plant-card,
     .my-plant-card {
-        max-width: 90%; /* Occupano più larghezza su schermi piccoli */
+        max-width: 90%;
         padding: 15px;
     }
 
@@ -459,9 +417,8 @@ button:hover {
     }
 }
 
-/* Assicurati che il footer sia sempre in basso */
 footer {
-    margin-top: auto; /* Spinge il footer in fondo */
+    margin-top: auto;
     padding: 20px;
     text-align: center;
     background-color: #f8f8f8;
