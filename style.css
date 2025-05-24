@@ -52,11 +52,11 @@ button {
     font-size: 1em;
     transition: background-color 0.3s ease;
     /* Impostiamo un colore di default che può essere sovrascritto */
-    background-color: #6c757d; /*   Grigio di default, se nessuna classe specifica */
+    background-color: #4CAF50; /* VERDE */
 }
 
 button:hover {
-    background-color: #5a6268;
+    background-color: #45a049; /* Verde scuro al hover */
 }
 
 /* Stili per il contenitore delle card (garden-container e my-garden) */
