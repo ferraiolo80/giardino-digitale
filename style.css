@@ -426,3 +426,67 @@ footer {
     font-size: 0.9em;
     color: #666;
 }
+/* --- NUOVI STILI PER LA MODAL DELLA CARD ZOOMATA --- */
+
+/* Contenitore della card zoomata all'interno della modal */
+/* Sovrascrive/estende .modal-content per le card */
+.modal-card-content {
+    background-color: white; /* Sfondo della card nella modal */
+    border-radius: 12px;
+    padding: 30px; /* Più padding per più spazio */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Ombra più pronunciata */
+    max-width: 95%; /* Leggermente più larga per schermi piccoli */
+    max-height: 90vh; /* Limita l'altezza per schermi verticali */
+    overflow-y: auto; /* Aggiunge scroll se la card è molto lunga */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra il contenuto */
+    box-sizing: border-box; /* Include padding e border nella larghezza/altezza */
+    position: relative; /* Per posizionare il bottone di chiusura se necessario */
+
+    animation: zoomIn 0.3s ease-in-out; /* Usa la stessa animazione zoomIn */
+}
+
+/* Stili per gli elementi della card zoomata (se vuoi sovrascrivere) */
+.modal-card-content .plant-icon {
+    width: 150px; /* Immagine più grande nella modal */
+    height: 150px;
+    margin-bottom: 20px;
+}
+
+.modal-card-content h4 {
+    font-size: 1.6em; /* Titolo più grande */
+    margin-bottom: 10px;
+}
+
+.modal-card-content p {
+    font-size: 1.1em; /* Testo più grande */
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.modal-card-content button {
+    /* Rimuovi i bottoni dalla card zoomata se non devono essere cliccabili */
+    /* display: none; */ 
+    /* Oppure stilizzali diversamente se vuoi che siano visibili ma non interattivi */
+    opacity: 0.5; /* Li rende semitrasparenti e meno cliccabili visivamente */
+    pointer-events: none; /* Disabilita i click */
+}
+
+/* Media query per ottimizzazione su schermi molto piccoli */
+@media (max-width: 480px) {
+    .modal-card-content {
+        padding: 20px;
+        max-width: 90%;
+    }
+    .modal-card-content .plant-icon {
+        width: 120px;
+        height: 120px;
+    }
+    .modal-card-content h4 {
+        font-size: 1.4em;
+    }
+    .modal-card-content p {
+        font-size: 1em;
+    }
+}
