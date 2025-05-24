@@ -160,20 +160,20 @@ button:hover {
 /* Colori specifici per i bottoni di rimozione/eliminazione */
 .remove-button,
 .delete-plant-from-db-button {
-    background-color: #f44336;
+    background-color: #f44336; /* Rosso */
 }
 
 .remove-button:hover,
 .delete-plant-from-db-button:hover {
-    background-color: #d32f2f;
+    background-color: #d32f2f; /* Rosso scuro al hover */
 }
 
 .update-plant-button {
-    background-color: #2196F3;
+    background-color: #2196F3; /* Blu */
 }
 
 .update-plant-button:hover {
-    background-color: #1976D2;
+   background-color: #1976D2; /* Blu scuro al hover */
 }
 
 /* Stili per le icone di temperatura (se stai usando gli SVG) */
