@@ -4,11 +4,15 @@ let myGarden = []; // Inizializza come array vuoto
 let currentPlantIdToUpdate = null; // Variabile per tenere traccia dell'ID della pianta da aggiornare
 let ambientLightSensor = null; // Variabile per il sensore di luce
 let isMyGardenCurrentlyVisible = false; // Variabile per tenere traccia della visibilità del giardino
-let imageModal;
-let zoomedImage;
-let closeButton;
-let cardModal; // Nuova variabile per la modal della card
-let zoomedCardContent; // Nuova variabile per il contenuto della card zoomata
+
+// Variabili per la gestione della modal (usata sia per zoom immagine che per zoom card)
+let imageModal; // Riferimento all'elemento HTML della modal (div#image-modal)
+let zoomedImage; // Riferimento all'elemento HTML dell'immagine zoomata (img#zoomed-image)
+let closeButton; // Riferimento al bottone di chiusura della modal (span.close-button)
+
+// Le variabili cardModal e zoomedCardContent non sono più necessarie come globali separate
+// perché riutilizziamo imageModal e generiamo il contenuto della card dinamicamente.
+
 
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
@@ -43,8 +47,7 @@ let saveUpdatedPlantButton;
 let cancelUpdatePlantButton;
 let emptyGardenMessage; // Questa variabile ora è dichiarata qui
 let plantsSection; // Aggiunto per riferimento alla sezione principale delle piante
-let imageModalElement; // Riferimento all'elemento #image-modal
-let cardModalElement; // Riferimento all'elemento della modal della card
+
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
 async function handleLogin() {
@@ -107,13 +110,60 @@ async function handleLogout() {
     }
 }
 
+// --- FUNZIONE PER INIZIALIZZARE/RESETTARE LA MODAL ---
+// Questa funzione prepara la modal per essere riutilizzata,
+// sia per lo zoom di un'immagine che per lo zoom di una card.
+function initializeModal() {
+    // Reperisce la modal (se non già fatto, utile se chiamata prima di DOMContentLoaded)
+    if (!imageModal) {
+        imageModal = document.getElementById('image-modal');
+    }
+
+    // Pulisce completamente l'interno della modal
+    imageModal.innerHTML = '';
+    imageModal.style.display = 'none'; // Assicurati che sia nascosta all'inizio
+
+    // Aggiunge il bottone di chiusura
+    const newCloseButton = document.createElement('span');
+    newCloseButton.classList.add('close-button');
+    newCloseButton.innerHTML = '&times;';
+    // Rimuove eventuali listener precedenti per evitare duplicazioni
+    const oldCloseButton = imageModal.querySelector('.close-button');
+    if (oldCloseButton) oldCloseButton.removeEventListener('click', () => { imageModal.style.display = 'none'; initializeModal(); });
+    newCloseButton.addEventListener('click', () => {
+        imageModal.style.display = 'none';
+        initializeModal(); // Resetta la modal quando si chiude
+    });
+    imageModal.appendChild(newCloseButton);
+    closeButton = newCloseButton; // Aggiorna il riferimento globale
+
+    // Aggiunge l'elemento immagine per lo zoom immagine (sarà nascosto se si zooma una card)
+    const newZoomedImage = document.createElement('img');
+    newZoomedImage.classList.add('modal-content'); // Classe per lo stile dell'immagine zoomata
+    newZoomedImage.id = 'zoomed-image'; // ID per riferimento
+    imageModal.appendChild(newZoomedImage);
+    zoomedImage = newZoomedImage; // Aggiorna il riferimento globale
+
+    // Aggiungi un listener generico alla modal per chiuderla cliccando fuori (sullo sfondo)
+    // Rimuove eventuali listener precedenti per evitare duplicazioni
+    const oldModalListener = imageModal.onclick; // Potrebbe non essere la forma migliore per rimuovere, ma per semplicità
+    if (oldModalListener) imageModal.removeEventListener('click', oldModalListener); // Questo potrebbe non funzionare se il listener non è stato aggiunto con un riferimento
+    imageModal.addEventListener('click', (event) => {
+        if (event.target === imageModal) { // Se il click è sullo sfondo della modal
+            imageModal.style.display = 'none';
+            initializeModal(); // Resetta la modal
+        }
+    });
+}
+
+
 // --- FUNZIONI DI RENDERING E GESTIONE DELLE CARD ---
 
 function createPlantCard(plantData, isMyGardenCard = false) {
-    // console.log("createPlantCard CALLED. Plant:", plantData.name, plantData.id); // Per debug, puoi riattivarlo
     const image = plantData.image || 'plant_9215709.png'; // Immagine di default se non specificata
     const div = document.createElement("div");
     div.className = isMyGardenCard ? "my-plant-card" : "plant-card";
+    div.dataset.id = plantData.id; // Importante per riferimento futuro
 
     let buttonsHtml = '';
     const user = firebase.auth().currentUser;
@@ -151,11 +201,53 @@ function createPlantCard(plantData, isMyGardenCard = false) {
         ${buttonsHtml}
     `;
 
+    // --- LOGICA ZOOM IMMAGINE ---
+    const plantImage = div.querySelector('.plant-icon');
+    if (plantImage) {
+        plantImage.addEventListener('click', (event) => {
+            event.stopPropagation(); // Impedisce che il click sull'immagine attivi anche lo zoom della card
+            initializeModal(); // Resetta la modal per lo zoom immagine
+            zoomedImage.src = image; // Imposta la sorgente dell'immagine
+            imageModal.style.display = 'flex'; // Mostra la modal
+        });
+    }
+
+    // --- NUOVA LOGICA ZOOM CARD ---
+    // Aggiungi un listener alla card stessa, ma non ai bottoni o all'immagine
+    div.addEventListener('click', (event) => {
+        // Se il click è avvenuto su un bottone o sull'immagine, non fare nulla (già gestito sopra)
+        if (event.target.tagName === 'BUTTON' || event.target.classList.contains('plant-icon')) {
+            return;
+        }
+
+        // Clona la card per mostrarla nella modal
+        const clonedCard = div.cloneNode(true); // Clona l'intera card, inclusi i suoi figli
+
+        // Rimuovi i bottoni dalla card clonata nella modal, dato che non vogliamo che siano interattivi
+        clonedCard.querySelectorAll('button').forEach(button => {
+            button.remove();
+        });
+
+        // Applica la classe per gli stili della card zoomata alla card clonata
+        clonedCard.classList.remove('plant-card', 'my-plant-card'); // Rimuovi le classi originali
+        clonedCard.classList.add('modal-card-content'); // Aggiungi la nuova classe per la card nella modal
+
+        // Prepara la modal
+        initializeModal(); // Resetta la modal al suo stato base
+        // Rimuove l'elemento immagine predefinito, perché ora mostreremo la card clonata
+        if (zoomedImage && zoomedImage.parentNode === imageModal) {
+            imageModal.removeChild(zoomedImage);
+        }
+
+        // Aggiungi la card clonata alla modal (dopo il bottone di chiusura che initializeModal ha aggiunto)
+        imageModal.appendChild(clonedCard);
+        imageModal.style.display = 'flex'; // Mostra la modal
+    });
+
     return div;
 }
 
 function renderPlants(plantArray) {
-    // console.log("renderPlants: Chiamata con array:", plantArray); // Per debug, puoi riattivarlo
     if (!gardenContainer) { 
         console.error("Elemento garden-container non trovato in renderPlants! Assicurati che il DOM sia caricato e la variabile inizializzata.");
         return;
@@ -193,10 +285,6 @@ function renderMyGarden(plantsToDisplay) { // Riceve direttamente gli oggetti pi
 
 // --- FUNZIONI DI FILTRO E RICERCA ---
 function applyFilters() {
-    // Ho rimosso i controlli if (!searchInput || ...) qui perché queste variabili
-    // sono inizializzate in DOMContentLoaded e dovrebbero essere sempre disponibili.
-    // L'errore verrebbe gestito dalla console se mancasse un elemento HTML.
-
     const searchTerm = searchInput.value.toLowerCase();
     const category = categoryFilter.value;
     const tempMin = parseFloat(tempMinFilter.value);
@@ -204,7 +292,6 @@ function applyFilters() {
 
     let plantsToFilter;
     if (isMyGardenCurrentlyVisible) {
-        // Filtra da allPlants basandosi sugli ID presenti in myGarden
         plantsToFilter = allPlants.filter(plant => myGarden.includes(plant.id));
     } else {
         plantsToFilter = allPlants;
@@ -244,7 +331,6 @@ function showUpdatePlantForm(plant) {
     document.getElementById('updatePlantDescription').value = plant.description || '';
     document.getElementById('updatePlantCategory').value = plant.category || 'Fiore';
     document.getElementById('updatePlantImageURL').value = plant.image || '';
-    // Usa le variabili globali per gli input di Lux
     updatePlantIdealLuxMinInput.value = plant.idealLuxMin || '';
     updatePlantIdealLuxMaxInput.value = plant.idealLuxMax || '';
 
@@ -264,7 +350,7 @@ function clearUpdatePlantForm() {
     document.getElementById('updatePlantTempMin').value = '';
     document.getElementById('updatePlantTempMax').value = '';
     document.getElementById('updatePlantDescription').value = '';
-    document.getElementById('updatePlantCategory').value = 'Fiore';
+    document.getElementById('updatePlantCategory').value = 'Fiore'; // Reset a un valore di default
     document.getElementById('updatePlantImageURL').value = '';
     updatePlantIdealLuxMinInput.value = ''; // Pulisci anche questi
     updatePlantIdealLuxMaxInput.value = ''; // Pulisci anche questi
@@ -598,134 +684,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlant');
     emptyGardenMessage = document.getElementById('empty-garden-message');
     plantsSection = document.getElementById('plants-section'); // Inizializza plantsSection
-    imageModal = document.getElementById('image-modal');
-    zoomedImage = document.getElementById('zoomed-image');
-    closeButton = document.querySelector('.close-button'); // Usiamo querySelector per la classe
-    // Inizializzazione delle modal
-    imageModal = document.getElementById('image-modal');
-    zoomedImage = document.getElementById('zoomed-image');
-    closeButton = imageModal.querySelector('.close-button'); // Il bottone di chiusura è dentro imageModal
-    // Inizializzazione per la modal della card (Useremo la stessa modal ma con contenuto diverso)
-    cardModal = document.getElementById('image-modal'); // Riusiamo la stessa modal
-    // Non abbiamo un elemento specifico per zoomedCardContent all'inizio, lo creeremo dinamicamente
-    // quando una card viene zoomata.
-
-    // Listener per chiudere la modal quando si clicca sul bottone 'X' o fuori dall'immagine/card
-    if (closeButton) {
-        closeButton.addEventListener('click', () => {
-            imageModal.style.display = 'none'; // Nasconde la modal dell'immagine
-            // Se la modal è usata anche per le card, dobbiamo pulire il suo contenuto
-            if (imageModal.classList.contains('card-zoom-active')) { // Controlla se sta mostrando una card
-                imageModal.classList.remove('card-zoom-active');
-                imageModal.innerHTML = `<span class="close-button">&times;</span><img class="modal-content" id="zoomed-image">`;
-                // Re-inizializza closeButton e zoomedImage perché l'HTML interno è stato riscritto
-                closeButton = imageModal.querySelector('.close-button');
-                zoomedImage = imageModal.querySelector('#zoomed-image');
-                closeButton.addEventListener('click', () => { imageModal.style.display = 'none'; }); // Ri-aggiungi listener
-            }
-        });
-    }
-
-    // Listener per chiudere la modal cliccando all'esterno dell'immagine/card ingrandita
-    if (imageModal) { // Ora imageModal è anche la nostra cardModal
-        imageModal.addEventListener('click', (event) => {
-            if (event.target === imageModal) { // Cliccato sullo sfondo nero della modal
-                imageModal.style.display = 'none';
-                if (imageModal.classList.contains('card-zoom-active')) {
-                    imageModal.classList.remove('card-zoom-active');
-                    imageModal.innerHTML = `<span class="close-button">&times;</span><img class="modal-content" id="zoomed-image">`;
-                    // Re-inizializza closeButton e zoomedImage
-                    closeButton = imageModal.querySelector('.close-button');
-                    zoomedImage = imageModal.querySelector('#zoomed-image');
-                    closeButton.addEventListener('click', () => { imageModal.style.display = 'none'; }); // Ri-aggiungi listener
-                }
-            }
-        });
-    }
-
-    // --- LISTENER PER LA MODAL (ZOOM IMMAGINE) ---
-    // Listener per chiudere la modal cliccando sul pulsante X
-    if (closeButton) {
-        closeButton.addEventListener('click', () => {
-            imageModal.style.display = 'none';
-        });
-    }
-
-    // Listener per chiudere la modal cliccando fuori dall'immagine (sullo sfondo)
-    if (imageModal) {
-        imageModal.addEventListener('click', (event) => {
-            // Se il click non è sull'immagine zoomata, chiudi la modal
-            if (event.target === imageModal) {
-                imageModal.style.display = 'none';
-            }
-        });
-    }
     
-    // Listener per i click sulle immagini delle card nella GALLERIA GENERALE
-    if (gardenContainer) {
-        gardenContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('plant-icon')) {
-                const imageUrl = event.target.src;
-                if (zoomedImage && imageModal) {
-                    zoomedImage.src = imageUrl;
-                    imageModal.style.display = 'flex'; // Usiamo 'flex' per centrare con justify-content/align-items
-                }
-            }
-            // Puoi lasciare qui il codice per i bottoni 'add-to-garden-button', 'remove-button', 'update-plant-button', 'delete-plant-from-db-button'
-            // Questo perché questi bottoni sono all'interno delle card e si beneficia dell'event delegation
-            // ... (altri tuoi listener per bottoni già presenti qui) ...
-            if (event.target.classList.contains('add-to-garden-button')) {
-                const plantId = event.target.dataset.plantId;
-                addToMyGarden(plantId); // Assicurati che sia await addToMyGarden(plantId); se è una funzione async
-            } else if (event.target.classList.contains('remove-button')) {
-                const plantIdToRemove = event.target.dataset.plantId;
-                removeFromMyGarden(plantIdToRemove); // Assicurati che sia await removeFromMyGarden(plantIdToRemove);
-            } else if (event.target.classList.contains('update-plant-button')) {
-                const plantIdToUpdate = event.target.dataset.plantId;
-                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
-                if (plantToUpdate) {
-                    showUpdatePlantForm(plantToUpdate);
-                } else {
-                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata in allPlants per l'aggiornamento.`);
-                }
-            } else if (event.target.classList.contains('delete-plant-from-db-button')) { 
-                const plantIdToDelete = event.target.dataset.plantId;
-                if (confirm(`Sei sicuro di voler eliminare DEFINITIVAMENTE la pianta con ID: ${plantIdToDelete}? Questa azione è irreversibile e la rimuoverà anche dai giardini di tutti gli utenti.`)) {
-                    deletePlantFromDatabase(plantIdToDelete); // Assicurati che sia await deletePlantFromDatabase(plantIdToDelete);
-                }
-            }
-        });
-    }
-
-    // Listener per i click sulle immagini delle card nel MIO GIARDINO
-    if (myGardenContainer) {
-        myGardenContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('plant-icon')) {
-                const imageUrl = event.target.src;
-                if (zoomedImage && imageModal) {
-                    zoomedImage.src = imageUrl;
-                    imageModal.style.display = 'flex';
-                }
-            }
-            // Anche qui, puoi lasciare i listener per i bottoni 'remove-button' e 'update-plant-button'
-            // ... (altri tuoi listener per bottoni già presenti qui) ...
-            if (event.target.classList.contains('remove-button')) {
-                const plantIdToRemove = event.target.dataset.plantId;
-                removeFromMyGarden(plantIdToRemove); // Assicurati che sia await removeFromMyGarden(plantIdToRemove);
-            } else if (event.target.classList.contains('update-plant-button')) {
-                const plantIdToUpdate = event.target.dataset.plantId;
-                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
-                if (plantToUpdate) {
-                    showUpdatePlantForm(plantToUpdate);
-                } else {
-                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento nel mio giardino.`);
-                }
-            }
-        });
-    }
+    // Inizializzazione della modal all'avvio dell'applicazione
+    // Assicurati che l'elemento <div id="image-modal"></div> esista nel tuo HTML
+    initializeModal(); // Chiamata per inizializzare la modal
 
     // --- LISTENER GENERALI (NON DIPENDENTI DAL CLICK SU CARD) ---
-    // Listener per i bottoni di login/registrazione/logout
+    // Listener per i bottoni di login/registrazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
     // Il listener per il logout è gestito nell'onAuthStateChanged per essere ri-creato correttamente.
@@ -806,6 +771,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
     
+    // --- LISTENER PER I CONTENITORI DELLE CARD (GALLERIA E MIO GIARDINO) ---
+    // Questi listener usano l'event delegation per gestire click su immagini e bottoni all'interno delle card.
+    
+    if (gardenContainer) {
+        gardenContainer.addEventListener('click', async (event) => {
+            // Gestione click sull'immagine (zoom immagine)
+            if (event.target.classList.contains('plant-icon')) {
+                // La logica di zoom immagine è ora gestita direttamente in createPlantCard
+                // attraverso il listener aggiunto a plantImage.
+                // Questo blocco qui è ridondante se il listener è già sulla singola immagine.
+                // Lo lascio per ora ma potremmo rimuoverlo se il listener sulla singola immagine è sufficiente.
+                // Per ora, non fa nulla qui, il click viene gestito dal listener sulla plantImage.
+                return; 
+            }
+            
+            // Gestione click sui bottoni (aggiungi/rimuovi/aggiorna/elimina)
+            if (event.target.classList.contains('add-to-garden-button')) {
+                const plantId = event.target.dataset.plantId;
+                await addToMyGarden(plantId); 
+            } else if (event.target.classList.contains('remove-button')) {
+                const plantIdToRemove = event.target.dataset.plantId;
+                await removeFromMyGarden(plantIdToRemove); 
+            } else if (event.target.classList.contains('update-plant-button')) {
+                const plantIdToUpdate = event.target.dataset.plantId;
+                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
+                if (plantToUpdate) {
+                    showUpdatePlantForm(plantToUpdate);
+                } else {
+                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata in allPlants per l'aggiornamento.`);
+                }
+            } else if (event.target.classList.contains('delete-plant-from-db-button')) { 
+                const plantIdToDelete = event.target.dataset.plantId;
+                if (confirm(`Sei sicuro di voler eliminare DEFINITIVAMENTE la pianta con ID: ${plantIdToDelete}? Questa azione è irreversibile e la rimuoverà anche dai giardini di tutti gli utenti.`)) {
+                    await deletePlantFromDatabase(plantIdToDelete); 
+                }
+            }
+        });
+    }
+
+    if (myGardenContainer) {
+        myGardenContainer.addEventListener('click', async (event) => {
+            // Gestione click sull'immagine (zoom immagine)
+            if (event.target.classList.contains('plant-icon')) {
+                // Come sopra, la logica di zoom immagine è gestita in createPlantCard
+                return;
+            }
+
+            // Gestione click sui bottoni (rimuovi/aggiorna)
+            if (event.target.classList.contains('remove-button')) {
+                const plantIdToRemove = event.target.dataset.plantId;
+                await removeFromMyGarden(plantIdToRemove); 
+            } else if (event.target.classList.contains('update-plant-button')) {
+                const plantIdToUpdate = event.target.dataset.plantId;
+                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
+                if (plantToUpdate) {
+                    showUpdatePlantForm(plantToUpdate);
+                } else {
+                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento nel mio giardino.`);
+                }
+            }
+        });
+    }
+
     // --- LISTENER DI STATO AUTENTICAZIONE FIREBASE ---
     // Questo listener rimane alla fine del DOMContentLoaded perché è il flusso principale
     firebase.auth().onAuthStateChanged(async (user) => {
