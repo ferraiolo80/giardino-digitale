@@ -43,6 +43,8 @@ let saveUpdatedPlantButton;
 let cancelUpdatePlantButton;
 let emptyGardenMessage; // Questa variabile ora è dichiarata qui
 let plantsSection; // Aggiunto per riferimento alla sezione principale delle piante
+let imageModalElement; // Riferimento all'elemento #image-modal
+let cardModalElement; // Riferimento all'elemento della modal della card
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
 async function handleLogin() {
