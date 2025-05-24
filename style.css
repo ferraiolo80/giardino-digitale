@@ -176,6 +176,14 @@ button:hover {
    background-color: #1976D2; /* Blu scuro al hover */
 }
 
+.add-to-garden-button {
+    background-color: #4CAF50; /* Verde */
+}
+
+.add-to-garden-button:hover {
+    background-color: #45a049; /* Verde scuro al hover */
+}
+
 /* Stili per le icone di temperatura (se stai usando gli SVG) */
 /* Ho rimosso il padding-right e background-image dalle classi, 
    dovresti gestire le icone direttamente nell'HTML con <i> tag o <img> per flessibilità.
