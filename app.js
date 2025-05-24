@@ -557,7 +557,6 @@ function stopLightSensor() {
 }
 
 
-// --- BLOCCO DOMContentLoaded (tutti i tuoi listener di eventi e inizializzazione DOM) ---
 document.addEventListener('DOMContentLoaded', async () => {
     // Inizializza TUTTE le variabili globali degli elementi DOM qui
     // Queste variabili sono state dichiarate con 'let' all'inizio del file
@@ -599,6 +598,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     zoomedImage = document.getElementById('zoomed-image');
     closeButton = document.querySelector('.close-button'); // Usiamo querySelector per la classe
 
+    // --- LISTENER PER LA MODAL (ZOOM IMMAGINE) ---
     // Listener per chiudere la modal cliccando sul pulsante X
     if (closeButton) {
         closeButton.addEventListener('click', () => {
@@ -616,8 +616,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    // Nuovo listener per i click sulle immagini delle card
-    // Useremo un listener sul contenitore principale per gestire tutti i click sulle immagini delle piante
+    // Listener per i click sulle immagini delle card nella GALLERIA GENERALE
     if (gardenContainer) {
         gardenContainer.addEventListener('click', (event) => {
             if (event.target.classList.contains('plant-icon')) {
@@ -627,7 +626,60 @@ document.addEventListener('DOMContentLoaded', async () => {
                     imageModal.style.display = 'flex'; // Usiamo 'flex' per centrare con justify-content/align-items
                 }
             }
+            // Puoi lasciare qui il codice per i bottoni 'add-to-garden-button', 'remove-button', 'update-plant-button', 'delete-plant-from-db-button'
+            // Questo perché questi bottoni sono all'interno delle card e si beneficia dell'event delegation
+            // ... (altri tuoi listener per bottoni già presenti qui) ...
+            if (event.target.classList.contains('add-to-garden-button')) {
+                const plantId = event.target.dataset.plantId;
+                addToMyGarden(plantId); // Assicurati che sia await addToMyGarden(plantId); se è una funzione async
+            } else if (event.target.classList.contains('remove-button')) {
+                const plantIdToRemove = event.target.dataset.plantId;
+                removeFromMyGarden(plantIdToRemove); // Assicurati che sia await removeFromMyGarden(plantIdToRemove);
+            } else if (event.target.classList.contains('update-plant-button')) {
+                const plantIdToUpdate = event.target.dataset.plantId;
+                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
+                if (plantToUpdate) {
+                    showUpdatePlantForm(plantToUpdate);
+                } else {
+                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata in allPlants per l'aggiornamento.`);
+                }
+            } else if (event.target.classList.contains('delete-plant-from-db-button')) { 
+                const plantIdToDelete = event.target.dataset.plantId;
+                if (confirm(`Sei sicuro di voler eliminare DEFINITIVAMENTE la pianta con ID: ${plantIdToDelete}? Questa azione è irreversibile e la rimuoverà anche dai giardini di tutti gli utenti.`)) {
+                    deletePlantFromDatabase(plantIdToDelete); // Assicurati che sia await deletePlantFromDatabase(plantIdToDelete);
+                }
+            }
+        });
+    }
 
+    // Listener per i click sulle immagini delle card nel MIO GIARDINO
+    if (myGardenContainer) {
+        myGardenContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('plant-icon')) {
+                const imageUrl = event.target.src;
+                if (zoomedImage && imageModal) {
+                    zoomedImage.src = imageUrl;
+                    imageModal.style.display = 'flex';
+                }
+            }
+            // Anche qui, puoi lasciare i listener per i bottoni 'remove-button' e 'update-plant-button'
+            // ... (altri tuoi listener per bottoni già presenti qui) ...
+            if (event.target.classList.contains('remove-button')) {
+                const plantIdToRemove = event.target.dataset.plantId;
+                removeFromMyGarden(plantIdToRemove); // Assicurati che sia await removeFromMyGarden(plantIdToRemove);
+            } else if (event.target.classList.contains('update-plant-button')) {
+                const plantIdToUpdate = event.target.dataset.plantId;
+                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
+                if (plantToUpdate) {
+                    showUpdatePlantForm(plantToUpdate);
+                } else {
+                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento nel mio giardino.`);
+                }
+            }
+        });
+    }
+
+    // --- LISTENER GENERALI (NON DIPENDENTI DAL CLICK SU CARD) ---
     // Listener per i bottoni di login/registrazione/logout
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
@@ -643,13 +695,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (categoryFilter) categoryFilter.addEventListener('change', applyFilters); 
     if (tempMinFilter) tempMinFilter.addEventListener('input', applyFilters); 
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', applyFilters); 
-  
+    
     // Listener per il pulsante "Mostra/Nascondi il mio giardino"
     if (toggleMyGardenButton) {
         toggleMyGardenButton.addEventListener('click', handleToggleMyGarden);
     }
 
-    // Listener per i bottoni del form di aggiornamento
+    // Listener per i bottoni del form di aggiornamento (questi non devono essere nei click delle card)
     if (saveUpdatedPlantButton) {
         saveUpdatedPlantButton.addEventListener('click', async () => {
             if (currentPlantIdToUpdate) {
@@ -662,8 +714,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     description: document.getElementById('updatePlantDescription').value,
                     category: document.getElementById('updatePlantCategory').value,
                     image: document.getElementById('updatePlantImageURL').value,
-                    idealLuxMin: parseInt(updatePlantIdealLuxMinInput.value), // Usa le variabili globali
-                    idealLuxMax: parseInt(updatePlantIdealLuxMaxInput.value)  // Usa le variabili globali
+                    idealLuxMin: parseInt(updatePlantIdealLuxMinInput.value),
+                    idealLuxMax: parseInt(updatePlantIdealLuxMaxInput.value)
                 };
 
                 if (isNaN(updatedData.idealLuxMin) || isNaN(updatedData.idealLuxMax)) {
@@ -705,67 +757,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-     });
-    }
-
-    if (myGardenContainer) {
-        myGardenContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('plant-icon')) {
-                const imageUrl = event.target.src;
-                if (zoomedImage && imageModal) {
-                    zoomedImage.src = imageUrl;
-                    imageModal.style.display = 'flex';
-                }
-            }
 
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
-  
-    // Listener per il contenitore principale delle piante (garden-container) - gestione dinamica dei bottoni
-    if (gardenContainer) { 
-        gardenContainer.addEventListener('click', async (event) => {
-            if (event.target.classList.contains('add-to-garden-button')) {
-                const plantId = event.target.dataset.plantId;
-                await addToMyGarden(plantId);
-            } else if (event.target.classList.contains('remove-button')) {
-                const plantIdToRemove = event.target.dataset.plantId;
-                await removeFromMyGarden(plantIdToRemove);
-            } else if (event.target.classList.contains('update-plant-button')) {
-                const plantIdToUpdate = event.target.dataset.plantId;
-                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
-                if (plantToUpdate) {
-                    showUpdatePlantForm(plantToUpdate);
-                } else {
-                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata in allPlants per l'aggiornamento.`);
-                }
-            } else if (event.target.classList.contains('delete-plant-from-db-button')) { 
-                const plantIdToDelete = event.target.dataset.plantId;
-                if (confirm(`Sei sicuro di voler eliminare DEFINITIVAMENTE la pianta con ID: ${plantIdToDelete}? Questa azione è irreversibile e la rimuoverà anche dai giardini di tutti gli utenti.`)) {
-                    await deletePlantFromDatabase(plantIdToDelete);
-                }
-            }
-        });
-    }
-
-    // Listener per il contenitore del tuo giardino (my-garden) - gestione dinamica dei bottoni
-    if (myGardenContainer) { 
-        myGardenContainer.addEventListener('click', async (event) => {
-            if (event.target.classList.contains('remove-button')) {
-                const plantIdToRemove = event.target.dataset.plantId;
-                await removeFromMyGarden(plantIdToRemove);
-            } else if (event.target.classList.contains('update-plant-button')) {
-                const plantIdToUpdate = event.target.dataset.plantId;
-                const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate);
-                if (plantToUpdate) {
-                    showUpdatePlantForm(plantToUpdate);
-                } else {
-                    console.warn(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento nel mio giardino.`);
-                }
-            }
-        });
-    }
-
+    
     // --- LISTENER DI STATO AUTENTICAZIONE FIREBASE ---
+    // Questo listener rimane alla fine del DOMContentLoaded perché è il flusso principale
     firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
             console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
@@ -783,7 +780,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             await loadMyGardenFromFirebase(); 
 
             // Decidi se mostrare il mio giardino o tutte le piante all'inizio
-            // Se l'utente ha piante nel giardino, mostra il giardino per default.
             const showMyGardenInitially = myGarden.length > 0;
             await updateGardenVisibility(showMyGardenInitially);
 
