@@ -7,6 +7,8 @@ let isMyGardenCurrentlyVisible = false; // Variabile per tenere traccia della vi
 let imageModal;
 let zoomedImage;
 let closeButton;
+let cardModal; // Nuova variabile per la modal della card
+let zoomedCardContent; // Nuova variabile per il contenuto della card zoomata
 
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
