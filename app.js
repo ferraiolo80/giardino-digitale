@@ -601,6 +601,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     imageModal = document.getElementById('image-modal');
     zoomedImage = document.getElementById('zoomed-image');
     closeButton = document.querySelector('.close-button'); // Usiamo querySelector per la classe
+    // Inizializzazione delle modal
+    imageModal = document.getElementById('image-modal');
+    zoomedImage = document.getElementById('zoomed-image');
+    closeButton = imageModal.querySelector('.close-button'); // Il bottone di chiusura è dentro imageModal
+    // Inizializzazione per la modal della card (Useremo la stessa modal ma con contenuto diverso)
+    cardModal = document.getElementById('image-modal'); // Riusiamo la stessa modal
+    // Non abbiamo un elemento specifico per zoomedCardContent all'inizio, lo creeremo dinamicamente
+    // quando una card viene zoomata.
+
+    // Listener per chiudere la modal quando si clicca sul bottone 'X' o fuori dall'immagine/card
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            imageModal.style.display = 'none'; // Nasconde la modal dell'immagine
+            // Se la modal è usata anche per le card, dobbiamo pulire il suo contenuto
+            if (imageModal.classList.contains('card-zoom-active')) { // Controlla se sta mostrando una card
+                imageModal.classList.remove('card-zoom-active');
+                imageModal.innerHTML = `<span class="close-button">&times;</span><img class="modal-content" id="zoomed-image">`;
+                // Re-inizializza closeButton e zoomedImage perché l'HTML interno è stato riscritto
+                closeButton = imageModal.querySelector('.close-button');
+                zoomedImage = imageModal.querySelector('#zoomed-image');
+                closeButton.addEventListener('click', () => { imageModal.style.display = 'none'; }); // Ri-aggiungi listener
+            }
+        });
+    }
+
+    // Listener per chiudere la modal cliccando all'esterno dell'immagine/card ingrandita
+    if (imageModal) { // Ora imageModal è anche la nostra cardModal
+        imageModal.addEventListener('click', (event) => {
+            if (event.target === imageModal) { // Cliccato sullo sfondo nero della modal
+                imageModal.style.display = 'none';
+                if (imageModal.classList.contains('card-zoom-active')) {
+                    imageModal.classList.remove('card-zoom-active');
+                    imageModal.innerHTML = `<span class="close-button">&times;</span><img class="modal-content" id="zoomed-image">`;
+                    // Re-inizializza closeButton e zoomedImage
+                    closeButton = imageModal.querySelector('.close-button');
+                    zoomedImage = imageModal.querySelector('#zoomed-image');
+                    closeButton.addEventListener('click', () => { imageModal.style.display = 'none'; }); // Ri-aggiungi listener
+                }
+            }
+        });
+    }
 
     // --- LISTENER PER LA MODAL (ZOOM IMMAGINE) ---
     // Listener per chiudere la modal cliccando sul pulsante X
