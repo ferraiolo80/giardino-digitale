@@ -476,53 +476,90 @@ async function removeFromMyGarden(plantIdToRemove) {
 
 // --- FUNZIONI DI SALVATAGGIO/CARICAMENTO DATI DA FIREBASE ---
 async function saveNewPlantToFirebase() {
-    // Recupera i valori direttamente dagli input, che sono stati inizializzati in DOMContentLoaded
-    const newPlantNameValue = document.getElementById('newPlantName').value; 
-    const newPlantSunlightValue = document.getElementById('newPlantSunlight').value;
-    const newPlantWateringValue = document.getElementById('newPlantWatering').value;
-    const newPlantTempMinValue = document.getElementById('newPlantTempMin').value;
-    const newPlantTempMaxValue = document.getElementById('newPlantTempMax').value;
-    const newPlantDescriptionValue = document.getElementById('newPlantDescription').value;
-    const newPlantCategoryValue = document.getElementById('newPlantCategory').value;
-    const newPlantImageURLValue = document.getElementById('newPlantImageURL').value;
-    const newPlantIdealLuxMinValue = parseInt(newPlantIdealLuxMinInput.value); 
-    const newPlantIdealLuxMaxValue = parseInt(newPlantIdealLuxMaxInput.value); 
+    // Recupera i riferimenti agli elementi input e span di errore
+    const newPlantNameInput = document.getElementById('newPlantName');
+    const errorNewPlantName = document.getElementById('errorNewPlantName');
+
+    const newPlantSunlightInput = document.getElementById('newPlantSunlight');
+    const errorNewPlantSunlight = document.getElementById('errorNewPlantSunlight');
+
+    const newPlantIdealLuxMinInputElem = document.getElementById('newPlantIdealLuxMin'); // Rinomina per evitare conflitto con globale
+    const errorNewPlantIdealLuxMin = document.getElementById('errorNewPlantIdealLuxMin');
+
+    const newPlantIdealLuxMaxInputElem = document.getElementById('newPlantIdealLuxMax'); // Rinomina per evitare conflitto con globale
+    const errorNewPlantIdealLuxMax = document.getElementById('errorNewPlantIdealLuxMax');
+
+    const newPlantWateringInput = document.getElementById('newPlantWatering');
+    const errorNewPlantWatering = document.getElementById('errorNewPlantWatering');
+
+    const newPlantTempMinInput = document.getElementById('newPlantTempMin');
+    const errorNewPlantTempMin = document.getElementById('errorNewPlantTempMin');
+
+    const newPlantTempMaxInput = document.getElementById('newPlantTempMax');
+    const errorNewPlantTempMax = document.getElementById('errorNewPlantTempMax');
+
+    const newPlantDescriptionInput = document.getElementById('newPlantDescription');
+    const errorNewPlantDescription = document.getElementById('errorNewPlantDescription');
+
+    const newPlantCategoryInput = document.getElementById('newPlantCategory');
+    const errorNewPlantCategory = document.getElementById('errorNewPlantCategory');
+
+    const newPlantImageURLInput = document.getElementById('newPlantImageURL');
+    const errorNewPlantImageURL = document.getElementById('errorNewPlantImageURL');
 
 
-    if (!newPlantNameValue || !newPlantSunlightValue || !newPlantWateringValue ||
-        isNaN(parseInt(newPlantTempMinValue)) || isNaN(parseInt(newPlantTempMaxValue)) ||
-        isNaN(newPlantIdealLuxMinValue) || isNaN(newPlantIdealLuxMaxValue)) {
-        alert("Per favore, compila tutti i campi obbligatori (inclusi i valori numerici validi per Temperatura e Lux).");
-        return; // Esci dalla funzione qui se la validazione iniziale fallisce
+    // Pulisci tutti gli errori precedenti prima di ri-validare
+    clearFormValidationErrors(newPlantCard);
+
+    let formIsValid = true;
+
+    // Esegui la validazione per ogni campo obbligatorio
+    if (!validateField(newPlantNameInput, errorNewPlantName, 'Il nome è obbligatorio.')) formIsValid = false;
+    if (!validateField(newPlantSunlightInput, errorNewPlantSunlight, 'La luce è obbligatoria.')) formIsValid = false;
+    if (!validateField(newPlantIdealLuxMinInputElem, errorNewPlantIdealLuxMin, 'Lux Min è obbligatorio e deve essere un numero.')) formIsValid = false;
+    if (!validateField(newPlantIdealLuxMaxInputElem, errorNewPlantIdealLuxMax, 'Lux Max è obbligatorio e deve essere un numero.')) formIsValid = false;
+    if (!validateField(newPlantWateringInput, errorNewPlantWatering, 'L\'acqua è obbligatoria.')) formIsValid = false;
+    if (!validateField(newPlantTempMinInput, errorNewPlantTempMin, 'Temp Min è obbligatoria e deve essere un numero.')) formIsValid = false;
+    if (!validateField(newPlantTempMaxInput, errorNewPlantTempMax, 'Temp Max è obbligatoria e deve essere un numero.')) formIsValid = false;
+    if (!validateField(newPlantCategoryInput, errorNewPlantCategory, 'La categoria è obbligatoria.')) formIsValid = false;
+    // Validazione per URL immagine (opzionale, ma se inserito deve essere valido)
+    if (newPlantImageURLInput.value.trim() !== '' && !validateField(newPlantImageURLInput, errorNewPlantImageURL, 'Inserisci un URL immagine valido.')) formIsValid = false;
+
+
+    if (!formIsValid) {
+        // Nessun alert, il feedback è visivo
+        console.log("Validazione form fallita. Correggi gli errori.");
+        return; // Ferma l'esecuzione se ci sono errori di validazione
     }
 
-    showSpinner(); // Mostra lo spinner solo ora che la validazione è OK
+    // Se la validazione è passata, procedi con l'operazione Firebase
+    showSpinner();
     try {
         const docRef = await db.collection('plants').add({
-            name: newPlantNameValue,
-            sunlight: newPlantSunlightValue,
-            watering: newPlantWateringValue,
-            tempMin: parseInt(newPlantTempMinValue),
-            tempMax: parseInt(newPlantTempMaxValue),
-            description: newPlantDescriptionValue,
-            category: newPlantCategoryValue,
-            image: newPlantImageURLValue,
-            idealLuxMin: newPlantIdealLuxMinValue,
-            idealLuxMax: newPlantIdealLuxMaxValue
+            name: newPlantNameInput.value,
+            sunlight: newPlantSunlightInput.value,
+            watering: newPlantWateringInput.value,
+            tempMin: parseInt(newPlantTempMinInput.value),
+            tempMax: parseInt(newPlantTempMaxInput.value),
+            description: newPlantDescriptionInput.value,
+            category: newPlantCategoryInput.value,
+            image: newPlantImageURLInput.value,
+            idealLuxMin: parseInt(newPlantIdealLuxMinInputElem.value),
+            idealLuxMax: parseInt(newPlantIdealLuxMaxInputElem.value)
         });
 
         console.log("Nuova pianta aggiunta con ID: ", docRef.id);
         if (newPlantCard) {
             newPlantCard.style.display = 'none';
         }
-        clearNewPlantForm();
-        await loadPlantsFromFirebase(); // Questa chiamerà a sua volta show/hide spinner
+        clearNewPlantForm(); // Pulisci il form dopo il salvataggio
+        await loadPlantsFromFirebase();
         applyFilters();
     } catch (error) {
         console.error("Errore nell'aggiunta della nuova pianta:", error);
         alert("Errore nell'aggiunta della nuova pianta. Controlla le regole di sicurezza di Firebase e che tutti i campi siano compilati correttamente.");
     } finally {
-        hideSpinner(); // Nascondi lo spinner sempre
+        hideSpinner();
     }
 }
 
