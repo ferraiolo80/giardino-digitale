@@ -47,6 +47,7 @@ let saveUpdatedPlantButton;
 let cancelUpdatePlantButton;
 let emptyGardenMessage; // Questa variabile ora è dichiarata qui
 let plantsSection; // Aggiunto per riferimento alla sezione principale delle piante
+let sortBySelect; 
 
 
 // --- FUNZIONI UI / HELPER PER LO SPINNER ---
