@@ -922,5 +922,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             applyFilters(); // Assicurati che vengano renderizzate tutte le piante
         }
+    }
     });
 
