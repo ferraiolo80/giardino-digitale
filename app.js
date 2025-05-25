@@ -445,8 +445,7 @@ async function removeFromMyGarden(plantIdToRemove) {
 
 // --- FUNZIONI DI SALVATAGGIO/CARICAMENTO DATI DA FIREBASE ---
 async function saveNewPlantToFirebase() {
-    // Recupera i valori direttamente dagli input, che sono stati inizializzati in DOMContentLoaded
-    const newPlantNameValue = document.getElementById('newPlantName').value; 
+    const newPlantNameValue = document.getElementById('newPlantName').value;
     const newPlantSunlightValue = document.getElementById('newPlantSunlight').value;
     const newPlantWateringValue = document.getElementById('newPlantWatering').value;
     const newPlantTempMinValue = document.getElementById('newPlantTempMin').value;
@@ -454,42 +453,45 @@ async function saveNewPlantToFirebase() {
     const newPlantDescriptionValue = document.getElementById('newPlantDescription').value;
     const newPlantCategoryValue = document.getElementById('newPlantCategory').value;
     const newPlantImageURLValue = document.getElementById('newPlantImageURL').value;
-    const newPlantIdealLuxMinValue = parseInt(newPlantIdealLuxMinInput.value); 
-    const newPlantIdealLuxMaxValue = parseInt(newPlantIdealLuxMaxInput.value); 
+    const newPlantIdealLuxMinValue = parseInt(newPlantIdealLuxMinInput.value);
+    const newPlantIdealLuxMaxValue = parseInt(newPlantIdealLuxMaxInput.value);
 
-
-    if (newPlantNameValue && newPlantSunlightValue && newPlantWateringValue &&
-        !isNaN(parseInt(newPlantTempMinValue)) && !isNaN(parseInt(newPlantTempMaxValue)) &&
-        !isNaN(newPlantIdealLuxMinValue) && !isNaN(newPlantIdealLuxMaxValue)) {
-        showSpinner();
-        try {
-            const docRef = await db.collection('plants').add({
-                name: newPlantNameValue,
-                sunlight: newPlantSunlightValue,
-                watering: newPlantWateringValue,
-                tempMin: parseInt(newPlantTempMinValue),
-                tempMax: parseInt(newPlantTempMaxValue),
-                description: newPlantDescriptionValue,
-                category: newPlantCategoryValue,
-                image: newPlantImageURLValue,
-                idealLuxMin: newPlantIdealLuxMinValue,
-                idealLuxMax: newPlantIdealLuxMaxValue
-            });
-
-            console.log("Nuova pianta aggiunta con ID: ", docRef.id);
-            if (newPlantCard) {
-                newPlantCard.style.display = 'none';
-            }
-            clearNewPlantForm();
-            await loadPlantsFromFirebase();
-            applyFilters();
-        } catch (error) {
-            console.error("Errore nell'aggiunta della nuova pianta:", error);
-            alert("Errore nell'aggiunta della nuova pianta. Controlla le regole di sicurezza di Firebase e che tutti i campi siano compilati correttamente.");
-        } finally {
-            hideSpinner();
-    } else {
+    // Effettua la validazione iniziale. Se non è valida, mostra l'alert e esci dalla funzione.
+    if (!newPlantNameValue || !newPlantSunlightValue || !newPlantWateringValue ||
+        isNaN(parseInt(newPlantTempMinValue)) || isNaN(parseInt(newPlantTempMaxValue)) ||
+        isNaN(newPlantIdealLuxMinValue) || isNaN(newPlantIdealLuxMaxValue)) {
         alert("Per favore, compila tutti i campi obbligatori (inclusi i valori numerici validi per Temperatura e Lux).");
+        return; // ESCI DALLA FUNZIONE QUI SE LA VALIDAZIONE INIZIALE FALLISCE
+    }
+
+    // Se la validazione iniziale è passata, procedi con l'operazione Firebase
+    showSpinner(); // Mostra lo spinner solo ora che la validazione è OK
+    try {
+        const docRef = await db.collection('plants').add({
+            name: newPlantNameValue,
+            sunlight: newPlantSunlightValue,
+            watering: newPlantWateringValue,
+            tempMin: parseInt(newPlantTempMinValue),
+            tempMax: parseInt(newPlantTempMaxValue),
+            description: newPlantDescriptionValue,
+            category: newPlantCategoryValue,
+            image: newPlantImageURLValue,
+            idealLuxMin: newPlantIdealLuxMinValue,
+            idealLuxMax: newPlantIdealLuxMaxValue
+        });
+
+        console.log("Nuova pianta aggiunta con ID: ", docRef.id);
+        if (newPlantCard) {
+            newPlantCard.style.display = 'none';
+        }
+        clearNewPlantForm();
+        await loadPlantsFromFirebase();
+        applyFilters();
+    } catch (error) {
+        console.error("Errore nell'aggiunta della nuova pianta:", error);
+        alert("Errore nell'aggiunta della nuova pianta. Controlla le regole di sicurezza di Firebase e che tutti i campi siano compilati correttamente.");
+    } finally {
+        hideSpinner(); // Nascondi lo spinner sempre
     }
 }
 
