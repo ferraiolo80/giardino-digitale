@@ -79,28 +79,36 @@
         <div id="newPlantCard" style="display: none;">
             <h3>Aggiungi una Nuova Pianta</h3>
             <label for="newPlantName">Nome:</label>
-            <input type="text" id="newPlantName" required><br><br>
+            <input type="text" id="newPlantName" required><br>
+            <span class="error-message" id="errorNewPlantName"></span><br>
 
             <label for="newPlantSunlight">Luce:</label>
-            <input type="text" id="newPlantSunlight" required><br><br>
+            <input type="text" id="newPlantSunlight" required><br>
+            <span class="error-message" id="errorNewPlantSunlight"></span><br>
 
             <label for="newPlantIdealLuxMin">Lux Ideale Min:</label>
-            <input type="number" id="newPlantIdealLuxMin" placeholder="Es. 5000"><br><br>
+            <input type="number" id="newPlantIdealLuxMin" placeholder="Es. 5000" required><br>
+            <span class="error-message" id="errorNewPlantIdealLuxMin"></span><br>
 
             <label for="newPlantIdealLuxMax">Lux Ideale Max:</label>
-            <input type="number" id="newPlantIdealLuxMax" placeholder="Es. 10000"><br><br>
+            <input type="number" id="newPlantIdealLuxMax" placeholder="Es. 10000" required><br>
+            <span class="error-message" id="errorNewPlantIdealLuxMax"></span><br>
 
             <label for="newPlantWatering">Acqua:</label>
-            <input type="text" id="newPlantWatering" required><br><br>
+            <input type="text" id="newPlantWatering" required><br>
+            <span class="error-message" id="errorNewPlantWatering"></span><br>
 
             <label for="newPlantTempMin">Temperatura Minima (°C):</label>
-            <input type="number" id="newPlantTempMin" required><br><br>
+            <input type="number" id="newPlantTempMin" required><br>
+            <span class="error-message" id="errorNewPlantTempMin"></span><br>
 
             <label for="newPlantTempMax">Temperatura Massima (°C):</label>
-            <input type="number" id="newPlantTempMax" required><br><br>
+            <input type="number" id="newPlantTempMax" required><br>
+            <span class="error-message" id="errorNewPlantTempMax"></span><br>
 
             <label for="newPlantDescription">Descrizione (Opzionale):</label><br>
-            <textarea id="newPlantDescription"></textarea><br><br>
+            <textarea id="newPlantDescription"></textarea><br>
+            <span class="error-message" id="errorNewPlantDescription"></span><br>
 
             <label for="newPlantCategory">Categoria:</label>
             <select id="newPlantCategory" required>
@@ -111,10 +119,12 @@
                 <option value="Succulenta">Succulenta</option>
                 <option value="Arbusto">Arbusto</option>
                 <option value="Albero">Albero</option>
-            </select><br><br>
+            </select><br>
+            <span class="error-message" id="errorNewPlantCategory"></span><br>
 
             <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
-            <input type="url" id="newPlantImageURL"><br><br>
+            <input type="url" id="newPlantImageURL"><br>
+            <span class="error-message" id="errorNewPlantImageURL"></span><br>
 
             <button id="saveNewPlant">Salva Pianta</button>
             <button id="cancelNewPlant">Annulla</button>
@@ -124,28 +134,36 @@
             <h3>Aggiorna Pianta</h3>
             <input type="hidden" id="updatePlantId">
             <label for="updatePlantName">Nome:</label>
-            <input type="text" id="updatePlantName" required><br><br>
+            <input type="text" id="updatePlantName" required><br>
+            <span class="error-message" id="errorUpdatePlantName"></span><br>
 
             <label for="updatePlantSunlight">Luce:</label>
-            <input type="text" id="updatePlantSunlight" required><br><br>
+            <input type="text" id="updatePlantSunlight" required><br>
+            <span class="error-message" id="errorUpdatePlantSunlight"></span><br>
 
             <label for="updatePlantIdealLuxMin">Lux Ideale Min:</label>
-            <input type="number" id="updatePlantIdealLuxMin" placeholder="Es. 5000"><br><br>
+            <input type="number" id="updatePlantIdealLuxMin" placeholder="Es. 5000" required><br>
+            <span class="error-message" id="errorUpdatePlantIdealLuxMin"></span><br>
 
             <label for="updatePlantIdealLuxMax">Lux Ideale Max:</label>
-            <input type="number" id="updatePlantIdealLuxMax" placeholder="Es. 10000"><br><br>
+            <input type="number" id="updatePlantIdealLuxMax" placeholder="Es. 10000" required><br>
+            <span class="error-message" id="errorUpdatePlantIdealLuxMax"></span><br>
 
             <label for="updatePlantWatering">Acqua:</label>
-            <input type="text" id="updatePlantWatering" required><br><br>
+            <input type="text" id="updatePlantWatering" required><br>
+            <span class="error-message" id="errorUpdatePlantWatering"></span><br>
 
             <label for="updatePlantTempMin">Temperatura Minima (°C):</label>
-            <input type="number" id="updatePlantTempMin" required><br><br>
+            <input type="number" id="updatePlantTempMin" required><br>
+            <span class="error-message" id="errorUpdatePlantTempMin"></span><br>
 
             <label for="updatePlantTempMax">Temperatura Massima (°C):</label>
-            <input type="number" id="updatePlantTempMax" required><br><br>
+            <input type="number" id="updatePlantTempMax" required><br>
+            <span class="error-message" id="errorUpdatePlantTempMax"></span><br>
 
             <label for="updatePlantDescription">Descrizione (Opzionale):</label><br>
-            <textarea id="updatePlantDescription"></textarea><br><br>
+            <textarea id="updatePlantDescription"></textarea><br>
+            <span class="error-message" id="errorUpdatePlantDescription"></span><br>
 
             <label for="updatePlantCategory">Categoria:</label>
             <select id="updatePlantCategory" required>
@@ -156,16 +174,17 @@
                 <option value="Succulenta">Succulenta</option>
                 <option value="Arbusto">Arbusto</option>
                 <option value="Albero">Albero</option>
-            </select><br><br>
+            </select><br>
+            <span class="error-message" id="errorUpdatePlantCategory"></span><br>
 
             <label for="updatePlantImageURL">URL Immagine (Opzionale):</label>
-            <input type="url" id="updatePlantImageURL"><br><br>
+            <input type="url" id="updatePlantImageURL"><br>
+            <span class="error-message" id="errorUpdatePlantImageURL"></span><br>
 
             <button id="saveUpdatedPlant">Salva Modifiche</button>
             <button id="cancelUpdatePlant">Annulla</button>
             <button id="deletePlant">Elimina Pianta</button>
         </div>
-
         <div id="lightSensorSection" style="display: block; margin-top: 20px; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
             <h3>Misura la Luce per le Tue Piante</h3>
             <p>Posiziona il tuo smartphone vicino alla pianta e premi il pulsante per misurare la luce ambiente.</p>
