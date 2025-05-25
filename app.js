@@ -841,23 +841,73 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (saveUpdatedPlantButton) {
         saveUpdatedPlantButton.addEventListener('click', async () => {
             if (currentPlantIdToUpdate) {
-                const updatedData = {
-                    name: document.getElementById('updatePlantName').value,
-                    sunlight: document.getElementById('updatePlantSunlight').value,
-                    watering: document.getElementById('updatePlantWatering').value,
-                    tempMin: parseInt(document.getElementById('updatePlantTempMin').value),
-                    tempMax: parseInt(document.getElementById('updatePlantTempMax').value),
-                    description: document.getElementById('updatePlantDescription').value,
-                    category: document.getElementById('updatePlantCategory').value,
-                    image: document.getElementById('updatePlantImageURL').value,
-                    idealLuxMin: parseInt(updatePlantIdealLuxMinInput.value),
-                    idealLuxMax: parseInt(updatePlantIdealLuxMaxInput.value)
-                };
+                // Recupera i riferimenti agli elementi input e span di errore per il form di aggiornamento
+                const updatePlantNameInput = document.getElementById('updatePlantName');
+                const errorUpdatePlantName = document.getElementById('errorUpdatePlantName');
 
-                if (isNaN(updatedData.idealLuxMin) || isNaN(updatedData.idealLuxMax)) {
-                    alert("I valori Lux Min e Max devono essere numeri validi.");
-                    return;
+                const updatePlantSunlightInput = document.getElementById('updatePlantSunlight');
+                const errorUpdatePlantSunlight = document.getElementById('errorUpdatePlantSunlight');
+
+                const updatePlantIdealLuxMinInputElem = document.getElementById('updatePlantIdealLuxMin'); // Rinomina
+                const errorUpdatePlantIdealLuxMin = document.getElementById('errorUpdatePlantIdealLuxMin');
+
+                const updatePlantIdealLuxMaxInputElem = document.getElementById('updatePlantIdealLuxMax'); // Rinomina
+                const errorUpdatePlantIdealLuxMax = document.getElementById('errorUpdatePlantIdealLuxMax');
+
+                const updatePlantWateringInput = document.getElementById('updatePlantWatering');
+                const errorUpdatePlantWatering = document.getElementById('errorUpdatePlantWatering');
+
+                const updatePlantTempMinInput = document.getElementById('updatePlantTempMin');
+                const errorUpdatePlantTempMin = document.getElementById('errorUpdatePlantTempMin');
+
+                const updatePlantTempMaxInput = document.getElementById('updatePlantTempMax');
+                const errorUpdatePlantTempMax = document.getElementById('errorUpdatePlantTempMax');
+
+                const updatePlantDescriptionInput = document.getElementById('updatePlantDescription');
+                const errorUpdatePlantDescription = document.getElementById('errorUpdatePlantDescription');
+
+                const updatePlantCategoryInput = document.getElementById('updatePlantCategory');
+                const errorUpdatePlantCategory = document.getElementById('errorUpdatePlantCategory');
+
+                const updatePlantImageURLInput = document.getElementById('updatePlantImageURL');
+                const errorUpdatePlantImageURL = document.getElementById('errorUpdatePlantImageURL');
+
+                // Pulisci tutti gli errori precedenti prima di ri-validare
+                clearFormValidationErrors(updatePlantCard);
+
+                let formIsValid = true;
+
+                // Esegui la validazione per ogni campo obbligatorio
+                if (!validateField(updatePlantNameInput, errorUpdatePlantName, 'Il nome è obbligatorio.')) formIsValid = false;
+                if (!validateField(updatePlantSunlightInput, errorUpdatePlantSunlight, 'La luce è obbligatoria.')) formIsValid = false;
+                if (!validateField(updatePlantIdealLuxMinInputElem, errorUpdatePlantIdealLuxMin, 'Lux Min è obbligatorio e deve essere un numero.')) formIsValid = false;
+                if (!validateField(updatePlantIdealLuxMaxInputElem, errorUpdatePlantIdealLuxMax, 'Lux Max è obbligatorio e deve essere un numero.')) formIsValid = false;
+                if (!validateField(updatePlantWateringInput, errorUpdatePlantWatering, 'L\'acqua è obbligatoria.')) formIsValid = false;
+                if (!validateField(updatePlantTempMinInput, errorUpdatePlantTempMin, 'Temp Min è obbligatoria e deve essere un numero.')) formIsValid = false;
+                if (!validateField(updatePlantTempMaxInput, errorUpdatePlantTempMax, 'Temp Max è obbligatoria e deve essere un numero.')) formIsValid = false;
+                if (!validateField(updatePlantCategoryInput, errorUpdatePlantCategory, 'La categoria è obbligatoria.')) formIsValid = false;
+                // Validazione per URL immagine (opzionale, ma se inserito deve essere valido)
+                if (updatePlantImageURLInput.value.trim() !== '' && !validateField(updatePlantImageURLInput, errorUpdatePlantImageURL, 'Inserisci un URL immagine valido.')) formIsValid = false;
+
+
+                if (!formIsValid) {
+                    console.log("Validazione form fallita. Correggi gli errori.");
+                    return; // Ferma l'esecuzione se ci sono errori di validazione
                 }
+
+                // Se la validazione è passata, prepara i dati e chiama updatePlantInFirebase
+                const updatedData = {
+                    name: updatePlantNameInput.value,
+                    sunlight: updatePlantSunlightInput.value,
+                    watering: updatePlantWateringInput.value,
+                    tempMin: parseInt(updatePlantTempMinInput.value),
+                    tempMax: parseInt(updatePlantTempMaxInput.value),
+                    description: updatePlantDescriptionInput.value,
+                    category: updatePlantCategoryInput.value,
+                    image: updatePlantImageURLInput.value,
+                    idealLuxMin: parseInt(updatePlantIdealLuxMinInputElem.value),
+                    idealLuxMax: parseInt(updatePlantIdealLuxMaxInputElem.value)
+                };
 
                 await updatePlantInFirebase(currentPlantIdToUpdate, updatedData);
             }
