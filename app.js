@@ -433,7 +433,6 @@ async function addToMyGarden(plantId) {
 }
 
 async function removeFromMyGarden(plantIdToRemove) {
-    showSpinner();
     const user = firebase.auth().currentUser;
     if (user) {
         myGarden = myGarden.filter(plantId => plantId !== plantIdToRemove);
@@ -441,9 +440,7 @@ async function removeFromMyGarden(plantIdToRemove) {
         applyFilters(); // Riapplica i filtri per aggiornare la UI
     } else {
         alert("Devi essere autenticato per rimuovere piante dal tuo giardino.");
-    } finally {
-        hideSpinner();
-    }    
+    } 
 }
 
 // --- FUNZIONI DI SALVATAGGIO/CARICAMENTO DATI DA FIREBASE ---
