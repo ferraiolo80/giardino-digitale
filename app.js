@@ -49,6 +49,19 @@ let cancelUpdatePlantButton;
 let emptyGardenMessage; // Questa variabile ora è dichiarata qui
 let plantsSection; // Aggiunto per riferimento alla sezione principale delle piante
 
+// --- FUNZIONI UI / HELPER PER LO SPINNER ---
+function showSpinner() {
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'flex'; // 'flex' per centrare il contenuto
+    }
+}
+
+function hideSpinner() {
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'none';
+    }
+}
+
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
 async function handleLogin() {
@@ -685,6 +698,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlant');
     emptyGardenMessage = document.getElementById('empty-garden-message');
     plantsSection = document.getElementById('plants-section'); // Inizializza plantsSection
+    loadingSpinner = document.getElementById('loading-spinner'); // <<< AGGIUNGI QUESTA RIGA QUI
     
     // Inizializzazione della modal all'avvio dell'applicazione
     // Assicurati che l'elemento <div id="image-modal"></div> esista nel tuo HTML
