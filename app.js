@@ -4,6 +4,7 @@ let myGarden = []; // Inizializza come array vuoto
 let currentPlantIdToUpdate = null; // Variabile per tenere traccia dell'ID della pianta da aggiornare
 let ambientLightSensor = null; // Variabile per il sensore di luce
 let isMyGardenCurrentlyVisible = false; // Variabile per tenere traccia della visibilità del giardino
+let currentSortBy = 'name_asc'; // Nuova variabile globale per il criterio di ordinamento
 
 // Variabili per la gestione della modal (usata sia per zoom immagine che per zoom card)
 let imageModal; // Riferimento all'elemento HTML della modal (div#image-modal)
