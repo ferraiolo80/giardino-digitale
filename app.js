@@ -342,6 +342,9 @@ function showUpdatePlantForm(plant) {
         console.error("Elemento updatePlantCard non trovato in showUpdatePlantForm! Assicurati che il DOM sia caricato e la variabile inizializzata.");
         return;
     }
+    // Pulisci eventuali errori di validazione precedenti quando apri il form
+    clearFormValidationErrors(updatePlantCard); 
+
     currentPlantIdToUpdate = plant.id;
     document.getElementById('updatePlantId').value = plant.id;
     document.getElementById('updatePlantName').value = plant.name || '';
@@ -352,8 +355,8 @@ function showUpdatePlantForm(plant) {
     document.getElementById('updatePlantDescription').value = plant.description || '';
     document.getElementById('updatePlantCategory').value = plant.category || 'Fiore';
     document.getElementById('updatePlantImageURL').value = plant.image || '';
-    updatePlantIdealLuxMinInput.value = plant.idealLuxMin || '';
-    updatePlantIdealLuxMaxInput.value = plant.idealLuxMax || '';
+    document.getElementById('updatePlantIdealLuxMin').value = plant.idealLuxMin || ''; // Usa l'ID diretto
+    document.getElementById('updatePlantIdealLuxMax').value = plant.idealLuxMax || ''; // Usa l'ID diretto
 
     updatePlantCard.style.display = 'block';
     updatePlantCard.scrollIntoView({
@@ -373,9 +376,12 @@ function clearUpdatePlantForm() {
     document.getElementById('updatePlantDescription').value = '';
     document.getElementById('updatePlantCategory').value = 'Fiore'; // Reset a un valore di default
     document.getElementById('updatePlantImageURL').value = '';
-    updatePlantIdealLuxMinInput.value = ''; // Pulisci anche questi
-    updatePlantIdealLuxMaxInput.value = ''; // Pulisci anche questi
+    document.getElementById('updatePlantIdealLuxMin').value = ''; // Pulisci anche questi
+    document.getElementById('updatePlantIdealLuxMax').value = ''; // Pulisci anche questi
+
+    clearFormValidationErrors(updatePlantCard); // Pulisci gli errori di validazione
 }
+
 
 async function updatePlantInFirebase(plantId, updatedData) {
     showSpinner(); // Mostra spinner
