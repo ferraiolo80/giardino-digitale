@@ -518,3 +518,51 @@ footer {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Stili per la validazione dei form */
+input:invalid,
+textarea:invalid,
+select:invalid {
+    border: 2px solid red; /* Bordo rosso per i campi non validi */
+}
+
+/* Rimuovi il bordo rosso quando il campo è valido o non è richiesto */
+input:valid,
+textarea:valid,
+select:valid {
+    border: 1px solid #ccc; /* Bordo normale per i campi validi */
+}
+
+/* Stile per i messaggi di errore */
+.error-message {
+    color: red; /* Testo rosso per gli errori */
+    font-size: 0.85em; /* Dimensione del font leggermente più piccola */
+    margin-top: -5px; /* Sposta leggermente più in alto per ridurre lo spazio */
+    margin-bottom: 10px; /* Spazio sotto il messaggio di errore */
+    display: block; /* Assicurati che sia un blocco per andare a capo */
+    height: 1.2em; /* Altezza fissa per evitare CLS quando il messaggio appare/scompare */
+    visibility: hidden; /* Nascosto di default, ma occupa spazio */
+    opacity: 0; /* Invisibile di default */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Animazione per apparizione/scomparsa */
+}
+
+/* Stile per mostrare il messaggio di errore */
+.error-message.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Aggiusta lo spazio tra i campi per via dei messaggi di errore */
+#newPlantCard br,
+#updatePlantCard br {
+    display: none; /* Rimuovi i <br> extra che avevamo aggiunto */
+}
+
+#newPlantCard input,
+#newPlantCard select,
+#newPlantCard textarea,
+#updatePlantCard input,
+#updatePlantCard select,
+#updatePlantCard textarea {
+    margin-bottom: 5px; /* Riduci il margin-bottom perché ora c'è il messaggio di errore */
+}
