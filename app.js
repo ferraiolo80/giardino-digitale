@@ -371,6 +371,7 @@ function clearUpdatePlantForm() {
 }
 
 async function updatePlantInFirebase(plantId, updatedData) {
+    showSpinner();
     try {
         await db.collection('plants').doc(plantId).update(updatedData);
         console.log("Pianta aggiornata con successo:", plantId);
@@ -380,7 +381,8 @@ async function updatePlantInFirebase(plantId, updatedData) {
     } catch (error) {
         console.error("Errore nell'aggiornamento della pianta:", error);
         alert("Errore nell'aggiornamento della pianta. Controlla la console e le regole di sicurezza di Firebase.");
-    }
+    } finally {
+        hideSpinner();
 }
 
 async function deletePlantFromDatabase(plantId) {
@@ -456,6 +458,7 @@ async function saveNewPlantToFirebase() {
     if (newPlantNameValue && newPlantSunlightValue && newPlantWateringValue &&
         !isNaN(parseInt(newPlantTempMinValue)) && !isNaN(parseInt(newPlantTempMaxValue)) &&
         !isNaN(newPlantIdealLuxMinValue) && !isNaN(newPlantIdealLuxMaxValue)) {
+        showSpinner();
         try {
             const docRef = await db.collection('plants').add({
                 name: newPlantNameValue,
@@ -480,7 +483,8 @@ async function saveNewPlantToFirebase() {
         } catch (error) {
             console.error("Errore nell'aggiunta della nuova pianta:", error);
             alert("Errore nell'aggiunta della nuova pianta. Controlla le regole di sicurezza di Firebase e che tutti i campi siano compilati correttamente.");
-        }
+        } finally {
+            hideSpinner();
     } else {
         alert("Per favore, compila tutti i campi obbligatori (inclusi i valori numerici validi per Temperatura e Lux).");
     }
@@ -500,6 +504,7 @@ function clearNewPlantForm() {
 }
 
 async function loadMyGardenFromFirebase() {
+    showSpinner();
     const user = firebase.auth().currentUser;
     if (user) {
         try {
