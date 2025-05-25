@@ -88,12 +88,12 @@ button:hover {
 }
 
 #toggleMyGarden {
-    background-color: #6c757d; /* Grigio scuro per il toggle giardino */
+    background-color: #4CAF50; /* CAMBIATO: Ora è verde come gli altri bottoni */
     color: white;
 }
 
 #toggleMyGarden:hover {
-    background-color: #5a6268;
+    background-color: #45a049; /* Verde scuro al hover */
     transform: translateY(-2px);
 }
 
@@ -644,3 +644,4 @@ footer {
     font-size: 0.9em;
     color: #666;
 }
+
