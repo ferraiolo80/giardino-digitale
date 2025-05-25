@@ -420,7 +420,6 @@ async function deletePlantFromDatabase(plantId) {
 
 // --- FUNZIONI DI GESTIONE DEL GIARDINO (Aggiungi/Rimuovi) ---
 async function addToMyGarden(plantId) {
-    showSpinner();
     const user = firebase.auth().currentUser;
     if (user) {
         if (!myGarden.includes(plantId)) {
@@ -430,9 +429,7 @@ async function addToMyGarden(plantId) {
         }
     } else {
         alert("Devi essere autenticato per aggiungere piante al tuo giardino.");
-    } finally {
-        hideSpinner();
-    }    
+    }     
 }
 
 async function removeFromMyGarden(plantIdToRemove) {
