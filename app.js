@@ -61,6 +61,79 @@ function hideSpinner() {
     }
 }
 
+// --- FUNZIONI UI / HELPER PER LA VALIDAZIONE ---
+
+/**
+ * Funzione per pulire tutti i messaggi di errore e i bordi rossi di un form specifico.
+ * @param {HTMLElement} formContainer Il contenitore del form (es. newPlantCard, updatePlantCard).
+ */
+function clearFormValidationErrors(formContainer) {
+    if (!formContainer) return;
+
+    // Rimuovi la classe 'invalid' da tutti gli input/select/textarea
+    formContainer.querySelectorAll('input, select, textarea').forEach(input => {
+        input.classList.remove('invalid');
+    });
+
+    // Nascondi tutti i messaggi di errore
+    formContainer.querySelectorAll('.error-message').forEach(errorSpan => {
+        errorSpan.classList.remove('active');
+        errorSpan.textContent = ''; // Pulisci anche il testo
+    });
+}
+
+/**
+ * Funzione per validare un singolo campo del form e mostrare/nascondere l'errore.
+ * @param {HTMLElement} inputElement L'elemento input/select/textarea da validare.
+ * @param {HTMLElement} errorSpan L'elemento span dove mostrare il messaggio di errore.
+ * @param {string} errorMessage Il messaggio di errore da mostrare se il campo non è valido.
+ * @returns {boolean} True se il campo è valido, False altrimenti.
+ */
+function validateField(inputElement, errorSpan, errorMessage) {
+    if (!inputElement || !errorSpan) return true; // Se gli elementi non esistono, considera valido
+
+    // Rimuovi eventuali stati di errore precedenti
+    inputElement.classList.remove('invalid');
+    errorSpan.classList.remove('active');
+    errorSpan.textContent = '';
+
+    let isValid = true;
+
+    // 1. Validazione HTML5 (es. required, type="number")
+    if (!inputElement.checkValidity()) {
+        isValid = false;
+        // Messaggio di errore specifico per la validazione HTML5
+        if (inputElement.validity.valueMissing) {
+            errorSpan.textContent = 'Campo obbligatorio.';
+        } else if (inputElement.validity.typeMismatch) {
+            errorSpan.textContent = 'Formato non valido.';
+        } else if (inputElement.validity.rangeOverflow || inputElement.validity.rangeUnderflow) {
+            errorSpan.textContent = `Valore fuori range (${inputElement.min || ''} - ${inputElement.max || ''}).`;
+        } else {
+            errorSpan.textContent = errorMessage || 'Campo non valido.';
+        }
+    }
+
+    // 2. Validazioni aggiuntive JavaScript (es. per numeri, se HTML5 non basta)
+    if (inputElement.type === 'number' && isNaN(parseInt(inputElement.value)) && inputElement.required) {
+        isValid = false;
+        errorSpan.textContent = 'Inserisci un numero valido.';
+    }
+
+    // 3. Validazione specifica per URL (se non required, checkValidity non basta)
+    if (inputElement.id.includes('ImageURL') && inputElement.value.trim() !== '' && !inputElement.checkValidity()) {
+        isValid = false;
+        errorSpan.textContent = 'Inserisci un URL valido.';
+    }
+
+
+    if (!isValid) {
+        inputElement.classList.add('invalid');
+        errorSpan.classList.add('active');
+    }
+
+    return isValid;
+}
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
 async function handleLogin() {
@@ -578,8 +651,10 @@ function clearNewPlantForm() {
     document.getElementById('newPlantDescription').value = '';
     document.getElementById('newPlantCategory').value = 'Fiore'; // Reset a un valore di default
     document.getElementById('newPlantImageURL').value = '';
-    newPlantIdealLuxMinInput.value = ''; // Pulisci anche questi
-    newPlantIdealLuxMaxInput.value = ''; // Pulisci anche questi
+    document.getElementById('newPlantIdealLuxMin').value = ''; // Pulisci anche questi
+    document.getElementById('newPlantIdealLuxMax').value = ''; // Pulisci anche questi
+
+    clearFormValidationErrors(newPlantCard); // Pulisci gli errori di validazione
 }
 
 async function loadMyGardenFromFirebase() {
