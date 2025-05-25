@@ -384,9 +384,12 @@ function applyFilters() {
     const category = categoryFilter.value;
     const tempMin = parseFloat(tempMinFilter.value);
     const tempMax = parseFloat(tempMaxFilter.value);
+    // currentSortBy è già una variabile globale che si aggiorna.
 
     let plantsToFilter;
     if (isMyGardenCurrentlyVisible) {
+        // Filtra le piante del giardino dall'array 'allPlants'
+        // Questo assicura che il filtraggio del giardino sia basato sugli oggetti pianta completi
         plantsToFilter = allPlants.filter(plant => myGarden.includes(plant.id));
     } else {
         plantsToFilter = allPlants;
@@ -402,12 +405,48 @@ function applyFilters() {
         return matchesSearch && matchesCategory && matchesTempMin && matchesTempMax;
     });
 
+    // --- NUOVA LOGICA DI ORDINAMENTO ---
+    filteredPlants.sort((a, b) => {
+        const [field, order] = currentSortBy.split('_'); // Es. "name_asc" -> ["name", "asc"]
+
+        let valA, valB;
+
+        switch (field) {
+            case 'name':
+            case 'category':
+                valA = a[field].toLowerCase();
+                valB = b[field].toLowerCase();
+                break;
+            case 'tempMin':
+            case 'tempMax':
+            case 'luxMin': // Assicurati che questi campi esistano nelle tue piante (idealLuxMin/Max)
+            case 'luxMax': // Usa 'idealLuxMin' e 'idealLuxMax' se sono i nomi dei campi
+                // I campi lux potrebbero essere null o undefined, gestiamo il caso
+                valA = a['ideal' + field.charAt(0).toUpperCase() + field.slice(1)] || 0; // Es. idealLuxMin
+                valB = b['ideal' + field.charAt(0).toUpperCase() + field.slice(1)] || 0; // Es. idealLuxMin
+                break;
+            default:
+                valA = a.name.toLowerCase(); // Default a ordinamento per nome se il campo non è riconosciuto
+                valB = b.name.toLowerCase();
+        }
+
+        if (valA < valB) {
+            return order === 'asc' ? -1 : 1;
+        }
+        if (valA > valB) {
+            return order === 'asc' ? 1 : -1;
+        }
+        return 0; // I nomi sono uguali
+    });
+    // --- FINE LOGICA DI ORDINAMENTO ---
+
     if (isMyGardenCurrentlyVisible) {
-        renderMyGarden(filteredPlants); // Passa gli oggetti pianta filtrati
+        renderMyGarden(filteredPlants);
     } else {
         renderPlants(filteredPlants);
     }
 }
+
 
 
 // --- NUOVE FUNZIONI DI AGGIORNAMENTO E CANCELLAZIONE PIANTE ---
