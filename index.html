@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes"> <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Giardino">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="apple-touch-icon" sizes="512x512" href="icon-512x512.png">
     <link rel="manifest" href="manifest.json">
     <title>Giardino Digitale</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Questo display: none iniziale è corretto per #app-content */
         #app-content {
@@ -54,27 +53,60 @@
             </button>
         </div>
 
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Cerca una pianta...">
-            <select id="categoryFilter">
-                <option value="all">Tutte le Categorie</option>
-                <option value="Fiore">Fiore</option>
-                <option value="Pianta">Pianta</option>
-                <option value="Pianta Grassa">Pianta Grassa</option>
-                <option value="Albero">Albero</option>
-                <option value="Arbusto">Arbusto</option>
-                <option value="Erba aromatica">Erba aromatica</option>
-                <option value="Succulenta">Succulenta</option>
-            </select>
-            <input type="number" id="tempMinFilter" placeholder="Temp Min (°C)">
-            <input type="number" id="tempMaxFilter" placeholder="Temp Max (°C)">
-        </div>
+        <div id="controls-wrapper">
+            <button id="toggleMyGarden"><i class="fas fa-eye"></i> Mostra il mio giardino</button>
 
-        <div class="search-container">
-            <p>Identifica con <a href="https://lens.google.com/" target="_blank" rel="noopener noreferrer">Google Lens <i class="fas fa-search"></i></a></p>
-        </div>
+            <div class="filter-group">
+                <label for="sortBy">Ordina per:</label>
+                <select id="sortBy">
+                    <option value="name_asc">Nome (A-Z)</option>
+                    <option value="name_desc">Nome (Z-A)</option>
+                    <option value="tempMin_asc">Temperatura Minima (Cresc.)</option>
+                    <option value="tempMin_desc">Temperatura Minima (Decresc.)</option>
+                    <option value="tempMax_asc">Temperatura Massima (Cresc.)</option>
+                    <option value="tempMax_desc">Temperatura Massima (Decresc.)</option>
+                    <option value="luxMin_asc">Lux Minimo (Cresc.)</option>
+                    <option value="luxMin_desc">Lux Minimo (Decresc.)</option>
+                    <option value="luxMax_asc">Lux Massimo (Cresc.)</option>
+                    <option value="luxMax_desc">Lux Massimo (Decresc.)</option>
+                    <option value="category_asc">Categoria (A-Z)</option>
+                    <option value="category_desc">Categoria (Z-A)</option>
+                </select>
+            </div>
 
-        <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
+            <div class="filter-group">
+                <label for="searchInput">Cerca:</label>
+                <input type="text" id="searchInput" placeholder="Cerca una pianta...">
+            </div>
+
+            <div class="filter-group">
+                <label for="categoryFilter">Categoria:</label>
+                <select id="categoryFilter">
+                    <option value="all">Tutte le Categorie</option>
+                    <option value="Fiore">Fiore</option>
+                    <option value="Pianta">Pianta</option>
+                    <option value="Pianta Grassa">Pianta Grassa</option>
+                    <option value="Albero">Albero</option>
+                    <option value="Arbusto">Arbusto</option>
+                    <option value="Erba aromatica">Erba aromatica</option>
+                    <option value="Succulenta">Succulenta</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="tempMinFilter">Temp Min (°C):</label>
+                <input type="number" id="tempMinFilter" placeholder="Min">
+            </div>
+
+            <div class="filter-group">
+                <label for="tempMaxFilter">Temp Max (°C):</label>
+                <input type="number" id="tempMaxFilter" placeholder="Max">
+            </div>
+
+            <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
+        </div> <div style="text-align: center; margin: 15px 0;">
+            <p style="margin: 0;">Identifica con <a href="https://lens.google.com/" target="_blank" rel="noopener noreferrer">Google Lens <i class="fas fa-search"></i></a></p>
+        </div>
 
         <div id="newPlantCard" style="display: none;">
             <h3>Aggiungi una Nuova Pianta</h3>
@@ -185,6 +217,7 @@
             <button id="cancelUpdatePlant">Annulla</button>
             <button id="deletePlant">Elimina Pianta</button>
         </div>
+
         <div id="lightSensorSection" style="display: block; margin-top: 20px; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
             <h3>Misura la Luce per le Tue Piante</h3>
             <p>Posiziona il tuo smartphone vicino alla pianta e premi il pulsante per misurare la luce ambiente.</p>
@@ -194,26 +227,6 @@
             <div id="lightFeedback"></div>
         </div>
         
-        <button id="toggleMyGarden" style="margin-top: 15px;"><i class="fas fa-eye"></i> Mostra il mio giardino</button>
-
-        <div class="filter-group">
-            <label for="sortBy">Ordina per:</label>
-            <select id="sortBy">
-                <option value="name_asc">Nome (A-Z)</option>
-                <option value="name_desc">Nome (Z-A)</option>
-                <option value="tempMin_asc">Temperatura Minima (Cresc.)</option>
-                <option value="tempMin_desc">Temperatura Minima (Decresc.)</option>
-                <option value="tempMax_asc">Temperatura Massima (Cresc.)</option>
-                <option value="tempMax_desc">Temperatura Massima (Decresc.)</option>
-                <option value="luxMin_asc">Lux Minimo (Cresc.)</option>
-                <option value="luxMin_desc">Lux Minimo (Decresc.)</option>
-                <option value="luxMax_asc">Lux Massimo (Cresc.)</option>
-                <option value="luxMax_desc">Lux Massimo (Decresc.)</option>
-                <option value="category_asc">Categoria (A-Z)</option>
-                <option value="category_desc">Categoria (Z-A)</option>
-            </select>
-        </div>
-
         <div id="plants-section"> 
             <h2>Tutte le piante</h2>
             <div id="garden-container" class="plant-grid">
@@ -257,15 +270,13 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
     </script>
-   
+    <script src="app.js"></script>
+
     <div id="image-modal" class="modal">
         <span class="close-button">&times;</span>
         <img class="modal-content" id="zoomed-image">
     </div>
 
-    <div id="loading-spinner" class="spinner-overlay" style="display: none;">
-        <div class="spinner"></div>
-    </div>
-    <script src="app.js"></script>
-</body>
+    </body>
 </html>
+
