@@ -532,6 +532,7 @@ async function saveMyGardenToFirebase(garden) {
 }
 
 async function loadPlantsFromFirebase() {
+    showSpinner();
     try {
         const plantsSnapshot = await db.collection('plants').get();
         allPlants = plantsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
