@@ -9,6 +9,7 @@ let isMyGardenCurrentlyVisible = false; // Variabile per tenere traccia della vi
 let imageModal; // Riferimento all'elemento HTML della modal (div#image-modal)
 let zoomedImage; // Riferimento all'elemento HTML dell'immagine zoomata (img#zoomed-image)
 let closeButton; // Riferimento al bottone di chiusura della modal (span.close-button)
+let loadingSpinner; // <<< AGGIUNGI QUESTA RIGA QUI
 
 // Le variabili cardModal e zoomedCardContent non sono più necessarie come globali separate
 // perché riutilizziamo imageModal e generiamo il contenuto della card dinamicamente.
