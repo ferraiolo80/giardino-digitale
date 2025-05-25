@@ -509,21 +509,32 @@ function clearNewPlantForm() {
 }
 
 async function loadMyGardenFromFirebase() {
-    showSpinner();
+    showSpinner(); // Mostra lo spinner all'inizio
+
     const user = firebase.auth().currentUser;
-    if (user) {
-        try {
-            const doc = await db.collection('gardens').doc(user.uid).get();
-            myGarden = doc.data()?.plants || [];
-            console.log("Giardino caricato da Firebase:", myGarden);
-            // La visualizzazione è gestita da applyFilters()
-        } catch (error) {
-            console.error("Errore nel caricamento del giardino da Firebase:", error);
-            myGarden = []; // Assicurati che sia vuoto in caso di errore
-        } finally {
-        hideSpinner();
-    } else {
+
+    // Questa è la condizione iniziale: se l'utente NON è loggato.
+    // In questo caso, impostiamo il giardino a vuoto e usciamo dalla funzione.
+    if (!user) {
         myGarden = []; // Giardino vuoto se non autenticato
+        console.log("Nessun utente loggato. Giardino vuoto.");
+        hideSpinner(); // Nascondi lo spinner anche in questo caso
+        return; // Esci dalla funzione qui
+    }
+
+    // Se l'utente è loggato, procedi con il try...catch per l'operazione Firebase
+    try {
+        const doc = await db.collection('gardens').doc(user.uid).get();
+        // Firebase restituisce i dati sotto 'data()', e poi accediamo a 'plants'
+        // Assicurati che il campo sia 'plantIds' come nel tuo saveMyGardenToFirebase
+        myGarden = doc.data()?.plantIds || []; // <<< Ho corretto da '.plants' a '.plantIds' se usi quello in saveMyGardenToFirebase
+        console.log("Giardino caricato da Firebase:", myGarden);
+        // La visualizzazione è gestita da applyFilters() o da una funzione di rendering del giardino
+    } catch (error) {
+        console.error("Errore nel caricamento del giardino da Firebase:", error);
+        myGarden = []; // Assicurati che sia vuoto in caso di errore
+    } finally {
+        hideSpinner(); // Nascondi lo spinner, sempre
     }
 }
 
