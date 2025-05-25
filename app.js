@@ -930,7 +930,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlant');
     emptyGardenMessage = document.getElementById('empty-garden-message');
     plantsSection = document.getElementById('plants-section'); // Inizializza plantsSection
-    
+    sortBySelect = document.getElementById('sortBy'); // Inizializza la nuova variabile DOM    
     loadingSpinner = document.getElementById('loading-spinner'); // Inizializza lo spinner
     isDomReady = true; // Il DOM è pronto!
 
@@ -953,6 +953,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (categoryFilter) categoryFilter.addEventListener('change', applyFilters); 
     if (tempMinFilter) tempMinFilter.addEventListener('input', applyFilters); 
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', applyFilters); 
+    
+    // Listener per il cambio di ordinamento
+    if (sortBySelect) {
+        sortBySelect.addEventListener('change', () => {
+            currentSortBy = sortBySelect.value; // Aggiorna la variabile globale
+            applyFilters(); // Ri-applica i filtri per aggiornare la UI con il nuovo ordinamento
+        });
+    }
     
     // Listener per il pulsante "Mostra/Nascondi il mio giardino"
     if (toggleMyGardenButton) {
