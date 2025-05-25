@@ -386,6 +386,8 @@ async function updatePlantInFirebase(plantId, updatedData) {
 }
 
 async function deletePlantFromDatabase(plantId) {
+    if (confirm("Sei sicuro di voler eliminare questa pianta?")) {
+        showSpinner();
     try {
         await db.collection('plants').doc(plantId).delete();
         console.log("Pianta eliminata dal database principale:", plantId);
@@ -412,7 +414,8 @@ async function deletePlantFromDatabase(plantId) {
     } catch (error) {
         console.error("Errore durante l'eliminazione della pianta dal database:", error);
         alert("Si è verificato un errore durante l'eliminazione della pianta. Controlla le regole di sicurezza.");
-    }
+    } finally {
+            hideSpinner();
 }
 
 // --- FUNZIONI DI GESTIONE DEL GIARDINO (Aggiungi/Rimuovi) ---
@@ -515,7 +518,8 @@ async function loadMyGardenFromFirebase() {
         } catch (error) {
             console.error("Errore nel caricamento del giardino da Firebase:", error);
             myGarden = []; // Assicurati che sia vuoto in caso di errore
-        }
+        } finally {
+        hideSpinner();
     } else {
         myGarden = []; // Giardino vuoto se non autenticato
     }
@@ -544,7 +548,8 @@ async function loadPlantsFromFirebase() {
         console.log("Piante caricate da Firebase:", allPlants);
     } catch (error) {
         console.error("Errore nel caricamento delle piante da Firebase:", error);
-    }
+    } finally {
+        hideSpinner();
 }
 
 // --- FUNZIONI DI VISIBILITÀ UI ---
