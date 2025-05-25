@@ -419,8 +419,8 @@ function applyFilters() {
                 break;
             case 'tempMin':
             case 'tempMax':
-            case 'luxMin': // Assicurati che questi campi esistano nelle tue piante (idealLuxMin/Max)
-            case 'luxMax': // Usa 'idealLuxMin' e 'idealLuxMax' se sono i nomi dei campi
+            case 'idealluxMin': // Assicurati che questi campi esistano nelle tue piante (idealLuxMin/Max)
+            case 'idealluxMax': // Usa 'idealLuxMin' e 'idealLuxMax' se sono i nomi dei campi
                 // I campi lux potrebbero essere null o undefined, gestiamo il caso
                 valA = a['ideal' + field.charAt(0).toUpperCase() + field.slice(1)] || 0; // Es. idealLuxMin
                 valB = b['ideal' + field.charAt(0).toUpperCase() + field.slice(1)] || 0; // Es. idealLuxMin
