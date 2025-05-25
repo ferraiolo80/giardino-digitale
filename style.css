@@ -549,7 +549,7 @@ button:hover {
     }
 
     #controls-wrapper {
-        flex-direction: column; /* Impila i controlli verticalmente su schermi piccoli */
+        /* Rimosso flex-direction: column; per mantenere gli elementi in riga */
         align-items: stretch; /* Allunga gli elementi per occupare la larghezza disponibile */
         gap: 10px; /* Riduci il gap */
         padding: 10px;
