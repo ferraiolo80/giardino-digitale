@@ -924,4 +924,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     });
-
+});
