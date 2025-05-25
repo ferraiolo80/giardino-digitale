@@ -531,6 +531,7 @@ async function loadMyGardenFromFirebase() {
 async function saveMyGardenToFirebase(garden) {
     const user = firebase.auth().currentUser;
     if (user) {
+        showSpinner(); // <<< Mostra lo spinner all'inizio dell'operazione di salvataggio
         try {
             const gardenRef = db.collection('gardens').doc(user.uid);
             await gardenRef.set({ plants: garden }, { merge: true });
@@ -538,7 +539,9 @@ async function saveMyGardenToFirebase(garden) {
         } catch (error) {
             console.error("Errore durante l'aggiornamento del 'Mio Giardino' su Firebase:", error);
             alert("Errore durante l'aggiornamento del tuo giardino. Controlla le regole di sicurezza.");
-        }
+        }finally {
+        hideSpinner(); // <<< Nascondi lo spinner, sempre
+    }
     }
 }
 
