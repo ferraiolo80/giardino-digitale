@@ -88,7 +88,7 @@ button:hover {
 }
 
 #toggleMyGarden {
-    background-color: #4CAF50; /* CAMBIATO: Ora è verde come gli altri bottoni */
+    background-color: #4CAF50; /* Ora è verde come gli altri bottoni */
     color: white;
 }
 
@@ -645,3 +645,90 @@ footer {
     color: #666;
 }
 
+/* Stili per il contenitore dei Toast Messages */
+#toast-container {
+    position: fixed; /* Posiziona il contenitore in modo fisso nella viewport */
+    top: 20px; /* Distanza dal bordo superiore */
+    right: 20px; /* Distanza dal bordo destro */
+    z-index: 10000; /* Assicura che sia sopra quasi tutti gli altri elementi */
+    display: flex;
+    flex-direction: column; /* I toast si impilano verticalmente */
+    gap: 10px; /* Spazio tra i toast */
+    pointer-events: none; /* Permette di cliccare attraverso il contenitore se vuoto */
+}
+
+/* Stili base per ogni singolo Toast Message */
+.toast-message {
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    opacity: 0; /* Inizialmente invisibile */
+    transform: translateX(100%); /* Inizialmente fuori dallo schermo a destra */
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards; /* Animazione di entrata e uscita */
+    min-width: 250px; /* Larghezza minima */
+    max-width: 350px; /* Larghezza massima */
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Spazio tra icona e testo */
+    pointer-events: auto; /* Permette di cliccare sul toast */
+}
+
+/* Tipi di Toast Message (colori e icone) */
+.toast-message.success {
+    background-color: #4CAF50; /* Verde per successo */
+}
+
+.toast-message.error {
+    background-color: #f44336; /* Rosso per errore */
+}
+
+.toast-message.info {
+    background-color: #2196F3; /* Blu per informazione */
+}
+
+/* Stili per le icone all'interno dei toast */
+.toast-message i {
+    font-size: 1.2em;
+}
+
+/* Animazioni per i Toast Messages */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Media Query per schermi più piccoli (posizionamento dei toast) */
+@media (max-width: 600px) {
+    #toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px; /* Occupa quasi tutta la larghezza su mobile */
+        width: auto;
+    }
+
+    .toast-message {
+        max-width: none; /* Rimuovi la larghezza massima per adattarsi allo schermo */
+        min-width: unset;
+        width: 100%;
+    }
+}
