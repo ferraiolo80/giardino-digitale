@@ -58,12 +58,15 @@ header h1 {
 #auth-status {
     font-size: 0.9em;
     color: #555;
-    white-space: nowrap;
-    /* Rimuovi overflow: hidden; e text-overflow: ellipsis; se vuoi che si legga SEMPRE tutto, anche a costo di superare il bordo */
-    overflow: visible; /* <--- CAMBIA QUI */
-    text-overflow: clip; /* <--- CAMBIA QUI */
-    max-width: none; /* <--- CAMBIA QUI, per permettere al testo di espandersi liberamente */
-    text-align: right;
+    white-space: nowrap; /* Mantiene il testo su una singola riga */
+    /* Rimuovi overflow: hidden; e text-overflow: ellipsis; se vuoi sempre leggere tutta la mail */
+    overflow: visible; /* <--- IMPORTANTE: Rende visibile il testo che esce */
+    text-overflow: clip; /* <--- IMPORTANTE: Impedisce i puntini di sospensione */
+    max-width: 250px; /* O un valore più grande, a seconda della lunghezza massima prevista delle email */
+                      /* Se vuoi che occupi tutto lo spazio possibile, puoi provare 'none' */
+    text-align: right; /* Allinea il testo a destra */
+    /* Aggiungi un margine a sinistra per separarlo dal titolo se si sovrappongono */
+    margin-left: 10px; 
 }
 
 h1, h2 {
