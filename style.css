@@ -8,6 +8,55 @@ body {
     min-height: 100vh;
 }
 
+/* Nuovo stile per l'header per allineare elementi */
+header {
+    display: flex;
+    justify-content: space-between; /* Spinge gli elementi ai bordi */
+    align-items: center; /* Centra verticalmente */
+    padding: 10px 20px;
+    background-color: #e0ffe0; /* Sfondo leggero per l'header */
+    border-bottom: 1px solid #c8e6c9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+header h1 {
+    margin: 0; /* Rimuove i margini predefiniti del titolo */
+    flex-grow: 1; /* Permette al titolo di occupare lo spazio centrale */
+    text-align: center; /* Centra il titolo */
+    color: #2c3e50;
+    font-size: 2em; /* Dimensione del titolo */
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    /* Usiamo flex-grow: 0; per evitare che occupino spazio extra se non necessario */
+    flex-grow: 0; 
+    flex-shrink: 0;
+}
+
+.header-left {
+    justify-content: flex-start; /* Allinea a sinistra */
+    min-width: 50px; /* Spazio minimo per il pulsante */
+}
+
+.header-right {
+    justify-content: flex-end; /* Allinea a destra */
+    min-width: 50px; /* Spazio minimo per lo stato autenticazione */
+}
+
+/* Stile per lo stato di autenticazione nell'header */
+#auth-status {
+    font-size: 0.9em;
+    color: #555;
+    white-space: nowrap; /* Evita che il testo vada a capo */
+    overflow: hidden; /* Nasconde il testo in eccesso */
+    text-overflow: ellipsis; /* Aggiunge "..." se il testo è troppo lungo */
+    max-width: 150px; /* Limita la larghezza per schermi piccoli */
+    text-align: right;
+}
+
+
 h1, h2 {
     text-align: center;
     color: #2c3e50;
