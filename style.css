@@ -11,12 +11,13 @@ body {
 /* Nuovo stile per l'header per allineare elementi */
 header {
     display: flex;
-    justify-content: space-between; /* Spinge gli elementi ai bordi */
+    /* Rimuovi justify-content: space-between; */ 
     align-items: center; /* Centra verticalmente */
     padding: 10px 20px;
     background-color: #e0ffe0; /* Sfondo leggero per l'header */
     border-bottom: 1px solid #c8e6c9;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative; /* Importante per posizionare il titolo in modo assoluto o gestire il centering */
 }
 
 header h1 {
