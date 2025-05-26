@@ -52,7 +52,7 @@ header h1 {
     white-space: nowrap; /* Evita che il testo vada a capo */
     overflow: hidden; /* Nasconde il testo in eccesso */
     text-overflow: ellipsis; /* Aggiunge "..." se il testo è troppo lungo */
-    max-width: 150px; /* Limita la larghezza per schermi piccoli */
+    max-width: 250px; /* Limita la larghezza per schermi piccoli */
     text-align: right;
 }
 
