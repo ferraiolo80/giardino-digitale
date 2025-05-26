@@ -17,6 +17,10 @@ let isDomReady = false; // Flag per indicare se il DOM è stato completamente ca
 // Variabile per il contenitore dei toast
 let toastContainer; // NUOVA DICHIARAZIONE GLOBALE
 
+// Variabile per la geolocalizzazione
+let userLocation = null; // NUOVA VARIABILE GLOBALE per la posizione dell'utente {latitude, longitude}
+let detectedClimateZone = null; // NUOVA VARIABILE GLOBALE per la zona climatica rilevata
+
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
 let gardenContainer;
@@ -55,6 +59,11 @@ let sortBySelect; // Variabile DOM per il selettore di ordinamento
 // Variabili per i messaggi di errore dei form di autenticazione
 let loginErrorDiv; // AGGIUNTO
 let registerErrorDiv; // AGGIUNTO
+
+// NUOVE VARIABILI DOM GLOBALI per la geolocalizzazione e il filtro clima
+let getLocationButton;
+let locationStatusDiv;
+let climateZoneFilter; // NUOVA VARIABILE DOM per il filtro clima
 
 
 // --- FUNZIONI UI / HELPER PER LO SPINNER ---
@@ -1087,6 +1096,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingSpinner = document.getElementById('loading-spinner'); 
     toastContainer = document.getElementById('toast-container'); 
 
+    getLocationButton = document.getElementById('get-location-button');
+    locationStatusDiv = document.getElementById('location-status');
+    climateZoneFilter = document.getElementById('climate-zone-filter'); // Inizializza il nuovo filtro
+
     isDomReady = true; // Imposta la flag a TRUE DOPO che tutti gli elementi DOM sono stati inizializzati
 
     initializeModal(); // Inizializza la modal
@@ -1095,6 +1108,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Listener per i bottoni di login/registrazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
+
+    // Event listener per il bottone di geolocalizzazione
+    if (getLocationButton) {
+        getLocationButton.addEventListener('click', getUserLocation);
+    }
+
+    // Event listener per il nuovo filtro clima
+    if (climateZoneFilter) {
+        climateZoneFilter.addEventListener('change', applyFilters);
+    }
+
     
     // Listener per i bottoni di aggiunta nuova pianta
     if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => newPlantCard.style.display = 'block');
