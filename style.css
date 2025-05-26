@@ -30,32 +30,36 @@ header h1 {
 .header-left, .header-right {
     display: flex;
     align-items: center;
-    /* Usiamo flex-grow: 0; per evitare che occupino spazio extra se non necessario */
-    flex-grow: 0; 
-    flex-shrink: 0;
+    /* Rimuovi flex-grow: 0; e flex-shrink: 0; */
+    /* Queste due righe potresti non averle, ma se ci sono, rimuovile */
+    /* flex-grow: 0; */ 
+    /* flex-shrink: 0; */
 }
 
 .header-left {
     justify-content: flex-start; /* Allinea a sinistra */
-    min-width: 50px; /* Spazio minimo per il pulsante */
+    /* Rimuovi o riduci molto min-width */
+    /* min-width: 50px; */ /* Rimuovi o metti a 0 */
 }
 
 .header-right {
     justify-content: flex-end; /* Allinea a destra */
-    min-width: 50px; /* Spazio minimo per lo stato autenticazione */
+    flex-grow: 1; /* <--- AGGIUNGI QUESTA RIGA: permetti a header-right di crescere */
+    /* Rimuovi o riduci molto min-width */
+    /* min-width: 50px; */ /* Rimuovi o metti a 0 */
 }
 
-/* Stile per lo stato di autenticazione nell'header */
+/* Poi, nello stile per lo stato di autenticazione nell'header */
 #auth-status {
     font-size: 0.9em;
     color: #555;
-    white-space: nowrap; /* Evita che il testo vada a capo */
-    overflow: hidden; /* Nasconde il testo in eccesso */
-    text-overflow: ellipsis; /* Aggiunge "..." se il testo è troppo lungo */
-    max-width: 150px; /* Limita la larghezza per schermi piccoli */
+    white-space: nowrap;
+    /* Rimuovi overflow: hidden; e text-overflow: ellipsis; se vuoi che si legga SEMPRE tutto, anche a costo di superare il bordo */
+    overflow: visible; /* <--- CAMBIA QUI */
+    text-overflow: clip; /* <--- CAMBIA QUI */
+    max-width: none; /* <--- CAMBIA QUI, per permettere al testo di espandersi liberamente */
     text-align: right;
 }
-
 
 h1, h2 {
     text-align: center;
