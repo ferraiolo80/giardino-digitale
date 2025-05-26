@@ -547,6 +547,7 @@ function renderMyGarden(plantsToDisplay) { // Riceve direttamente gli oggetti pi
 
 // --- FUNZIONI DI FILTRO E RICERCA ---
 function applyFilters() {
+    showLoadingSpinner();
     const searchTerm = searchInput.value.toLowerCase();
     const category = categoryFilter.value;
     const tempMin = parseFloat(tempMinFilter.value);
