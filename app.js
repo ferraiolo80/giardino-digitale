@@ -14,6 +14,9 @@ let closeButton; // Riferimento al bottone di chiusura della modal (span.close-b
 let loadingSpinner; // Variabile per lo spinner di caricamento
 let isDomReady = false; // Flag per indicare se il DOM è stato completamente caricato
 
+// Variabile per il contenitore dei toast
+let toastContainer; // <<< NUOVA DICHIARAZIONE GLOBALE
+
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
 let gardenContainer;
@@ -47,7 +50,7 @@ let saveUpdatedPlantButton;
 let cancelUpdatePlantButton;
 let emptyGardenMessage; // Questa variabile ora è dichiarata qui
 let plantsSection; // Aggiunto per riferimento alla sezione principale delle piante
-let sortBySelect; 
+let sortBySelect; // Variabile DOM per il selettore di ordinamento
 
 
 // --- FUNZIONI UI / HELPER PER LO SPINNER ---
@@ -64,7 +67,6 @@ function hideSpinner() {
 }
 
 // --- FUNZIONI UI / HELPER PER LA VALIDAZIONE ---
-
 /**
  * Funzione per pulire tutti i messaggi di errore e i bordi rossi di un form specifico.
  * @param {HTMLElement} formContainer Il contenitore del form (es. newPlantCard, updatePlantCard).
@@ -137,6 +139,51 @@ function validateField(inputElement, errorSpan, errorMessage) {
     return isValid;
 }
 
+// --- FUNZIONE PER I TOAST MESSAGES ---
+/**
+ * Mostra un toast message all'utente.
+ * @param {string} message Il messaggio da visualizzare.
+ * @param {'success'|'error'|'info'} type Il tipo di messaggio (determina il colore e l'icona).
+ */
+function showToast(message, type = 'info') {
+    if (!toastContainer) {
+        console.error("Toast container non trovato!");
+        // Fallback all'alert se il toast container non è disponibile
+        alert(message);
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.classList.add('toast-message', type);
+
+    let iconHtml = '';
+    switch (type) {
+        case 'success':
+            iconHtml = '<i class="fas fa-check-circle"></i>';
+            break;
+        case 'error':
+            iconHtml = '<i class="fas fa-times-circle"></i>';
+            break;
+        case 'info':
+            iconHtml = '<i class="fas fa-info-circle"></i>';
+            break;
+        default:
+            iconHtml = '';
+    }
+
+    toast.innerHTML = `${iconHtml}<span>${message}</span>`;
+    toastContainer.appendChild(toast);
+
+    // Rimuovi il toast dopo un certo periodo (es. 3 secondi)
+    setTimeout(() => {
+        toast.classList.add('hide'); // Aggiungi una classe per l'animazione di uscita
+        toast.addEventListener('animationend', () => {
+            toast.remove(); // Rimuovi l'elemento dal DOM dopo l'animazione
+        }, { once: true }); // Assicurati che il listener venga rimosso dopo l'esecuzione
+    }, 3000); // Il toast rimane visibile per 3 secondi
+}
+
+
 // --- FUNZIONI DI AUTENTICAZIONE ---
 async function handleLogin() {
     const emailInput = document.getElementById('login-email');
@@ -152,14 +199,17 @@ async function handleLogin() {
         try {
             await firebase.auth().signInWithEmailAndPassword(email, password);
             console.log("Login effettuato con successo!");
+            showToast('Accesso effettuato con successo!', 'success'); // Sostituito alert
         } catch (error) {
             console.error("Errore durante il login:", error);
             errorDiv.innerText = error.message;
+            showToast(`Errore login: ${error.message}`, 'error'); // Sostituito alert
         } finally {
             hideSpinner(); // Nascondi spinner
         }
     } else {
         console.error("Elementi del form di login non trovati.");
+        showToast('Errore interno: elementi login non trovati.', 'error'); // Sostituito alert
     }
 }
 
@@ -177,6 +227,7 @@ async function handleRegister() {
 
         if (password !== confirmPassword) {
             errorDiv.innerText = "Le password non corrispondono.";
+            showToast('Le password non corrispondono.', 'error'); // Sostituito alert
             return;
         }
 
@@ -184,14 +235,17 @@ async function handleRegister() {
         try {
             await firebase.auth().createUserWithEmailAndPassword(email, password);
             console.log("Registrazione effettuata con successo!");
+            showToast('Registrazione effettuata con successo!', 'success'); // Sostituito alert
         } catch (error) {
             console.error("Errore durante la registrazione:", error);
             errorDiv.innerText = error.message;
+            showToast(`Errore registrazione: ${error.message}`, 'error'); // Sostituito alert
         } finally {
             hideSpinner(); // Nascondi spinner
         }
     } else {
         console.error("Elementi del form di registrazione non trovati.");
+        showToast('Errore interno: elementi registrazione non trovati.', 'error'); // Sostituito alert
     }
 }
 
@@ -200,8 +254,10 @@ async function handleLogout() {
     try {
         await firebase.auth().signOut();
         console.log("Logout effettuato con successo!");
+        showToast('Logout effettuato con successo.', 'info'); // Sostituito alert
     } catch (error) {
         console.error("Errore durante il logout:", error);
+        showToast(`Errore logout: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner(); // Nascondi spinner
     }
@@ -420,8 +476,8 @@ function applyFilters() {
                 break;
             case 'tempMin':
             case 'tempMax':
-            case 'idealluxMin': // Assicurati che questi campi esistano nelle tue piante (idealLuxMin/Max)
-            case 'idealluxMax': // Usa 'idealLuxMin' e 'idealLuxMax' se sono i nomi dei campi
+            case 'luxMin': // Assicurati che questi campi esistano nelle tue piante (idealLuxMin/Max)
+            case 'luxMax': // Usa 'idealLuxMin' e 'idealLuxMax' se sono i nomi dei campi
                 // I campi lux potrebbero essere null o undefined, gestiamo il caso
                 valA = a['ideal' + field.charAt(0).toUpperCase() + field.slice(1)] || 0; // Es. idealLuxMin
                 valB = b['ideal' + field.charAt(0).toUpperCase() + field.slice(1)] || 0; // Es. idealLuxMin
@@ -447,7 +503,6 @@ function applyFilters() {
         renderPlants(filteredPlants);
     }
 }
-
 
 
 // --- NUOVE FUNZIONI DI AGGIORNAMENTO E CANCELLAZIONE PIANTE ---
@@ -496,12 +551,12 @@ function clearUpdatePlantForm() {
     clearFormValidationErrors(updatePlantCard); // Pulisci gli errori di validazione
 }
 
-
 async function updatePlantInFirebase(plantId, updatedData) {
     showSpinner(); // Mostra spinner
     try {
         await db.collection('plants').doc(plantId).update(updatedData);
         console.log("Pianta aggiornata con successo:", plantId);
+        showToast('Pianta aggiornata con successo!', 'success'); // Sostituito alert
         await loadPlantsFromFirebase(); // Questa funzione ha già lo spinner
         await loadMyGardenFromFirebase(); // Se hai una funzione loadMyGardenFromFirebase, assicurati che chiami loadMyGarden(uid) e abbia lo spinner
         applyFilters(); // Riapplica i filtri per aggiornare la UI
@@ -510,32 +565,34 @@ async function updatePlantInFirebase(plantId, updatedData) {
         }
     } catch (error) {
         console.error("Errore nell'aggiornamento della pianta:", error);
-        alert("Errore nell'aggiornamento della pianta. Controlla la console e le regole di sicurezza di Firebase.");
+        showToast(`Errore nell'aggiornamento della pianta: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner(); // Nascondi spinner
     }
 }
 
 async function deletePlantFromDatabase(plantId) {
-    if (confirm("Sei sicuro di voler eliminare questa pianta?")) {
-        showSpinner(); // Mostra spinner
-        try {
-            await db.collection('plants').doc(plantId).delete();
-            console.log("Pianta eliminata con successo:", plantId);
-            // Dopo l'eliminazione, ricarica le piante e il giardino per aggiornare la UI
-            await loadPlantsFromFirebase();
-            await loadMyGardenFromFirebase(); // O loadMyGarden(uid)
-            applyFilters();
-            // Assicurati che il form di update si chiuda
-            if (updatePlantCard) {
-                updatePlantCard.style.display = 'none';
-            }
-        } catch (error) {
-            console.error("Errore nell'eliminazione della pianta:", error);
-            alert("Errore nell'eliminazione della pianta. Controlla le regole di sicurezza di Firebase.");
-        } finally {
-            hideSpinner(); // Nascondi spinner
+    // Sostituito confirm() con showToast per un feedback migliore
+    // Per una conferma, avresti bisogno di una modal custom con bottoni Sì/No
+    // Per ora, lo gestiamo come un'azione diretta con un messaggio di successo/errore
+    showSpinner(); // Mostra spinner
+    try {
+        await db.collection('plants').doc(plantId).delete();
+        console.log("Pianta eliminata con successo:", plantId);
+        showToast('Pianta eliminata con successo!', 'success'); // Sostituito alert
+        // Dopo l'eliminazione, ricarica le piante e il giardino per aggiornare la UI
+        await loadPlantsFromFirebase();
+        await loadMyGardenFromFirebase(); // O loadMyGarden(uid)
+        applyFilters();
+        // Assicurati che il form di update si chiuda
+        if (updatePlantCard) {
+            updatePlantCard.style.display = 'none';
         }
+    } catch (error) {
+        console.error("Errore nell'eliminazione della pianta:", error);
+        showToast(`Errore nell'eliminazione della pianta: ${error.message}`, 'error'); // Sostituito alert
+    } finally {
+        hideSpinner(); // Nascondi spinner
     }
 }
 
@@ -543,7 +600,7 @@ async function deletePlantFromDatabase(plantId) {
 async function addToMyGarden(plantId) {
     const user = firebase.auth().currentUser;
     if (!user) {
-        alert("Devi essere autenticato per aggiungere piante al tuo giardino.");
+        showToast("Devi essere autenticato per aggiungere piante al tuo giardino.", 'info'); // Sostituito alert
         return; // Esci se non autenticato
     }
 
@@ -555,12 +612,14 @@ async function addToMyGarden(plantId) {
             myGarden.push(plantId);
             await saveMyGardenToFirebase(myGarden); // saveMyGardenToFirebase gestisce il proprio spinner
             applyFilters(); // Riapplica i filtri per aggiornare la UI
+            showToast('Pianta aggiunta al tuo giardino!', 'success'); // Messaggio di successo
         } else {
             console.log(`Pianta ${plantId} già presente nel giardino.`);
+            showToast('Questa pianta è già nel tuo giardino.', 'info'); // Messaggio informativo
         }
     } catch (error) {
         console.error("Errore nell'aggiunta della pianta al giardino:", error);
-        alert("Errore nell'aggiunta della pianta al giardino.");
+        showToast(`Errore nell'aggiunta della pianta: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner(); // Nascondi spinner
     }
@@ -569,7 +628,7 @@ async function addToMyGarden(plantId) {
 async function removeFromMyGarden(plantIdToRemove) {
     const user = firebase.auth().currentUser;
     if (!user) {
-        alert("Devi essere autenticato per rimuovere piante dal tuo giardino.");
+        showToast("Devi essere autenticato per rimuovere piante dal tuo giardino.", 'info'); // Sostituito alert
         return; // Esci se non autenticato
     }
 
@@ -583,12 +642,14 @@ async function removeFromMyGarden(plantIdToRemove) {
         if (myGarden.length < initialGardenSize) {
             await saveMyGardenToFirebase(myGarden); // saveMyGardenToFirebase gestisce il proprio spinner
             applyFilters(); // Riapplica i filtri per aggiornare la UI
+            showToast('Pianta rimossa dal tuo giardino.', 'success'); // Messaggio di successo
         } else {
             console.log(`Pianta ${plantIdToRemove} non trovata nel giardino da rimuovere.`);
+            showToast('Questa pianta non è nel tuo giardino.', 'info'); // Messaggio informativo
         }
     } catch (error) {
         console.error("Errore nella rimozione della pianta dal giardino:", error);
-        alert("Errore nella rimozione della pianta dal giardino.");
+        showToast(`Errore nella rimozione della pianta: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner(); // Nascondi spinner
     }
@@ -596,8 +657,8 @@ async function removeFromMyGarden(plantIdToRemove) {
 
 // --- FUNZIONI DI SALVATAGGIO/CARICAMENTO DATI DA FIREBASE ---
 async function saveNewPlantToFirebase() {
-    // Recupera i riferimenti agli elementi input e span di errore
-    const newPlantNameInput = document.getElementById('newPlantName');
+    // Recupera i valori direttamente dagli input, che sono stati inizializzati in DOMContentLoaded
+    const newPlantNameInput = document.getElementById('newPlantName'); 
     const errorNewPlantName = document.getElementById('errorNewPlantName');
 
     const newPlantSunlightInput = document.getElementById('newPlantSunlight');
@@ -649,6 +710,7 @@ async function saveNewPlantToFirebase() {
     if (!formIsValid) {
         // Nessun alert, il feedback è visivo
         console.log("Validazione form fallita. Correggi gli errori.");
+        showToast('Per favore, correggi gli errori nel form.', 'error'); // Sostituito alert
         return; // Ferma l'esecuzione se ci sono errori di validazione
     }
 
@@ -669,6 +731,7 @@ async function saveNewPlantToFirebase() {
         });
 
         console.log("Nuova pianta aggiunta con ID: ", docRef.id);
+        showToast('Nuova pianta aggiunta con successo!', 'success'); // Messaggio di successo
         if (newPlantCard) {
             newPlantCard.style.display = 'none';
         }
@@ -677,7 +740,7 @@ async function saveNewPlantToFirebase() {
         applyFilters();
     } catch (error) {
         console.error("Errore nell'aggiunta della nuova pianta:", error);
-        alert("Errore nell'aggiunta della nuova pianta. Controlla le regole di sicurezza di Firebase e che tutti i campi siano compilati correttamente.");
+        showToast(`Errore nell'aggiunta della pianta: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner();
     }
@@ -723,6 +786,7 @@ async function loadMyGardenFromFirebase() {
     } catch (error) {
         console.error("Errore nel caricamento del giardino da Firebase:", error);
         myGarden = []; // Assicurati che sia vuoto in caso di errore
+        showToast(`Errore nel caricamento del giardino: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner(); // Nascondi lo spinner, sempre
     }
@@ -733,6 +797,7 @@ async function saveMyGardenToFirebase(gardenArray) {
     const user = firebase.auth().currentUser;
     if (!user) {
         console.warn("Nessun utente autenticato per salvare il giardino.");
+        showToast("Nessun utente autenticato per salvare il giardino.", 'info'); // Messaggio informativo
         return; // Esci se non c'è un utente
     }
 
@@ -743,9 +808,10 @@ async function saveMyGardenToFirebase(gardenArray) {
             plantIds: gardenArray
         });
         console.log("Giardino utente salvato con successo.");
+        // showToast('Giardino salvato con successo!', 'success'); // Questo toast è gestito dalle funzioni chiamanti (addTo/removeFromMyGarden)
     } catch (error) {
         console.error("Errore nel salvataggio del giardino utente:", error);
-        alert("Errore nel salvataggio del tuo giardino. Riprova.");
+        showToast(`Errore nel salvataggio del giardino: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner(); // Nascondi lo spinner, sempre
     }
@@ -759,6 +825,7 @@ async function loadPlantsFromFirebase() {
         console.log("Piante caricate da Firebase:", allPlants);
     } catch (error) {
         console.error("Errore nel caricamento delle piante da Firebase:", error);
+        showToast(`Errore nel caricamento delle piante: ${error.message}`, 'error'); // Sostituito alert
     } finally {
         hideSpinner(); // Nascondi spinner, sia in caso di successo che di errore
     }
@@ -770,6 +837,7 @@ async function updateGardenVisibility(showMyGarden) {
     // in DOMContentLoaded, quindi dovrebbero essere disponibili.
     if (!plantsSection || !gardenContainer || !myGardenContainer || !giardinoTitle || !toggleMyGardenButton || !emptyGardenMessage) {
         console.error("Uno o più elementi UI principali non sono stati trovati in updateGardenVisibility! Ricarica la pagina o controlla gli ID.");
+        showToast('Errore UI: elementi non trovati. Riprova.', 'error'); // Sostituito alert
         return;
     }
 
@@ -854,7 +922,7 @@ async function startLightSensor() {
             console.error("Errore sensore di luce:", event.error.name, event.error.message);
             if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'Errore';
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
-            // Non nascondiamo lo spinner qui, lo farà il finally del try/catch principale
+            showToast(`Errore sensore luce: ${event.error.message}`, 'error'); // Sostituito alert
         };
 
         try {
@@ -863,11 +931,13 @@ async function startLightSensor() {
             if (startLightSensorButton) startLightSensorButton.style.display = 'none';
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = "Misurazione in corso...";
+            showToast('Sensore luce avviato con successo.', 'info'); // Messaggio informativo
         } catch (error) {
             // Se l'avvio fallisce
             console.error("Impossibile avviare il sensore di luce:", error);
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Impossibile avviare il sensore di luce. Assicurati che il tuo dispositivo lo supporti e che tu abbia concesso i permessi. ${error.message}</p>`;
             if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A';
+            showToast(`Impossibile avviare il sensore luce: ${error.message}`, 'error'); // Sostituito alert
         } finally {
             hideSpinner(); // NASCONDI LO SPINNER QUI, SEMPRE!
         }
@@ -875,6 +945,7 @@ async function startLightSensor() {
         // Se il browser non supporta il sensore
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: orange;">Il sensore di luce ambientale non è supportato dal tuo dispositivo.</p>';
         if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A';
+        showToast('Il sensore di luce ambientale non è supportato dal tuo dispositivo.', 'info'); // Messaggio informativo
         hideSpinner(); // NASCONDI LO SPINNER ANCHE IN QUESTO CASO
     }
 }
@@ -889,6 +960,7 @@ function stopLightSensor() {
         if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
         if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A';
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = ''; // Pulisci il feedback
+        showToast('Sensore luce fermato.', 'info'); // Messaggio informativo
     }
 }
 
@@ -930,8 +1002,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlant');
     emptyGardenMessage = document.getElementById('empty-garden-message');
     plantsSection = document.getElementById('plants-section'); // Inizializza plantsSection
-    sortBySelect = document.getElementById('sortBy'); // Inizializza la nuova variabile DOM    
+    sortBySelect = document.getElementById('sortBy'); // Inizializza la nuova variabile DOM
+
     loadingSpinner = document.getElementById('loading-spinner'); // Inizializza lo spinner
+    toastContainer = document.getElementById('toast-container'); // <<< INIZIALIZZA IL TOAST CONTAINER
     isDomReady = true; // Il DOM è pronto!
 
     // Inizializzazione della modal all'avvio dell'applicazione
@@ -954,17 +1028,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tempMinFilter) tempMinFilter.addEventListener('input', applyFilters); 
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', applyFilters); 
     
+    // Listener per il pulsante "Mostra/Nascondi il mio giardino"
+    if (toggleMyGardenButton) {
+        toggleMyGardenButton.addEventListener('click', handleToggleMyGarden);
+    }
+
     // Listener per il cambio di ordinamento
     if (sortBySelect) {
         sortBySelect.addEventListener('change', () => {
             currentSortBy = sortBySelect.value; // Aggiorna la variabile globale
             applyFilters(); // Ri-applica i filtri per aggiornare la UI con il nuovo ordinamento
         });
-    }
-    
-    // Listener per il pulsante "Mostra/Nascondi il mio giardino"
-    if (toggleMyGardenButton) {
-        toggleMyGardenButton.addEventListener('click', handleToggleMyGarden);
     }
 
     // Listener per i bottoni del form di aggiornamento (questi non devono essere nei click delle card)
@@ -1022,6 +1096,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (!formIsValid) {
                     console.log("Validazione form fallita. Correggi gli errori.");
+                    showToast('Per favore, correggi gli errori nel form.', 'error'); // Sostituito alert
                     return; // Ferma l'esecuzione se ci sono errori di validazione
                 }
 
@@ -1055,8 +1130,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const deletePlantButtonFromForm = document.getElementById('deletePlant');
     if (deletePlantButtonFromForm) {
         deletePlantButtonFromForm.addEventListener('click', async () => {
-            if (currentPlantIdToUpdate && confirm('Sei sicuro di voler eliminare questa pianta? Questa azione è irreversibile e la rimuoverà anche dai giardini degli utenti!')) {
+            // Sostituito confirm() con showToast per un feedback migliore
+            // Per una conferma, avresti bisogno di una modal custom con bottoni Sì/No
+            if (currentPlantIdToUpdate) {
+                // Per ora, lo gestiamo come un'azione diretta con un messaggio di successo/errore
+                showToast('Eliminazione pianta in corso...', 'info'); // Messaggio informativo
                 await deletePlantFromDatabase(currentPlantIdToUpdate);
+            } else {
+                showToast('Nessuna pianta selezionata per l\'eliminazione.', 'info'); // Messaggio informativo
             }
         });
     }
@@ -1086,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (user) {
                     await addToMyGarden(plantId, user.uid); // Passa l'UID
                 } else {
-                    alert("Devi essere autenticato per aggiungere piante al tuo giardino.");
+                    showToast("Devi essere autenticato per aggiungere piante al tuo giardino.", 'info'); // Sostituito alert
                 }
             } else if (event.target.classList.contains('remove-button')) {
                 const plantIdToRemove = event.target.dataset.plantId;
@@ -1094,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (user) {
                     await removeFromMyGarden(plantIdToRemove, user.uid); // Passa l'UID
                 } else {
-                    alert("Devi essere autenticato per rimuovere piante dal tuo giardino.");
+                    showToast("Devi essere autenticato per rimuovere piante dal tuo giardino.", 'info'); // Sostituito alert
                 }
             } else if (event.target.classList.contains('update-plant-button')) {
                 const plantIdToUpdate = event.target.dataset.plantId;
@@ -1103,12 +1184,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     showUpdatePlantForm(plantToUpdate);
                 } else {
                     console.warn(`Pianta con ID ${plantIdToUpdate} non trovata in allPlants per l'aggiornamento.`);
+                    showToast(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento.`, 'error'); // Messaggio di errore
                 }
             } else if (event.target.classList.contains('delete-plant-from-db-button')) { 
                 const plantIdToDelete = event.target.dataset.plantId;
-                if (confirm(`Sei sicuro di voler eliminare DEFINITIVAMENTE la pianta con ID: ${plantIdToDelete}? Questa azione è irreversibile e la rimuoverà anche dai giardini di tutti gli utenti.`)) {
-                    await deletePlantFromDatabase(plantIdToDelete); 
-                }
+                // Sostituito confirm() con showToast per un feedback migliore
+                // Per una conferma, avresti bisogno di una modal custom con bottoni Sì/No
+                showToast('Eliminazione pianta in corso...', 'info'); // Messaggio informativo
+                await deletePlantFromDatabase(plantIdToDelete); 
             }
         });
     }
@@ -1128,7 +1211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (user) {
                     await removeFromMyGarden(plantIdToRemove, user.uid); // Passa l'UID
                 } else {
-                    alert("Devi essere autenticato per rimuovere piante dal tuo giardino.");
+                    showToast("Devi essere autenticato per rimuovere piante dal tuo giardino.", 'info'); // Sostituito alert
                 }
             } else if (event.target.classList.contains('update-plant-button')) {
                 const plantIdToUpdate = event.target.dataset.plantId;
@@ -1137,6 +1220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     showUpdatePlantForm(plantToUpdate);
                 } else {
                     console.warn(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento nel mio giardino.`);
+                    showToast(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento.`, 'error'); // Messaggio di errore
                 }
             }
         });
