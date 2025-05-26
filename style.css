@@ -22,10 +22,17 @@ header {
 
 header h1 {
     margin: 0; /* Rimuove i margini predefiniti del titolo */
-    flex-grow: 1; /* Permette al titolo di occupare lo spazio centrale */
-    text-align: center; /* Centra il titolo */
+    /* Rimuovi flex-grow: 1; */ 
+    text-align: center; /* Centra il testo all'interno dell'h1 */
     color: #2c3e50;
     font-size: 2em; /* Dimensione del titolo */
+
+    /* NUOVE PROPRIETÀ PER CENTRARE L'H1 */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap; /* Evita che il titolo vada a capo */
+    z-index: 1; /* Assicurati che sia sopra gli altri elementi se si sovrapponessero */
 }
 
 .header-left, .header-right {
