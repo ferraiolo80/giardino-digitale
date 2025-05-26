@@ -196,6 +196,93 @@ function showToast(message, type = 'info') {
     }, 3000); // Il toast rimane visibile per 3 secondi
 }
 
+// Funzione per ottenere la posizione dell'utente e dedurre la zona climatica
+async function getUserLocation() {
+    if ("geolocation" in navigator) {
+        locationStatusDiv.innerText = "Ricerca posizione...";
+        getLocationButton.disabled = true; // Disabilita il bottone durante la ricerca
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLocation = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                console.log("Posizione ottenuta:", userLocation);
+
+                // Dedurre la zona climatica dalla latitudine
+                detectedClimateZone = deduceClimateZone(userLocation.latitude);
+                locationStatusDiv.innerText = `Clima rilevato: ${detectedClimateZone || 'Sconosciuto'}`;
+
+                // Seleziona automaticamente la zona climatica nel filtro
+                if (climateZoneFilter) {
+                    climateZoneFilter.value = detectedClimateZone || ''; // Seleziona l'opzione rilevata o "Tutti"
+                }
+
+                getLocationButton.disabled = false;
+                applyFilters(); // Applica i filtri per mostrare le piante adatte
+            },
+            (error) => {
+                console.error("Errore geolocalizzazione:", error);
+                getLocationButton.disabled = false;
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        locationStatusDiv.innerText = "Accesso alla posizione negato. Abilita i permessi.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        locationStatusDiv.innerText = "Posizione non disponibile.";
+                        break;
+                    case error.TIMEOUT:
+                        locationStatusDiv.innerText = "Richiesta posizione scaduta.";
+                        break;
+                    default:
+                        locationStatusDiv.innerText = "Errore geolocalizzazione.";
+                        break;
+                }
+                userLocation = null; // Resetta la posizione in caso di errore
+                detectedClimateZone = null; // Resetta la zona climatica
+                if (climateZoneFilter) {
+                    climateZoneFilter.value = ''; // Resetta il filtro
+                }
+                applyFilters(); // Ricarica anche se c'è stato un errore
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        locationStatusDiv.innerText = "Geolocalizzazione non supportata dal tuo browser.";
+        console.log("Geolocalizzazione non supportata.");
+        getLocationButton.disabled = false;
+    }
+}
+
+// Funzione per dedurre una zona climatica approssimativa dalla latitudine
+function deduceClimateZone(latitude) {
+    // Questa è una semplificazione. I valori esatti e le zone dipendono dai tuoi dati sulle piante.
+    // Ad esempio, per l'Italia (latitudine ~35°-47° N), potremmo avere Mediterraneo/Temperato.
+    // Puoi definire le tue fasce in base a come classifichi le piante.
+
+    if (latitude >= -23.5 && latitude <= 23.5) { // Tra i Tropici
+        return 'Tropicale';
+    } else if ((latitude > 23.5 && latitude <= 40) || (latitude < -23.5 && latitude >= -40)) {
+        // Fascia subtropicale (es. Florida, parti del Mediterraneo)
+        return 'Subtropicale';
+    } else if ((latitude > 40 && latitude <= 60) || (latitude < -40 && latitude >= -60)) {
+        // Fascia temperata (es. gran parte dell'Europa, Nord America)
+        // Possiamo distinguere Mediterraneo qui se si vuole
+        if (latitude > 35 && latitude <= 45 && userLocation && (userLocation.longitude >= -10 && userLocation.longitude <= 40)) { // Approssimazione per il Mediterraneo
+            return 'Mediterraneo';
+        }
+        return 'Temperato';
+    } else if (latitude > 60 || latitude < -60) {
+        return 'Boreale/Artico'; // Molto freddo, probabilmente poche piante qui
+    } else {
+        return 'Sconosciuto'; // O un valore di default
+    }
+}
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
 async function handleLogin() {
