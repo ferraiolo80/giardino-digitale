@@ -38,25 +38,22 @@ header h1 {
 .header-left, .header-right {
     display: flex;
     align-items: center;
-    /* Rimuovi flex-grow: 0; e flex-shrink: 0; */
-    /* Queste due righe potresti non averle, ma se ci sono, rimuovile */
-    /* flex-grow: 0; */ 
-    /* flex-shrink: 0; */
+    /* Rimuovi min-width se lo avevi messo a 0 o se causava problemi */
+    min-width: 50px; /* Mantieni un min-width se c'è un pulsante */
+    flex-shrink: 0; /* Impedisce che si rimpiccioliscano troppo */
 }
 
 .header-left {
     justify-content: flex-start; /* Allinea a sinistra */
-    /* Rimuovi o riduci molto min-width */
-    /* min-width: 50px; */ /* Rimuovi o metti a 0 */
+    flex-grow: 1; /* Permetti al lato sinistro di crescere */
 }
 
 .header-right {
     justify-content: flex-end; /* Allinea a destra */
-    flex-grow: 1; /* <--- AGGIUNGI QUESTA RIGA: permetti a header-right di crescere */
-    /* Rimuovi o riduci molto min-width */
-    /* min-width: 50px; */ /* Rimuovi o metti a 0 */
+    flex-grow: 1; /* Permetti al lato destro di crescere */
+    /* Aggiungi padding-left se il pulsante a sx è troppo vicino al titolo */
+    padding-left: 10px; /* Spazio per evitare sovrapposizioni sul titolo */
 }
-
 /* Poi, nello stile per lo stato di autenticazione nell'header */
 #auth-status {
     font-size: 0.9em;
