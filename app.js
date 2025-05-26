@@ -52,6 +52,10 @@ let emptyGardenMessage; // Questa variabile ora è dichiarata qui
 let plantsSection; // Aggiunto per riferimento alla sezione principale delle piante
 let sortBySelect; // Variabile DOM per il selettore di ordinamento
 
+// Variabili per i messaggi di errore dei form di autenticazione
+let loginErrorDiv; // AGGIUNTO
+let registerErrorDiv; // AGGIUNTO
+
 
 // --- FUNZIONI UI / HELPER PER LO SPINNER ---
 function showSpinner() {
@@ -186,48 +190,58 @@ function showToast(message, type = 'info') {
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
 async function handleLogin() {
-    const emailInput = document.getElementById('loginEmail'); // Corretto ID
-    const passwordInput = document.getElementById('loginPassword'); // Corretto ID
-    const errorDiv = document.getElementById('login-error'); // Assicurati che questo ID esista nel tuo HTML
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    // Assicurati che loginErrorDiv sia stato inizializzato
+    if (!loginErrorDiv) {
+        console.error("Elemento login-error non trovato.");
+        showToast('Errore interno: elemento errore login non trovato.', 'error');
+        return;
+    }
 
-    if (emailInput && passwordInput && errorDiv) {
+    if (emailInput && passwordInput) {
         const email = emailInput.value;
         const password = passwordInput.value;
-        errorDiv.innerText = '';
+        loginErrorDiv.innerText = ''; // Pulisci errori precedenti
 
         showSpinner(); // Mostra spinner
         try {
             await firebase.auth().signInWithEmailAndPassword(email, password);
             console.log("Login effettuato con successo!");
-            showToast('Accesso effettuato con successo!', 'success'); // Sostituito alert
+            showToast('Accesso effettuato con successo!', 'success');
         } catch (error) {
             console.error("Errore durante il login:", error);
-            errorDiv.innerText = error.message;
-            showToast(`Errore login: ${error.message}`, 'error'); // Sostituito alert
+            loginErrorDiv.innerText = error.message; // Mostra errore nel div specifico
+            showToast(`Errore login: ${error.message}`, 'error');
         } finally {
             hideSpinner(); // Nascondi spinner
         }
     } else {
         console.error("Elementi del form di login non trovati.");
-        showToast('Errore interno: elementi login non trovati.', 'error'); // Sostituito alert
+        showToast('Errore interno: elementi login non trovati.', 'error');
     }
 }
 
 async function handleRegister() {
-    const emailInput = document.getElementById('registerEmail'); // Corretto ID
-    const passwordInput = document.getElementById('registerPassword'); // Corretto ID
-    const confirmPasswordInput = document.getElementById('register-confirm-password'); // Assicurati che questo ID esista nel tuo HTML
-    const errorDiv = document.getElementById('register-error'); // Assicurati che questo ID esista nel tuo HTML
+    const emailInput = document.getElementById('registerEmail');
+    const passwordInput = document.getElementById('registerPassword');
+    const confirmPasswordInput = document.getElementById('register-confirm-password');
+    // Assicurati che registerErrorDiv sia stato inizializzato
+    if (!registerErrorDiv) {
+        console.error("Elemento register-error non trovato.");
+        showToast('Errore interno: elemento errore registrazione non trovato.', 'error');
+        return;
+    }
 
-    if (emailInput && passwordInput && confirmPasswordInput && errorDiv) {
+    if (emailInput && passwordInput && confirmPasswordInput) {
         const email = emailInput.value;
         const password = passwordInput.value;
         const confirmPassword = confirmPasswordInput.value;
-        errorDiv.innerText = '';
+        registerErrorDiv.innerText = ''; // Pulisci errori precedenti
 
         if (password !== confirmPassword) {
-            errorDiv.innerText = "Le password non corrispondono.";
-            showToast('Le password non corrispondono.', 'error'); // Sostituito alert
+            registerErrorDiv.innerText = "Le password non corrispondono.";
+            showToast('Le password non corrispondono.', 'error');
             return;
         }
 
@@ -235,17 +249,17 @@ async function handleRegister() {
         try {
             await firebase.auth().createUserWithEmailAndPassword(email, password);
             console.log("Registrazione effettuata con successo!");
-            showToast('Registrazione effettuata con successo!', 'success'); // Sostituito alert
+            showToast('Registrazione effettuata con successo!', 'success');
         } catch (error) {
             console.error("Errore durante la registrazione:", error);
-            errorDiv.innerText = error.message;
-            showToast(`Errore registrazione: ${error.message}`, 'error'); // Sostituito alert
+            registerErrorDiv.innerText = error.message; // Mostra errore nel div specifico
+            showToast(`Errore registrazione: ${error.message}`, 'error');
         } finally {
             hideSpinner(); // Nascondi spinner
         }
     } else {
         console.error("Elementi del form di registrazione non trovati.");
-        showToast('Errore interno: elementi registrazione non trovati.', 'error'); // Sostituito alert
+        showToast('Errore interno: elementi registrazione non trovati.', 'error');
     }
 }
 
@@ -254,10 +268,10 @@ async function handleLogout() {
     try {
         await firebase.auth().signOut();
         console.log("Logout effettuato con successo!");
-        showToast('Logout effettuato con successo.', 'info'); // Sostituito alert
+        showToast('Logout effettuato con successo.', 'info');
     } catch (error) {
         console.error("Errore durante il logout:", error);
-        showToast(`Errore logout: ${error.message}`, 'error'); // Sostituito alert
+        showToast(`Errore logout: ${error.message}`, 'error');
     } finally {
         hideSpinner(); // Nascondi spinner
     }
@@ -344,8 +358,8 @@ function createPlantCard(plantData, isMyGardenCard = false) {
     div.innerHTML = `
         <img src="${image}" alt="${plantData.name}" class="plant-icon">
         <h4>${plantData.name}</h4>
-        <p><i class="fas fa-sun"></i> Luce: ${plantData.sunlight}</p>
-        <p><i class="fas fa-tint"></i> Acqua: ${plantData.watering}</p>
+        <p><i class="fas fa-sun"></i> Luce: ${plantData.sunlight || 'N/A'}</p>
+        <p><i class="fas fa-tint"></i> Acqua: ${plantData.watering || 'N/A'}</p>
         <p><i class="fas fa-thermometer-half"></i> Temp. ideale min: ${plantData.tempMin}°C</p>
         <p><i class="fas fa-thermometer-half"></i> Temp. ideale max: ${plantData.tempMax}°C</p>
         <p>Categoria: ${plantData.category}</p>
@@ -518,14 +532,13 @@ function showUpdatePlantForm(plant) {
     currentPlantIdToUpdate = plant.id;
     document.getElementById('updatePlantId').value = plant.id;
     document.getElementById('updatePlantName').value = plant.name || '';
-    // Correzione: i campi sunlight e watering non sono nel tuo HTML per updatePlantCard
-    // document.getElementById('updatePlantSunlight').value = plant.sunlight || '';
-    // document.getElementById('updatePlantWatering').value = plant.watering || '';
+    document.getElementById('updatePlantSunlight').value = plant.sunlight || ''; // Ri-aggiunto
+    document.getElementById('updatePlantWatering').value = plant.watering || ''; // Ri-aggiunto
     document.getElementById('updatePlantTempMin').value = plant.tempMin || '';
     document.getElementById('updatePlantTempMax').value = plant.tempMax || '';
     document.getElementById('updatePlantDescription').value = plant.description || '';
     document.getElementById('updatePlantCategory').value = plant.category || ''; // Default a vuoto per "Seleziona una categoria"
-    document.getElementById('updatePlantImageUrl').value = plant.image || ''; // Corretto ID
+    document.getElementById('updatePlantImageURL').value = plant.image || ''; // Corretto ID
     document.getElementById('updatePlantIdealLuxMin').value = plant.idealLuxMin || ''; 
     document.getElementById('updatePlantIdealLuxMax').value = plant.idealLuxMax || ''; 
 
@@ -540,13 +553,13 @@ function clearUpdatePlantForm() {
     currentPlantIdToUpdate = null;
     document.getElementById('updatePlantId').value = '';
     document.getElementById('updatePlantName').value = '';
-    // document.getElementById('updatePlantSunlight').value = ''; // Rimosso
-    // document.getElementById('updatePlantWatering').value = ''; // Rimosso
+    document.getElementById('updatePlantSunlight').value = ''; // Ri-aggiunto
+    document.getElementById('updatePlantWatering').value = ''; // Ri-aggiunto
     document.getElementById('updatePlantTempMin').value = '';
     document.getElementById('updatePlantTempMax').value = '';
     document.getElementById('updatePlantDescription').value = '';
     document.getElementById('updatePlantCategory').value = ''; // Reset a vuoto
-    document.getElementById('updatePlantImageUrl').value = ''; // Corretto ID
+    document.getElementById('updatePlantImageURL').value = ''; // Corretto ID
     document.getElementById('updatePlantIdealLuxMin').value = ''; 
     document.getElementById('updatePlantIdealLuxMax').value = ''; 
 
@@ -656,12 +669,10 @@ async function saveNewPlantToFirebase() {
     const newPlantNameInput = document.getElementById('newPlantName'); 
     const errorNewPlantName = document.getElementById('errorNewPlantName');
 
-    // Correzione: nel tuo HTML non ci sono sunlight e watering per i nuovi campi.
-    // Se li vuoi, devi aggiungerli in index.html. Per ora li ometto.
-    // const newPlantSunlightInput = document.getElementById('newPlantSunlight');
-    // const errorNewPlantSunlight = document.getElementById('errorNewPlantSunlight');
-    // const newPlantWateringInput = document.getElementById('newPlantWatering');
-    // const errorNewPlantWatering = document.getElementById('errorNewPlantWatering');
+    const newPlantSunlightInput = document.getElementById('newPlantSunlight'); 
+    const errorNewPlantSunlight = document.getElementById('errorNewPlantSunlight'); 
+    const newPlantWateringInput = document.getElementById('newPlantWatering'); 
+    const errorNewPlantWatering = document.getElementById('errorNewPlantWatering'); 
 
     const newPlantIdealLuxMinInputElem = document.getElementById('newPlantIdealLuxMin'); 
     const errorNewPlantIdealLuxMin = document.getElementById('errorNewPlantIdealLuxMin');
@@ -681,8 +692,8 @@ async function saveNewPlantToFirebase() {
     const newPlantCategoryInput = document.getElementById('newPlantCategory');
     const errorNewPlantCategory = document.getElementById('errorNewPlantCategory');
 
-    const newPlantImageUrlInput = document.getElementById('newPlantImageUrl'); // Corretto ID
-    const errorNewPlantImageUrl = document.getElementById('errorNewPlantImageUrl'); // Corretto ID
+    const newPlantImageURLInput = document.getElementById('newPlantImageURL'); 
+    const errorNewPlantImageURL = document.getElementById('errorNewPlantImageURL'); 
 
 
     // Pulisci tutti gli errori precedenti prima di ri-validare
@@ -692,15 +703,15 @@ async function saveNewPlantToFirebase() {
 
     // Esegui la validazione per ogni campo obbligatorio
     if (!validateField(newPlantNameInput, errorNewPlantName, 'Il nome è obbligatorio.')) formIsValid = false;
-    // if (!validateField(newPlantSunlightInput, errorNewPlantSunlight, 'La luce è obbligatoria.')) formIsValid = false; // Rimosso
-    // if (!validateField(newPlantWateringInput, errorNewPlantWatering, 'L\'acqua è obbligatoria.')) formIsValid = false; // Rimosso
+    if (!validateField(newPlantSunlightInput, errorNewPlantSunlight, 'La luce è obbligatoria.')) formIsValid = false; 
+    if (!validateField(newPlantWateringInput, errorNewPlantWatering, 'L\'acqua è obbligatoria.')) formIsValid = false; 
     if (!validateField(newPlantIdealLuxMinInputElem, errorNewPlantIdealLuxMin, 'Lux Min è obbligatorio e deve essere un numero.')) formIsValid = false;
     if (!validateField(newPlantIdealLuxMaxInputElem, errorNewPlantIdealLuxMax, 'Lux Max è obbligatorio e deve essere un numero.')) formIsValid = false;
     if (!validateField(newPlantTempMinInput, errorNewPlantTempMin, 'Temp Min è obbligatoria e deve essere un numero.')) formIsValid = false;
     if (!validateField(newPlantTempMaxInput, errorNewPlantTempMax, 'Temp Max è obbligatoria e deve essere un numero.')) formIsValid = false;
-    if (!validateField(newPlantDescriptionInput, errorNewPlantDescription, 'La descrizione è obbligatoria.')) formIsValid = false; // Aggiunto per descrizione
+    if (!validateField(newPlantDescriptionInput, errorNewPlantDescription, 'La descrizione è obbligatoria.')) formIsValid = false; 
     if (!validateField(newPlantCategoryInput, errorNewPlantCategory, 'La categoria è obbligatoria.')) formIsValid = false;
-    if (!validateField(newPlantImageUrlInput, errorNewPlantImageUrl, 'L\'URL immagine è obbligatorio e deve essere valido.')) formIsValid = false; // Reso obbligatorio per coerenza con HTML
+    if (!validateField(newPlantImageURLInput, errorNewPlantImageURL, 'L\'URL immagine è obbligatorio e deve essere valido.')) formIsValid = false; 
 
 
     if (!formIsValid) {
@@ -713,13 +724,13 @@ async function saveNewPlantToFirebase() {
     try {
         const docRef = await db.collection('plants').add({
             name: newPlantNameInput.value,
-            // sunlight: newPlantSunlightInput.value, // Rimosso
-            // watering: newPlantWateringInput.value, // Rimosso
+            sunlight: newPlantSunlightInput.value, 
+            watering: newPlantWateringInput.value, 
             tempMin: parseInt(newPlantTempMinInput.value),
             tempMax: parseInt(newPlantTempMaxInput.value),
             description: newPlantDescriptionInput.value,
             category: newPlantCategoryInput.value,
-            image: newPlantImageUrlInput.value, // Corretto ID
+            image: newPlantImageURLInput.value, 
             idealLuxMin: parseInt(newPlantIdealLuxMinInputElem.value),
             idealLuxMax: parseInt(newPlantIdealLuxMaxInputElem.value)
         });
@@ -742,13 +753,13 @@ async function saveNewPlantToFirebase() {
 
 function clearNewPlantForm() {
     document.getElementById('newPlantName').value = '';
-    // document.getElementById('newPlantSunlight').value = ''; // Rimosso
-    // document.getElementById('newPlantWatering').value = ''; // Rimosso
+    document.getElementById('newPlantSunlight').value = ''; 
+    document.getElementById('newPlantWatering').value = ''; 
     document.getElementById('newPlantTempMin').value = '';
     document.getElementById('newPlantTempMax').value = '';
     document.getElementById('newPlantDescription').value = '';
     document.getElementById('newPlantCategory').value = ''; // Reset a vuoto
-    document.getElementById('newPlantImageUrl').value = ''; // Corretto ID
+    document.getElementById('newPlantImageURL').value = ''; 
     document.getElementById('newPlantIdealLuxMin').value = ''; 
     document.getElementById('newPlantIdealLuxMax').value = ''; 
 
@@ -756,7 +767,7 @@ function clearNewPlantForm() {
 }
 
 async function loadMyGardenFromFirebase() {
-    showSpinner(); // Mostra lo spinner all'inizio
+    showSpinner(); 
 
     const user = firebase.auth().currentUser;
 
@@ -952,6 +963,12 @@ function stopLightSensor() {
 // --- NUOVA FUNZIONE PER GESTIRE L'AUTENTICAZIONE E L'AGGIORNAMENTO UI ---
 // Questa funzione è chiamata sia da onAuthStateChanged che da DOMContentLoaded
 async function handleAuthAndUI(user) {
+    // Assicurati che il DOM sia pronto prima di manipolare elementi DOM
+    if (!isDomReady) {
+        console.log("handleAuthAndUI chiamato, ma DOM non ancora pronto. Attesa...");
+        return; // Esci e lascia che DOMContentLoaded gestisca la configurazione iniziale.
+    }
+
     if (user) {
         console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
         authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
@@ -961,6 +978,7 @@ async function handleAuthAndUI(user) {
         // Mostra il bottone di logout solo se l'utente è autenticato
         if (logoutButton) {
             logoutButton.style.display = 'inline-block'; 
+            // Rimuovi e riaggiungi il listener per il logout per evitare duplicazioni
             logoutButton.removeEventListener('click', handleLogout); 
             logoutButton.addEventListener('click', handleLogout);    
         }
@@ -1030,6 +1048,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     authContainerDiv = document.getElementById('auth-container');
     appContentDiv = document.getElementById('app-content');
 
+    // Inizializzazione dei div per gli errori di autenticazione
+    loginErrorDiv = document.getElementById('login-error'); // AGGIUNTO
+    registerErrorDiv = document.getElementById('register-error'); // AGGIUNTO
+
     searchInput = document.getElementById('searchInput');
     addNewPlantButton = document.getElementById('addNewPlantButton');
     newPlantCard = document.getElementById('newPlantCard');
@@ -1044,10 +1066,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     stopLightSensorButton = document.getElementById('stopLightSensorButton'); 
     currentLuxValueSpan = document.getElementById('currentLuxValue');
     lightFeedbackDiv = document.getElementById('lightFeedback');
+
+    // Assicurati che questi ID siano corretti nel tuo HTML per i form di aggiunta/aggiornamento
     newPlantIdealLuxMinInput = document.getElementById('newPlantIdealLuxMin'); 
     newPlantIdealLuxMaxInput = document.getElementById('newPlantIdealLuxMax'); 
     updatePlantIdealLuxMinInput = document.getElementById('updatePlantIdealLuxMin');
     updatePlantIdealLuxMaxInput = document.getElementById('updatePlantIdealLuxMax');
+    
     updatePlantCard = document.getElementById('updatePlantCard');
     saveUpdatedPlantButton = document.getElementById('saveUpdatePlantButton'); 
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlantButton'); 
@@ -1101,6 +1126,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (currentPlantIdToUpdate) {
                 const updatePlantNameInput = document.getElementById('updatePlantName');
                 const errorUpdatePlantName = document.getElementById('errorUpdatePlantName');
+                const updatePlantSunlightInput = document.getElementById('updatePlantSunlight'); 
+                const errorUpdatePlantSunlight = document.getElementById('errorUpdatePlantSunlight'); 
+                const updatePlantWateringInput = document.getElementById('updatePlantWatering'); 
+                const errorUpdatePlantWatering = document.getElementById('errorUpdatePlantWatering'); 
                 const updatePlantIdealLuxMinInputElem = document.getElementById('updatePlantIdealLuxMin');
                 const errorUpdatePlantIdealLuxMin = document.getElementById('errorUpdatePlantIdealLuxMin');
                 const updatePlantIdealLuxMaxInputElem = document.getElementById('updatePlantIdealLuxMax');
@@ -1113,20 +1142,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const errorUpdatePlantDescription = document.getElementById('errorUpdatePlantDescription');
                 const updatePlantCategoryInput = document.getElementById('updatePlantCategory');
                 const errorUpdatePlantCategory = document.getElementById('errorUpdatePlantCategory');
-                const updatePlantImageUrlInput = document.getElementById('updatePlantImageUrl');
-                const errorUpdatePlantImageUrl = document.getElementById('errorUpdatePlantImageUrl');
+                const updatePlantImageURLInput = document.getElementById('updatePlantImageURL');
+                const errorUpdatePlantImageURL = document.getElementById('errorUpdatePlantImageURL');
 
                 clearFormValidationErrors(updatePlantCard);
                 let formIsValid = true;
 
                 if (!validateField(updatePlantNameInput, errorUpdatePlantName, 'Il nome è obbligatorio.')) formIsValid = false;
+                if (!validateField(updatePlantSunlightInput, errorUpdatePlantSunlight, 'La luce è obbligatoria.')) formIsValid = false; 
+                if (!validateField(updatePlantWateringInput, errorUpdatePlantWatering, 'L\'acqua è obbligatoria.')) formIsValid = false; 
                 if (!validateField(updatePlantIdealLuxMinInputElem, errorUpdatePlantIdealLuxMin, 'Lux Min è obbligatorio e deve essere un numero.')) formIsValid = false;
                 if (!validateField(updatePlantIdealLuxMaxInputElem, errorUpdatePlantIdealLuxMax, 'Lux Max è obbligatorio e deve essere un numero.')) formIsValid = false;
                 if (!validateField(updatePlantTempMinInput, errorUpdatePlantTempMin, 'Temp Min è obbligatoria e deve essere un numero.')) formIsValid = false;
                 if (!validateField(updatePlantTempMaxInput, errorUpdatePlantTempMax, 'Temp Max è obbligatoria e deve essere un numero.')) formIsValid = false;
                 if (!validateField(updatePlantDescriptionInput, errorUpdatePlantDescription, 'La descrizione è obbligatoria.')) formIsValid = false;
                 if (!validateField(updatePlantCategoryInput, errorUpdatePlantCategory, 'La categoria è obbligatoria.')) formIsValid = false;
-                if (!validateField(updatePlantImageUrlInput, errorUpdatePlantImageUrl, 'L\'URL immagine è obbligatorio e deve essere valido.')) formIsValid = false;
+                if (!validateField(updatePlantImageURLInput, errorUpdatePlantImageURL, 'L\'URL immagine è obbligatorio e deve essere valido.')) formIsValid = false;
 
                 if (!formIsValid) {
                     console.log("Validazione form fallita. Correggi gli errori.");
@@ -1136,11 +1167,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 const updatedData = {
                     name: updatePlantNameInput.value,
+                    sunlight: updatePlantSunlightInput.value,
+                    watering: updatePlantWateringInput.value,
                     tempMin: parseInt(updatePlantTempMinInput.value),
                     tempMax: parseInt(updatePlantTempMaxInput.value),
                     description: updatePlantDescriptionInput.value,
                     category: updatePlantCategoryInput.value,
-                    image: updatePlantImageUrlInput.value,
+                    image: updatePlantImageURLInput.value,
                     idealLuxMin: parseInt(updatePlantIdealLuxMinInputElem.value),
                     idealLuxMax: parseInt(updatePlantIdealLuxMaxInputElem.value)
                 };
@@ -1180,12 +1213,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (event.target.classList.contains('add-to-garden-button')) {
                 const plantId = event.target.dataset.plantId;
                 const user = firebase.auth().currentUser; 
-                if (user) { await addToMyGarden(plantId, user.uid); } 
+                if (user) { await addToMyGarden(plantId); } // UID non necessario qui
                 else { showToast("Devi essere autenticato per aggiungere piante al tuo giardino.", 'info'); }
             } else if (event.target.classList.contains('remove-button')) {
                 const plantIdToRemove = event.target.dataset.plantId;
                 const user = firebase.auth().currentUser; 
-                if (user) { await removeFromMyGarden(plantIdToRemove, user.uid); } 
+                if (user) { await removeFromMyGarden(plantIdToRemove); } // UID non necessario qui
                 else { showToast("Devi essere autenticato per rimuovere piante dal tuo giardino.", 'info'); }
             } else if (event.target.classList.contains('update-plant-button')) {
                 const plantIdToUpdate = event.target.dataset.plantId;
@@ -1207,7 +1240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (event.target.classList.contains('remove-button')) {
                 const plantIdToRemove = event.target.dataset.plantId;
                 const user = firebase.auth().currentUser; 
-                if (user) { await removeFromMyGarden(plantIdToRemove, user.uid); } 
+                if (user) { await removeFromMyGarden(plantIdToRemove); } // UID non necessario qui
                 else { showToast("Devi essere autenticato per rimuovere piante dal tuo giardino.", 'info'); }
             } else if (event.target.classList.contains('update-plant-button')) {
                 const plantIdToUpdate = event.target.dataset.plantId;
@@ -1223,3 +1256,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     // con lo stato di autenticazione corrente solo DOPO che il DOM è pronto.
     await handleAuthAndUI(firebase.auth().currentUser);
 });
+;
