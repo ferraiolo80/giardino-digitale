@@ -1319,7 +1319,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
 
-/ Event delegation per i bottoni sulle card
+// Event delegation per i bottoni sulle card
     function handleCardActions(event, container) {
         const target = event.target.closest('button'); // Trova il bottone cliccato, anche se si clicca sull'icona interna
         if (!target) return;
