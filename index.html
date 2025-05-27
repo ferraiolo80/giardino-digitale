@@ -214,7 +214,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Giardino Digitale. Tutti i diritti riservati.</p>
+        <p>&copy; 2024 Giardino Digitale. Tutti i diritti riservati.</p>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -224,16 +224,19 @@
     <script>        
         // Configura Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+            // **IMPORTANTE: INSERISCI LA TUA CHIAVE API COMPLETA E CORRETTA QUI SOTTO**
+            // Esempio: apiKey: "AIzaSyAzCDEFG123456789...",
+            apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4", 
             authDomain: "giardinodigitale.firebaseapp.com",
             projectId: "giardinodigitale",
             storageBucket: "giardinodigitale.appspot.com",
             messagingSenderId: "96265504027",
-            appId: "1:96265504027:web:903c3df92cfa24beb17fbe", // <<-- HO AGGIUNTO LA FINE DELLA STRINGA E LE VIRGOLETTE
+            // **IMPORTANTE: INSERISCI IL TUO APP ID COMPLETO E CORRETTO QUI SOTTO**
+            // Esempio: appId: "1:96265504027:web:abcdef1234567890...",
+            appId: "1:96265504027:web:903c3df92cfa24beb17fbe", 
         };
         // INIZIALIZZA FIREBASE APP
         firebase.initializeApp(firebaseConfig);
     </script>
-    <script src="app.js"></script>
-</body>
+    <script src="app.js" defer></script> </body>
 </html>
