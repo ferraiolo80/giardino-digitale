@@ -564,8 +564,8 @@ function applyFilters() {
         const matchesCategory = category === 'all' || category === '' || plant.category === category; // Aggiunto '' per "Tutte" se il value è vuoto
         const matchesTempMin = isNaN(tempMin) || plant.tempMin >= tempMin;
         const matchesTempMax = isNaN(tempMax) || plant.tempMax <= tempMax;
-	const matchesLight = light === '' || (plant.sunlight && plant.sunlight === light); // plant.sunlight è già usato
-        const matchesWater = water === '' || (plant.watering && plant.watering === water); // plant.watering è già usato
+	const matchesLight = lightFilter.value === '' || (plant.sunlight && plant.sunlight === light); // plant.sunlight è già usato
+        const matchesWater = waterFilter.value === '' || (plant.watering && plant.watering === water); // plant.watering è già usato
         const matchesClimateZone = selectedClimate === '' || (plant.climateZone && plant.climateZone === selectedClimate);
 
 
