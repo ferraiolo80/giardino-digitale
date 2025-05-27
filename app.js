@@ -243,7 +243,8 @@ function deduceClimateZone(latitude) {
 
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
-const emailInput = document.getElementById('loginEmail');
+async function handleLogin() {
+    const emailInput = document.getElementById('loginEmail');
     const passwordInput = document.getElementById('loginPassword');
     // Assicurati che loginErrorDiv sia stato inizializzato
     if (!loginErrorDiv) {
@@ -274,6 +275,7 @@ const emailInput = document.getElementById('loginEmail');
         showToast('Errore interno: elementi login non trovati.', 'error');
     }
 }
+
 
 
 async function handleRegister() {
