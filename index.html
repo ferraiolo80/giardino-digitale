@@ -160,7 +160,7 @@
                     <input type="url" id="new-plant-image-url" placeholder="URL Immagine Pianta (opzionale)">
                     <textarea id="new-plant-notes" placeholder="Note aggiuntive (opzionale)"></textarea>
                     <button type="submit" class="button">Salva Pianta</button>
-                    <button type="button" id="deletePlant" class="button delete-plant-from-form-button">Elimina Pianta (Admin)</button>
+                    <button type="button" id="deletePlantNewForm" class="button delete-plant-from-form-button">Elimina Pianta (Admin)</button>
                 </form>
             </div>
         </div>
@@ -214,7 +214,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 Giardino Digitale. Tutti i diritti riservati.</p>
+        <p>&copy; 2025 Giardino Digitale. Tutti i diritti riservati.</p>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -229,7 +229,10 @@
             projectId: "giardinodigitale",
             storageBucket: "giardinodigitale.appspot.com",
             messagingSenderId: "96265504027",
-            appId: "1:96265504027:web:903c...
+            appId: "1:96265504027:web:903c004a43c68383f5e552", // <<-- HO AGGIUNTO LA FINE DELLA STRINGA E LE VIRGOLETTE
+        };
+        // INIZIALIZZA FIREBASE APP
+        firebase.initializeApp(firebaseConfig);
     </script>
     <script src="app.js"></script>
 </body>
