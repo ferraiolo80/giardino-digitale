@@ -1,6 +1,6 @@
 // 1. DICHIARAZIONI GLOBALI
 let allPlants = [];
-let myGarden = []; // Inizializza come array vuoto
+let myGarden = []; // Inizializza come array vuoto (array di ID delle piante nel giardino dell'utente)
 let currentPlantIdToUpdate = null; // Variabile per tenere traccia dell'ID della pianta da aggiornare
 let ambientLightSensor = null; // Variabile per il sensore di luce
 let isMyGardenCurrentlyVisible = false; // Variabile per tenere traccia della visibilità del giardino
@@ -20,6 +20,11 @@ let toastContainer; // NUOVA DICHIARAZIONE GLOBALE
 // Variabile per la geolocalizzazione
 let userLocation = null;
 let detectedClimateZone = null;
+
+// DICHIARAZIONI DEI RIFERIMENTI FIREBASE (ALL'INIZIO, PRIMA DELLE FUNZIONI)
+const plantsRef = firebase.firestore().collection('plants');
+const usersRef = firebase.firestore().collection('users'); // Mantenuto per future estensioni se servisse salvare altri dati utente
+const gardensCollectionRef = firebase.firestore().collection('gardens'); // *** NUOVO RIFERIMENTO PER LA TUA COLLEZIONE 'gardens' ***
 
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
@@ -41,7 +46,6 @@ let loginButton;
 let registerButton;
 let logoutButton;
 let loginModal;
-// registerModal; // Non usato direttamente in HTML, ma utile per chiarezza se fosse una modal separata (Rimosso dalla dichiarazione, era solo un commento)
 let newPlantCard;
 let updatePlantCard;
 let newPlantForm;
@@ -62,7 +66,7 @@ let loginRegisterButtonsContainer;
 
 // 2. FUNZIONI DI UTILITÀ (TOAST, MODALS, SPINNER)
 function showToast(message, type = 'info') {
-    if (!toastContainer) {
+    if (!toastContainer) { // Controllo di fallback nel caso toastContainer non sia inizializzato
         toastContainer = document.getElementById('toast-container');
         if (!toastContainer) {
             console.error('Toast container not found. Creating one.');
@@ -101,7 +105,7 @@ window.closeModal = function(modalId) {
     if (modal) {
         modal.style.display = 'none';
         if (modalId === 'newPlantCard') clearNewPlantForm();
-        if (modalId === 'updatePlantCard') clearUpdatePlantForm(); // Assicurati di avere questa funzione
+        if (modalId === 'updatePlantCard') clearUpdatePlantForm();
     }
 };
 
@@ -124,9 +128,7 @@ function clearNewPlantForm() {
     document.getElementById('new-plant-climate-zone').value = '';
     document.getElementById('new-plant-image-url').value = '';
     document.getElementById('new-plant-notes').value = '';
-    // Resetta currentPlantIdToUpdate quando si chiude il form (anche se è il form 'new', per sicurezza)
     currentPlantIdToUpdate = null;
-    // Usa il nuovo ID per il bottone delete nella modal di nuova pianta
     const deleteBtn = document.getElementById('deletePlantNewForm');
     if (deleteBtn) deleteBtn.style.display = 'none'; // Nascondi il bottone elimina nel form nuova pianta
 }
@@ -148,16 +150,13 @@ function clearUpdatePlantForm() {
 
 
 // 3. FUNZIONI DI GESTIONE DATI (FIREBASE FIRESTORE)
-const plantsRef = firebase.firestore().collection('plants');
-const usersRef = firebase.firestore().collection('users');
-
 async function fetchPlants() {
     showLoadingSpinner();
     try {
         const snapshot = await plantsRef.get();
         allPlants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         console.log("Piante caricate:", allPlants);
-        displayPlants();
+        displayPlants(); // Chiamata displayPlants qui dopo aver fetchato tutte le piante
     } catch (error) {
         console.error("Errore nel recupero delle piante:", error);
         showToast("Errore nel caricamento delle piante.", 'error');
@@ -166,6 +165,7 @@ async function fetchPlants() {
     }
 }
 
+// *** MODIFICATO: Funzione per recuperare il giardino dell'utente dalla collezione 'gardens' ***
 async function fetchMyGarden(userId) {
     if (!userId) {
         myGarden = []; // Se non c'è utente, il giardino è vuoto
@@ -174,27 +174,34 @@ async function fetchMyGarden(userId) {
     }
     showLoadingSpinner();
     try {
-        const userDoc = await usersRef.doc(userId).get();
-        if (userDoc.exists) {
-            myGarden = userDoc.data().garden || [];
-            console.log("Giardino dell'utente caricato:", myGarden);
+        // Cerca il documento del giardino dell'utente nella collezione 'gardens'
+        // L'ID del documento del giardino DEVE CORRISPONDERE ALL'UID dell'utente
+        const userGardenDoc = await gardensCollectionRef.doc(userId).get();
+        if (userGardenDoc.exists) {
+            // Assumiamo che il campo contenente gli ID delle piante sia 'plantIds' come specificato
+            myGarden = userGardenDoc.data().plantIds || []; // *** CAMPO 'plantIds' ***
+            console.log("Giardino dell'utente caricato da 'gardens':", myGarden);
         } else {
             myGarden = [];
-            console.log("Documento utente non trovato o giardino vuoto per:", userId);
+            console.log("Documento giardino utente non trovato in 'gardens' per:", userId);
+            // Se il documento del giardino non esiste, crealo con un array 'plantIds' vuoto
+            // Questo assicura che un nuovo utente abbia un giardino vuoto invece di un errore
+            await gardensCollectionRef.doc(userId).set({ plantIds: [] }); // *** INIZIALIZZA CON 'plantIds' ***
+            showToast("Il tuo giardino è stato inizializzato. Aggiungi le tue piante!", 'info');
         }
     } catch (error) {
-        console.error("Errore nel recupero del giardino:", error);
+        console.error("Errore nel recupero del giardino da 'gardens':", error);
         showToast("Errore nel caricamento del tuo giardino.", 'error');
     } finally {
         hideLoadingSpinner();
     }
 }
 
+
 async function savePlantToDatabase(plantData) {
     try {
-        // Rimuovi l'ID se presente, Firestone lo genera automaticamente per i nuovi documenti
         const plantToSave = { ...plantData };
-        delete plantToSave.id;
+        delete plantToSave.id; // Rimuovi l'ID se presente, Firestore lo genera automaticamente per i nuovi documenti
 
         const docRef = await plantsRef.add(plantToSave);
         console.log("Pianta aggiunta con ID:", docRef.id);
@@ -230,28 +237,30 @@ async function deletePlantFromDatabase(plantId) {
         console.log("Pianta eliminata dal database:", plantId);
         showToast("Pianta eliminata con successo!", 'success');
 
-        // Rimuovi la pianta da tutti i giardini degli utenti (opzionale ma consigliato per integrità)
-        const allUsersSnapshot = await usersRef.get();
+        // *** MODIFICATO: Rimuovi la pianta da tutti i giardini degli utenti nella collezione 'gardens' ***
+        const allGardensSnapshot = await gardensCollectionRef.get(); // Ora cerca in 'gardens'
         const batch = firebase.firestore().batch();
-        allUsersSnapshot.docs.forEach(doc => {
-            const userData = doc.data();
-            if (userData.garden && userData.garden.includes(plantId)) {
-                const newGarden = userData.garden.filter(id => id !== plantId);
-                batch.update(usersRef.doc(doc.id), { garden: newGarden });
+        allGardensSnapshot.docs.forEach(doc => {
+            const gardenData = doc.data();
+            // Assumi che il campo si chiami 'plantIds' all'interno del documento del giardino
+            if (gardenData.plantIds && gardenData.plantIds.includes(plantId)) { // *** CAMPO 'plantIds' ***
+                const newGardenPlants = gardenData.plantIds.filter(id => id !== plantId);
+                batch.update(gardensCollectionRef.doc(doc.id), { plantIds: newGardenPlants }); // *** CAMPO 'plantIds' ***
             }
         });
         await batch.commit();
-        console.log("Pianta rimossa dai giardini degli utenti.");
+        console.log("Pianta rimossa dai giardini degli utenti in 'gardens'.");
 
         fetchPlants(); // Ricarica le piante per aggiornare la vista
+        // Se si stava visualizzando il proprio giardino e la pianta è stata rimossa
         if (isMyGardenCurrentlyVisible) {
             const user = firebase.auth().currentUser;
             if (user) await fetchMyGarden(user.uid); // Ricarica il giardino corrente
         }
-        closeModal('newPlantCard'); // Chiudi la modal se era aperta
-        closeModal('updatePlantCard'); // Chiudi la modal se era aperta
+        closeModal('newPlantCard');
+        closeModal('updatePlantCard');
     } catch (error) {
-        console.error("Errore nell'eliminazione della pianta:", error);
+        console.error("Errore nell'eliminazione della pianta dal DB o dai giardini:", error);
         showToast("Errore nell'eliminazione della pianta.", 'error');
     }
 }
@@ -263,10 +272,11 @@ async function registerUser(email, password) {
         showLoadingSpinner();
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         console.log("Utente registrato:", userCredential.user.email);
-        // Crea un documento utente vuoto in Firestore per il giardino
-        await usersRef.doc(userCredential.user.uid).set({ garden: [] });
+        // *** MODIFICATO: Crea un documento utente vuoto in Firestore nella collezione 'gardens' per il giardino ***
+        // L'ID del documento è l'UID dell'utente
+        await gardensCollectionRef.doc(userCredential.user.uid).set({ plantIds: [] }); // *** INIZIALIZZA CON 'plantIds' ***
         showToast("Registrazione completata e accesso effettuato!", 'success');
-        closeModal('loginModal'); // Chiudi la modal di login/registrazione
+        closeModal('loginModal');
     } catch (error) {
         console.error("Errore nella registrazione:", error);
         document.getElementById('register-error').innerText = error.message;
@@ -282,7 +292,7 @@ async function loginUser(email, password) {
         const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
         console.log("Utente loggato:", userCredential.user.email);
         showToast("Accesso effettuato!", 'success');
-        closeModal('loginModal'); // Chiudi la modal
+        closeModal('loginModal');
     } catch (error) {
         console.error("Errore nel login:", error);
         document.getElementById('login-error').innerText = error.message;
@@ -297,9 +307,8 @@ async function logoutUser() {
         await firebase.auth().signOut();
         console.log("Utente sloggato.");
         showToast("Disconnessione effettuata.", 'info');
-        // Dopo il logout, ricarica le piante e nascondi il giardino personale
         isMyGardenCurrentlyVisible = false;
-        displayPlants(); // Mostra tutte le piante
+        displayPlants();
         document.getElementById('my-garden-title').style.display = 'none';
         myGardenContainer.style.display = 'none';
     } catch (error) {
@@ -310,13 +319,10 @@ async function logoutUser() {
 
 // Listener per lo stato di autenticazione di Firebase
 firebase.auth().onAuthStateChanged(async (user) => {
-    // Chiama handleAuthAndUI solo se il DOM è già pronto
     if (isDomReady) {
         await handleAuthAndUI(user);
     } else {
-        // Se il DOM non è ancora pronto, imposta un flag o esegui una logica diversa
         console.log("Auth state changed, but DOM not ready. Waiting.");
-        // Non facciamo nulla qui, handleAuthAndUI verrà chiamato dopo DOMContentLoaded
     }
 });
 
@@ -341,12 +347,17 @@ function showRegisterForm() {
 function createPlantCard(plant, isMyGarden = false) {
     const card = document.createElement('div');
     card.classList.add('plant-card');
-    if (isMyGarden) card.classList.add('my-plant-card'); // Classe specifica per il giardino personale
+    if (isMyGarden) card.classList.add('my-plant-card');
+
+    // Il placeholder immagine è 'placeholder.jpg'. Assicurati che esista.
+    // L'errore di caricamento delle immagini che hai menzionato potrebbe derivare da URL non validi.
+    // Ho aggiunto un fallback per l'immagine.
+    const imageUrl = plant.imageUrl && plant.imageUrl.startsWith('http') ? plant.imageUrl : 'placeholder.jpg';
 
     card.innerHTML = `
         <h3>${plant.name}</h3>
         <p><em>${plant.scientificName || ''}</em></p>
-        <img src="${plant.imageUrl || 'placeholder.jpg'}" alt="${plant.name}" data-plant-id="${plant.id}" onerror="this.onerror=null;this.src='placeholder.jpg';">
+        <img src="${imageUrl}" alt="${plant.name}" data-plant-id="${plant.id}" onerror="this.onerror=null;this.src='placeholder.jpg';">
         <p><strong>Categoria:</strong> ${plant.category}</p>
         <p><strong>Esposizione:</strong> ${plant.sunlight}</p>
         <p><strong>Irrigazione:</strong> ${plant.watering}</p>
@@ -368,9 +379,11 @@ function createPlantCard(plant, isMyGarden = false) {
 
     // Listener per lo zoom immagine
     const plantImage = card.querySelector('img');
-    plantImage.addEventListener('click', () => {
-        showZoomedImage(plant.imageUrl || 'placeholder.jpg');
-    });
+    if (plantImage) { // Aggiunto un controllo per assicurarsi che l'immagine esista
+        plantImage.addEventListener('click', () => {
+            showZoomedImage(imageUrl); // Usa imageUrl, che include il fallback
+        });
+    }
 
     return card;
 }
@@ -416,6 +429,7 @@ function displayPlants() {
             return;
         }
         // Filtra le piante del giardino in base alle piante caricate
+        // `myGarden` contiene solo gli ID delle piante che l'utente ha nel suo giardino
         const filteredMyGardenPlants = plantsToDisplay.filter(plant => myGarden.includes(plant.id));
         if (filteredMyGardenPlants.length === 0) {
             mainContainer.innerHTML = '<p>Il tuo giardino è vuoto. Aggiungi delle piante!</p>';
@@ -442,7 +456,6 @@ function applyFilters(plant) {
     const tempMin = parseFloat(tempMinFilter.value);
     const tempMax = parseFloat(tempMaxFilter.value);
 
-    // CORREZIONE per ReferenceError: light is not defined (punto 2 del precedente round)
     const matchesLight = sunlightFilter.value === '' || (plant.sunlight && plant.sunlight === sunlightFilter.value);
     const matchesWater = wateringFilter.value === '' || (plant.watering && plant.watering === wateringFilter.value);
 
@@ -450,8 +463,8 @@ function applyFilters(plant) {
                           (plant.scientificName && plant.scientificName.toLowerCase().includes(searchText));
 
     const matchesCategory = selectedCategory === '' || plant.category === selectedCategory;
-    const matchesTempMin = isNaN(tempMin) || plant.tempMin >= tempMin;
-    const matchesTempMax = isNaN(tempMax) || plant.tempMax <= tempMax;
+    const matchesTempMin = isNaN(tempMin) || (plant.tempMin !== undefined && plant.tempMin >= tempMin);
+    const matchesTempMax = isNaN(tempMax) || (plant.tempMax !== undefined && plant.tempMax <= tempMax);
     const matchesClimateZone = selectedClimate === '' || (plant.climateZone && plant.climateZone === selectedClimate);
 
     return matchesSearch && matchesCategory && matchesLight && matchesWater &&
@@ -468,19 +481,18 @@ function applySorting(a, b) {
         case 'category':
         case 'sunlight':
         case 'watering':
-            valA = String(a[field]).toLowerCase();
-            valB = String(b[field]).toLowerCase();
+            valA = String(a[field] || '').toLowerCase(); // Gestisce valori null/undefined
+            valB = String(b[field] || '').toLowerCase();
             break;
         case 'tempMin':
         case 'tempMax':
-            valA = a[field] || -Infinity; // Assumi -Infinity se non definito per tempMin
-            valB = b[field] || -Infinity;
+            valA = a[field] !== undefined ? a[field] : (order === 'asc' ? -Infinity : Infinity);
+            valB = b[field] !== undefined ? b[field] : (order === 'asc' ? -Infinity : Infinity);
             break;
         case 'climateZone':
-             // CORREZIONE ERRORE PRECEDENTE (missing break)
             valA = String(a[field] || '').toLowerCase();
             valB = String(b[field] || '').toLowerCase();
-            break; // Questo è il break che mancava!
+            break;
         default:
             valA = String(a.name).toLowerCase();
             valB = String(b.name).toLowerCase();
@@ -511,9 +523,11 @@ async function addToMyGarden(plantId) {
     }
 
     try {
-        const userDocRef = usersRef.doc(user.uid);
-        await userDocRef.update({
-            garden: firebase.firestore.FieldValue.arrayUnion(plantId)
+        // Riferimento al documento del giardino dell'utente nella collezione 'gardens'
+        const userGardenDocRef = gardensCollectionRef.doc(user.uid);
+        // Aggiorna il campo 'plantIds' (o il nome corretto del tuo campo)
+        await userGardenDocRef.update({
+            plantIds: firebase.firestore.FieldValue.arrayUnion(plantId) // *** CAMPO 'plantIds' ***
         });
         myGarden.push(plantId); // Aggiorna l'array locale
         showToast("Pianta aggiunta al tuo giardino!", 'success');
@@ -537,9 +551,11 @@ async function removeFromMyGarden(plantId) {
     }
 
     try {
-        const userDocRef = usersRef.doc(user.uid);
-        await userDocRef.update({
-            garden: firebase.firestore.FieldValue.arrayRemove(plantId)
+        // Riferimento al documento del giardino dell'utente nella collezione 'gardens'
+        const userGardenDocRef = gardensCollectionRef.doc(user.uid);
+        // Aggiorna il campo 'plantIds' (o il nome corretto del tuo campo)
+        await userGardenDocRef.update({
+            plantIds: firebase.firestore.FieldValue.arrayRemove(plantId) // *** CAMPO 'plantIds' ***
         });
         myGarden = myGarden.filter(id => id !== plantId); // Aggiorna l'array locale
         showToast("Pianta rimossa dal tuo giardino.", 'success');
@@ -704,7 +720,7 @@ async function handleAuthAndUI(user) {
             isMyGardenCurrentlyVisible = false; // Torna alla vista "Tutte le Piante"
         }
     }
-    displayPlants(); // Aggiorna la visualizzazione delle piante
+    displayPlants(); // Aggiorna la visualizzazione delle piante (anche per nascondere il giardino se sloggati)
 }
 
 
@@ -752,7 +768,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fetch iniziale delle piante e gestione UI
     await fetchPlants();
-    await handleAuthAndUI(firebase.auth().currentUser); // Inizializza l'UI basandosi sullo stato di autenticazione
+    // La gestione dell'UI e del giardino personale avviene dopo fetchPlants()
+    // per assicurarsi che 'allPlants' sia popolato prima di filtrare per 'myGarden'
+    await handleAuthAndUI(firebase.auth().currentUser); 
 
     // Popola i filtri dinamici dopo aver caricato le piante
     populateDynamicFilters();
@@ -885,7 +903,6 @@ function handleCardActions(event, container) {
 
     const plantId = target.dataset.plantId;
     // La classe 'delete-plant-from-form-button' è per i bottoni dentro le modal, non nelle card dinamiche
-    // Se il bottone non ha plantId e non è il delete-from-form-button, non fare nulla.
     if (!plantId && !target.classList.contains('delete-plant-from-form-button')) return;
 
     const user = firebase.auth().currentUser;
