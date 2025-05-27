@@ -126,7 +126,7 @@ function clearNewPlantForm() {
     document.getElementById('new-plant-temp-min').value = '';
     document.getElementById('new-plant-temp-max').value = '';
     document.getElementById('new-plant-climate-zone').value = '';
-    document.getElementById('new-plant-image-url').value = '';
+    document.getElementById('new-plant-image').value = '';
     document.getElementById('new-plant-notes').value = '';
     currentPlantIdToUpdate = null;
     const deleteBtn = document.getElementById('deletePlantNewForm');
@@ -143,7 +143,7 @@ function clearUpdatePlantForm() {
     document.getElementById('update-plant-temp-min').value = '';
     document.getElementById('update-plant-temp-max').value = '';
     document.getElementById('update-plant-climate-zone').value = '';
-    document.getElementById('update-plant-image-url').value = '';
+    document.getElementById('update-plant-image').value = '';
     document.getElementById('update-plant-notes').value = '';
     currentPlantIdToUpdate = null; // Importante: resetta l'ID della pianta da aggiornare
 }
@@ -352,12 +352,12 @@ function createPlantCard(plant, isMyGarden = false) {
     // Il placeholder immagine è 'placeholder.jpg'. Assicurati che esista.
     // L'errore di caricamento delle immagini che hai menzionato potrebbe derivare da URL non validi.
     // Ho aggiunto un fallback per l'immagine.
-    const imageUrl = plant.imageUrl && plant.imageUrl.startsWith('http') ? plant.imageUrl : 'placeholder.jpg';
+    const image = plant.image && plant.image.startsWith('http') ? plant.image : 'placeholder.jpg';
 
     card.innerHTML = `
         <h3>${plant.name}</h3>
         <p><em>${plant.scientificName || ''}</em></p>
-        <img src="${imageUrl}" alt="${plant.name}" data-plant-id="${plant.id}" onerror="this.onerror=null;this.src='placeholder.jpg';">
+        <img src="${image}" alt="${plant.name}" data-plant-id="${plant.id}" onerror="this.onerror=null;this.src='placeholder.jpg';">
         <p><strong>Categoria:</strong> ${plant.category}</p>
         <p><strong>Esposizione:</strong> ${plant.sunlight}</p>
         <p><strong>Irrigazione:</strong> ${plant.watering}</p>
@@ -381,15 +381,15 @@ function createPlantCard(plant, isMyGarden = false) {
     const plantImage = card.querySelector('img');
     if (plantImage) { // Aggiunto un controllo per assicurarsi che l'immagine esista
         plantImage.addEventListener('click', () => {
-            showZoomedImage(imageUrl); // Usa imageUrl, che include il fallback
+            showZoomedImage(image); // Usa imageUrl, che include il fallback
         });
     }
 
     return card;
 }
 
-function showZoomedImage(imageUrl) {
-    zoomedImage.src = imageUrl;
+function showZoomedImage(image) {
+    zoomedImage.src = image;
     showModal('image-modal');
 }
 
