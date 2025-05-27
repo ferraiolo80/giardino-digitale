@@ -271,16 +271,23 @@
 
     <script>
         // Funzioni per mostrare/nascondere i form di login/registrazione
-        function showRegisterForm() {
+       function showRegisterForm() {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
+            // Pulisci eventuali errori precedenti quando si cambia form
+            document.getElementById('login-error').innerText = '';
+            document.getElementById('register-error').innerText = '';
         }
 
         function showLoginForm() {
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('login-form').style.display = 'block';
+            // Pulisci eventuali errori precedenti quando si cambia form
+            document.getElementById('login-error').innerText = '';
+            document.getElementById('register-error').innerText = '';
         }
     </script>
+
 
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
