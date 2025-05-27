@@ -588,6 +588,7 @@ function applyFilters() {
                 const actualSortField = field === 'category' ? (plantTypeFilter ? 'type' : 'category') : field; // Adatta se necessario
                 valA = a[actualSortField] ? String(a[actualSortField]).toLowerCase() : '';
                 valB = b[actualSortField] ? String(b[actualSortField]).toLowerCase() : '';
+		break;
             case 'tempMin':
             case 'tempMax':
             case 'luxMin': 
