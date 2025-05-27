@@ -41,7 +41,7 @@ let loginButton;
 let registerButton;
 let logoutButton;
 let loginModal;
-let registerModal; // Non usato direttamente in HTML, ma utile per chiarezza se fosse una modal separata
+// registerModal; // Non usato direttamente in HTML, ma utile per chiarezza se fosse una modal separata (Rimosso dalla dichiarazione, era solo un commento)
 let newPlantCard;
 let updatePlantCard;
 let newPlantForm;
@@ -126,7 +126,8 @@ function clearNewPlantForm() {
     document.getElementById('new-plant-notes').value = '';
     // Resetta currentPlantIdToUpdate quando si chiude il form (anche se è il form 'new', per sicurezza)
     currentPlantIdToUpdate = null;
-    const deleteBtn = document.getElementById('deletePlant');
+    // Usa il nuovo ID per il bottone delete nella modal di nuova pianta
+    const deleteBtn = document.getElementById('deletePlantNewForm');
     if (deleteBtn) deleteBtn.style.display = 'none'; // Nascondi il bottone elimina nel form nuova pianta
 }
 
@@ -657,8 +658,8 @@ function showUpdatePlantForm(plant) {
 function showNewPlantForm() {
     clearNewPlantForm(); // Pulisce il form prima di mostrarlo
     showModal('newPlantCard');
-    // Nascondi il bottone "Elimina Pianta (Admin)" nel form di aggiunta
-    const deleteBtn = document.querySelector('#newPlantCard #deletePlant');
+    // Nascondi il bottone "Elimina Pianta (Admin)" nel form di aggiunta (usa il nuovo ID)
+    const deleteBtn = document.getElementById('deletePlantNewForm');
     if (deleteBtn) deleteBtn.style.display = 'none';
 }
 
@@ -850,9 +851,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Listener per il bottone di eliminazione della pianta dal form (newPlantCard/updatePlantCard)
     // Se c'è un bottone con ID 'deletePlant'
-    const deletePlantButtonFromForms = document.querySelectorAll('#newPlantCard #deletePlant, #updatePlantCard #deletePlant');
-    deletePlantButtonFromForms.forEach(button => {
-        button.addEventListener('click', async () => {
+    const deletePlantButtonFromNewForm = document.getElementById('deletePlantNewForm'); // Nuovo ID
+    const deletePlantButtonFromUpdateForm = document.getElementById('deletePlant'); // Vecchio ID
+
+    if (deletePlantButtonFromNewForm) {
+        deletePlantButtonFromNewForm.addEventListener('click', async () => {
             if (currentPlantIdToUpdate) {
                 showToast('Eliminazione pianta in corso...', 'info');
                 await deletePlantFromDatabase(currentPlantIdToUpdate);
@@ -861,7 +864,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showToast('Nessuna pianta selezionata per l\'eliminazione.', 'info');
             }
         });
-    });
+    }
+    if (deletePlantButtonFromUpdateForm) {
+        deletePlantButtonFromUpdateForm.addEventListener('click', async () => {
+            if (currentPlantIdToUpdate) {
+                showToast('Eliminazione pianta in corso...', 'info');
+                await deletePlantFromDatabase(currentPlantIdToUpdate);
+                currentPlantIdToUpdate = null; // Resetta dopo l'eliminazione
+            } else {
+                showToast('Nessuna pianta selezionata per l\'eliminazione.', 'info');
+            }
+        });
+    }
 });
 
 // Event delegation per i bottoni sulle card - Funzione separata per pulizia
