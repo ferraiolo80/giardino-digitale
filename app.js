@@ -243,9 +243,9 @@ function deduceClimateZone(latitude) {
 
 
 // --- FUNZIONI DI AUTENTICAZIONE ---
-async function handleLogin() {
-    const emailInput = document.getElementById('login-email'); // Corretto da 'loginEmail'
-    const passwordInput = document.getElementById('login-password'); // Corretto da 'loginPassword'
+const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    // Assicurati che loginErrorDiv sia stato inizializzato
     if (!loginErrorDiv) {
         console.error("Elemento login-error non trovato.");
         showToast('Errore interno: elemento errore login non trovato.', 'error');
@@ -255,21 +255,26 @@ async function handleLogin() {
     if (emailInput && passwordInput) {
         const email = emailInput.value;
         const password = passwordInput.value;
-        loginErrorDiv.innerText = '';
-        showSpinner();
+        loginErrorDiv.innerText = ''; // Pulisci errori precedenti
+
+        showSpinner(); // Mostra spinner
         try {
             await firebase.auth().signInWithEmailAndPassword(email, password);
+            console.log("Login effettuato con successo!");
             showToast('Accesso effettuato con successo!', 'success');
         } catch (error) {
-            loginErrorDiv.innerText = error.message;
+            console.error("Errore durante il login:", error);
+            loginErrorDiv.innerText = error.message; // Mostra errore nel div specifico
             showToast(`Errore login: ${error.message}`, 'error');
         } finally {
-            hideSpinner();
+            hideSpinner(); // Nascondi spinner
         }
     } else {
+        console.error("Elementi del form di login non trovati.");
         showToast('Errore interno: elementi login non trovati.', 'error');
     }
 }
+
 
 async function handleRegister() {
     const emailInput = document.getElementById('register-email'); // Corretto da 'registerEmail'
