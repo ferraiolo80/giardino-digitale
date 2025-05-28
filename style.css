@@ -151,7 +151,7 @@ button {
 }
 /*organizzazione geolocalizzazione*/
 #get-location-button {
-    margin-bottom: 30px; /* Aumenta questo valore per più spazio */
+    margin-bottom: 20px; /* Aumenta questo valore per più spazio */
 }
 /* Stili per le card delle piante */
 .plant-gallery {
