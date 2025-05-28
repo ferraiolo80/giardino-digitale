@@ -727,8 +727,8 @@ function startLightSensor() {
                 lightValueDisplay.innerHTML = `<i class="fas fa-lightbulb"></i> <span>Valore Lux: <strong>${lux.toFixed(2)}</strong></span>`;
                 // Qui puoi aggiungere logica per suggerire piante in base ai lux
                 // Esempio:
-                // if (lux < 50) { showToast("Luce molto bassa, adatta a piante da ombra.", 'info', 1500); }
-                // else if (lux > 10000) { showToast("Luce molto alta, adatta a pieno sole.", 'info', 1500); }
+                if (lux < 50) { showToast("Luce molto bassa, adatta a piante da ombra.", 'info', 1500); }
+                else if (lux > 10000) { showToast("Luce molto alta, adatta a pieno sole.", 'info', 1500); }
             };
 
             ambientLightSensor.onerror = (event) => {
