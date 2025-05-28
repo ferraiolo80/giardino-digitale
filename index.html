@@ -37,7 +37,7 @@
     </header>
 
     <main>
-        <div id="maintenance-message" style="display: block;">
+        <div id="maintenance-message" style="display: none;"> 
             <p><i class="fas fa-exclamation-triangle"></i> Avviso: L'applicazione è attualmente in fase di manutenzione e miglioramento. Alcune funzionalità potrebbero non essere disponibili o funzionare correttamente. Ci scusiamo per il disagio!</p>
         </div>
 
@@ -121,11 +121,19 @@
                 </div>
 
                 <div class="geolocation-container">
-                    <button id="get-location-button" class="btn btn-secondary">
-                        <i class="fas fa-compass"></i> Clima Locale
+                    <button id="get-location-button" class="btn btn-primary"> <i class="fas fa-compass"></i> Clima Locale
                     </button>
                     <div id="location-status">
                         <i class="fas fa-location-dot"></i> <span>Ottieni il clima della tua posizione.</span>
+                    </div>
+                </div>
+
+                <div class="light-sensor-container" style="display:none;">
+                    <button id="start-light-sensor-button" class="btn btn-secondary">
+                        <i class="fas fa-sun"></i> Inizia Mis. Luce
+                    </button>
+                    <div id="light-value-display">
+                        <i class="fas fa-lightbulb"></i> <span>Valore Lux: N/D</span>
                     </div>
                 </div>
 
@@ -282,13 +290,13 @@
         </div>
 
         <div id="image-modal" class="modal">
-            <span class="close-button" id="close-button">&times;</span>
-            <img class="modal-content" id="zoomed-image">
+            <span class="close-button" id="close-image-modal-button">&times;</span> <img class="modal-content" id="zoomed-image">
             <div id="image-caption"></div>
-            <div id="loading-spinner" class="spinner" style="display:none;"></div>
             <div id="modal-plant-details" class="modal-card-content" style="display:none;">
                 </div>
         </div>
+
+        <div id="loading-spinner" class="spinner" style="display:none;"></div>
 
     </main>
 
