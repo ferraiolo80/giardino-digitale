@@ -28,7 +28,7 @@
     <header>
         <div class="header-left">
             </div>
-        <h1>Giardino Digitale</h1>
+        <h1>🌸 Giardino Digitale 🌿</h1>
         <div class="header-right">
             <div id="auth-status">
                 </div>
@@ -71,6 +71,13 @@
                 </div>
 
                 <div class="filter-container">
+                    <label for="sort-by">Ordina per:</label>
+                    <select id="sort-by">
+                        <option value="name_asc">Nome (A-Z)</option>
+                        <option value="name_desc">Nome (Z-A)</option>
+                        <option value="last_modified_desc">Recenti</option>
+                        </select>
+                    
                     <label for="plant-type-filter">Tipo:</label>
                     <select id="plant-type-filter">
                         <option value="">Tutti</option>
@@ -112,12 +119,7 @@
                 </div>
 
                 <div class="sort-container">
-                    <label for="sort-by">Ordina per:</label>
-                    <select id="sort-by">
-                        <option value="name_asc">Nome (A-Z)</option>
-                        <option value="name_desc">Nome (Z-A)</option>
-                        <option value="last_modified_desc">Recenti</option>
-                        </select>
+                    
                 </div>
 
                 <div class="geolocation-container">
@@ -288,6 +290,10 @@
                 <button type="submit" class="btn btn-primary">Aggiorna Pianta</button>
             </form>
         </div>
+
+        <div style="text-align: center; margin: 15px 0;">
+                <p style="margin: 0;">Identifica con <a href="https://lens.google.com/" target="_blank" rel="noopener noreferrer">Google Lens <i class="fas fa-search"></i></a></p>
+            </div>
 
         <div id="image-modal" class="modal">
             <span class="close-button" id="close-image-modal-button">&times;</span> <img class="modal-content" id="zoomed-image">
