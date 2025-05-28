@@ -149,7 +149,10 @@ button {
     background-color: #7f8c8d;
     transform: translateY(-1px);
 }
-
+/*organizzazione geolocalizzazione*/
+#get-location-button {
+    margin-bottom: 30px; /* Aumenta questo valore per più spazio */
+}
 /* Stili per le card delle piante */
 .plant-gallery {
     display: grid;
