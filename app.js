@@ -414,10 +414,10 @@ function renderPlants(plantsToRender, containerElement) {
             card.classList.add('my-plant-card'); // Stile diverso per le piante del mio giardino
         }
 
-        const imageUrl = plant.imageUrl || 'https://via.placeholder.com/280x180?text=No+Image';
+        const image = plant.image || 'https://via.placeholder.com/280x180?text=No+Image';
 
         card.innerHTML = `
-            <img src="${imageUrl}" alt="${plant.name}" data-plant-id="${plant.id}">
+            <img src="${image}" alt="${plant.name}" data-plant-id="${plant.id}">
             <h3>${plant.name}</h3>
             <p class="description-preview">${plant.description ? plant.description.substring(0, 100) + '...' : 'Nessuna descrizione.'}</p>
             <div class="plant-details">
