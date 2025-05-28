@@ -70,7 +70,15 @@
                     <input type="text" id="search-input" placeholder="Cerca piante...">
                 </div>
                 
-               
+               <section id="lightSensorSection">
+                <h3>Misura la Luce per le Tue Piante</h3>
+                <p>Posiziona il tuo smartphone vicino alla pianta e premi il pulsante per misurare la luce ambiente.</p>
+                <button id="startLightSensorButton">Avvia Misurazione Luce</button>
+                <button id="stopLightSensorButton" style="display:none;">Ferma Misurazione</button>
+                <p>Luce Rilevata: <span id="currentLuxValue">N/A</span> Lux</p>
+                <div id="lightFeedback"></div>
+            </section>
+
 
                 <div class="filter-container">
                     <label for="sort-by">Ordina per:</label>
