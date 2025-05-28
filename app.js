@@ -1059,7 +1059,7 @@ auth.onAuthStateChanged(async (user) => {
 
     if (user) {
         // Utente loggato
-        authStatusDiv.innerHtml = `<i class="fas fa-user"></i>Benvenuto, ${user.email}`;
+        authStatusDiv.innerText = `Benvenuto, ${user.email}`;
         appContentDiv.style.display = 'block'; // Mostra il contenuto dell'app
         authContainerDiv.style.display = 'none'; // Nascondi il contenitore di login/registrazione
         logoutButton.style.display = 'block';
