@@ -48,17 +48,17 @@ let lightValueDisplay; // Div per mostrare il valore dei Lux
 
 // Variabili per i campi del form di aggiunta/modifica
 let newPlantForm;
-let newPlantName, newPlantDescription, newPlantType, newPlantLight, newPlantWater, newPlantClimateZone, newPlantImageUrl, newPlantNotes;
+let newPlantName, newPlantDescription, newPlantType, newPlantLight, newPlantWater, newPlantClimateZone, newPlantImage, newPlantNotes;
 let updatePlantForm;
-let updatePlantId, updatePlantName, updatePlantDescription, updatePlantType, updatePlantLight, updatePlantWater, updatePlantClimateZone, updatePlantImageUrl, updatePlantNotes;
+let updatePlantId, updatePlantName, updatePlantDescription, updatePlantType, updatePlantLight, updatePlantWater, updatePlantClimateZone, updatePlantImage, updatePlantNotes;
 
 // Variabili per i messaggi di errore dei form
 let loginEmailInput, loginPasswordInput;
 let registerEmailInput, registerPasswordInput;
 let loginErrorDiv, registerErrorDiv;
 
-let newPlantNameError, newPlantTypeError, newPlantLightError, newPlantWaterError, newPlantImageUrlError; // Aggiunto per validazione form
-let updatePlantNameError, updatePlantTypeError, updatePlantLightError, updatePlantWaterError, updatePlantImageUrlError; // Aggiunto per validazione form
+let newPlantNameError, newPlantTypeError, newPlantLightError, newPlantWaterError, newPlantImageError; // Aggiunto per validazione form
+let updatePlantNameError, updatePlantTypeError, updatePlantLightError, updatePlantWaterError, updatePlantImageError; // Aggiunto per validazione form
 
 
 // 2. FUNZIONI DI UTILITÀ GLOBALI
@@ -567,7 +567,7 @@ function openModal(modalId, plant = null) {
         updatePlantLight.value = plant.light || '';
         updatePlantWater.value = plant.water || '';
         updatePlantClimateZone.value = plant.climateZone || '';
-        updatePlantImageUrl.value = plant.imageUrl || '';
+        updatePlantImage.value = plant.image || '';
         updatePlantNotes.value = plant.notes || '';
     } else if (modalId === 'newPlantCard') {
         resetNewPlantForm(); // Assicurati che il form di aggiunta sia pulito
@@ -599,7 +599,7 @@ function showPlantDetailsModal(plant) {
 
     modalPlantDetails.innerHTML = `
         <h3>${plant.name}</h3>
-        <img src="${plant.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image'}" alt="${plant.name}">
+        <img src="${plant.image || 'https://via.placeholder.com/400x300?text=No+Image'}" alt="${plant.name}">
         <p><strong>Descrizione:</strong> ${plant.description || 'Nessuna descrizione.'}</p>
         <p><strong>Tipo:</strong> ${plant.type || 'N/D'}</p>
         <p><strong>Esigenza Luce:</strong> ${plant.light || 'N/D'}</p>
@@ -610,12 +610,12 @@ function showPlantDetailsModal(plant) {
     modalPlantDetails.style.display = 'block'; // Mostra i dettagli della pianta
 }
 
-function zoomImage(imageUrl, caption) {
+function zoomImage(image, caption) {
     const modalPlantDetails = document.getElementById('modal-plant-details');
     imageModal.style.display = 'flex'; // Mostra la modal principale
     modalPlantDetails.style.display = 'none'; // Nascondi i dettagli della pianta
 
-    zoomedImage.src = imageUrl;
+    zoomedImage.src = image;
     document.getElementById('image-caption').innerText = caption;
     zoomedImage.style.display = 'block'; // Mostra l'immagine zoomata
     document.getElementById('image-caption').style.display = 'block'; // Mostra la caption
@@ -629,7 +629,7 @@ function resetNewPlantForm() {
     newPlantTypeError.innerText = ''; newPlantTypeError.classList.remove('active');
     newPlantLightError.innerText = ''; newPlantLightError.classList.remove('active');
     newPlantWaterError.innerText = ''; newPlantWaterError.classList.remove('active');
-    newPlantImageUrlError.innerText = ''; newPlantImageUrlError.classList.remove('active'); // Aggiunto
+    newPlantImageError.innerText = ''; newPlantImageError.classList.remove('active'); // Aggiunto
     document.querySelectorAll('#newPlantCard .invalid').forEach(el => el.classList.remove('invalid'));
 }
 
@@ -809,13 +809,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     newPlantLight = document.getElementById('new-plant-light');
     newPlantWater = document.getElementById('new-plant-water');
     newPlantClimateZone = document.getElementById('new-plant-climate-zone');
-    newPlantImageUrl = document.getElementById('new-plant-image-url');
+    newPlantImage = document.getElementById('new-plant-image');
     newPlantNotes = document.getElementById('new-plant-notes');
     newPlantNameError = document.getElementById('new-plant-name-error');
     newPlantTypeError = document.getElementById('new-plant-type-error');
     newPlantLightError = document.getElementById('new-plant-light-error');
     newPlantWaterError = document.getElementById('new-plant-water-error');
-    newPlantImageUrlError = document.getElementById('new-plant-image-url-error'); // Aggiunto
+    newPlantImageError = document.getElementById('new-plant-image-error'); // Aggiunto
     
     // Campi e errori per form modifica pianta
     updatePlantForm = document.getElementById('update-plant-form');
@@ -826,13 +826,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     updatePlantLight = document.getElementById('update-plant-light');
     updatePlantWater = document.getElementById('update-plant-water');
     updatePlantClimateZone = document.getElementById('update-plant-climate-zone');
-    updatePlantImageUrl = document.getElementById('update-plant-image-url');
+    updatePlantImage = document.getElementById('update-plant-image');
     updatePlantNotes = document.getElementById('update-plant-notes');
     updatePlantNameError = document.getElementById('update-plant-name-error');
     updatePlantTypeError = document.getElementById('update-plant-type-error');
     updatePlantLightError = document.getElementById('update-plant-light-error');
     updatePlantWaterError = document.getElementById('update-plant-water-error');
-    updatePlantImageUrlError = document.getElementById('update-plant-image-url-error'); // Aggiunto
+    updatePlantImageError = document.getElementById('update-plant-image-error'); // Aggiunto
 
 
     isDomReady = true; // Imposta il flag a true
@@ -891,7 +891,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             formIsValid = validateFormField(newPlantType, newPlantTypeError, 'Tipo') && formIsValid;
             formIsValid = validateFormField(newPlantLight, newPlantLightError, 'Luce') && formIsValid;
             formIsValid = validateFormField(newPlantWater, newPlantWaterError, 'Acqua') && formIsValid;
-            formIsValid = validateFormField(newPlantImageUrl, newPlantImageUrlError, 'URL Immagine') && formIsValid;
+            formIsValid = validateFormField(newPlantImage, newPlantImageError, 'URL Immagine') && formIsValid;
             // Aggiungi validazione per altri campi se necessario (es. newPlantClimateZone)
             
             if (!formIsValid) {
@@ -906,7 +906,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 light: newPlantLight.value,
                 water: newPlantWater.value,
                 climateZone: newPlantClimateZone.value,
-                imageUrl: newPlantImageUrl.value,
+                image: newPlantImage.value,
                 notes: newPlantNotes.value
             };
             await savePlantToDatabase(plantData);
@@ -923,7 +923,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             formIsValid = validateFormField(updatePlantType, updatePlantTypeError, 'Tipo') && formIsValid;
             formIsValid = validateFormField(updatePlantLight, updatePlantLightError, 'Luce') && formIsValid;
             formIsValid = validateFormField(updatePlantWater, updatePlantWaterError, 'Acqua') && formIsValid;
-            formIsValid = validateFormField(updatePlantImageUrl, updatePlantImageUrlError, 'URL Immagine') && formIsValid;
+            formIsValid = validateFormField(updatePlantImage, updatePlantImageError, 'URL Immagine') && formIsValid;
             // Aggiungi validazione per altri campi se necessario (es. updatePlantClimateZone)
 
             if (!formIsValid) {
@@ -938,7 +938,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 light: updatePlantLight.value,
                 water: updatePlantWater.value,
                 climateZone: updatePlantClimateZone.value,
-                imageUrl: updatePlantImageUrl.value,
+                image: updatePlantImage.value,
                 notes: updatePlantNotes.value
             };
             await updatePlantInDatabase(currentPlantIdToUpdate, plantData);
@@ -1008,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         // Se l'elemento cliccato è l'immagine, ingrandisci l'immagine
         else if (event.target.tagName === 'IMG') {
-            zoomImage(plant.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image', plant.name);
+            zoomImage(plant.image || 'https://via.placeholder.com/400x300?text=No+Image', plant.name);
         } else {
             // Altrimenti, mostra i dettagli della pianta nella modal
             showPlantDetailsModal(plant);
