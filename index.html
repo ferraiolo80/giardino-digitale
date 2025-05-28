@@ -37,17 +37,23 @@
     </header>
 
     <main>
+        <div id="maintenance-message" style="display: block;">
+            <p><i class="fas fa-exclamation-triangle"></i> Avviso: L'applicazione è attualmente in fase di manutenzione e miglioramento. Alcune funzionalità potrebbero non essere disponibili o funzionare correttamente. Ci scusiamo per il disagio!</p>
+        </div>
+
         <section id="auth-container">
             <h2>Accedi o Registrati</h2>
             <div id="login-form">
                 <input type="email" id="login-email" placeholder="Email" required>
                 <input type="password" id="login-password" placeholder="Password" required>
+                <div id="login-error" class="error-message"></div>
                 <button id="login-button" class="btn btn-primary">Login</button>
                 <p>Non hai un account? <a href="#" onclick="showRegisterForm()">Registrati qui</a></p>
             </div>
             <div id="register-form" style="display:none;">
                 <input type="email" id="register-email" placeholder="Email" required>
                 <input type="password" id="register-password" placeholder="Password" required>
+                <div id="register-error" class="error-message"></div>
                 <button id="register-button" class="btn btn-success">Registrati</button>
                 <p>Hai già un account? <a href="#" onclick="showLoginForm()">Accedi qui</a></p>
             </div>
@@ -146,12 +152,14 @@
             <form id="new-plant-form">
                 <label for="new-plant-name">Nome:</label>
                 <input type="text" id="new-plant-name" name="name" required>
+                <div id="new-plant-name-error" class="error-message"></div>
 
                 <label for="new-plant-description">Descrizione:</label>
                 <textarea id="new-plant-description" name="description"></textarea>
+                <div id="new-plant-description-error" class="error-message"></div>
 
                 <label for="new-plant-type">Tipo:</label>
-                <select id="new-plant-type" name="type">
+                <select id="new-plant-type" name="type" required>
                     <option value="">Seleziona</option>
                     <option value="Albero">Albero</option>
                     <option value="Arbusto">Arbusto</option>
@@ -161,22 +169,25 @@
                     <option value="Cactus">Cactus</option>
                     <option value="Felce">Felce</option>
                 </select>
+                <div id="new-plant-type-error" class="error-message"></div>
 
                 <label for="new-plant-light">Esigenza Luce:</label>
-                <select id="new-plant-light" name="light">
+                <select id="new-plant-light" name="light" required>
                     <option value="">Seleziona</option>
                     <option value="Pieno Sole">Pieno Sole</option>
                     <option value="Mezz'ombra">Mezz'ombra</option>
                     <option value="Ombra">Ombra</option>
                 </select>
+                <div id="new-plant-light-error" class="error-message"></div>
 
                 <label for="new-plant-water">Esigenza Acqua:</label>
-                <select id="new-plant-water" name="water">
+                <select id="new-plant-water" name="water" required>
                     <option value="">Seleziona</option>
                     <option value="Bassa">Bassa</option>
                     <option value="Media">Media</option>
                     <option value="Alta">Alta</option>
                 </select>
+                <div id="new-plant-water-error" class="error-message"></div>
 
                 <label for="new-plant-climate-zone">Zona Climatica:</label>
                 <select id="new-plant-climate-zone" name="climate-zone">
@@ -188,12 +199,15 @@
                     <option value="Arido">Arido</option>
                     <option value="Boreale/Artico">Boreale/Artico</option>
                     </select>
+                <div id="new-plant-climate-zone-error" class="error-message"></div>
 
                 <label for="new-plant-image-url">URL Immagine (opzionale):</label>
                 <input type="url" id="new-plant-image-url" name="image-url" placeholder="https://example.com/image.jpg">
+                <div id="new-plant-image-url-error" class="error-message"></div>
 
                 <label for="new-plant-notes">Note (opzionale):</label>
                 <textarea id="new-plant-notes" name="notes"></textarea>
+                <div id="new-plant-notes-error" class="error-message"></div>
 
                 <button type="submit" class="btn btn-success">Salva Pianta</button>
             </form>
@@ -206,12 +220,14 @@
                 <input type="hidden" id="update-plant-id">
                 <label for="update-plant-name">Nome:</label>
                 <input type="text" id="update-plant-name" name="name" required>
+                <div id="update-plant-name-error" class="error-message"></div>
 
                 <label for="update-plant-description">Descrizione:</label>
                 <textarea id="update-plant-description" name="description"></textarea>
+                <div id="update-plant-description-error" class="error-message"></div>
 
                 <label for="update-plant-type">Tipo:</label>
-                <select id="update-plant-type" name="type">
+                <select id="update-plant-type" name="type" required>
                     <option value="">Seleziona</option>
                     <option value="Albero">Albero</option>
                     <option value="Arbusto">Arbusto</option>
@@ -221,22 +237,25 @@
                     <option value="Cactus">Cactus</option>
                     <option value="Felce">Felce</option>
                 </select>
+                <div id="update-plant-type-error" class="error-message"></div>
 
                 <label for="update-plant-light">Esigenza Luce:</label>
-                <select id="update-plant-light" name="light">
+                <select id="update-plant-light" name="light" required>
                     <option value="">Seleziona</option>
                     <option value="Pieno Sole">Pieno Sole</option>
                     <option value="Mezz'ombra">Mezz'ombra</option>
                     <option value="Ombra">Ombra</option>
                 </select>
+                <div id="update-plant-light-error" class="error-message"></div>
 
                 <label for="update-plant-water">Esigenza Acqua:</label>
-                <select id="update-plant-water" name="water">
+                <select id="update-plant-water" name="water" required>
                     <option value="">Seleziona</option>
                     <option value="Bassa">Bassa</option>
                     <option value="Media">Media</option>
                     <option value="Alta">Alta</option>
                 </select>
+                <div id="update-plant-water-error" class="error-message"></div>
 
                 <label for="update-plant-climate-zone">Zona Climatica:</label>
                 <select id="update-plant-climate-zone" name="climate-zone">
@@ -248,12 +267,15 @@
                     <option value="Arido">Arido</option>
                     <option value="Boreale/Artico">Boreale/Artico</option>
                     </select>
+                <div id="update-plant-climate-zone-error" class="error-message"></div>
 
                 <label for="update-plant-image-url">URL Immagine (opzionale):</label>
                 <input type="url" id="update-plant-image-url" name="image-url" placeholder="https://example.com/image.jpg">
+                <div id="update-plant-image-url-error" class="error-message"></div>
 
                 <label for="update-plant-notes">Note (opzionale):</label>
                 <textarea id="update-plant-notes" name="notes"></textarea>
+                <div id="update-plant-notes-error" class="error-message"></div>
 
                 <button type="submit" class="btn btn-primary">Aggiorna Pianta</button>
             </form>
@@ -274,16 +296,24 @@
         <p>&copy; 2024 Giardino Digitale. Tutti i diritti riservati.</p>
     </footer>
 
+    <div id="toast-container"></div>
+
     <script>
         // Funzioni per mostrare/nascondere i form di login/registrazione
         function showRegisterForm() {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
+            // Pulisci eventuali errori precedenti quando si cambia form
+            document.getElementById('login-error').innerText = '';
+            document.getElementById('register-error').innerText = '';
         }
 
         function showLoginForm() {
             document.getElementById('register-form').style.display = 'none';
             document.getElementById('login-form').style.display = 'block';
+            // Pulisci eventuali errori precedenti quando si cambia form
+            document.getElementById('login-error').innerText = '';
+            document.getElementById('register-error').innerText = '';
         }
     </script>
 
