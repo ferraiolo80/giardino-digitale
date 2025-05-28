@@ -344,9 +344,9 @@ async function loadPlantsFromFirebase() {
     }
 }
 
-async function loadMyGarden(plants) {
+async function loadMyGarden(userId) {
     showLoadingSpinner();
-    if (!plants) {
+    if (!userId) {
         myGarden = []; // Pulisci il giardino se non c'è utente
         console.log("Nessun ID utente per caricare il giardino.");
         hideLoadingSpinner();
@@ -354,7 +354,7 @@ async function loadMyGarden(plants) {
     }
     try {
         // Carica solo le piante dove l'ownerId corrisponde all'userId
-        const snapshot = await db.collection('plants').where('ownerId', '==', plants).get();
+        const snapshot = await db.collection('plants').where('ownerId', '==', userId).get();
         myGarden = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         console.log("Piante del mio giardino caricate:", myGarden.length);
     } catch (error) {
