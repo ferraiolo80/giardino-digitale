@@ -729,4 +729,3 @@ function initAmbientLightSensor() {
         console.log("AmbientLightSensor non supportato dal browser.");
     }
 }
-*/
