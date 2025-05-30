@@ -96,7 +96,7 @@ const firebaseConfig = {
     projectId: "giardinodigitale",
     storageBucket: "giardinodigitale.appspot.com",
     messagingSenderId: "96265504027",
-    appId: "1:96265504027:web:903c3df3123b320076a74c"
+    appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
 };
 
 firebase.initializeApp(firebaseConfig);
