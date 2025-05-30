@@ -11,7 +11,7 @@ let imageModal; // Riferimento all'elemento HTML della modal (div#image-modal)
 let zoomedImage; // Riferimento all'elemento HTML dell'immagine zoomata (img#zoomed-image)
 let closeButton; // Riferimento al bottone di chiusura della modal (span.close-button)
 
-let loadingSpinner; // Variabile per lo spinner di caricamento
+
 let isDomReady = false; // Flag per indicare se il DOM è stato completamente caricato
 
 // Variabile per il contenitore dei toast
