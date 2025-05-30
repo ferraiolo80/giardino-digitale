@@ -269,18 +269,81 @@ function applyFilters() {
 
     // Visualizza le piante filtrate nel contenitore corretto
     if (isMyGardenCurrentlyVisible) {
-        // Se si sta mostrando "Il mio giardino", filtra ulteriormente per mostrare solo quelle nel giardino
-        const myFilteredPlants = filteredPlants.filter(p => myGarden.some(mgp => mgp.id === p.id));
+        // Step 1: Ottieni le piante complete che sono nel giardino dell'utente
+        // Questo fa un "join" tra myGarden (che ha solo ID e nome) e allPlants (che ha tutti i dettagli)
+        let plantsInMyGardenWithDetails = [];
+        myGarden.forEach(gardenPlant => {
+            const fullPlantDetails = allPlants.find(fullPlant => fullPlant.id === gardenPlant.id);
+            if (fullPlantDetails) {
+                plantsInMyGardenWithDetails.push(fullPlantDetails);
+            }
+        });
+
+        // Step 2: Applica i filtri esistenti (ricerca, categoria, clima, temperatura)
+        // a questo sottoinsieme di piante (quelle nel giardino)
+        let myFilteredPlants = plantsInMyGardenWithDetails;
+
+        // Qui riapplichiamo i filtri come per la galleria principale, ma solo sulle piante del giardino
+        // (Queste parti sono già nel tuo applyFilters, ma assicurati che operino su 'myFilteredPlants' qui)
+
+        // Filtro per Categoria
+        const category = categoryFilter.value;
+        if (category && category !== 'all') {
+            myFilteredPlants = myFilteredPlants.filter(plant => plant.category === category);
+        }
+
+        // Filtro per Ricerca (Nome)
+        const searchTerm = searchInput.value.toLowerCase();
+        if (searchTerm) {
+            myFilteredPlants = myFilteredPlants.filter(plant =>
+                plant.name.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Filtro per Clima (Geolocalizzazione)
+        const selectedClimate = climateZoneFilter.value;
+        if (selectedClimate && selectedClimate !== '' && selectedClimate !== 'Sconosciuto') {
+            const climateRange = CLIMATE_TEMP_RANGES[selectedClimate];
+            if (climateRange) {
+                myFilteredPlants = myFilteredPlants.filter(plant => {
+                    const plantMin = parseInt(plant.tempMin);
+                    const plantMax = parseInt(plant.tempMax);
+                    return !isNaN(plantMin) && !isNaN(plantMax) &&
+                           plantMin >= climateRange.min && plantMax <= climateRange.max;
+                });
+            } else {
+                myFilteredPlants = [];
+            }
+        }
+
+        // Filtro per Temperatura Minima
+        const tempMin = parseFloat(tempMinFilter.value);
+        if (!isNaN(tempMin)) {
+            myFilteredPlants = myFilteredPlants.filter(plant => plant.tempMin >= tempMin);
+        }
+
+        // Filtro per Temperatura Massima
+        const tempMax = parseFloat(tempMaxFilter.value);
+        if (!isNaN(tempMax)) {
+            myFilteredPlants = myFilteredPlants.filter(plant => plant.tempMax <= tempMax);
+        }
+
+        // Ordina le piante filtrate del giardino
+        sortPlants(myFilteredPlants);
+
         displayPlants(myFilteredPlants, 'my-garden');
-        if (myFilteredPlants.length === 0 && myGarden.length > 0) {
-             emptyGardenMessage.style.display = 'block'; // Mostra messaggio se giardino non vuoto ma filtri escludono tutto
-             emptyGardenMessage.textContent = "Nessuna pianta nel tuo giardino corrisponde ai filtri attivi.";
-        } else if (myGarden.length === 0) {
+
+        // Gestione messaggi di giardino vuoto/filtrato
+        if (myGarden.length === 0) {
             emptyGardenMessage.style.display = 'block';
             emptyGardenMessage.textContent = "Il tuo giardino è vuoto. Aggiungi alcune piante dalla galleria principale!";
+        } else if (myFilteredPlants.length === 0 && myGarden.length > 0) {
+             emptyGardenMessage.style.display = 'block';
+             emptyGardenMessage.textContent = "Nessuna pianta nel tuo giardino corrisponde ai filtri attivi.";
         } else {
              emptyGardenMessage.style.display = 'none';
         }
+
     } else {
         displayPlants(filteredPlants, 'garden-container');
     }
