@@ -8,25 +8,23 @@ body {
     min-height: 100vh;
 }
 
-/* Header - Ripristinato layout flessibile e centrato come prima, senza posizionamento assoluto per h1 */
+/* Header */
 header {
     display: flex;
-    justify-content: space-between; /* Spazia gli elementi: titolo a sinistra, logout a destra */
+    justify-content: space-between; /* Mantiene il titolo a sinistra e il logout a destra per layout flessibile */
     align-items: center; /* Centra verticalmente */
     padding: 10px 20px;
     background-color: #e0ffe0; /* Sfondo leggero per l'header */
     border-bottom: 1px solid #c8e6c9;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    /* Rimosso position: relative; */
 }
 
 header h1 {
-    margin: 0; /* Rimuove i margini predefiniti del titolo */
-    flex-grow: 1; /* Permette al titolo di occupare lo spazio disponibile */
-    text-align: left; /* Allinea a sinistra (se hai un logo a sinistra e bottone a destra) */
+    margin: 0 auto; /* CENTRA LA SCRITTA "GIARDINO DIGITALE" e le permette di spingere il bottone logout a destra */
+    text-align: center; /* Centra il testo all'interno dell'h1 */
     color: #2c3e50;
-    font-size: 2em; /* Dimensione del titolo */
-    /* Rimosso position: absolute; left: 50%; transform: translateX(-50%); z-index: 0; width: fit-content; white-space: nowrap; */
+    font-size: 2em;
+    flex-grow: 1; /* Permette al titolo di crescere e occupare lo spazio centrale */
 }
 
 /* Auth container */
@@ -63,8 +61,8 @@ header h1 {
     cursor: pointer;
     font-size: 1em;
     width: 100%;
-    box-sizing: border-box; /* Include padding e border nella larghezza */
-    margin-bottom: 10px; /* Spazio tra i bottoni */
+    box-sizing: border-box;
+    margin-bottom: 10px;
 }
 
 #auth-container button:hover {
@@ -94,7 +92,8 @@ header h1 {
 }
 
 #logoutButton {
-    background-color: #f44336; /* Rosso per il logout */
+    background-color: #4CAF50; /* CAMBIATO: Verde per il logout */
+    color: white;
     margin-left: auto; /* Spinge il bottone a destra */
     padding: 8px 15px;
     font-size: 0.9em;
@@ -102,11 +101,10 @@ header h1 {
     box-sizing: content-box;
     border-radius: 4px;
     white-space: nowrap;
-    /* Rimosso position: relative; z-index: 1; */
 }
 
 #logoutButton:hover {
-    background-color: #da190b;
+    background-color: #45a049; /* Colore hover verde più scuro */
 }
 
 /* Stili per errori di autenticazione */
@@ -125,23 +123,37 @@ header h1 {
     display: none; /* Hidden by default, shown after login */
 }
 
+/* CONTAINER PER I FILTRI E BOTTONI (Punto 3) */
+.filters-and-buttons-container {
+    background-color: #e6ffe6; /* Sfondo leggermente verde, come geolocalizzazione */
+    border-radius: 8px;
+    border: 1px solid #c8e6c9;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
 /* Header della sezione piante (titolo e pulsante "Aggiungi nuova pianta") */
 #plantsSectionHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Permette agli elementi di andare a capo su schermi piccoli */
+    flex-wrap: wrap;
+    gap: 10px; /* Spazio tra gli elementi dell'header */
 }
 
 #plantsSectionHeader h2 {
     color: #4CAF50;
     margin: 0;
-    flex-grow: 1; /* Permette al titolo di occupare lo spazio disponibile */
+    flex-grow: 1;
 }
 
+/* Pulsanti Mostra Piante / Mostra Giardino / Aggiungi Nuova Pianta (Punto 3) */
+#showAllPlantsButton,
+#showMyGardenButton,
 #addNewPlantButton {
-    background-color: #2196F3; /* Blu per aggiungere nuova pianta */
+    background-color: #4CAF50; /* CAMBIATO: Verde per questi bottoni */
     color: white;
     padding: 10px 15px;
     border: none;
@@ -149,11 +161,14 @@ header h1 {
     cursor: pointer;
     font-size: 1em;
     white-space: nowrap;
-    margin-left: 10px;
+    margin-left: 0; /* Rimuovi margine sinistro, gestito dal gap */
+    flex-shrink: 0; /* Impedisce al bottone di restringersi */
 }
 
+#showAllPlantsButton:hover,
+#showMyGardenButton:hover,
 #addNewPlantButton:hover {
-    background-color: #0b7dda;
+    background-color: #45a049; /* Colore hover verde più scuro */
 }
 
 
@@ -193,14 +208,14 @@ header h1 {
     box-sizing: border-box;
 }
 
-/* Geolocation container styles - MANTENUTO COME TI PIACE */
+/* Geolocation container styles - MANTENUTO */
 .geolocation-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 15px;
+    margin-top: 15px; /* Questo margine spinge via i filtri sopra */
     padding: 15px;
-    background-color: #e6ffe6; /* Sfondo leggermente verde */
+    background-color: #e6ffe6;
     border-radius: 8px;
     border: 1px solid #c8e6c9;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
@@ -213,7 +228,7 @@ header h1 {
 }
 
 .geolocation-container button {
-    background-color: #4CAF50; /* Verde per il bottone di geolocalizzazione */
+    background-color: #4CAF50;
     color: white;
     padding: 10px 15px;
     border: none;
@@ -265,7 +280,7 @@ header h1 {
     transform: translateY(-5px);
 }
 
-/* Immagini nelle card - CORREZIONE MANTENUTA E CONFERMATA */
+/* Immagini nelle card */
 .plant-card .plant-image,
 #my-garden .plant-card .plant-image {
     max-width: 100%;
@@ -276,7 +291,7 @@ header h1 {
     display: block;
 }
 
-/* Pulsanti all'interno delle card - Colori ripristinati */
+/* Pulsanti all'interno delle card */
 .card-actions {
     margin-top: 15px;
     display: flex;
@@ -296,15 +311,20 @@ header h1 {
     white-space: nowrap;
 }
 
-.card-actions button.remove-button {
-    background-color: #f44336; /* Rosso per il remove */
+/* Colore rosso per il tasto "Elimina" (Punto 5) */
+.card-actions button.remove-button,
+.card-actions button.delete-plant-from-db-button { /* Applica sia a remove-button che a delete-plant-from-db-button */
+    background-color: #f44336; /* Rosso */
 }
+.card-actions button.remove-button:hover,
+.card-actions button.delete-plant-from-db-button:hover {
+    background-color: #da190b; /* Rosso più scuro per hover */
+}
+
 .card-actions button.update-plant-button {
     background-color: #ff9800; /* Arancione per l'update */
 }
-.card-actions button.delete-plant-from-db-button {
-    background-color: #607d8b; /* Grigio/blu scuro per eliminare dal DB */
-}
+
 
 .card-actions button:hover {
     opacity: 0.9;
@@ -369,7 +389,7 @@ header h1 {
 }
 
 .plant-form-card .form-actions .save-button {
-    background-color: #4CAF50; /* Verde per il save */
+    background-color: #4CAF50;
     color: white;
 }
 
@@ -378,7 +398,7 @@ header h1 {
 }
 
 .plant-form-card .form-actions .cancel-button {
-    background-color: #f44336; /* Rosso per il cancel */
+    background-color: #f44336;
     color: white;
 }
 
@@ -411,18 +431,28 @@ header h1 {
     grid-column: 1 / -1;
 }
 
-/* Pulsanti per sensore di luce - Colori ripristinati */
+/* Pulsanti per sensore di luce - Inserito in un riquadro centrato (Punto 4) */
 .light-sensor-container {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Impila gli elementi verticalmente */
     gap: 10px;
-    margin-bottom: 20px;
+    margin: 20px auto; /* Centra orizzontalmente e aggiunge margine */
     padding: 15px;
     background-color: #eaf7f7;
     border-radius: 8px;
     border: 1px solid #d0e0e0;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    max-width: 500px; /* Limita la larghezza per renderlo un riquadro */
+    align-items: center; /* Centra il contenuto all'interno del container */
+    text-align: center; /* Centra il testo */
+}
+
+.light-sensor-container .button-group {
+    display: flex;
+    gap: 10px;
     flex-wrap: wrap;
+    justify-content: center; /* Centra i bottoni all'interno del loro gruppo */
+    width: 100%; /* Occupa tutta la larghezza del container genitore */
 }
 
 .light-sensor-container button {
@@ -432,10 +462,12 @@ header h1 {
     cursor: pointer;
     font-size: 1em;
     white-space: nowrap;
+    flex-grow: 1; /* Permette ai bottoni di espandersi nel gruppo */
+    max-width: 180px; /* Limita la larghezza massima dei bottoni */
 }
 
 .light-sensor-container #startLightSensorButton {
-    background-color: #007bff; /* Blu per avviare */
+    background-color: #007bff;
     color: white;
 }
 
@@ -444,7 +476,7 @@ header h1 {
 }
 
 .light-sensor-container #stopLightSensorButton {
-    background-color: #dc3545; /* Rosso per fermare */
+    background-color: #dc3545;
     color: white;
     display: none;
 }
@@ -457,14 +489,14 @@ header h1 {
     font-size: 1.1em;
     font-weight: bold;
     color: #333;
-    flex-grow: 1;
+    margin-bottom: 5px; /* Spazio sotto il dato */
 }
 
 .light-feedback {
     font-size: 0.9em;
     color: #555;
-    margin-left: 10px;
-    flex-basis: 100%;
+    margin-left: 0; /* Rimuovi margine sinistro */
+    flex-basis: auto; /* Lascia che si adatti al contenuto */
     text-align: center;
 }
 
