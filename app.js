@@ -149,7 +149,7 @@ function showToast(message, type = 'info', duration = 3000) {
 
 function showLoadingSpinner() {
     if (loadingSpinner) {
-        loadingSpinner.style.display = 'block';
+        loadingSpinner.style.display = 'flex'; // Imposta su 'flex' per l'overlay completo
     }
 }
 
