@@ -183,18 +183,12 @@ function clearFormValidationErrors(formElement) {
 
 // Funzione per mostrare o nascondere le sezioni dell'app basate sullo stato di autenticazione
 function updateUIforAuthState(user) {
-    // Assicurati che tutte le variabili DOM siano state inizializzate
-    if (!authContainerDiv || !appContentDiv || !authStatusSpan || !logoutButton || !gardenContainer || !myGardenContainer || !newPlantCard || !updatePlantCard) {
-        console.warn('DOM elements not fully initialized when updateUIforAuthState was called.');
-        return; // Non procedere se gli elementi DOM non sono pronti
-    }
-
+    // Non è più necessario il controllo null qui, poiché questa funzione sarà chiamata solo dopo che il DOM è pronto
     if (user) {
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
         authStatusSpan.textContent = `Benvenuto, ${user.email}!`;
         logoutButton.style.display = 'block';
-        // Nascondi le sezioni specifiche del giardino/piante fino a che non sono caricate o mostrate
         gardenContainer.style.display = 'grid'; // O 'grid' a seconda di come lo visualizzi
         myGardenContainer.style.display = 'none';
         newPlantCard.style.display = 'none'; // Assicurati che il form sia nascosto inizialmente
@@ -212,7 +206,6 @@ function updateUIforAuthState(user) {
         newPlantCard.style.display = 'none';
         updatePlantCard.style.display = 'none';
     }
-}
 
 // Funzioni di login e registrazione (esistenti, non modificate)
 async function handleLogin(e) {
