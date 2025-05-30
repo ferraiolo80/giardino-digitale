@@ -229,8 +229,8 @@ async function login() {
     } catch (error) {
         console.error("Errore durante il login:", error.message);
         let errorMessage = "Errore durante il login.";
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            errorMessage = "Email o password non validi.";
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            errorMessage = "Email o password non validi."; // Aggiunto 'auth/invalid-credential' per errori generici
         } else if (error.code === 'auth/invalid-email') {
             errorMessage = "Formato email non valido.";
         } else {
@@ -262,7 +262,17 @@ async function register() {
     }
 
     try {
-        await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        // *** QUESTA È L'AGGIUNTA PRINCIPALE ***
+        // Salva l'utente anche nella collezione 'users' di Firestore
+        await db.collection('users').doc(user.uid).set({
+            email: user.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() // Timestamp di creazione
+        });
+        // ************************************
+
         showToast("Registrazione avvenuta con successo!", 'success');
         // onAuthStateChanged gestirà la pulizia dei campi e la visualizzazione dell'UI
     } catch (error) {
