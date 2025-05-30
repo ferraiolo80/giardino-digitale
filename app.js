@@ -392,7 +392,7 @@ async function loadPlantsFromFirebase() {
         const snapshot = await db.collection('plants').get();
         allPlants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         console.log("Piante caricate (tutte):", allPlants.length);
-        // La chiamata ad applyFilters() ora è gestita in handleAuthAndUI o nel listener onSnapshot
+        
     } catch (error) {
         console.error("Errore nel caricamento delle piante:", error);
         showToast("Errore nel caricamento delle piante.", 'error');
@@ -1086,11 +1086,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showLoadingSpinner(); // Mostra lo spinner all'avvio
     showToast("Caricamento applicazione...", "info", 1000); // Messaggio iniziale
     showMaintenanceMessage(true); // Mostra il messaggio di manutenzione all'avvio
-    
-    // Non chiamare handleAuthAndUI() qui, sarà chiamata dal listener onAuthStateChanged
-    // che è il modo corretto per reagire allo stato di autenticazione.
-    // Il listener onAuthStateChanged si attiva automaticamente al caricamento,
-    // e gestirà la visualizzazione corretta e il primo caricamento dati.
+ 
 });
 
 
