@@ -11,7 +11,6 @@ body {
 /* Nuovo stile per l'header per allineare elementi */
 header {
     display: flex;
-    /* Rimuovi justify-content: space-between; */ 
     align-items: center; /* Centra verticalmente */
     padding: 10px 20px;
     background-color: #e0ffe0; /* Sfondo leggero per l'header */
@@ -22,7 +21,6 @@ header {
 
 header h1 {
     margin: 0; /* Rimuove i margini predefiniti del titolo */
-    /* Rimuovi flex-grow: 1; */ 
     text-align: center; /* Centra il testo all'interno dell'h1 */
     color: #2c3e50;
     font-size: 2em; /* Dimensione del titolo */
@@ -31,613 +29,638 @@ header h1 {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    white-space: nowrap; /* Evita che il titolo vada a capo */
-    z-index: 1; /* Assicurati che sia sopra gli altri elementi se si sovrapponessero */
+    z-index: 0; /* Assicurati che sia sotto altri elementi se si sovrappongono */
+    width: fit-content; /* Larghezza si adatta al contenuto */
+    white-space: nowrap; /* Impedisce che il titolo vada a capo */
 }
 
-.header-left, .header-right {
-    display: flex;
-    align-items: center;
-    /* Rimuovi min-width se lo avevi messo a 0 o se causava problemi */
-    min-width: 50px; /* Mantieni un min-width se c'è un pulsante */
-    flex-shrink: 0; /* Impedisce che si rimpiccioliscano troppo */
-}
-
-.header-left {
-    justify-content: flex-start; /* Allinea a sinistra */
-    flex-grow: 1; /* Permetti al lato sinistro di crescere */
-}
-
-.header-right {
-    justify-content: flex-end; /* Allinea a destra */
-    flex-grow: 1; /* Permetti al lato destro di crescere */
-    /* Aggiungi padding-left se il pulsante a sx è troppo vicino al titolo */
-    padding-left: 10px; /* Spazio per evitare sovrapposizioni sul titolo */
-}
-/* Poi, nello stile per lo stato di autenticazione nell'header */
-#auth-status {
-    font-size: 0.9em;
-    color: #555;
-    white-space: nowrap; /* Mantiene il testo su una singola riga */
-    /* Rimuovi overflow: hidden; e text-overflow: ellipsis; se vuoi sempre leggere tutta la mail */
-    overflow: visible; /* <--- IMPORTANTE: Rende visibile il testo che esce */
-    text-overflow: clip; /* <--- IMPORTANTE: Impedisce i puntini di sospensione */
-    max-width: 250px; /* O un valore più grande, a seconda della lunghezza massima prevista delle email */
-                      /* Se vuoi che occupi tutto lo spazio possibile, puoi provare 'none' */
-    text-align: right; /* Allinea il testo a destra */
-    /* Aggiungi un margine a sinistra per separarlo dal titolo se si sovrappongono */
-    margin-left: 10px; 
-}
-
-h1, h2 {
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 1em;
-    margin-bottom: 0.8em;
-}
-
-main {
-    flex: 1;
-    padding: 1em;
-}
-
-/* Stili per il contenitore principale di tutti i controlli (ricerca, filtri, ordinamento, bottoni) */
-#controls-wrapper {
-    display: flex; /* Abilita Flexbox */
-    flex-wrap: wrap; /* Permette agli elementi di andare a capo su più righe se lo spazio è insufficiente */
-    justify-content: flex-start; /* Allinea gli elementi all'inizio (sinistra) */
-    align-items: center; /* Allinea gli elementi verticalmente al centro */
-    gap: 15px 20px; /* Spazio tra gli elementi (verticale orizzontale) */
-    margin: 1.5em auto; /* Margine sopra/sotto e centra il contenitore nella pagina */
-    padding: 15px 20px; /* Padding interno */
-    background-color: #f8f8f8; /* Un leggero sfondo per evidenziare la sezione */
-    border-radius: 10px; /* Bordi arrotondati */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Ombra più pronunciata */
-    max-width: 1200px; /* Limita la larghezza massima per non essere troppo esteso */
-    box-sizing: border-box; /* Include padding e border nella larghezza */
-}
-
-/* Assicurati che i margini interni agli elementi del controls-wrapper siano gestiti dal gap */
-#controls-wrapper button,
-#controls-wrapper .filter-group {
-    margin: 0; /* Rimuovi margini esterni indesiderati */
-    padding: 0; /* Rimuovi padding interni indesiderati */
-}
-
-/* Stili per i gruppi di filtro (label + input/select) */
-.filter-group {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Spazio tra label e input/select */
-    white-space: nowrap; /* Impedisce al gruppo di andare a capo troppo presto */
-}
-
-.filter-group label {
-    font-weight: bold;
-    color: #555;
-    white-space: nowrap; /* Assicura che la label non vada a capo */
-}
-
-/* Regola generale per i bottoni */
-button {
-    padding: 0.6em 1.2em;
-    border: none;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-    background-color: #4CAF50; /* VERDE di default per i bottoni */
-}
-
-button:hover {
-    background-color: #45a049; /* Verde scuro al hover */
-}
-
-/* Stili specifici per i bottoni all'interno del controls-wrapper */
-#controls-wrapper button {
-    padding: 10px 18px; /* Padding leggermente aumentato */
-    border-radius: 6px; /* Bordi arrotondati */
-    font-size: 1em;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    cursor: pointer;
-    white-space: nowrap; /* Evita che il testo vada a capo */
-    box-sizing: border-box;
-}
-
-#toggleMyGarden {
-    background-color: #4CAF50; /* Ora è verde come gli altri bottoni */
-    color: white;
-}
-
-#toggleMyGarden:hover {
-    background-color: #45a049; /* Verde scuro al hover */
-    transform: translateY(-2px);
-}
-
-#addNewPlantButton {
-    background-color: #28a745; /* Verde per aggiungere nuova pianta */
-    color: white;
-}
-
-#addNewPlantButton:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-}
-
-/* Stili per gli input e select all'interno dei filter-group per un aspetto uniforme */
-#controls-wrapper input[type="text"],
-#controls-wrapper input[type="number"],
-#controls-wrapper select {
-    padding: 9px 12px; /* Aumenta leggermente il padding per un tocco più moderno */
-    border: 1px solid #ccc;
-    border-radius: 6px; /* Arrotonda un po' di più i bordi */
-    font-size: 1em;
-    width: auto; /* Permette agli elementi di adattarsi al contenuto */
-    min-width: 120px; /* Larghezza minima per leggibilità */
-    max-width: 180px; /* Larghezza massima per evitare che si estendano troppo */
-    box-sizing: border-box;
-    -webkit-appearance: none; /* Per rimuovere stili di default su Safari per select */
-    -moz-appearance: none; /* Per rimuovere stili di default su Firefox per select */
-    appearance: none; /* Per rimuovere stili di default */
-    background-color: #fff;
-    cursor: pointer; /* Indica che i select sono cliccabili */
-}
-
-/* Rimuovi o modifica gli stili esistenti per .search-container e .filter-container
-   dato che ora useremo #controls-wrapper e .filter-group per la disposizione */
-.search-container,
-.filter-container {
-    /* Questi stili azzerano i layout precedenti per evitare conflitti */
-    display: block; /* O display: none; se non vuoi che siano visualizzati */
-    justify-content: unset;
-    align-items: unset;
-    gap: unset;
-    flex-wrap: unset;
-    margin: 0;
-    padding: 0;
-}
-
-
-/* Stili per i contenitori delle card (elenco principale e mio giardino) */
-/* Entrambi useranno un layout a griglia */
-#garden-container,
-#my-garden {
-    margin: 1em auto; /* Centra il contenitore delle card */
-    display: grid;
-    /* griglia responsiva: min 280px per card, fino a riempire lo spazio */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));    
-    gap: 20px; /* Spazio tra le card */
-    padding: 20px; /* Padding interno ai contenitori */
-    justify-items: center; /* Centra le colonne di griglia se c'è spazio extra */
-    max-width: 1200px; /* Larghezza massima per il contenitore delle card */
-}
-
-/* Stili di base per tutte le card (sia dell'elenco principale che del mio giardino) */
-/* Le proprietà qui definiscono la struttura interna delle card */
-.plant-card,
-.my-plant-card {
-    border: 1px solid #ddd;
-    border-radius: 12px; /* Aumentato per un look più morbido */
+/* Auth container */
+#auth-container {
     padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera per profondità */
-    text-align: center;
-    display: flex; /* Utilizza flexbox per un layout interno più controllato */
-    flex-direction: column; /* Gli elementi si impilano verticalmente */
-    align-items: center; /* Centra orizzontalmente gli elementi all'interno della card */
-    width: 100%; /* La card occuperà il 100% della sua cella di griglia */
-    max-width: 320px; /* Larghezza massima per le card, per non farle diventare troppo larghe */
-    min-height: 380px; /* Altezza minima per uniformità */
-    justify-content: space-between; /* Spinge il contenuto e i bottoni ai bordi */
-}
-
-/* Stili specifici per le card dell'elenco principale (bianche) */
-.plant-card {
+    margin: 20px auto;
     background: white;
-    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    max-width: 400px;
+    text-align: center;
 }
 
-/* Stili specifici per le card del mio giardino (verdi) */
-.my-plant-card {
-    background: #e8f5e9; /* Sfondo verde chiaro */
-    border: 2px solid #66bb6a; /* Bordo verde */
+#auth-container h2 {
+    color: #4CAF50;
+    margin-bottom: 20px;
 }
 
-/* Stili per i titoli delle card */
-.plant-card h4,
-.my-plant-card h4 {
-    margin-top: 10px;
-    margin-bottom: 5px;
-    color: #333;
-    font-size: 1.2em; /* Dimensione del titolo della pianta */
-}
-
-/* Stili per i paragrafi delle card */
-.plant-card p,
-.my-plant-card p {
-    font-size: 0.9em;
-    color: #555;
-    margin-bottom: 4px; /* Spazio ridotto tra i paragrafi */
-    line-height: 1.4; /* Migliora la leggibilità del testo */
-    display: flex; /* Per allineare icone e testo */
-    align-items: center;
-    gap: 8px; /* Spazio tra icona e testo */
-}
-
-.plant-card p i,
-.my-plant-card p i {
-    color: #777; /* Colore delle icone */
-}
-
-/* Stili per l'immagine della pianta nella card */
-.plant-icon {
-    width: 100px; /* Dimensione fissa per l'icona */
-    height: 100px;
-    object-fit: cover; /* Assicura che l'immagine copra l'area senza distorcersi */
-    border-radius: 50%; /* Rende l'immagine circolare */
+#auth-container input[type="email"],
+#auth-container input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
     margin-bottom: 15px;
-    border: 2px solid #eee; /* Bordo sottile per l'immagine */
-    cursor: pointer; /* Indica che è cliccabile */
-    transition: transform 0.2s ease-in-out; /* Animazione al passaggio del mouse/click */
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
-.plant-icon:hover {
-    transform: scale(1.05); /* Piccolo ingrandimento al passaggio del mouse */
+#auth-container button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box; /* Include padding e border nella larghezza */
+    margin-bottom: 10px; /* Spazio tra i bottoni */
 }
 
-/* Stili specifici per i bottoni all'interno delle card */
-.plant-card button,
-.my-plant-card button {
-    margin-top: 10px; /* Spazio tra i bottoni e il contenuto sopra */
-    width: 90%; /* Occupa quasi tutta la larghezza della card */
-    max-width: 200px; /* Per non farli diventare troppo larghi su card grandi */
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-size: 0.85em;
-}
-
-/* Colori specifici per i bottoni - Maggior specificità */
-.add-to-garden-button {
-    background-color: #4CAF50; /* Verde */
-}
-.add-to-garden-button:hover {
+#auth-container button:hover {
     background-color: #45a049;
 }
 
-.update-plant-button {
-    background-color: #2196F3; /* Blu */
-}
-.update-plant-button:hover {
-    background-color: #1976D2;
+#auth-container .switch-form {
+    margin-top: 15px;
+    font-size: 0.9em;
 }
 
-.remove-button, /* Questo è per i bottoni "Rimuovi dal mio giardino" */
-.delete-plant-from-db-button { /* Questo è per i bottoni "Elimina definitivamente" */
-    background-color: #f44336; /* Rosso */
-}
-.remove-button:hover,
-.delete-plant-from-db-button:hover {
-    background-color: #d32f2f;
+#auth-container .switch-form a {
+    color: #4CAF50;
+    text-decoration: none;
+    cursor: pointer;
 }
 
+#auth-container .switch-form a:hover {
+    text-decoration: underline;
+}
 
-/* Stile per il messaggio "Il tuo giardino è vuoto" */
-#my-garden #empty-garden-message {
-    grid-column: 1 / -1; /* Fa in modo che il messaggio occupi tutte le colonne della griglia */
+#auth-status {
     text-align: center;
-    margin-top: 50px; /* Spazio superiore */
-    font-size: 1.2em;
-    color: #666;
-    display: none; /* Inizialmente nascosto, visibile via JS quando il giardino è vuoto */
+    margin-top: 10px;
+    font-weight: bold;
+    color: #555;
 }
 
-/* Stili per i form di aggiunta/aggiornamento */
-#newPlantCard,
-#updatePlantCard {
-    background: white;
+#logoutButton {
+    background-color: #f44336;
+    margin-left: auto; /* Spinge il bottone a destra */
+    /* Assicurati che questo stile sia compatibile con il display: flex del header */
+    padding: 8px 15px; /* Riduci il padding per non farlo sembrare troppo grande */
+    font-size: 0.9em; /* Riduci la dimensione del font */
+    width: auto; /* L'auto per la larghezza va bene qui */
+    box-sizing: content-box; /* Revert per questo specifico bottone se non è in un flex container */
+    border-radius: 4px;
+    white-space: nowrap; /* Evita che il testo vada a capo */
+    position: relative; /* Per z-index se necessario */
+    z-index: 1; /* Assicurati che sia sopra l'h1 se si sovrappongono */
+}
+
+#logoutButton:hover {
+    background-color: #da190b;
+}
+
+/* Stili per errori di autenticazione */
+.auth-error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: -10px; /* Sposta il messaggio di errore più vicino al campo */
+    margin-bottom: 10px;
+}
+
+
+/* Main app content */
+#app-content {
+    flex-grow: 1;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    margin: 20px auto;
-    max-width: 500px;
-    display: none; /* Nascosti di default */
+    display: none; /* Hidden by default, shown after login */
 }
 
-#newPlantCard label,
-#updatePlantCard label {
-    display: block;
+/* Header della sezione piante (titolo e pulsante "Aggiungi nuova pianta") */
+#plantsSectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Permette agli elementi di andare a capo su schermi piccoli */
+}
+
+#plantsSectionHeader h2 {
+    color: #4CAF50;
+    margin: 0;
+    flex-grow: 1; /* Permette al titolo di occupare lo spazio disponibile */
+}
+
+#addNewPlantButton {
+    background-color: #2196F3;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    white-space: nowrap; /* Impedisce che il testo vada a capo */
+    margin-left: 10px; /* Spazio a sinistra del bottone */
+}
+
+#addNewPlantButton:hover {
+    background-color: #0b7dda;
+}
+
+
+/* Campi di ricerca e filtri */
+.search-filter-container {
+    display: flex;
+    flex-wrap: wrap; /* Permette agli elementi di andare a capo */
+    gap: 10px; /* Spazio tra gli elementi */
+    margin-bottom: 20px;
+    align-items: flex-end; /* Allinea gli elementi in basso */
+}
+
+.search-container,
+.filter-container,
+.temp-filter-container,
+.climate-filter-container { /* Aggiunto contenitore per il clima */
+    display: flex;
+    flex-direction: column; /* Impila label e input/select */
+    flex: 1; /* Permette ai contenitori di crescere */
+    min-width: 150px; /* Larghezza minima per evitare che si comprimano troppo */
+}
+
+.search-filter-container label {
     margin-bottom: 5px;
     font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* Evita che il testo della label vada a capo */
 }
 
-#newPlantCard input,
-#newPlantCard select,
-#newPlantCard textarea,
-#updatePlantCard input,
-#updatePlantCard select,
-#updatePlantCard textarea {
-    width: calc(100% - 1em); /* Per tenere conto del padding */
-    padding: 0.5em;
-    margin-bottom: 5px; /* Ridotto per via dei messaggi di errore */
-    border: 1px solid #ccc;
+.search-filter-container input[type="text"],
+.search-filter-container input[type="number"],
+.search-filter-container select {
+    padding: 8px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box;
+    width: 100%; /* Occupa tutta la larghezza del suo contenitore */
+    box-sizing: border-box; /* Include padding e border nella larghezza */
 }
 
-#newPlantCard button,
-#updatePlantCard button {
-    margin-top: 10px;
-    width: auto;
-    display: inline-block;
-}
-
-/* Stili per la sezione del sensore di luce */
-#lightSensorSection {
-    background: #f0f8ff; /* Sfondo azzurro chiaro */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-    max-width: 600px;
-    text-align: center;
-    border: 1px solid #cceeff;
-}
-
-#lightSensorSection h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-#lightSensorSection p {
-    margin-bottom: 10px;
-}
-
-#lightSensorSection button {
-    margin: 5px;
-    padding: 10px 15px;
-    font-size: 1em;
-}
-
-#lightFeedback {
-    margin-top: 20px;
+/* Geolocation container styles */
+.geolocation-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
     padding: 15px;
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    text-align: left;
+    background-color: #e6ffe6; /* Sfondo leggermente verde */
+    border-radius: 8px;
+    border: 1px solid #c8e6c9;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
-#lightFeedback h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
+.geolocation-container p {
+    margin: 0;
+    font-size: 0.9em;
     color: #333;
 }
 
-#lightFeedback ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-#lightFeedback li {
-    margin-bottom: 5px;
-    font-size: 0.95em;
-}
-
-/* Stili per messaggi di errore e successo */
-.error-message {
-    color: red; /* Testo rosso per gli errori */
-    font-size: 0.85em; /* Dimensione del font leggermente più piccola */
-    margin-top: -5px; /* Sposta leggermente più in alto per ridurre lo spazio */
-    margin-bottom: 10px; /* Spazio sotto il messaggio di errore */
-    display: block; /* Assicurati che sia un blocco per andare a capo */
-    height: 1.2em; /* Altezza fissa per evitare CLS quando il messaggio appare/scompare */
-    visibility: hidden; /* Nascosto di default, ma occupa spazio */
-    opacity: 0; /* Invisibile di default */
-    transition: opacity 0.3s ease, visibility 0.3s ease; /* Animazione per apparizione/scomparsa */
-}
-
-/* Stile per mostrare il messaggio di errore */
-.error-message.active {
-    visibility: visible;
-    opacity: 1;
-}
-
-/* Rimuovi i <br> extra che avevamo aggiunto */
-#newPlantCard br,
-#updatePlantCard br {
-    display: none;
-}
-
-/* Stili per il bottone icona di Logout */
-.icon-button {
-    background: none;
+.geolocation-container button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
     border: none;
-    color: #4CAF50;
-    font-size: 1.8em;
+    border-radius: 4px;
     cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 1em;
+    flex-grow: 1; /* Permette al bottone di espandersi */
+    white-space: nowrap;
 }
 
-.icon-button:hover {
-    background-color: rgba(76, 175, 80, 0.2);
-    color: #388E3C;
+.geolocation-container button:hover {
+    background-color: #45a049;
 }
 
-/* Stile per il titolo "Il mio Giardino" */
-#giardinoTitle {
-    text-align: center;
+
+/* Contenitori per le card delle piante (Tutte le piante, Il mio giardino) */
+#garden-container,
+#my-garden {
+    display: grid;
+    /* NUOVO: Colonne adattive per meglio riempire lo spazio */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px; /* Spazio tra le card */
+    padding: 20px;
+    justify-content: center; /* Centra le card nella griglia */
     margin-top: 20px;
-    color: #2c3e50;
-    font-size: 1.8em;
+    background-color: #fff; /* Sfondo del contenitore per separarlo */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* --- NUOVI STILI PER LA MODAL (ZOOM IMMAGINE) --- */
-/* Stili per la Modal (pop-up) */
-.modal {
+
+/* Card delle piante */
+.plant-card,
+.my-plant-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* margin: 1em; Rimosso il margine per usare il gap della griglia */
+    padding: 1.5em;
+    text-align: center;
+    /* Rimosso width: 280px; - la griglia gestisce la larghezza */
+    /* Rimosso display: inline-block; e vertical-align: top; - usare flex/grid */
+    
+    /* NUOVE REGOLE PER UN LAYOUT INTERNO MIGLIORE */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra orizzontalmente il contenuto */
+    justify-content: space-between; /* Spazio tra gli elementi */
+    height: auto; /* Lascia che l'altezza si adatti al contenuto */
+    transition: transform 0.2s ease-in-out;
+}
+
+.plant-card:hover,
+.my-plant-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Immagini nelle card - CORREZIONE PRINCIPALE QUI */
+.plant-card .plant-image,
+.my-plant-card .plant-image { /* Ho usato .plant-image in JS, assicurati che sia il selettore corretto */
+    max-width: 100%;
+    height: 150px; /* ALTEZZA FISSA: Questa è la correzione chiave */
+    object-fit: cover; /* Ritaglia l'immagine per riempire l'area mantenendo le proporzioni */
+    border-radius: 4px;
+    margin-bottom: 1em;
+}
+
+/* Pulsanti all'interno delle card */
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap; /* Permette ai bottoni di andare a capo */
+    gap: 8px; /* Spazio tra i bottoni */
+    justify-content: center; /* Centra i bottoni */
+}
+
+.card-actions button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    white-space: nowrap; /* Previene interruzioni di riga nel testo del bottone */
+}
+
+.card-actions button.remove-button {
+    background-color: #f44336;
+}
+.card-actions button.update-plant-button {
+    background-color: #ff9800;
+}
+.card-actions button.delete-plant-from-db-button {
+    background-color: #607d8b; /* Grigio/blu scuro per eliminare dal DB */
+}
+
+.card-actions button:hover {
+    opacity: 0.9;
+}
+
+
+/* Form per aggiungere/modificare piante */
+.plant-form-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    padding: 2em;
+    max-width: 500px;
+    display: none; /* Nascosto per impostazione predefinita */
+}
+
+.plant-form-card h3 {
+    color: #4CAF50;
+    text-align: center;
+    margin-bottom: 1.5em;
+}
+
+.plant-form-card label {
+    display: block;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    color: #555;
+}
+
+.plant-form-card input[type="text"],
+.plant-form-card input[type="number"],
+.plant-form-card textarea,
+.plant-form-card select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding e border nella larghezza */
+}
+
+.plant-form-card textarea {
+    resize: vertical; /* Permette il ridimensionamento verticale */
+    min-height: 80px;
+}
+
+.plant-form-card .form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 1.5em;
+}
+
+.plant-form-card .form-actions button {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.plant-form-card .form-actions .save-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.plant-form-card .form-actions .save-button:hover {
+    background-color: #45a049;
+}
+
+.plant-form-card .form-actions .cancel-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.plant-form-card .form-actions .cancel-button:hover {
+    background-color: #da190b;
+}
+
+/* Messaggi di errore validazione form */
+.error-message {
+    color: red;
+    font-size: 0.85em;
+    margin-top: -0.8em; /* Sposta il messaggio di errore più vicino al campo */
+    margin-bottom: 0.8em;
+    display: block; /* Assicura che occupi una riga intera */
+}
+
+.input-error {
+    border-color: red !important; /* Rende il bordo rosso per indicare l'errore */
+}
+
+
+/* Messaggio "Giardino vuoto" */
+#empty-garden-message {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    margin-top: 50px;
+    display: none; /* Nascosto di default, mostrato via JS */
+    width: 100%; /* Occupa la larghezza completa del contenitore grid */
+    grid-column: 1 / -1; /* Estende il messaggio su tutte le colonne della griglia */
+}
+
+/* Pulsanti per sensore di luce */
+.light-sensor-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #eaf7f7; /* Sfondo leggero per il sensore */
+    border-radius: 8px;
+    border: 1px solid #d0e0e0;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    flex-wrap: wrap; /* Per schermi piccoli */
+}
+
+.light-sensor-container button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    white-space: nowrap;
+}
+
+.light-sensor-container #startLightSensorButton {
+    background-color: #007bff; /* Blu per avviare */
+    color: white;
+}
+
+.light-sensor-container #startLightSensorButton:hover {
+    background-color: #0056b3;
+}
+
+.light-sensor-container #stopLightSensorButton {
+    background-color: #dc3545; /* Rosso per fermare */
+    color: white;
     display: none; /* Nascosto di default */
-    position: fixed; /* Si sovrappone a tutto */
-    z-index: 1000; /* Assicurati che sia sopra altri elementi */
+}
+
+.light-sensor-container #stopLightSensorButton:hover {
+    background-color: #c82333;
+}
+
+.light-data {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+    flex-grow: 1; /* Permette al testo di occupare spazio */
+}
+
+.light-feedback {
+    font-size: 0.9em;
+    color: #555;
+    margin-left: 10px;
+    flex-basis: 100%; /* Forza il feedback ad andare su una nuova riga su schermi piccoli */
+    text-align: center;
+}
+
+
+/* Spinner di caricamento */
+#loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Assicurati che sia sopra tutto */
+    display: none; /* Nascosto di default */
+}
+
+#loading-spinner::after {
+    content: '';
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #4CAF50;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast Notification */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000; /* Ancora più alto dello spinner */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s ease-out;
+    min-width: 200px;
+    text-align: center;
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.toast.hide {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.toast-info {
+    background-color: #2196F3; /* Blu */
+}
+
+.toast-success {
+    background-color: #4CAF50; /* Verde */
+}
+
+.toast-error {
+    background-color: #f44336; /* Rosso */
+}
+
+
+/* Modal per l'immagine */
+#image-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    padding-top: 60px; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
-    overflow: auto; /* Abilita lo scroll se l'immagine è troppo grande */
-    background-color: rgba(0, 0, 0, 0.9); /* Sfondo nero semitrasparente */
-    justify-content: center; /* Centra l'immagine orizzontalmente con flexbox */
-    align-items: center; /* Centra l'immagine verticalmente con flexbox */
-    animation: fadeIn 0.3s ease-in-out; /* Animazione di apparizione */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
 }
 
-/* Contenuto della Modal (l'immagine zoomed) */
-.modal-content {
+#image-modal .modal-content {
     margin: auto;
     display: block;
-    max-width: 90%; /* Larghezza massima dell'immagine (90% della viewport) */
-    max-height: 90vh; /* Altezza massima dell'immagine (90% dell'altezza della viewport) */
-    border-radius: 8px; /* Bordi arrotondati per l'immagine zoomata */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); /* Ombra per l'immagine */
-    animation: zoomIn 0.3s ease-in-out; /* Animazione di zoom */
+    max-width: 80%;
+    max-height: 80vh; /* Limita l'altezza per schermi più piccoli */
+    border-radius: 8px;
+    object-fit: contain; /* Assicurati che l'immagine sia contenuta */
 }
 
-/* Pulsante di chiusura */
-.close-button {
+#image-modal .close-button {
     position: absolute;
-    top: 20px;
+    top: 15px;
     right: 35px;
     color: #f1f1f1;
     font-size: 40px;
     font-weight: bold;
     transition: 0.3s;
     cursor: pointer;
-    z-index: 1001; /* Sopra la modal */
 }
 
-.close-button:hover,
-.close-button:focus {
+#image-modal .close-button:hover,
+#image-modal .close-button:focus {
     color: #bbb;
     text-decoration: none;
     cursor: pointer;
 }
 
-/* Animazioni CSS */
-@keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
-}
-
-@keyframes zoomIn {
-    from {transform: scale(0.8); opacity: 0;}
-    to {transform: scale(1); opacity: 1;}
-}
-
-/* Puoi aggiungere un fadeOut se vuoi animare anche la chiusura */
-@keyframes fadeOut {
-    from {opacity: 1;}
-    to {opacity: 0;}
-}
-
-/* --- NUOVI STILI PER LA MODAL DELLA CARD ZOOMATA --- */
-
-/* Contenitore della card zoomata all'interno della modal */
-/* Sovrascrive/estende .modal-content per le card */
-.modal-card-content {
-    background-color: white; /* Sfondo della card nella modal */
-    border-radius: 12px;
-    padding: 30px; /* Più padding per più spazio */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Ombra più pronunciata */
-    max-width: 95%; /* Leggermente più larga per schermi piccoli */
-    max-height: 90vh; /* Limita l'altezza per schermi verticali */
-    overflow-y: auto; /* Aggiunge scroll se la card è molto lunga */
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centra il contenuto */
-    box-sizing: border-box; /* Include padding e border nella larghezza/altezza */
-    position: relative; /* Per posizionare il bottone di chiusura se necessario */
-
-    animation: zoomIn 0.3s ease-in-out; /* Usa la stessa animazione zoomIn */
-}
-
-/* Stili per gli elementi della card zoomata (se vuoi sovrascrivere) */
-.modal-card-content .plant-icon {
-    width: 150px; /* Immagine più grande nella modal */
-    height: 150px;
-    margin-bottom: 20px;
-}
-
-.modal-card-content h4 {
-    font-size: 1.6em; /* Titolo più grande */
-    margin-bottom: 10px;
-}
-
-.modal-card-content p {
-    font-size: 1.1em; /* Testo più grande */
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-.modal-card-content button {
-    /* Rimuovi i bottoni dalla card zoomata se non devono essere cliccabili */
-    /* display: none; */ 
-    /* Oppure stilizzali diversamente se vuoi che siano visibili ma non interattivi */
-    opacity: 0.5; /* Li rende semitrasparenti e meno cliccabili visivamente */
-    pointer-events: none; /* Disabilita i click */
-}
 
 /* Media Queries per la responsività */
 @media (max-width: 768px) {
-    /* Rimuovi o modifica gli stili esistenti per .search-container e .filter-container
-       dato che ora useremo #controls-wrapper e .filter-group per la disposizione */
-    .search-container,
-    .filter-container {
-        /* Questi stili azzerano i layout precedenti per evitare conflitti */
-        display: block; /* O display: none; se non vuoi che siano visualizzati */
-        justify-content: unset;
-        align-items: unset;
-        gap: unset;
-        flex-wrap: unset;
-        margin: 0;
-        padding: 0;
-    }
-
-    #controls-wrapper {
-        /* Rimosso flex-direction: column; per mantenere gli elementi in riga */
-        align-items: stretch; /* Allunga gli elementi per occupare la larghezza disponibile */
-        gap: 10px; /* Riduci il gap */
+    header {
+        flex-direction: row; /* Ritorna a riga per header */
+        justify-content: space-between; /* Spazia elementi */
+        align-items: center;
         padding: 10px;
     }
 
-    #controls-wrapper input,
-    #controls-wrapper select,
-    #controls-wrapper button {
-        width: 100%; /* Fai occupare tutta la larghezza agli elementi */
-        max-width: none; /* Rimuovi la max-width */
-        box-sizing: border-box;
+    header h1 {
+        position: static; /* Rimuove il posizionamento assoluto per schermi piccoli */
+        transform: none; /* Rimuove la trasformazione */
+        font-size: 1.5em; /* Riduci dimensione font */
+        flex-grow: 1; /* Permetti al titolo di crescere */
+        text-align: left; /* Allinea a sinistra */
     }
 
-    .filter-group {
-        width: 100%; /* Fai occupare tutta la larghezza ai gruppi di filtro */
-        justify-content: space-between; /* Spazia label e input */
+    #logoutButton {
+        margin-left: 10px; /* Mantieni un piccolo margine */
+        position: static;
+        font-size: 0.8em;
+        padding: 5px 10px;
+    }
+
+    .search-filter-container {
+        flex-direction: column;
+        align-items: stretch; /* Allinea gli elementi per occupare la larghezza */
+    }
+
+    .search-container,
+    .filter-container,
+    .temp-filter-container,
+    .climate-filter-container {
+        width: 100%; /* Occupano tutta la larghezza */
+        min-width: unset; /* Rimuovi la larghezza minima */
+    }
+
+    .geolocation-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .geolocation-container button {
+        width: 100%;
     }
 
     #garden-container,
     #my-garden {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Riduci la larghezza minima su schermi più piccoli */
-        gap: 0.8em;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        padding: 15px;
     }
 
     .plant-card,
     .my-plant-card {
-        padding: 0.8em;
+        padding: 15px;
+    }
+
+    .modal-content {
+        max-width: 95%;
     }
 
     /* Rimuovi queste regole se non sono più necessarie o se causano problemi */
@@ -660,136 +683,29 @@ button:hover {
 @media (max-width: 600px) {
     #garden-container,
     #my-garden {
-        grid-template-columns: 1fr; /* Una singola colonna su schermi molto piccoli */
+        grid-template-columns: 1fr; /* Una singola colonna per schermi molto piccoli */
         padding: 10px;
     }
+
     .plant-card,
     .my-plant-card {
-        max-width: 90%; /* Occupano più larghezza su schermi piccoli */
-        padding: 15px;
+        margin: 0 auto; /* Centra le card se c'è una singola colonna */
+        width: 95%; /* Leggermente più stretto per i margini */
+        max-width: 300px; /* Limita la larghezza anche su una colonna */
     }
 
-    h1, h2 {
-        font-size: 1.5em;
+    .plant-form-card {
+        padding: 1.5em;
+        margin: 15px;
     }
 
-    .close-button {
-        font-size: 30px;
-        top: 10px;
-        right: 20px;
-    }
-
-    .modal-card-content {
-        padding: 20px;
-        max-width: 90%;
-    }
-    .modal-card-content .plant-icon {
-        width: 120px;
-        height: 120px;
-    }
-    .modal-card-content h4 {
-        font-size: 1.4em;
-    }
-    .modal-card-content p {
-        font-size: 1em;
-    }
-}
-
-/* Assicurati che il footer sia sempre in basso */
-footer {
-    margin-top: auto; /* Spinge il footer in fondo */
-    padding: 20px;
-    text-align: center;
-    background-color: #f8f8f8;
-    border-top: 1px solid #eee;
-    font-size: 0.9em;
-    color: #666;
-}
-
-/* Stili per il contenitore dei Toast Messages */
-#toast-container {
-    position: fixed; /* Posiziona il contenitore in modo fisso nella viewport */
-    top: 20px; /* Distanza dal bordo superiore */
-    right: 20px; /* Distanza dal bordo destro */
-    z-index: 10000; /* Assicura che sia sopra quasi tutti gli altri elementi */
-    display: flex;
-    flex-direction: column; /* I toast si impilano verticalmente */
-    gap: 10px; /* Spazio tra i toast */
-    pointer-events: none; /* Permette di cliccare attraverso il contenitore se vuoto */
-}
-
-/* Stili base per ogni singolo Toast Message */
-.toast-message {
-    background-color: #333;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    opacity: 0; /* Inizialmente invisibile */
-    transform: translateX(100%); /* Inizialmente fuori dallo schermo a destra */
-    animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards; /* Animazione di entrata e uscita */
-    min-width: 250px; /* Larghezza minima */
-    max-width: 350px; /* Larghezza massima */
-    font-size: 0.95em;
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Spazio tra icona e testo */
-    pointer-events: auto; /* Permette di cliccare sul toast */
-}
-
-/* Tipi di Toast Message (colori e icone) */
-.toast-message.success {
-    background-color: #4CAF50; /* Verde per successo */
-}
-
-.toast-message.error {
-    background-color: #f44336; /* Rosso per errore */
-}
-
-.toast-message.info {
-    background-color: #2196F3; /* Blu per informazione */
-}
-
-/* Stili per le icone all'interno dei toast */
-.toast-message i {
-    font-size: 1.2em;
-}
-
-/* Animazioni per i Toast Messages */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-}
-
-/* Media Query per schermi più piccoli (posizionamento dei toast) */
-@media (max-width: 600px) {
-    #toast-container {
-        top: 10px;
-        right: 10px;
-        left: 10px; /* Occupa quasi tutta la larghezza su mobile */
-        width: auto;
-    }
-
-    .toast-message {
-        max-width: none; /* Rimuovi la larghezza massima per adattarsi allo schermo */
-        min-width: unset;
+    .plant-form-card input,
+    .plant-form-card textarea,
+    .plant-form-card select {
         width: 100%;
+    }
+
+    .plant-form-card .form-actions {
+        flex-direction: column;
     }
 }
