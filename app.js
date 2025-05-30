@@ -976,3 +976,4 @@ firebase.auth().onAuthStateChanged(user => {
         updateUIforAuthState(user);
     }
 });
+});
