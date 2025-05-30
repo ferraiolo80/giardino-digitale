@@ -60,6 +60,23 @@ let loginErrorDiv, registerErrorDiv;
 let newPlantNameError, newPlantTypeError, newPlantLightError, newPlantWaterError, newPlantImageError; // Aggiunto per validazione form
 let updatePlantNameError, updatePlantTypeError, updatePlantLightError, updatePlantWaterError, updatePlantImageError; // Aggiunto per validazione form
 
+// Configura Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4", // NON CONDIVIDERE MAI LA TUA API KEY PUBBLICAMENTE! Questo è un esempio.
+    authDomain: "giardinodigitale.firebaseapp.com",
+    projectId: "giardinodigitale",
+    storageBucket: "giardinodigitale.appspot.com",
+    messagingSenderId: "96265504027",
+    appId: "1:96265504027:web:903c3df92cfa24beb17fbe",
+    measurementId: "G-G6QG58514C"
+};
+
+// Inizializza Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Ottieni i riferimenti ai servizi Firebase
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // 2. FUNZIONI DI UTILITÀ GLOBALI
 function showToast(message, type = 'info', duration = 3000) {
