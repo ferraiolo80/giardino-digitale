@@ -496,6 +496,31 @@ function applyFilters() {
         return matchesSearch && matchesCategory && matchesTempMin && matchesTempMax;
     });
 
+// Filtro per clima (aggiunto per la geolocalizzazione)
+    const selectedClimate = climateZoneFilter.value;
+    if (selectedClimate && selectedClimate !== '' && selectedClimate !== 'Sconosciuto') {
+        // Questa logica dipende da come le tue piante sono associate alle zone climatiche.
+        // Esempio: se una pianta ha un campo 'climateZones' che è un array di stringhe
+        filteredPlants = filteredPlants.filter(plant =>
+            plant.climateZones && plant.climateZones.includes(selectedClimate)
+        );
+        // OPPURE, se vuoi filtrare per temperatura basandoti sul clima dedotto:
+        // Qui dovresti avere una mappatura interna per i range di temperatura di ciascun clima.
+        // Ad esempio:
+        // const climateTempRanges = {
+        //     'Mediterraneo': { min: 5, max: 35 },
+        //     'Temperato': { min: -10, max: 30 },
+        //     // ... e così via per tutti i tuoi climi
+        // };
+        // const tempRange = climateTempRanges[selectedClimate];
+        // if (tempRange) {
+        //     filteredPlants = filteredPlants.filter(plant =>
+        //         plant.tempMin >= tempRange.min && plant.tempMax <= tempRange.max
+        //     );
+        // }
+    }
+
+    
     // --- NUOVA LOGICA DI ORDINAMENTO ---
     filteredPlants.sort((a, b) => {
         const [field, order] = currentSortBy.split('_'); // Es. "name_asc" -> ["name", "asc"]
