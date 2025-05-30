@@ -1188,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Potresti voler terminare l'esecuzione qui o gestire l'errore in altro modo
         return;
     }
-
+    getClimateButton.addEventListener('click', getLocation);
 
     // --- LISTENER GENERALI (NON DIPENDENTI DAL CLICK SU CARD) ---
     // Listener per i bottoni di login/registrazione
