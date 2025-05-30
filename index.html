@@ -59,62 +59,60 @@
                 <div class="spinner"></div>
             </div>
 
-            <section id="controls-wrapper">
-                <button id="toggleMyGarden"> Mostra il mio giardino</button>
-
-                <div class="filter-group">
-                    <label for="sortBy">Ordina per:</label>
-                    <select id="sortBy">
-                        <option value="name_asc">Nome (A-Z)</option>
-                        <option value="name_desc">Nome (Z-A)</option> 
-                    </select>
+            <div class="filters-and-buttons-container">
+                <div id="plantsSectionHeader">
+                    <h2>Tutte le Piante</h2>
+                    <button id="showAllPlantsButton">Mostra Tutte le Piante</button>
+                    <button id="showMyGardenButton">Mostra il Mio Giardino</button>
+                    <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
                 </div>
 
-                <div class="filter-group">
-                    <label for="searchInput">Cerca:</label>
-                    <input type="text" id="searchInput" placeholder="Cerca pianta...">
-                </div>
+                <div class="search-filter-container">
+                    <div class="search-container">
+                        <label for="searchInput">Cerca per nome:</label>
+                        <input type="text" id="searchInput" placeholder="Nome pianta...">
+                    </div>
 
-                <div class="filter-group">
-                    <label for="categoryFilter">Categoria:</label>
-                    <select id="categoryFilter">
-                        <option value="all">Tutte le Categorie</option>
-                        <option value="Fiore">Fiore</option>
-                        <option value="Pianta">Pianta</option>
-                        <option value="Pianta Grassa">Pianta Grassa</option>
-                        <option value="Albero">Albero</option>
-                        <option value="Arbusto">Arbusto</option>
-                        <option value="Erba aromatica">Erba aromatica</option>
-                        <option value="Succulenta">Succulenta</option>
-                        <option value="Rampicante">Rampicante</option>
-                        <option value="Cactus">Cactus</option>
-                        <option value="Felce">Felce</option>
-                    </select>
-                </div>
-                 <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
-                <div class="filter-group">
-                    <label for="tempMinFilter">Temp Min (°C):</label>
-                    <input type="number" id="tempMinFilter" placeholder="Es: 10">
-                </div>
+                    <div class="filter-container">
+                        <label for="categoryFilter">Filtra per categoria:</label>
+                        <select id="categoryFilter">
+                            <option value="all">Tutte le Categorie</option>
+                            <option value="fiori">Fiori</option>
+                            <option value="alberi">Alberi</option>
+                            <option value="arbusti">Arbusti</option>
+                            <option value="erbe_aromatiche">Erbe Aromatiche</option>
+                            <option value="piante_grasse">Piante Grasse</option>
+                            <option value="ortaggi">Ortaggi</option>
+                        </select>
+                    </div>
 
-                <div class="filter-group">
-                    <label for="tempMaxFilter">Temp Max (°C):</label>
-                    <input type="number" id="tempMaxFilter" placeholder="Es: 25">
+                    <div class="climate-filter-container">
+                        <label for="climateZoneFilter">Filtra per clima locale:</label>
+                        <select id="climateZoneFilter">
+                            <option value="">Seleziona clima</option>
+                            <option value="mediterraneo">Mediterraneo</option>
+                            <option value="continentale">Continentale</option>
+                            <option value="montano">Montano</option>
+                            <option value="desertico">Desertico</option>
+                            <option value="tropicale">Tropicale</option>
+                            <option value="temperato">Temperato</option>
+                            <option value="sconosciuto">Sconosciuto</option>
+                        </select>
+                    </div>
+
+                    <div class="temp-filter-container">
+                        <label for="tempMinFilter">Temperatura Min. (°C):</label>
+                        <input type="number" id="tempMinFilter" placeholder="Es: -5">
+                    </div>
+
+                    <div class="temp-filter-container">
+                        <label for="tempMaxFilter">Temperatura Max. (°C):</label>
+                        <input type="number" id="tempMaxFilter" placeholder="Es: 30">
+                    </div>
                 </div>
+            </div>
                 <div class="geolocation-container">
                     <button id="get-climate-button" class="action-button"> <i class="fas fa-location-dot"></i>  Clima Locale</button>
-                   <div id="location-status" class="status-message"></div>
-                        <select id="climate-zone-filter" class="filter-select">
-                        <option value="">Filtra per clima</option>
-                        <option value="Mediterraneo">Mediterraneo</option>
-                        <option value="Temperato">Temperato</option>
-                        <option value="Tropicale">Tropicale</option>
-                        <option value="Subtropicale">Subtropicale</option>
-                        <option value="Boreale/Artico">Boreale/Artico</option>
-                        <option value="Arido">Arido</option>
-                        <option value="Sconosciuto">Sconosciuto</option>
-                    </select>
-                    </div>
                 </div>
                
             </section>
