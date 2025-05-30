@@ -37,6 +37,8 @@ let tempMinFilter;
 let tempMaxFilter;
 let toggleMyGardenButton;
 let giardinoTitle;
+let getLocButton; // Bottone per geolocalizzazione
+let locationStatusDiv; // Div per lo stato della geolocalizzazione
 let startLightSensorButton;
 let stopLightSensorButton;
 let currentLuxValueSpan;
@@ -876,6 +878,89 @@ function handleToggleMyGarden() {
     updateGardenVisibility(!isMyGardenCurrentlyVisible);
 }
 
+// GEOLOCALIZZAZIONE E DEDUZIONE CLIMA
+async function getClimateFromCoordinates(latitude, longitude) {
+    // Implementazione semplificata: questo è un esempio.
+    // In un'applicazione reale, dovresti usare un servizio API geografico/climatico.
+    // Per il test, possiamo usare delle zone predefinite.
+    showLoadingSpinner();
+    showToast("Ricerca clima in corso...", 'info');
+    try {
+        let climateZone = 'Sconosciuto';
+        // Esempio molto semplificato:
+        if (latitude >= 35 && latitude <= 45 && longitude >= 5 && longitude <= 20) {
+            climateZone = 'Mediterraneo'; // Europa del Sud
+        } else if (latitude >= 40 && latitude <= 60 && longitude >= -10 && longitude <= 30) {
+            climateZone = 'Temperato'; // Europa Centrale
+        } else if (latitude < 23.5 && latitude > -23.5) {
+            climateZone = 'Tropicale'; // Fascia equatoriale
+        } else if (latitude >= 23.5 && latitude < 35 || latitude < -23.5 && latitude > -35) {
+             climateZone = 'Subtropicale';
+        } else if (latitude > 60 || latitude < -60) {
+            climateZone = 'Boreale/Artico';
+        } else if (latitude >= 20 && latitude < 35 && longitude > -10 && longitude < 5) {
+            climateZone = 'Arido'; // Esempio per Nord Africa/Medio Oriente
+        }
+
+        // Puoi raffinare questa logica o integrarla con una vera API
+        // Esempio con un'API meteo (sarebbe una chiamata fetch)
+        // const response = await fetch(`https://api.example.com/climate?lat=${latitude}&lon=${longitude}&apiKey=YOUR_API_KEY`);
+        // const data = await response.json();
+        // climateZone = data.climate || 'Sconosciuto';
+
+        locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> <span>Clima dedotto: <strong>${climateZone}</strong></span>`;
+        climateZoneFilter.value = climateZone; // Imposta il filtro clima
+        applyFilters(); // Riapplica i filtri con la nuova zona climatica
+        showToast(`Clima dedotto: ${climateZone}`, 'success');
+
+    } catch (error) {
+        console.error("Errore nel dedurre il clima:", error);
+        locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>Impossibile dedurre il clima.</span>`;
+        showToast("Errore nel dedurre il clima.", 'error');
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        locationStatusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Acquisizione posizione...</span>`;
+        showToast("Acquisizione della posizione...", 'info');
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                getClimateFromCoordinates(lat, lon);
+            },
+            (error) => {
+                let errorMessage = "Errore di geolocalizzazione.";
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = "Accesso alla posizione negato dall'utente.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = "Informazioni sulla posizione non disponibili.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = "Timeout scaduto durante l'acquisizione della posizione.";
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        errorMessage = "Errore sconosciuto di geolocalizzazione.";
+                        break;
+                }
+                console.error(errorMessage, error);
+                locationStatusDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>${errorMessage}</span>`;
+                showToast(errorMessage, 'error');
+                hideLoadingSpinner();
+            }
+        );
+    } else {
+        locationStatusDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>Geolocalizzazione non supportata dal browser.</span>`;
+        showToast("Geolocalizzazione non supportata dal tuo browser.", 'error');
+    }
+}
+
+
 // --- FUNZIONI SENSORE DI LUCE ---
 async function startLightSensor() {
     showSpinner(); 
@@ -1200,6 +1285,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showToast('Nessuna pianta selezionata per l\'eliminazione.', 'info'); 
             }
         });
+    }
+
+// Listener per la geolocalizzazione
+    if (getLocButton) {
+        getLocButton.addEventListener('click', getLocation);
     }
 
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
