@@ -48,10 +48,6 @@ let stopLightSensorButton;
 let lightDataSpan;
 let lightFeedbackSpan;
 
-
-// Inizializza Firestore (solo dopo che firebase è stato caricato)
-let db;
-
 // 2. FUNZIONI UTILITY
 
 // Funzione per mostrare e nascondere lo spinner di caricamento
