@@ -118,6 +118,45 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
+function updateUIVisibility(user) {
+    if (user) {
+        // Utente loggato: mostra il contenuto dell'app, nascondi l'autenticazione
+        authContainerDiv.style.display = 'none';
+        appContentDiv.style.display = 'block';
+        // Puoi aggiungere qui il toast di benvenuto, ma assicurati che showToast sia definito
+        showToast(`Benvenuto, ${user.email}!`, 'success');
+        
+        // Carica i dati specifici dell'utente (es. il giardino) solo dopo il login
+        loadAllPlants(); // Assumendo che questa funzioni carichi le piante pubbliche/generali
+        loadMyGarden(); // Assumendo che questa funzioni carichi le piante del giardino dell'utente
+
+        // Questo click simula la selezione della tab "Tutte le piante"
+        // se hai un sistema a tab, per assicurarti che la vista iniziale sia corretta
+        const allPlantsTab = document.getElementById('all-plants-tab');
+        if (allPlantsTab) {
+            allPlantsTab.click(); 
+        }
+
+        // Mostra il pulsante di logout
+        document.getElementById('logout-button').style.display = 'block';
+        
+    } else {
+        // Utente non loggato: mostra la sezione di autenticazione, nascondi il contenuto dell'app
+        authContainerDiv.style.display = 'block';
+        appContentDiv.style.display = 'none';
+        showToast('Effettua il login o registrati per continuare.', 'info');
+        showLoginForm(); // Mostra il form di login per default (dovrebbe essere già definito)
+
+        // Nascondi il pulsante di logout
+        document.getElementById('logout-button').style.display = 'none';
+    }
+
+    // *** IMPORTANTE ***
+    // Nascondi lo spinner di caricamento una volta che l'UI è stata aggiornata.
+    // Questo è il punto cruciale per la scomparsa dell'overlay.
+    hideLoadingSpinner(); 
+}
+
 // 2. FUNZIONI DI UTILITÀ GLOBALI
 function showToast(message, type = 'info', duration = 3000) {
     if (!toastContainer) {
