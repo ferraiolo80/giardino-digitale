@@ -72,6 +72,10 @@ let imageModal;
 let zoomedImage;
 let closeButton;
 
+//Variabili per l'autoscroll
+let plantsSectionHeader; // Per il container dei filtri e bottoni
+let plantFormCard;       // Per il modulo di aggiunta pianta
+
 
 // ===========================================================================
 // 2. MAPPATURA CLIMI - NUOVO!
@@ -1068,6 +1072,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingSpinner = document.getElementById('loading-spinner');
     toastContainer = document.getElementById('toast-container');
 
+    plantsSectionHeader = document.getElementById('plantsSectionHeader'); // Riferimento all'header della sezione piante
+    plantFormCard = document.getElementById('plantFormCard');             // Riferimento al modulo di aggiunta pianta
+
     isDomReady = true; // Imposta la flag a TRUE DOPO che tutti gli elementi DOM sono stati inizializzati
 
     initializeModal(); // Inizializza la modal per le immagini
@@ -1082,6 +1089,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         getClimateButton.addEventListener('click', getLocation);
     } else {
         console.error("Bottone 'get-climate-button' non trovato!");
+    }
+
+     // Listener per il bottone "Mostra il Mio Giardino" per autoscroll
+    const showMyGardenButton = document.getElementById('showMyGardenButton');
+    if (showMyGardenButton) {
+        showMyGardenButton.addEventListener('click', () => {
+            // ... (la tua logica esistente per mostrare il giardino) ...
+            if (myGardenContainer) {
+                myGardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+
+    // Listener per il bottone "Aggiungi Nuova Pianta" per autoscroll
+    const addNewPlantButton = document.getElementById('addNewPlantButton');
+    if (addNewPlantButton) {
+        addNewPlantButton.addEventListener('click', () => {
+            // ... (la tua logica esistente per mostrare il form) ...
+            if (plantFormCard) {
+                plantFormCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
     }
 
     // Listener per l'aggiunta di nuove piante
