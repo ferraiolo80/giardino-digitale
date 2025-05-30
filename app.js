@@ -1214,12 +1214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-if (getClimateButton) { // Aggiungi un controllo per sicurezza
-    getClimateButton.addEventListener('click', getLocation);
-} else {
-    console.error("Bottone 'get-climate-button' non trovato!");
-}
-    
+   
     // Listener per i bottoni del form di aggiornamento
     if (saveUpdatedPlantButton) {
         saveUpdatedPlantButton.addEventListener('click', async () => {
