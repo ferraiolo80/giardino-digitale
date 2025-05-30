@@ -440,7 +440,25 @@ button {
     color: #2c3e50;
 }
 
-/* Stili per lo spinner di caricamento */
+/* --- NUOVO STILE PER L'OVERLAY COMPLETO (#loading-spinner) --- */
+#loading-spinner {
+    position: fixed; /* Rende lo spinner fisso sullo schermo */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Overlay nero semi-trasparente */
+    display: flex; /* Utilizza flexbox per centrare il contenuto */
+    flex-direction: column; /* Organizza gli elementi in colonna (spinner + testo) */
+    justify-content: center; /* Centra verticalmente */
+    align-items: center; /* Centra orizzontalmente */
+    z-index: 9999; /* Assicura che sia sopra tutti gli altri elementi */
+    color: white; /* Colore del testo */
+    font-size: 1.5em; /* Dimensione del testo */
+    display: none; /* ESSENZIALE: INIZIALMENTE NASCOSTO, verrà mostrato/nascosto da JavaScript */
+}
+/* --------------------------------------------------------------- */
+
 .spinner {
     border: 8px solid #f3f3f3; /* Light grey */
     border-top: 8px solid #3498db; /* Blue */
