@@ -1214,6 +1214,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+if (getClimateButton) { // Aggiungi un controllo per sicurezza
+    getClimateButton.addEventListener('click', getLocation);
+} else {
+    console.error("Bottone 'get-climate-button' non trovato!");
+}
+    
     // Listener per i bottoni del form di aggiornamento
     if (saveUpdatedPlantButton) {
         saveUpdatedPlantButton.addEventListener('click', async () => {
@@ -1296,10 +1302,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-// Listener per la geolocalizzazione
-    if (getLocButton) {
-        getLocButton.addEventListener('click', getLocation);
-    }
 
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
