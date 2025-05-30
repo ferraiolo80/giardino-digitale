@@ -961,12 +961,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Funzione per la configurazione iniziale dell'UI dopo l'autenticazione
 // (Questa funzione è già chiamata da onAuthStateChanged, non dovresti chiamarla direttamente qui)
-async function handleAuthAndInitialDisplay() {
+//async function handleAuthAndInitialDisplay() {
     // Il listener onAuthStateChanged si occupa di chiamare updateUIforAuthState(user)
     // che a sua volta chiama fetchPlantsFromFirestore() e fetchMyGardenFromFirebase()
     // per popolare i dati quando l'utente è loggato.
     // Questa funzione è ora quasi obsoleta dato il nuovo flusso.
-}
+//}
 
 // Configurazione Firebase: il listener onAuthStateChanged deve essere fuori dal DOMContentLoaded
 // per catturare gli stati iniziali, ma il suo callback dovrebbe attendere che il DOM sia pronto.
