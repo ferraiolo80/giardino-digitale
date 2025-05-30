@@ -971,7 +971,7 @@ async function handleAuthAndUI(user) {
 
     if (user) {
         console.log("Stato autenticazione cambiato, utente loggato:", user.uid, user.email);
-        authStatusDiv.innerText = `Utente autenticato: ${user.email}`;
+        authStatusDiv.innerHTML = `<i class="fas fa-user"></i> <span>Benvenuto</span>, ${user.email}`;
         appContentDiv.style.display = 'block'; 
         authContainerDiv.style.display = 'none'; 
 
