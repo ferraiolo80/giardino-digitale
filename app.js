@@ -1,4 +1,3 @@
-// 1. DICHIARAZIONI GLOBALI
 let allPlants = [];
 let myGarden = []; // Inizializza come array vuoto
 let currentPlantIdToUpdate = null; // Variabile per tenere traccia dell'ID della pianta da aggiornare
