@@ -17,6 +17,10 @@ let isDomReady = false; // Flag per indicare se il DOM è stato completamente ca
 // Variabile per il contenitore dei toast
 let toastContainer; // NUOVA DICHIARAZIONE GLOBALE
 
+// Variabile per lo spinner
+let loadingSpinner; // Variabile per lo spinner di caricamento
+
+
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
 let gardenContainer;
@@ -145,7 +149,20 @@ function validateField(inputElement, errorSpan, errorMessage) {
 
     return isValid;
 }
+// ---funzione per gli spinner --- 
 
+function showLoadingSpinner() {
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'flex'; // O 'block', a seconda del tuo CSS
+    }
+}
+
+// Funzione per nascondere lo spinner di caricamento
+function hideLoadingSpinner() {
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'none';
+    }
+}
 // --- FUNZIONE PER I TOAST MESSAGES ---
 /**
  * Mostra un toast message all'utente.
