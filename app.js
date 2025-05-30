@@ -95,12 +95,12 @@ const GARDEN_DOC_ID = 'J7UO73leQhO8GNBh7BxYZfDMrEG2';
 
 // 2. CONFIGURAZIONE FIREBASE (Mantieni la tua configurazione esistente)
 const firebaseConfig = {
-    apiKey: "AIzaSyAo8HU5vNNR_H-HvxeDa7xSsg3IEmdlE_4", // Assicurati che sia la tua chiave corretta
-    authDomain: "giardinodigitale.firebaseapp.com",
-    projectId: "giardinodigitale",
-    storageBucket: "giardinodigitale.appspot.com",
-    messagingSenderId: "96265504027",
-    appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+    apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+  authDomain: "giardinodigitale.firebaseapp.com",
+  projectId: "giardinodigitale",
+  storageBucket: "giardinodigitale.firebasestorage.app",
+  messagingSenderId: "96265504027",
+  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
 };
 
 firebase.initializeApp(firebaseConfig);
