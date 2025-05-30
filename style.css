@@ -1,0 +1,795 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background: #f5f5f5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Nuovo stile per l'header per allineare elementi */
+header {
+    display: flex;
+    /* Rimuovi justify-content: space-between; */ 
+    align-items: center; /* Centra verticalmente */
+    padding: 10px 20px;
+    background-color: #e0ffe0; /* Sfondo leggero per l'header */
+    border-bottom: 1px solid #c8e6c9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative; /* Importante per posizionare il titolo in modo assoluto o gestire il centering */
+}
+
+header h1 {
+    margin: 0; /* Rimuove i margini predefiniti del titolo */
+    /* Rimuovi flex-grow: 1; */ 
+    text-align: center; /* Centra il testo all'interno dell'h1 */
+    color: #2c3e50;
+    font-size: 2em; /* Dimensione del titolo */
+
+    /* NUOVE PROPRIETÀ PER CENTRARE L'H1 */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap; /* Evita che il titolo vada a capo */
+    z-index: 1; /* Assicurati che sia sopra gli altri elementi se si sovrapponessero */
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    /* Rimuovi min-width se lo avevi messo a 0 o se causava problemi */
+    min-width: 50px; /* Mantieni un min-width se c'è un pulsante */
+    flex-shrink: 0; /* Impedisce che si rimpiccioliscano troppo */
+}
+
+.header-left {
+    justify-content: flex-start; /* Allinea a sinistra */
+    flex-grow: 1; /* Permetti al lato sinistro di crescere */
+}
+
+.header-right {
+    justify-content: flex-end; /* Allinea a destra */
+    flex-grow: 1; /* Permetti al lato destro di crescere */
+    /* Aggiungi padding-left se il pulsante a sx è troppo vicino al titolo */
+    padding-left: 10px; /* Spazio per evitare sovrapposizioni sul titolo */
+}
+/* Poi, nello stile per lo stato di autenticazione nell'header */
+#auth-status {
+    font-size: 0.9em;
+    color: #555;
+    white-space: nowrap; /* Mantiene il testo su una singola riga */
+    /* Rimuovi overflow: hidden; e text-overflow: ellipsis; se vuoi sempre leggere tutta la mail */
+    overflow: visible; /* <--- IMPORTANTE: Rende visibile il testo che esce */
+    text-overflow: clip; /* <--- IMPORTANTE: Impedisce i puntini di sospensione */
+    max-width: 250px; /* O un valore più grande, a seconda della lunghezza massima prevista delle email */
+                      /* Se vuoi che occupi tutto lo spazio possibile, puoi provare 'none' */
+    text-align: right; /* Allinea il testo a destra */
+    /* Aggiungi un margine a sinistra per separarlo dal titolo se si sovrappongono */
+    margin-left: 10px; 
+}
+
+h1, h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 1em;
+    margin-bottom: 0.8em;
+}
+
+main {
+    flex: 1;
+    padding: 1em;
+}
+
+/* Stili per il contenitore principale di tutti i controlli (ricerca, filtri, ordinamento, bottoni) */
+#controls-wrapper {
+    display: flex; /* Abilita Flexbox */
+    flex-wrap: wrap; /* Permette agli elementi di andare a capo su più righe se lo spazio è insufficiente */
+    justify-content: flex-start; /* Allinea gli elementi all'inizio (sinistra) */
+    align-items: center; /* Allinea gli elementi verticalmente al centro */
+    gap: 15px 20px; /* Spazio tra gli elementi (verticale orizzontale) */
+    margin: 1.5em auto; /* Margine sopra/sotto e centra il contenitore nella pagina */
+    padding: 15px 20px; /* Padding interno */
+    background-color: #f8f8f8; /* Un leggero sfondo per evidenziare la sezione */
+    border-radius: 10px; /* Bordi arrotondati */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Ombra più pronunciata */
+    max-width: 1200px; /* Limita la larghezza massima per non essere troppo esteso */
+    box-sizing: border-box; /* Include padding e border nella larghezza */
+}
+
+/* Assicurati che i margini interni agli elementi del controls-wrapper siano gestiti dal gap */
+#controls-wrapper button,
+#controls-wrapper .filter-group {
+    margin: 0; /* Rimuovi margini esterni indesiderati */
+    padding: 0; /* Rimuovi padding interni indesiderati */
+}
+
+/* Stili per i gruppi di filtro (label + input/select) */
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Spazio tra label e input/select */
+    white-space: nowrap; /* Impedisce al gruppo di andare a capo troppo presto */
+}
+
+.filter-group label {
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* Assicura che la label non vada a capo */
+}
+
+/* Regola generale per i bottoni */
+button {
+    padding: 0.6em 1.2em;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    background-color: #4CAF50; /* VERDE di default per i bottoni */
+}
+
+button:hover {
+    background-color: #45a049; /* Verde scuro al hover */
+}
+
+/* Stili specifici per i bottoni all'interno del controls-wrapper */
+#controls-wrapper button {
+    padding: 10px 18px; /* Padding leggermente aumentato */
+    border-radius: 6px; /* Bordi arrotondati */
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap; /* Evita che il testo vada a capo */
+    box-sizing: border-box;
+}
+
+#toggleMyGarden {
+    background-color: #4CAF50; /* Ora è verde come gli altri bottoni */
+    color: white;
+}
+
+#toggleMyGarden:hover {
+    background-color: #45a049; /* Verde scuro al hover */
+    transform: translateY(-2px);
+}
+
+#addNewPlantButton {
+    background-color: #28a745; /* Verde per aggiungere nuova pianta */
+    color: white;
+}
+
+#addNewPlantButton:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* Stili per gli input e select all'interno dei filter-group per un aspetto uniforme */
+#controls-wrapper input[type="text"],
+#controls-wrapper input[type="number"],
+#controls-wrapper select {
+    padding: 9px 12px; /* Aumenta leggermente il padding per un tocco più moderno */
+    border: 1px solid #ccc;
+    border-radius: 6px; /* Arrotonda un po' di più i bordi */
+    font-size: 1em;
+    width: auto; /* Permette agli elementi di adattarsi al contenuto */
+    min-width: 120px; /* Larghezza minima per leggibilità */
+    max-width: 180px; /* Larghezza massima per evitare che si estendano troppo */
+    box-sizing: border-box;
+    -webkit-appearance: none; /* Per rimuovere stili di default su Safari per select */
+    -moz-appearance: none; /* Per rimuovere stili di default su Firefox per select */
+    appearance: none; /* Per rimuovere stili di default */
+    background-color: #fff;
+    cursor: pointer; /* Indica che i select sono cliccabili */
+}
+
+/* Rimuovi o modifica gli stili esistenti per .search-container e .filter-container
+   dato che ora useremo #controls-wrapper e .filter-group per la disposizione */
+.search-container,
+.filter-container {
+    /* Questi stili azzerano i layout precedenti per evitare conflitti */
+    display: block; /* O display: none; se non vuoi che siano visualizzati */
+    justify-content: unset;
+    align-items: unset;
+    gap: unset;
+    flex-wrap: unset;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Stili per i contenitori delle card (elenco principale e mio giardino) */
+/* Entrambi useranno un layout a griglia */
+#garden-container,
+#my-garden {
+    margin: 1em auto; /* Centra il contenitore delle card */
+    display: grid;
+    /* griglia responsiva: min 280px per card, fino a riempire lo spazio */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));    
+    gap: 20px; /* Spazio tra le card */
+    padding: 20px; /* Padding interno ai contenitori */
+    justify-items: center; /* Centra le colonne di griglia se c'è spazio extra */
+    max-width: 1200px; /* Larghezza massima per il contenitore delle card */
+}
+
+/* Stili di base per tutte le card (sia dell'elenco principale che del mio giardino) */
+/* Le proprietà qui definiscono la struttura interna delle card */
+.plant-card,
+.my-plant-card {
+    border: 1px solid #ddd;
+    border-radius: 12px; /* Aumentato per un look più morbido */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera per profondità */
+    text-align: center;
+    display: flex; /* Utilizza flexbox per un layout interno più controllato */
+    flex-direction: column; /* Gli elementi si impilano verticalmente */
+    align-items: center; /* Centra orizzontalmente gli elementi all'interno della card */
+    width: 100%; /* La card occuperà il 100% della sua cella di griglia */
+    max-width: 320px; /* Larghezza massima per le card, per non farle diventare troppo larghe */
+    min-height: 380px; /* Altezza minima per uniformità */
+    justify-content: space-between; /* Spinge il contenuto e i bottoni ai bordi */
+}
+
+/* Stili specifici per le card dell'elenco principale (bianche) */
+.plant-card {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+/* Stili specifici per le card del mio giardino (verdi) */
+.my-plant-card {
+    background: #e8f5e9; /* Sfondo verde chiaro */
+    border: 2px solid #66bb6a; /* Bordo verde */
+}
+
+/* Stili per i titoli delle card */
+.plant-card h4,
+.my-plant-card h4 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 1.2em; /* Dimensione del titolo della pianta */
+}
+
+/* Stili per i paragrafi delle card */
+.plant-card p,
+.my-plant-card p {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 4px; /* Spazio ridotto tra i paragrafi */
+    line-height: 1.4; /* Migliora la leggibilità del testo */
+    display: flex; /* Per allineare icone e testo */
+    align-items: center;
+    gap: 8px; /* Spazio tra icona e testo */
+}
+
+.plant-card p i,
+.my-plant-card p i {
+    color: #777; /* Colore delle icone */
+}
+
+/* Stili per l'immagine della pianta nella card */
+.plant-icon {
+    width: 100px; /* Dimensione fissa per l'icona */
+    height: 100px;
+    object-fit: cover; /* Assicura che l'immagine copra l'area senza distorcersi */
+    border-radius: 50%; /* Rende l'immagine circolare */
+    margin-bottom: 15px;
+    border: 2px solid #eee; /* Bordo sottile per l'immagine */
+    cursor: pointer; /* Indica che è cliccabile */
+    transition: transform 0.2s ease-in-out; /* Animazione al passaggio del mouse/click */
+}
+
+.plant-icon:hover {
+    transform: scale(1.05); /* Piccolo ingrandimento al passaggio del mouse */
+}
+
+/* Stili specifici per i bottoni all'interno delle card */
+.plant-card button,
+.my-plant-card button {
+    margin-top: 10px; /* Spazio tra i bottoni e il contenuto sopra */
+    width: 90%; /* Occupa quasi tutta la larghezza della card */
+    max-width: 200px; /* Per non farli diventare troppo larghi su card grandi */
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.85em;
+}
+
+/* Colori specifici per i bottoni - Maggior specificità */
+.add-to-garden-button {
+    background-color: #4CAF50; /* Verde */
+}
+.add-to-garden-button:hover {
+    background-color: #45a049;
+}
+
+.update-plant-button {
+    background-color: #2196F3; /* Blu */
+}
+.update-plant-button:hover {
+    background-color: #1976D2;
+}
+
+.remove-button, /* Questo è per i bottoni "Rimuovi dal mio giardino" */
+.delete-plant-from-db-button { /* Questo è per i bottoni "Elimina definitivamente" */
+    background-color: #f44336; /* Rosso */
+}
+.remove-button:hover,
+.delete-plant-from-db-button:hover {
+    background-color: #d32f2f;
+}
+
+
+/* Stile per il messaggio "Il tuo giardino è vuoto" */
+#my-garden #empty-garden-message {
+    grid-column: 1 / -1; /* Fa in modo che il messaggio occupi tutte le colonne della griglia */
+    text-align: center;
+    margin-top: 50px; /* Spazio superiore */
+    font-size: 1.2em;
+    color: #666;
+    display: none; /* Inizialmente nascosto, visibile via JS quando il giardino è vuoto */
+}
+
+/* Stili per i form di aggiunta/aggiornamento */
+#newPlantCard,
+#updatePlantCard {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    margin: 20px auto;
+    max-width: 500px;
+    display: none; /* Nascosti di default */
+}
+
+#newPlantCard label,
+#updatePlantCard label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#newPlantCard input,
+#newPlantCard select,
+#newPlantCard textarea,
+#updatePlantCard input,
+#updatePlantCard select,
+#updatePlantCard textarea {
+    width: calc(100% - 1em); /* Per tenere conto del padding */
+    padding: 0.5em;
+    margin-bottom: 5px; /* Ridotto per via dei messaggi di errore */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#newPlantCard button,
+#updatePlantCard button {
+    margin-top: 10px;
+    width: auto;
+    display: inline-block;
+}
+
+/* Stili per la sezione del sensore di luce */
+#lightSensorSection {
+    background: #f0f8ff; /* Sfondo azzurro chiaro */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    border: 1px solid #cceeff;
+}
+
+#lightSensorSection h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+#lightSensorSection p {
+    margin-bottom: 10px;
+}
+
+#lightSensorSection button {
+    margin: 5px;
+    padding: 10px 15px;
+    font-size: 1em;
+}
+
+#lightFeedback {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    text-align: left;
+}
+
+#lightFeedback h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#lightFeedback ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#lightFeedback li {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+/* Stili per messaggi di errore e successo */
+.error-message {
+    color: red; /* Testo rosso per gli errori */
+    font-size: 0.85em; /* Dimensione del font leggermente più piccola */
+    margin-top: -5px; /* Sposta leggermente più in alto per ridurre lo spazio */
+    margin-bottom: 10px; /* Spazio sotto il messaggio di errore */
+    display: block; /* Assicurati che sia un blocco per andare a capo */
+    height: 1.2em; /* Altezza fissa per evitare CLS quando il messaggio appare/scompare */
+    visibility: hidden; /* Nascosto di default, ma occupa spazio */
+    opacity: 0; /* Invisibile di default */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Animazione per apparizione/scomparsa */
+}
+
+/* Stile per mostrare il messaggio di errore */
+.error-message.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Rimuovi i <br> extra che avevamo aggiunto */
+#newPlantCard br,
+#updatePlantCard br {
+    display: none;
+}
+
+/* Stili per il bottone icona di Logout */
+.icon-button {
+    background: none;
+    border: none;
+    color: #4CAF50;
+    font-size: 1.8em;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-button:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #388E3C;
+}
+
+/* Stile per il titolo "Il mio Giardino" */
+#giardinoTitle {
+    text-align: center;
+    margin-top: 20px;
+    color: #2c3e50;
+    font-size: 1.8em;
+}
+
+/* --- NUOVI STILI PER LA MODAL (ZOOM IMMAGINE) --- */
+/* Stili per la Modal (pop-up) */
+.modal {
+    display: none; /* Nascosto di default */
+    position: fixed; /* Si sovrappone a tutto */
+    z-index: 1000; /* Assicurati che sia sopra altri elementi */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Abilita lo scroll se l'immagine è troppo grande */
+    background-color: rgba(0, 0, 0, 0.9); /* Sfondo nero semitrasparente */
+    justify-content: center; /* Centra l'immagine orizzontalmente con flexbox */
+    align-items: center; /* Centra l'immagine verticalmente con flexbox */
+    animation: fadeIn 0.3s ease-in-out; /* Animazione di apparizione */
+}
+
+/* Contenuto della Modal (l'immagine zoomed) */
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%; /* Larghezza massima dell'immagine (90% della viewport) */
+    max-height: 90vh; /* Altezza massima dell'immagine (90% dell'altezza della viewport) */
+    border-radius: 8px; /* Bordi arrotondati per l'immagine zoomata */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); /* Ombra per l'immagine */
+    animation: zoomIn 0.3s ease-in-out; /* Animazione di zoom */
+}
+
+/* Pulsante di chiusura */
+.close-button {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+    z-index: 1001; /* Sopra la modal */
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Animazioni CSS */
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes zoomIn {
+    from {transform: scale(0.8); opacity: 0;}
+    to {transform: scale(1); opacity: 1;}
+}
+
+/* Puoi aggiungere un fadeOut se vuoi animare anche la chiusura */
+@keyframes fadeOut {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
+
+/* --- NUOVI STILI PER LA MODAL DELLA CARD ZOOMATA --- */
+
+/* Contenitore della card zoomata all'interno della modal */
+/* Sovrascrive/estende .modal-content per le card */
+.modal-card-content {
+    background-color: white; /* Sfondo della card nella modal */
+    border-radius: 12px;
+    padding: 30px; /* Più padding per più spazio */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Ombra più pronunciata */
+    max-width: 95%; /* Leggermente più larga per schermi piccoli */
+    max-height: 90vh; /* Limita l'altezza per schermi verticali */
+    overflow-y: auto; /* Aggiunge scroll se la card è molto lunga */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra il contenuto */
+    box-sizing: border-box; /* Include padding e border nella larghezza/altezza */
+    position: relative; /* Per posizionare il bottone di chiusura se necessario */
+
+    animation: zoomIn 0.3s ease-in-out; /* Usa la stessa animazione zoomIn */
+}
+
+/* Stili per gli elementi della card zoomata (se vuoi sovrascrivere) */
+.modal-card-content .plant-icon {
+    width: 150px; /* Immagine più grande nella modal */
+    height: 150px;
+    margin-bottom: 20px;
+}
+
+.modal-card-content h4 {
+    font-size: 1.6em; /* Titolo più grande */
+    margin-bottom: 10px;
+}
+
+.modal-card-content p {
+    font-size: 1.1em; /* Testo più grande */
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.modal-card-content button {
+    /* Rimuovi i bottoni dalla card zoomata se non devono essere cliccabili */
+    /* display: none; */ 
+    /* Oppure stilizzali diversamente se vuoi che siano visibili ma non interattivi */
+    opacity: 0.5; /* Li rende semitrasparenti e meno cliccabili visivamente */
+    pointer-events: none; /* Disabilita i click */
+}
+
+/* Media Queries per la responsività */
+@media (max-width: 768px) {
+    /* Rimuovi o modifica gli stili esistenti per .search-container e .filter-container
+       dato che ora useremo #controls-wrapper e .filter-group per la disposizione */
+    .search-container,
+    .filter-container {
+        /* Questi stili azzerano i layout precedenti per evitare conflitti */
+        display: block; /* O display: none; se non vuoi che siano visualizzati */
+        justify-content: unset;
+        align-items: unset;
+        gap: unset;
+        flex-wrap: unset;
+        margin: 0;
+        padding: 0;
+    }
+
+    #controls-wrapper {
+        /* Rimosso flex-direction: column; per mantenere gli elementi in riga */
+        align-items: stretch; /* Allunga gli elementi per occupare la larghezza disponibile */
+        gap: 10px; /* Riduci il gap */
+        padding: 10px;
+    }
+
+    #controls-wrapper input,
+    #controls-wrapper select,
+    #controls-wrapper button {
+        width: 100%; /* Fai occupare tutta la larghezza agli elementi */
+        max-width: none; /* Rimuovi la max-width */
+        box-sizing: border-box;
+    }
+
+    .filter-group {
+        width: 100%; /* Fai occupare tutta la larghezza ai gruppi di filtro */
+        justify-content: space-between; /* Spazia label e input */
+    }
+
+    #garden-container,
+    #my-garden {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Riduci la larghezza minima su schermi più piccoli */
+        gap: 0.8em;
+    }
+
+    .plant-card,
+    .my-plant-card {
+        padding: 0.8em;
+    }
+
+    /* Rimuovi queste regole se non sono più necessarie o se causano problemi */
+    /* input[type="text"],
+    input[type="number"],
+    select,
+    button {
+        width: 100%;
+        margin-bottom: 0.5em;
+    } */
+
+    /* .search-container,
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+    } */
+}
+
+/* Media Query per schermi molto piccoli (es. cellulari) */
+@media (max-width: 600px) {
+    #garden-container,
+    #my-garden {
+        grid-template-columns: 1fr; /* Una singola colonna su schermi molto piccoli */
+        padding: 10px;
+    }
+    .plant-card,
+    .my-plant-card {
+        max-width: 90%; /* Occupano più larghezza su schermi piccoli */
+        padding: 15px;
+    }
+
+    h1, h2 {
+        font-size: 1.5em;
+    }
+
+    .close-button {
+        font-size: 30px;
+        top: 10px;
+        right: 20px;
+    }
+
+    .modal-card-content {
+        padding: 20px;
+        max-width: 90%;
+    }
+    .modal-card-content .plant-icon {
+        width: 120px;
+        height: 120px;
+    }
+    .modal-card-content h4 {
+        font-size: 1.4em;
+    }
+    .modal-card-content p {
+        font-size: 1em;
+    }
+}
+
+/* Assicurati che il footer sia sempre in basso */
+footer {
+    margin-top: auto; /* Spinge il footer in fondo */
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f8f8;
+    border-top: 1px solid #eee;
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Stili per il contenitore dei Toast Messages */
+#toast-container {
+    position: fixed; /* Posiziona il contenitore in modo fisso nella viewport */
+    top: 20px; /* Distanza dal bordo superiore */
+    right: 20px; /* Distanza dal bordo destro */
+    z-index: 10000; /* Assicura che sia sopra quasi tutti gli altri elementi */
+    display: flex;
+    flex-direction: column; /* I toast si impilano verticalmente */
+    gap: 10px; /* Spazio tra i toast */
+    pointer-events: none; /* Permette di cliccare attraverso il contenitore se vuoto */
+}
+
+/* Stili base per ogni singolo Toast Message */
+.toast-message {
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    opacity: 0; /* Inizialmente invisibile */
+    transform: translateX(100%); /* Inizialmente fuori dallo schermo a destra */
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards; /* Animazione di entrata e uscita */
+    min-width: 250px; /* Larghezza minima */
+    max-width: 350px; /* Larghezza massima */
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Spazio tra icona e testo */
+    pointer-events: auto; /* Permette di cliccare sul toast */
+}
+
+/* Tipi di Toast Message (colori e icone) */
+.toast-message.success {
+    background-color: #4CAF50; /* Verde per successo */
+}
+
+.toast-message.error {
+    background-color: #f44336; /* Rosso per errore */
+}
+
+.toast-message.info {
+    background-color: #2196F3; /* Blu per informazione */
+}
+
+/* Stili per le icone all'interno dei toast */
+.toast-message i {
+    font-size: 1.2em;
+}
+
+/* Animazioni per i Toast Messages */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Media Query per schermi più piccoli (posizionamento dei toast) */
+@media (max-width: 600px) {
+    #toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px; /* Occupa quasi tutta la larghezza su mobile */
+        width: auto;
+    }
+
+    .toast-message {
+        max-width: none; /* Rimuovi la larghezza massima per adattarsi allo schermo */
+        min-width: unset;
+        width: 100%;
+    }
+}
