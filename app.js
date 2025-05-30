@@ -37,8 +37,9 @@ let tempMinFilter;
 let tempMaxFilter;
 let toggleMyGardenButton;
 let giardinoTitle;
-let getLocButton; // Bottone per geolocalizzazione
-let locationStatusDiv; // Div per lo stato della geolocalizzazione
+let getClimateButton;       // Variabile per il bottone "Ottieni Clima"
+let locationStatusDiv;      // Variabile per il div di stato della posizione
+let climateZoneFilter;      // Variabile per il selettore del filtro clima
 let startLightSensorButton;
 let stopLightSensorButton;
 let currentLuxValueSpan;
