@@ -974,6 +974,6 @@ firebase.auth().onAuthStateChanged(user => {
     initialAuthStateUser = user; // Memorizza lo stato utente
     if (isDomReady) { // Aggiorna l'UI solo se il DOM è pronto
         updateUIforAuthState(user);
-    }
+    
 });
 });
