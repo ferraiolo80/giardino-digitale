@@ -16,9 +16,6 @@ let isDomReady = false; // Flag per indicare se il DOM è stato completamente ca
 // Variabile per il contenitore dei toast
 let toastContainer; // NUOVA DICHIARAZIONE GLOBALE
 
-// NUOVA VARIABILE GLOBALE PER LO STATO INIZIALE DELL'AUTENTICAZIONE
-let initialAuthStateUser = null;
-
 // DICHIARAZIONI DELLE VARIABILI DOM GLOBALI (MA NON INIZIALIZZATE QUI)
 // Saranno inizializzate solo quando il DOM è pronto (in DOMContentLoaded)
 let gardenContainer;
@@ -50,6 +47,9 @@ let startLightSensorButton;
 let stopLightSensorButton;
 let lightDataSpan;
 let lightFeedbackSpan;
+let climateZoneFilter; // DICHIARAZIONE GLOBALE
+let tempMinFilter;     // DICHIARAZIONE GLOBALE
+let tempMaxFilter;     // DICHIARAZIONE GLOBALE
 
 let db; // Questa dichiarazione è corretta, ma l'inizializzazione deve avvenire solo in DOMContentLoaded
 
@@ -96,10 +96,8 @@ function showToast(message, type = 'info', duration = 3000) {
 }
 
 // Funzione per la validazione del form (esistente, non modificata)
-// Ho lasciato `plantFormCard` come argomento ma ho corretto gli ID di riferimento per `newPlantCard` e `updatePlantCard`
 function validatePlantForm(plantData, isUpdate = false) {
     let isValid = true;
-    // La pulizia degli errori dovrebbe essere fatta sul form specifico
     clearFormValidationErrors(isUpdate ? document.getElementById('updatePlantCard') : document.getElementById('newPlantCard'));
 
     const fields = [
@@ -206,12 +204,13 @@ function updateUIforAuthState(user) {
         newPlantCard.style.display = 'none';
         updatePlantCard.style.display = 'none';
     }
+}
 
 // Funzioni di login e registrazione (esistenti, non modificate)
 async function handleLogin(e) {
     e.preventDefault();
-    const email = emailInput.value;
-    const password = passwordInput.value;
+    const email = emailInput.value; // emailInput è garantito essere inizializzato qui
+    const password = passwordInput.value; // passwordInput è garantito essere inizializzato qui
     loginError.textContent = '';
     showLoadingSpinner();
     try {
@@ -586,6 +585,7 @@ function applyFiltersAndSort(plantsToFilter) {
 // Funzione per visualizzare le piante (generalizzata per tutte le piante o il mio giardino)
 function displayPlants(plantsToShow) {
     // Controlla che i contenitori siano disponibili prima di tentare di accedervi
+    // Non strettamente necessario con la nuova struttura, ma è una buona pratica
     if (!gardenContainer || !myGardenContainer || !document.getElementById('empty-garden-message')) {
         console.warn('Plant display containers not initialized.');
         return;
@@ -758,7 +758,6 @@ function stopLightSensor() {
 
 // Quando il DOM è completamente caricato
 document.addEventListener('DOMContentLoaded', async () => {
-    // Assicurati che firebaseConfig sia definita (dovrebbe essere accessibile globalmente dal tuo script in index.html)
     // Inizializza Firebase al caricamento del DOM
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore(); // Inizializzazione della variabile globale db
@@ -797,9 +796,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     toastContainer = document.getElementById('toast-container'); // Inizializza il container dei toast
 
     // Recupera i filtri per la temperatura e la zona climatica
-    const climateZoneFilter = document.getElementById('climateZoneFilter');
-    const tempMinFilter = document.getElementById('tempMinFilter');
-    const tempMaxFilter = document.getElementById('tempMaxFilter');
+    climateZoneFilter = document.getElementById('climateZoneFilter');
+    tempMinFilter = document.getElementById('tempMinFilter');
+    tempMaxFilter = document.getElementById('tempMaxFilter');
 
 
     // Event Listeners per l'autenticazione
@@ -948,28 +947,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
 
-    // Imposta il flag che il DOM è pronto
-    isDomReady = true;
+    isDomReady = true; // Imposta il flag che il DOM è pronto
 
-    // Ora che il DOM è pronto, applica lo stato di autenticazione iniziale
-    // Questo è cruciale per il caricamento iniziale per assicurarsi che l'UI sia corretta
-    updateUIforAuthState(initialAuthStateUser || firebase.auth().currentUser);
-    // initialAuthStateUser potrebbe essere già impostato da onAuthStateChanged se è stato più veloce
-    // o firebase.auth().currentUser recupera lo stato attuale.
-});
-
-
-// Funzione per la configurazione iniziale dell'UI dopo l'autenticazione
-// (Questa funzione è già chiamata da onAuthStateChanged, non dovresti chiamarla direttamente qui)
-//async function handleAuthAndInitialDisplay() {
-    // Il listener onAuthStateChanged si occupa di chiamare updateUIforAuthState(user)
-    // che a sua volta chiama fetchPlantsFromFirestore() e fetchMyGardenFromFirebase()
-    // per popolare i dati quando l'utente è loggato.
-    // Questa funzione è ora quasi obsoleta dato il nuovo flusso.
-//}
-
-// Configurazione Firebase: il listener onAuthStateChanged deve essere fuori dal DOMContentLoaded
-// per catturare gli stati iniziali, ma il suo callback dovrebbe attendere che il DOM sia pronto.
-firebase.auth().onAuthStateChanged(user => {
+    // SPOSTA IL LISTENER DI AUTENTICAZIONE QUI DENTRO
+    // Questo assicura che quando il callback si attiva, tutti gli elementi DOM siano già inizializzati.
+    firebase.auth().onAuthStateChanged(user => {
         updateUIforAuthState(user);
     });
+});
