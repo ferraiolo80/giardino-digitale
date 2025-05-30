@@ -300,7 +300,7 @@ async function handleAuthAndUI(user) {
     }
 
     if (user) {
-        authStatusDiv.textContent = `Loggato come: ${user.email}`;
+        authStatusDiv.textContent = `<i class="fas fa-user"></i> <span>Benvenuto</span> ${user.email}`;
         logoutButton.style.display = 'inline-block';
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
