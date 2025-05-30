@@ -846,10 +846,10 @@ async function updateGardenVisibility(showMyGarden) {
     if (user) {
         toggleMyGardenButton.style.display = 'block';
         if (showMyGarden) {
-            toggleMyGardenButton.innerHTML = '<i class="fas fa-eye-slash"></i> Mostra tutte le Piante'; 
+            toggleMyGardenButton.innerHTML = 'Mostra tutte le Piante'; 
             giardinoTitle.textContent = 'Il mio giardino'; // Aggiorna il titolo
         } else {
-            toggleMyGardenButton.innerHTML = '<i class="fas fa-eye"></i> Mostra il mio Giardino'; 
+            toggleMyGardenButton.innerHTML = 'Mostra il mio Giardino'; 
             giardinoTitle.textContent = 'Tutte le piante'; // Aggiorna il titolo
         }
     } else {
