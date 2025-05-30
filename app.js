@@ -48,6 +48,8 @@ let stopLightSensorButton;
 let lightDataSpan;
 let lightFeedbackSpan;
 
+let db;
+
 // 2. FUNZIONI UTILITY
 
 // Funzione per mostrare e nascondere lo spinner di caricamento
