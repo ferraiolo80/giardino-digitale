@@ -971,9 +971,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Configurazione Firebase: il listener onAuthStateChanged deve essere fuori dal DOMContentLoaded
 // per catturare gli stati iniziali, ma il suo callback dovrebbe attendere che il DOM sia pronto.
 firebase.auth().onAuthStateChanged(user => {
-    initialAuthStateUser = user; // Memorizza lo stato utente
-    if (isDomReady) { // Aggiorna l'UI solo se il DOM è pronto
         updateUIforAuthState(user);
-    
-});
+    });
 });
