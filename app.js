@@ -78,6 +78,46 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Funzione per aggiornare l'UI in base allo stato di autenticazione
+function updateUIforAuthState(user) {
+    if (user) {
+        // Utente loggato
+        authContainerDiv.style.display = 'none';
+        appContentDiv.style.display = 'block';
+        showToast(`Benvenuto, ${user.email}!`, 'success');
+        // Carica le piante quando l'utente è autenticato
+        loadAllPlants();
+        loadMyGarden();
+        // Assicurati che la tab "Tutte le piante" sia visibile per default dopo il login
+        document.getElementById('all-plants-tab').click();
+    } else {
+        // Utente non loggato
+        authContainerDiv.style.display = 'block';
+        appContentDiv.style.display = 'none';
+        showToast('Effettua il login o registrati per continuare.', 'info');
+        // Mostra il form di login per default
+        showLoginForm();
+    }
+    // Nascondi lo spinner dopo che l'UI è stata aggiornata
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'none';
+    }
+}
+
+// Listener per lo stato di autenticazione di Firebase
+auth.onAuthStateChanged((user) => {
+    // Quando il DOM è pronto, aggiorna l'UI
+    if (isDomReady) {
+        updateUIforAuthState(user);
+    } else {
+        // Se il DOM non è ancora pronto, aspetta e poi aggiorna
+        // Questo evita errori se onAuthStateChanged si attiva prima di DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUIforAuthState(user);
+        });
+    }
+});
+
 // 2. FUNZIONI DI UTILITÀ GLOBALI
 function showToast(message, type = 'info', duration = 3000) {
     if (!toastContainer) {
