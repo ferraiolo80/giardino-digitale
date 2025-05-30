@@ -1134,6 +1134,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     authContainerDiv = document.getElementById('auth-container');
     appContentDiv = document.getElementById('app-content');
 
+    // Inizializzazione delle nuove variabili DOM per la geolocalizzazione
+    getClimateButton = document.getElementById('get-climate-button');
+    locationStatusDiv = document.getElementById('location-status');
+    climateZoneFilter = document.getElementById('climate-zone-filter');
+
     // Inizializzazione dei div per gli errori di autenticazione
     loginErrorDiv = document.getElementById('login-error'); // AGGIUNTO
     registerErrorDiv = document.getElementById('register-error'); // AGGIUNTO
@@ -1176,6 +1181,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     isDomReady = true; // Imposta la flag a TRUE DOPO che tutti gli elementi DOM sono stati inizializzati
 
     initializeModal(); // Inizializza la modal
+
+     // Listener geolocalizzazione.Assicurati che questi elementi esistano nel tuo HTML prima di tentarne l'accesso
+    if (!getClimateButton || !locationStatusDiv || !climateZoneFilter) {
+        console.error("Errore: Elementi HTML per geolocalizzazione non trovati! Assicurati che gli ID 'get-climate-button', 'location-status' e 'climate-zone-filter' siano presenti nel tuo HTML.");
+        // Potresti voler terminare l'esecuzione qui o gestire l'errore in altro modo
+        return;
+    }
+
 
     // --- LISTENER GENERALI (NON DIPENDENTI DAL CLICK SU CARD) ---
     // Listener per i bottoni di login/registrazione
