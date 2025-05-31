@@ -92,10 +92,25 @@
             </div>
 
             <div class="climate-filter-container">
-                <i class="fas fa-globe"></i>
-                <input type="text" id="climateZoneFilter" placeholder="Zona Climatica...">
-            </div>
+                        <label for="climateZoneFilter">Filtra per clima locale:</label>
+                        <select id="climateZoneFilter">
+                            <option value="">Seleziona clima</option>
+                            <option value="mediterraneo">Mediterraneo</option>
+                            <option value="continentale">Continentale</option>
+                            <option value="montano">Montano</option>
+                            <option value="desertico">Desertico</option>
+                            <option value="tropicale">Tropicale</option>
+                            <option value="temperato">Temperato</option>
+                            <option value="sconosciuto">Sconosciuto</option>
+                        </select>
+              </div>
 
+              <button id="get-climate-button" class="action-button">
+              <i class="fas fa-sun"></i> Ottieni Clima
+              </button>
+
+              <div id="location-status" class="status-message"></div>
+            
             <div class="temp-filter-container">
                 <i class="fas fa-temperature-three-quarters"></i>
                 <input type="number" id="tempMinFilter" placeholder="Temp Min (°C)">
