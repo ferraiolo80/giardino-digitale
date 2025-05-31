@@ -405,9 +405,9 @@ async function savePlantToFirestore(e) {
             showToast('Pianta aggiunta con successo!', 'success');
         }
         hidePlantForms();
-        fetchPlantsFromFirestore(); // Ricarica tutte le piante
+        await fetchPlantsFromFirestore(); // Ricarica tutte le piante
         if (isMyGardenCurrentlyVisible) {
-            fetchMyGardenFromFirebase(); // Ricarica il giardino se visibile
+        await fetchMyGardenFromFirebase(); // Ricarica il giardino se visibile
         }
     } catch (error) {
         showToast(`Errore durante il salvataggio: ${error.message}`, 'error');
@@ -439,8 +439,8 @@ async function deletePlantFromDatabase(plantId) {
         });
         await batch.commit(); // Esegui tutte le modifiche del batch
 
-        fetchPlantsFromFirestore(); // Ricarica tutte le piante
-        fetchMyGardenFromFirebase(); // Ricarica il giardino dell'utente corrente (se loggato)
+        await fetchPlantsFromFirestore(); // Ricarica tutte le piante
+        await fetchMyGardenFromFirebase(); // Ricarica il giardino dell'utente corrente (se loggato)
 
     } catch (error) {
         showToast(`Errore durante l'eliminazione: ${error.message}`, 'error');
