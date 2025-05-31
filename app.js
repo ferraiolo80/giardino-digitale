@@ -585,9 +585,9 @@ function applyFiltersAndSort(plantsToFilter) {
 // Funzione per visualizzare le piante (generalizzata per tutte le piante o il mio giardino)
 function displayPlants(plantsToShow) {
     // Controlla che i contenitori siano disponibili prima di tentare di accedervi
-    // Non strettamente necessario con la nuova struttura, ma è una buona pratica
+    // Ho aggiunto dei console.log per aiutarti nel debug
     if (!gardenContainer || !myGardenContainer || !document.getElementById('empty-garden-message')) {
-        console.warn('Plant display containers not initialized.');
+        console.warn('Plant display containers not initialized. gardenContainer:', gardenContainer, 'myGardenContainer:', myGardenContainer, 'empty-garden-message:', document.getElementById('empty-garden-message'));
         return;
     }
 
