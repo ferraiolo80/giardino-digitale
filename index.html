@@ -223,14 +223,17 @@
                 </form>
             </section>
 
-            <section id="lightSensorSection">
-                <h3>Misura la Luce per le Tue Piante</h3>
-                <p>Posiziona il tuo smartphone vicino alla pianta e premi il pulsante per misurare la luce ambiente.</p>
-                <button id="startLightSensorButton">Avvia Misurazione Luce</button>
-                <button id="stopLightSensorButton" style="display:none;">Ferma Misurazione</button>
-                <p>Luce Rilevata: <span id="currentLuxValue">N/A</span> Lux</p>
-                <div id="lightFeedback"></div>
-            </section>
+            <section id="light-sensor-section" class="main-content-section">
+    <h2>Sensore di Luce Ambientale</h2>
+    <div class="light-sensor-container plant-card"> 
+        <h3>Misura la Luce per le Tue Piante</h3>
+        <p>Luce Rilevata: <span id="currentLuxValue">N/A</span> Lux</p>
+        <p><span id="lightFeedback">Sensore spento.</span></p> 
+        
+        <button id="startLightSensorButton">Avvia Misurazione Luce</button>
+        <button id="stopLightSensorButton" style="display:none;">Ferma Misurazione</button>
+    </div>
+</section>
 
             <section id="plantsSection">
                 <h2 id="giardinoTitle">Tutte le piante</h2>
