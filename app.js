@@ -56,6 +56,16 @@ let getClimateButton;       // Variabile per il bottone "Ottieni Clima"
 let locationStatusDiv;      // Variabile per il div di stato della posizione
 let climateZoneFilter;
 
+const CLIMATE_TEMP_RANGES = {
+    'Mediterraneo': { min: 5, max: 35 },
+    'Temperato': { min: -10, max: 30 },
+    'Tropicale': { min: 18, max: 40 },
+    'Subtropicale': { min: 10, max: 38 },
+    'Boreale/Artico': { min: -40, max: 20 },
+    'Arido': { min: 0, max: 45 },
+    'Sconosciuto': { min: -999, max: 999 } // Ampio range per non filtrare se il clima è sconosciuto
+};
+
 let db; // Istanza di Firestore
 
 // =======================================================
@@ -626,13 +636,29 @@ function applyFiltersAndSort(plantsToFilter) {
         filteredPlants = filteredPlants.filter(plant => plant.category === category);
     }
 
-    const climateZone = climateZoneFilter.value.toLowerCase().trim();
-    if (climateZone) {
-        filteredPlants = filteredPlants.filter(plant =>
-            plant.climateZone && plant.climateZone.toLowerCase().includes(climateZone)
-        );
-    }
+    const selectedClimate = climateZoneFilter.value;
+    if (selectedClimate && selectedClimate !== '' && selectedClimate !== 'Sconosciuto') {
+        const climateRange = CLIMATE_TEMP_RANGES[selectedClimate];
+        if (climateRange) {
+            filteredPlants = filteredPlants.filter(plant => {
+                const plantMin = parseInt(plant.tempMin);
+                const plantMax = parseInt(plant.tempMax);
 
+                // Controlla che i valori siano numeri validi
+                if (isNaN(plantMin) || isNaN(plantMax)) {
+                    console.warn(`La pianta ${plant.name} ha valori di temperatura non numerici. Ignorata nel filtro clima.`);
+                    return false;
+                }
+
+                // La pianta è compatibile se il suo intervallo di temperatura ideale
+                // è completamente contenuto nell'intervallo del clima dedotto.
+                return plantMin >= climateRange.min && plantMax <= climateRange.max;
+            });
+        } else {
+            console.warn(`Intervallo di temperatura non definito per il clima dedotto: ${selectedClimate}. Nessuna pianta sarà mostrata per questo filtro.`);
+            filteredPlants = []; // Nessuna pianta è compatibile con un clima sconosciuto o non mappato
+        }
+    }
     const tempMin = parseFloat(tempMinFilter.value);
     const tempMax = parseFloat(tempMaxFilter.value);
 
