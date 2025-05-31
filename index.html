@@ -12,287 +12,294 @@
     <link rel="manifest" href="manifest.json">
     <title>Giardino Digitale</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        /* Questo display: none iniziale è corretto per #app-content */
-        #app-content {
-            display: none; 
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+    <div id="loading-spinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
     <header>
-        <div class="header-left">
-            <button id="logoutButton" class="icon-button" style="display: none;">
-                <i class="fas fa-sign-out-alt"></i> 
-            </button>
-        </div>
-        <h1>🌸 Giardino Digitale 🌿</h1>
-        <div class="header-right">
-            <div id="auth-status"></div>
-        </div>
+        <span id="auth-status"></span>
+        <h1>Giardino Digitale</h1>
+        <nav>
+            <button id="logoutButton" style="display: none;">Logout</button>
+        </nav>
     </header>
 
-    <main>
-        <section id="auth-container">
-            <h2>Accedi o Registrati</h2>
-            <div id="login-form">
-                <h3>Accedi</h3>
-                <input type="email" id="loginEmail" placeholder="Email" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
-                <button id="loginButton">Accedi</button>
-                <p>Non hai un account? <a href="#" onclick="showRegisterForm()">Registrati qui</a></p>
-                <div id="login-error" class="error-message"></div> </div>
-
-            <div id="register-form" style="display: none;">
-                <h3>Registrati</h3>
-                <input type="email" id="registerEmail" placeholder="Email" required>
-                <input type="password" id="registerPassword" placeholder="Password" required>
-                <input type="password" id="register-confirm-password" placeholder="Conferma Password" required>
-                <button id="registerButton">Registrati</button>
-                <p>Hai già un account? <a href="#" onclick="showLoginForm()">Accedi qui</a></p>
-                <div id="register-error" class="error-message"></div> </div>
+    <main id="auth-container" class="auth-container">
+        <section id="login-form">
+            <h2>Accedi</h2>
+            <form>
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" placeholder="La tua email" required>
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" placeholder="La tua password" required>
+                <button type="submit" id="loginButton">Accedi</button>
+            </form>
+            <p id="login-error" class="error-message"></p>
+            <p>Non hai un account? <a href="#" id="showRegister">Registrati qui</a></p>
         </section>
 
-        <div id="app-content">
-            <div id="loading-spinner" class="spinner-overlay" style="display: none;">
-                <div class="spinner"></div>
-            </div>
-
-            <div class="filters-and-buttons-container">
-                <div id="plantsSectionHeader">
-                    <h2>Tutte le Piante</h2>
-                    <button id="showAllPlantsButton">Mostra Tutte le Piante</button>
-                    <button id="showMyGardenButton">Mostra il Mio Giardino</button>
-                    <button id="addNewPlantButton">Aggiungi Nuova Pianta</button>
-                </div>
-
-                <div class="search-filter-container">
-                    <div class="search-container">
-                        <label for="searchInput">Cerca per nome:</label>
-                        <input type="text" id="searchInput" placeholder="Nome pianta...">
-                    </div>
-
-                    <div class="filter-container">
-                        <label for="categoryFilter">Filtra per categoria:</label>
-                        <select id="categoryFilter">
-                            <option value="all">Tutte le Categorie</option>
-                            <option value="fiori">Fiori</option>
-                            <option value="alberi">Alberi</option>
-                            <option value="arbusti">Arbusti</option>
-                            <option value="erbe_aromatiche">Erbe Aromatiche</option>
-                            <option value="piante_grasse">Piante Grasse</option>
-                            <option value="ortaggi">Ortaggi</option>
-                        </select>
-                    </div>
-
-                    <div class="climate-filter-container">
-                        <label for="climateZoneFilter">Filtra per clima locale:</label>
-                        <select id="climateZoneFilter">
-                            <option value="">Seleziona clima</option>
-                            <option value="mediterraneo">Mediterraneo</option>
-                            <option value="continentale">Continentale</option>
-                            <option value="montano">Montano</option>
-                            <option value="desertico">Desertico</option>
-                            <option value="tropicale">Tropicale</option>
-                            <option value="temperato">Temperato</option>
-                            <option value="sconosciuto">Sconosciuto</option>
-                        </select>
-                    </div>
-
-                    <div class="temp-filter-container">
-                        <label for="tempMinFilter">Temperatura Min. (°C):</label>
-                        <input type="number" id="tempMinFilter" placeholder="Es: -5">
-                    </div>
-
-                    <div class="temp-filter-container">
-                        <label for="tempMaxFilter">Temperatura Max. (°C):</label>
-                        <input type="number" id="tempMaxFilter" placeholder="Es: 30">
-                    </div>
-                </div>
-            </div>
-                <div class="geolocation-container">
-                    <button id="get-climate-button" class="action-button"> <i class="fas fa-location-dot"></i>  Clima Locale</button>
-                </div>
-               
-            </section>
-            
-            <div style="text-align: center; margin: 15px 0;">
-                <p style="margin: 0;">Identifica con <a href="https://lens.google.com/" target="_blank" rel="noopener noreferrer">Google Lens <i class="fas fa-search"></i></a></p>
-            </div>
-
-            <section id="newPlantCard" style="display: none;">
-                <h2>Aggiungi una nuova pianta</h2>
-                <form id="newPlantForm">
-                    <label for="newPlantName">Nome:</label>
-                    <input type="text" id="newPlantName" required><span class="error-message" id="errorNewPlantName"></span>
-
-                    <label for="newPlantSunlight">Luce:</label>
-                    <input type="text" id="newPlantSunlight" required><span class="error-message" id="errorNewPlantSunlight"></span>
-
-                    <label for="newPlantIdealLuxMin">Lux Ideale Min:</label>
-                    <input type="number" id="newPlantIdealLuxMin" placeholder="Es. 5000" required><span class="error-message" id="errorNewPlantIdealLuxMin"></span>
-
-                    <label for="newPlantIdealLuxMax">Lux Ideale Max:</label>
-                    <input type="number" id="newPlantIdealLuxMax" placeholder="Es. 10000" required><span class="error-message" id="errorNewPlantIdealLuxMax"></span>
-
-                    <label for="newPlantWatering">Acqua:</label>
-                    <input type="text" id="newPlantWatering" required><span class="error-message" id="errorNewPlantWatering"></span>
-
-                    <label for="newPlantTempMin">Temperatura Minima (°C):</label>
-                    <input type="number" id="newPlantTempMin" required><span class="error-message" id="errorNewPlantTempMin"></span>
-
-                    <label for="newPlantTempMax">Temperatura Massima (°C):</label>
-                    <input type="number" id="newPlantTempMax" required><span class="error-message" id="errorNewPlantTempMax"></span>
-
-                    <label for="newPlantDescription">Descrizione (Opzionale):</label><br>
-                    <textarea id="newPlantDescription"></textarea><span class="error-message" id="errorNewPlantDescription"></span>
-
-                    <label for="newPlantCategory">Categoria:</label>
-                    <select id="newPlantCategory" required>
-                        <option value="">Seleziona una categoria</option>
-                        <option value="Fiore">Fiore</option>
-                        <option value="Pianta">Pianta</option>
-                        <option value="Pianta Grassa">Pianta Grassa</option>
-                        <option value="Albero">Albero</option>
-                        <option value="Arbusto">Arbusto</option>
-                        <option value="Erba aromatica">Erba aromatica</option>
-                        <option value="Succulenta">Succulenta</option>
-                        <option value="Rampicante">Rampicante</option>
-                        <option value="Cactus">Cactus</option>
-                        <option value="Felce">Felce</option>             
-                    </select><span class="error-message" id="errorNewPlantCategory"></span>
-
-                    <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
-                    <input type="url" id="newPlantImageURL"><span class="error-message" id="errorNewPlantImageURL"></span>
-                    
-                    <button type="submit" id="saveNewPlantButton">Salva Pianta</button>
-                    <button type="button" id="cancelNewPlantButton">Annulla</button>
-                </form>
-            </section>
-
-            <section id="updatePlantCard" style="display: none;">
-                <h2>Aggiorna Pianta</h2>
-                <form id="updatePlantForm">
-                    <input type="hidden" id="updatePlantId">
-                    
-                    <label for="updatePlantName">Nome:</label>
-                    <input type="text" id="updatePlantName" required><span class="error-message" id="errorUpdatePlantName"></span>
-
-                    <label for="updatePlantSunlight">Luce:</label>
-                    <input type="text" id="updatePlantSunlight" required><span class="error-message" id="errorUpdatePlantSunlight"></span>
-
-                    <label for="updatePlantIdealLuxMin">Lux Ideale Min:</label>
-                    <input type="number" id="updatePlantIdealLuxMin" placeholder="Es. 5000" required><span class="error-message" id="errorUpdatePlantIdealLuxMin"></span>
-
-                    <label for="updatePlantIdealLuxMax">Lux Ideale Max:</label>
-                    <input type="number" id="updatePlantIdealLuxMax" placeholder="Es. 10000" required><span class="error-message" id="errorUpdatePlantIdealLuxMax"></span>
-
-                    <label for="updatePlantWatering">Acqua:</label>
-                    <input type="text" id="updatePlantWatering" required><span class="error-message" id="errorUpdatePlantWatering"></span>
-
-                    <label for="updatePlantTempMin">Temperatura Minima (°C):</label>
-                    <input type="number" id="updatePlantTempMin" required><span class="error-message" id="errorUpdatePlantTempMin"></span>
-
-                    <label for="updatePlantTempMax">Temperatura Massima (°C):</label>
-                    <input type="number" id="updatePlantTempMax" required><span class="error-message" id="errorUpdatePlantTempMax"></span>
-
-                    <label for="updatePlantDescription">Descrizione (Opzionale):</label><br>
-                    <textarea id="updatePlantDescription"></textarea><span class="error-message" id="errorUpdatePlantDescription"></span>
-
-                    <label for="updatePlantCategory">Categoria:</label>
-                    <select id="updatePlantCategory" required>
-                        <option value="Fiore">Fiore</option>
-                        <option value="Pianta">Pianta</option>
-                        <option value="Pianta Grassa">Pianta Grassa</option>
-                        <option value="Albero">Albero</option>
-                        <option value="Arbusto">Arbusto</option>
-                        <option value="Erba aromatica">Erba aromatica</option>
-                        <option value="Succulenta">Succulenta</option>
-                        <option value="Rampicante">Rampicante</option>
-                        <option value="Cactus">Cactus</option>
-                        <option value="Felce">Felce</option>
-                    </select><span class="error-message" id="errorUpdatePlantCategory"></span>
-
-                    <label for="updatePlantImageURL">URL Immagine (Opzionale):</label>
-                    <input type="url" id="updatePlantImageURL"><span class="error-message" id="errorUpdatePlantImageURL"></span>
-                    
-                    <button type="submit" id="saveUpdatePlantButton">Salva Modifiche</button>
-                    <button type="button" id="cancelUpdatePlantButton">Annulla</button>
-                    <button type="button" id="deletePlant">Elimina Pianta</button>
-                </form>
-            </section>
-
-            <section id="light-sensor-section" class="main-content-section">
-    <h2>Sensore di Luce Ambientale</h2>
-    <div class="light-sensor-container plant-card"> 
-        <h3>Misura la Luce per le Tue Piante</h3>
-        <p>Luce Rilevata: <span id="currentLuxValue">N/A</span> Lux</p>
-        <p><span id="lightFeedback">Sensore spento.</span></p> 
-        
-        <button id="startLightSensorButton">Avvia Misurazione Luce</button>
-        <button id="stopLightSensorButton" style="display:none;">Ferma Misurazione</button>
-    </div>
-</section>
-
-            <section id="plantsSection">
-                <h2 id="giardinoTitle">Tutte le piante</h2>
-                <div id="garden-container" class="plant-grid">
-                    </div>
-                <div id="my-garden" class="my-garden-grid" style="display:none;">
-                    <p id="empty-garden-message" style="display: none;">Il tuo giardino è vuoto. Aggiungi alcune piante dalla galleria principale!</p>
-                </div>
-            </section>
-        </div>
+        <section id="register-form" style="display: none;">
+            <h2>Registrati</h2>
+            <form>
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" placeholder="La tua email" required>
+                <label for="registerPassword">Password:</label>
+                <input type="password" id="registerPassword" placeholder="Crea una password" required>
+                <button type="submit" id="registerButton">Registrati</button>
+            </form>
+            <p id="register-error" class="error-message"></p>
+            <p>Hai già un account? <a href="#" id="showLogin">Accedi qui</a></p>
+        </section>
     </main>
 
-    <footer>
-        <p>&copy; 2025 Giardino Digitale. Tutti i diritti riservati.</p>
-    </footer>
+    <div id="app-content" style="display: none;">
+        <section class="main-buttons-container">
+            <button id="showAllPlantsButton"><i class="fas fa-seedling"></i> Mostra Tutte le Piante</button>
+            <button id="showMyGardenButton"><i class="fas fa-leaf"></i> Mostra il Mio Giardino</button>
+            <button id="addNewPlantButton"><i class="fas fa-plus"></i> Aggiungi Nuova Pianta</button>
+        </section>
+
+        <section class="search-filter-sort-container">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cerca pianta...">
+            </div>
+
+            <div class="filter-container">
+                <i class="fas fa-tag"></i>
+                <select id="categoryFilter">
+                    <option value="all">Tutte le Categorie</option>
+                    <option value="Fiore">Fiore</option>
+                    <option value="Frutto">Frutto</option>
+                    <option value="Verdura">Verdura</option>
+                    <option value="Erba Aromatica">Erba Aromatica</option>
+                    <option value="Albero">Albero</option>
+                    <option value="Arbusto">Arbusto</option>
+                    <option value="Succulenta">Succulenta</option>
+                    <option value="Cactus">Cactus</option>
+                    <option value="Acquatica">Acquatica</option>
+                    <option value="Rampicante">Rampicante</option>
+                    <option value="Bulbo">Bulbo</option>
+                    <option value="Felce">Felce</option>
+                    <option value="Orchidea">Orchidea</option>
+                    <option value="Altro">Altro</option>
+                </select>
+            </div>
+
+            <div class="climate-filter-container">
+                <i class="fas fa-globe"></i>
+                <input type="text" id="climateZoneFilter" placeholder="Zona Climatica...">
+            </div>
+
+            <div class="temp-filter-container">
+                <i class="fas fa-temperature-three-quarters"></i>
+                <input type="number" id="tempMinFilter" placeholder="Temp Min (°C)">
+                <input type="number" id="tempMaxFilter" placeholder="Temp Max (°C)">
+            </div>
+
+            <div class="sort-container">
+                <i class="fas fa-sort"></i>
+                <select id="sortBy">
+                    <option value="name_asc">Nome (A-Z)</option>
+                    <option value="name_desc">Nome (Z-A)</option>
+                    <option value="category_asc">Categoria (A-Z)</option>
+                    <option value="category_desc">Categoria (Z-A)</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="light-sensor-container">
+            <h2>Sensore di Luce Ambientale</h2>
+            <p id="currentLuxValue">Luminosità: N/A</p>
+            <p id="lightFeedback">Sensore spento.</p>
+            <button id="startLightSensorButton"><i class="fas fa-sun"></i> Avvia Sensore</button>
+            <button id="stopLightSensorButton" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
+        </section>
+
+        <section id="newPlantCard" class="plant-form-card" style="display: none;">
+            <h2>Aggiungi Nuova Pianta</h2>
+            <form id="newPlantForm">
+                <label for="newPlantName">Nome:</label>
+                <input type="text" id="newPlantName" required>
+
+                <label for="newPlantSunlight">Esposizione al Sole:</label>
+                <select id="newPlantSunlight" required>
+                    <option value="">Seleziona</option>
+                    <option value="Pieno Sole">Pieno Sole</option>
+                    <option value="Mezz'ombra">Mezz'ombra</option>
+                    <option value="Ombra">Ombra</option>
+                </select>
+
+                <div class="lux-input-group">
+                    <label for="newPlantIdealLuxMin">Lux Ideali Min:</label>
+                    <input type="number" id="newPlantIdealLuxMin" placeholder="Es. 500 (Opzionale)">
+                    <label for="newPlantIdealLuxMax">Max:</label>
+                    <input type="number" id="newPlantIdealLuxMax" placeholder="Es. 1000 (Opzionale)">
+                </div>
+
+                <label for="newPlantWatering">Annaffiatura:</label>
+                <select id="newPlantWatering" required>
+                    <option value="">Seleziona</option>
+                    <option value="Bassa">Bassa</option>
+                    <option value="Media">Media</option>
+                    <option value="Alta">Alta</option>
+                </select>
+
+                <div class="temp-input-group">
+                    <label for="newPlantTempMin">Temperatura Min (°C):</label>
+                    <input type="number" id="newPlantTempMin" placeholder="Es. 10 (Opzionale)">
+                    <label for="newPlantTempMax">Max (°C):</label>
+                    <input type="number" id="newPlantTempMax" placeholder="Es. 25 (Opzionale)">
+                </div>
+
+                <label for="newPlantClimateZone">Zona Climatica:</label>
+                <input type="text" id="newPlantClimateZone" placeholder="Es. Mediterraneo (Opzionale)">
+
+                <label for="newPlantDescription">Descrizione:</label>
+                <textarea id="newPlantDescription" rows="3" placeholder="Breve descrizione della pianta..."></textarea>
+
+                <label for="newPlantCategory">Categoria:</label>
+                <select id="newPlantCategory" required>
+                    <option value="Fiore">Fiore</option>
+                    <option value="Frutto">Frutto</option>
+                    <option value="Verdura">Verdura</option>
+                    <option value="Erba Aromatica">Erba Aromatica</option>
+                    <option value="Albero">Albero</option>
+                    <option value="Arbusto">Arbusto</option>
+                    <option value="Succulenta">Succulenta</option>
+                    <option value="Cactus">Cactus</option>
+                    <option value="Acquatica">Acquatica</option>
+                    <option value="Rampicante">Rampicante</option>
+                    <option value="Bulbo">Bulbo</option>
+                    <option value="Felce">Felce</option>
+                    <option value="Orchidea">Orchidea</option>
+                    <option value="Altro">Altro</option>
+                </select>
+
+                <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
+                <input type="url" id="newPlantImageURL" placeholder="https://esempio.com/immagine.jpg">
+
+                <div class="form-actions">
+                    <button type="submit" id="saveNewPlantButton">Salva Pianta</button>
+                    <button type="button" id="cancelNewPlantButton" class="cancel-button">Annulla</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="updatePlantCard" class="plant-form-card" style="display: none;">
+            <h2>Aggiorna Pianta</h2>
+            <form id="updatePlantForm">
+                <label for="updatePlantName">Nome:</label>
+                <input type="text" id="updatePlantName" required>
+
+                <label for="updatePlantSunlight">Esposizione al Sole:</label>
+                <select id="updatePlantSunlight" required>
+                    <option value="">Seleziona</option>
+                    <option value="Pieno Sole">Pieno Sole</option>
+                    <option value="Mezz'ombra">Mezz'ombra</option>
+                    <option value="Ombra">Ombra</option>
+                </select>
+
+                <div class="lux-input-group">
+                    <label for="updatePlantIdealLuxMin">Lux Ideali Min:</label>
+                    <input type="number" id="updatePlantIdealLuxMin" placeholder="Es. 500 (Opzionale)">
+                    <label for="updatePlantIdealLuxMax">Max:</label>
+                    <input type="number" id="updatePlantIdealLuxMax" placeholder="Es. 1000 (Opzionale)">
+                </div>
+
+                <label for="updatePlantWatering">Annaffiatura:</label>
+                <select id="updatePlantWatering" required>
+                    <option value="">Seleziona</option>
+                    <option value="Bassa">Bassa</option>
+                    <option value="Media">Media</option>
+                    <option value="Alta">Alta</option>
+                </select>
+
+                <div class="temp-input-group">
+                    <label for="updatePlantTempMin">Temperatura Min (°C):</label>
+                    <input type="number" id="updatePlantTempMin" placeholder="Es. 10 (Opzionale)">
+                    <label for="updatePlantTempMax">Max (°C):</label>
+                    <input type="number" id="updatePlantTempMax" placeholder="Es. 25 (Opzionale)">
+                </div>
+
+                <label for="updatePlantClimateZone">Zona Climatica:</label>
+                <input type="text" id="updatePlantClimateZone" placeholder="Es. Mediterraneo (Opzionale)">
+
+                <label for="updatePlantDescription">Descrizione:</label>
+                <textarea id="updatePlantDescription" rows="3" placeholder="Breve descrizione della pianta..."></textarea>
+
+                <label for="updatePlantCategory">Categoria:</label>
+                <select id="updatePlantCategory" required>
+                    <option value="Fiore">Fiore</option>
+                    <option value="Frutto">Frutto</option>
+                    <option value="Verdura">Verdura</option>
+                    <option value="Erba Aromatica">Erba Aromatica</option>
+                    <option value="Albero">Albero</option>
+                    <option value="Arbusto">Arbusto</option>
+                    <option value="Succulenta">Succulenta</option>
+                    <option value="Cactus">Cactus</option>
+                    <option value="Acquatica">Acquatica</option>
+                    <option value="Rampicante">Rampicante</option>
+                    <option value="Bulbo">Bulbo</option>
+                    <option value="Felce">Felce</option>
+                    <option value="Orchidea">Orchidea</option>
+                    <option value="Altro">Altro</option>
+                </select>
+
+                <label for="updatePlantImageURL">URL Immagine (Opzionale):</label>
+                <input type="url" id="updatePlantImageURL" placeholder="https://esempio.com/immagine.jpg">
+
+                <div class="form-actions">
+                    <button type="submit" id="saveUpdatePlantButton">Salva Modifiche</button>
+                    <button type="button" id="cancelUpdatePlantButton" class="cancel-button">Annulla</button>
+                    <button type="button" id="deletePlant" class="delete-button">Elimina Pianta dal DB</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="plants-section">
+            <h2 id="plantsSectionHeader">Tutte le Piante Disponibili</h2>
+            <div id="garden-container" class="plant-grid">
+                </div>
+            <div id="my-garden" class="plant-grid" style="display: none;">
+                <p id="empty-garden-message" style="display: none;">Il tuo giardino è vuoto. Aggiungi alcune piante dalla galleria principale!</p>
+                </div>
+        </section>
+    </div>
 
     <div id="image-modal" class="modal">
         <span class="close-button">&times;</span>
-        <img class="modal-content" id="zoomed-image" alt="Immagine zoomata">
-        </div>
+        <img class="modal-content" id="zoomed-image" alt="Immagine Pianta">
+    </div>
 
-    <div id="toast-container"></div>
+    <div id="card-modal" class="modal">
+        <span class="close-button" id="close-card-modal">&times;</span>
+        <div class="modal-content" id="zoomed-card-content">
+            </div>
+    </div>
 
-    <script>
-        function showRegisterForm() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'block';
-            // Pulisci eventuali errori precedenti quando si cambia form
-            document.getElementById('login-error').innerText = '';
-            document.getElementById('register-error').innerText = '';
-        }
-
-        function showLoginForm() {
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('login-form').style.display = 'block';
-            // Pulisci eventuali errori precedenti quando si cambia form
-            document.getElementById('login-error').innerText = '';
-            document.getElementById('register-error').innerText = '';
-        }
-    </script>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-    
-    <script>        
-        // Configura Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-            authDomain: "giardinodigitale.firebaseapp.com",
-            projectId: "giardinodigitale",
-            storageBucket: "giardinodigitale.appspot.com",
-            messagingSenderId: "96265504027",
-            appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
-        };
 
-        
+    <script>
+        // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
+        const firebaseConfig = {
+            const firebaseConfig = {
+                  apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+                  authDomain: "giardinodigitale.firebaseapp.com",
+                  projectId: "giardinodigitale",
+                  storageBucket: "giardinodigitale.firebasestorage.app",
+                  messagingSenderId: "96265504027",
+                  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+            };
     </script>
     <script src="app.js"></script>
 </body>
 </html>
-
