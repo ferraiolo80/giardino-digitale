@@ -697,7 +697,7 @@ async function getClimateFromCoordinates(latitude, longitude) {
 
         locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> <span>Clima dedotto: <strong>${climateZone}</strong></span>`;
         climateZoneFilter.value = climateZone;
-        applyFilters(); // Assicurati che applyFilters sia definita e gestisca il filtro del clima
+        applyFiltersAndSort(); // Assicurati che applyFilters sia definita e gestisca il filtro del clima
         showToast(`Clima dedotto: ${climateZone}`, 'success');
 
     } catch (error) {
