@@ -234,12 +234,13 @@ function updateUIforAuthState(user) {
         myGarden = [];
         isMyGardenCurrentlyVisible = false;
         // Resetta i filtri e l'ordinamento
-        searchInput.value = '';
-        categoryFilter.value = 'all';
-        climateZoneFilter.value = '';
-        tempMinFilter.value = '';
-        tempMaxFilter.value = '';
-        sortBySelect.value = 'name_asc';
+        // Resetta i filtri e l'ordinamento
+        if (searchInput) searchInput.value = '';
+        if (categoryFilter) categoryFilter.value = 'all';
+        if (climateZoneFilter) climateZoneFilter.value = '';
+        if (tempMinFilter) tempMinFilter.value = '';
+        if (tempMaxFilter) tempMaxFilter.value = '';
+        if (sortBySelect) sortBySelect.value = 'name_asc';
     }
 }
 
@@ -736,78 +737,58 @@ function getLocation() {
 }
 
 // Deduce la zona climatica dalle coordinate (usando un servizio esterno o logica interna)
-async function getClimateFromCoordinates(latitude, longitude) {
-    // API Open-Meteo per temperatura e precipitazioni medie annuali
-    // (Questa è una semplificazione, un'API climatica dedicata sarebbe più accurata)
-    const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_mean,precipitation_sum&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin`;
+async function getClimateFromCoordinates(lat, lon) {
+    // Aggiungi controllo null per locationStatusDiv
+    if (locationStatusDiv) {
+        locationStatusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recupero dati climatici...';
+    } else {
+        console.warn("Elemento 'locationStatusDiv' non trovato.");
+    }
+    
+    showLoadingSpinner();
 
     try {
-        const response = await fetch(weatherApiUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        // Questa è la parte dove interrogheresti un'API esterna per convertire
+        // lat/lon in una zona climatica o in dati di temperatura per dedurla.
+        // Esempio FITTIZIO per ora, DEVI SOSTITUIRLO con la tua logica o chiamata API reale:
+        // const response = await fetch(`https://api.example.com/climate?lat=${lat}&lon=${lon}&apiKey=YOUR_API_KEY`);
+        // if (!response.ok) throw new Error('Errore nel recupero dati climatici dall\'API esterna.');
+        // const data = await response.json();
+        // const detectedZone = data.climateZone; // Assumi che l'API restituisca questo
 
-        // Estrai temperatura media giornaliera (come proxy per il clima)
-        const currentTemp = data.current_weather ? data.current_weather.temperature : null;
-        const meanTemp2m = data.daily && data.daily.temperature_2m_mean ? data.daily.temperature_2m_mean[0] : null;
-        const precipitationSum = data.daily && data.daily.precipitation_sum ? data.daily.precipitation_sum[0] : null;
+        // PLACEHOLDER: Sostituisci questa logica con la tua integrazione API reale.
+        // Ad esempio, potresti avere un array di range di temperature e una logica per dedurre
+        // la zona climatica in base alla temperatura media della tua posizione corrente.
+        const detectedZone = "Temperato"; // Esempio: dovresti ottenere questo da un'API climatica
+        // Fine PLACEHOLDER
 
-        let climateZone = 'Sconosciuto';
-        let statusMessage = '';
-
-        if (currentTemp !== null || meanTemp2m !== null) {
-            const tempToUse = currentTemp !== null ? currentTemp : meanTemp2m;
-
-            if (tempToUse >= 25) {
-                climateZone = 'Tropicale';
-            } else if (tempToUse >= 15 && tempToUse < 25) {
-                climateZone = 'Subtropicale';
-            } else if (tempToUse >= 5 && tempToUse < 15) {
-                climateZone = 'Temperato';
-            } else if (tempToUse >= -5 && tempToUse < 5) { // Più specifico per Mediterraneo che può avere inverni freschi
-                 if (precipitationSum !== null && precipitationSum < 10) { // Bassa piovosità per Mediterraneo
-                    climateZone = 'Arido'; // O 'Mediterraneo' se ci sono altre condizioni specifiche di pioggia/siccità
-                } else {
-                    climateZone = 'Mediterraneo'; // O Temperato se piovosità alta
-                }
-            } else if (tempToUse < -5) {
-                climateZone = 'Boreale/Artico';
-            }
-
-            // Affinamento per Mediterraneo/Arido basato su temperatura e precipitazioni
-            if (tempToUse >= 10 && tempToUse <= 25 && precipitationSum !== null && precipitationSum < 2) { // Esempio: temperato-caldo e poca pioggia = Mediterraneo/Arido
-                climateZone = 'Mediterraneo';
-            } else if (tempToUse >= 25 && precipitationSum !== null && precipitationSum < 1) {
-                climateZone = 'Arido';
-            }
-
-
-            statusMessage = `Clima dedotto: ${climateZone} (Temperatura attuale: ${currentTemp !== null ? currentTemp : 'N/A'}°C, Media giornaliera: ${meanTemp2m !== null ? meanTemp2m : 'N/A'}°C, Precipitazioni oggi: ${precipitationSum !== null ? precipitationSum : 'N/A'}mm)`;
-            locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> ${statusMessage}`;
-            showToast(`Clima rilevato: ${climateZone}`, 'success');
-
+        // Controlla se climateZoneFilter esiste prima di impostarne il valore
+        if (climateZoneFilter) {
+            climateZoneFilter.value = detectedZone; // Linea 803 / 810
         } else {
-            statusMessage = "Dati climatici non disponibili per questa posizione.";
-            locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${statusMessage}`;
-            showToast(statusMessage, 'info');
+            console.warn("Elemento 'climateZoneFilter' non trovato per impostare il valore.");
+            showToast('Impossibile impostare il filtro climatico automatico.', 'warning');
         }
+        
+        // Controlla se locationStatusDiv esiste prima di aggiornarne il contenuto
+        if (locationStatusDiv) {
+            locationStatusDiv.textContent = `Clima rilevato: ${detectedZone}`;
+        }
+        showToast(`Clima rilevato: ${detectedZone}`, 'info');
 
-        // Imposta il valore del filtro clima e applica i filtri
-        climateZoneFilter.value = climateZone;
-        applyFilters();
+        displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants); // Aggiorna la visualizzazione dopo aver impostato il filtro
 
     } catch (error) {
-        console.error("Errore nel recupero dei dati climatici:", error);
-        locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Errore nel recupero dei dati climatici.`;
-        showToast("Errore nel recupero dei dati climatici.", 'error');
-        climateZoneFilter.value = ''; // Resetta il filtro clima
-        applyFilters(); // Applica i filtri senza considerare il clima
+        console.error('Errore nel recupero dei dati climatici:', error);
+        // Controlla se locationStatusDiv esiste prima di aggiornarne il contenuto
+        if (locationStatusDiv) {
+            locationStatusDiv.textContent = 'Errore nel recupero dei dati climatici.';
+        }
+        showToast(`Errore nel recupero dei dati climatici: ${error.message}`, 'error');
     } finally {
-        hideLoadingSpinner(); // Nasconde spinner al termine dell'operazione
+        hideLoadingSpinner();
     }
 }
-
 // Visualizza le piante nel contenitore appropriato
 function displayPlants(plantsToShow) {
     const user = firebase.auth().currentUser;
