@@ -52,6 +52,10 @@ let closeCardModalButton; // Bottone di chiusura per modal card
 let loadingSpinner; // Spinner di caricamento
 let toastContainer; // Contenitore per i toast
 
+let getClimateButton;       // Variabile per il bottone "Ottieni Clima"
+let locationStatusDiv;      // Variabile per il div di stato della posizione
+let climateZoneFilter;
+
 let db; // Istanza di Firestore
 
 // =======================================================
@@ -672,6 +676,81 @@ function applyFiltersAndSort(plantsToFilter) {
     return filteredPlants;
 }
 
+async function getClimateFromCoordinates(latitude, longitude) {
+    showLoadingSpinner();
+    showToast("Ricerca clima in corso...", 'info');
+    try {
+        let climateZone = 'Sconosciuto';
+        if (latitude >= 35 && latitude <= 45 && longitude >= 5 && longitude <= 20) {
+            climateZone = 'Mediterraneo';
+        } else if (latitude >= 40 && latitude <= 60 && longitude >= -10 && longitude <= 30) {
+            climateZone = 'Temperato';
+        } else if (latitude < 23.5 && latitude > -23.5) {
+            climateZone = 'Tropicale';
+        } else if (latitude >= 23.5 && latitude < 35 || latitude < -23.5 && latitude > -35) {
+            climateZone = 'Subtropicale';
+        } else if (latitude > 60 || latitude < -60) {
+            climateZone = 'Boreale/Artico';
+        } else if (latitude >= 20 && latitude < 35 && longitude > -10 && longitude < 5) {
+            climateZone = 'Arido';
+        }
+
+        locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> <span>Clima dedotto: <strong>${climateZone}</strong></span>`;
+        climateZoneFilter.value = climateZone;
+        applyFilters(); // Assicurati che applyFilters sia definita e gestisca il filtro del clima
+        showToast(`Clima dedotto: ${climateZone}`, 'success');
+
+    } catch (error) {
+        console.error("Errore nel dedurre il clima:", error);
+        locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>Impossibile dedurre il clima.</span>`;
+        showToast("Errore nel dedurre il clima.", 'error');
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        locationStatusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Acquisizione posizione...</span>`;
+        showToast("Acquisizione della posizione...", 'info');
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                getClimateFromCoordinates(lat, lon);
+            },
+            (error) => {
+                let errorMessage = "Errore di geolocalizzazione.";
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = "Accesso alla posizione negato dall'utente.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = "Informazioni sulla posizione non disponibili.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = "Timeout scaduto durante l'acquisizione della posizione.";
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        errorMessage = "Errore sconosciuto di geolocalizzazione.";
+                        break;
+                }
+                console.error(errorMessage, error);
+                locationStatusDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>${errorMessage}</span>`;
+                showToast(errorMessage, 'error');
+                hideLoadingSpinner();
+            },
+            {
+                enableHighAccuracy: true, // Tenta di ottenere la posizione più precisa possibile
+                timeout: 10000,           // Tempo massimo (ms) per attendere la posizione (10 secondi)
+                maximumAge: 0             // Non usare una posizione in cache
+            }
+        );
+    } else {
+        locationStatusDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>Geolocalizzazione non supportata dal browser.</span>`;
+        showToast("Geolocalizzazione non supportata dal tuo browser.", 'error');
+    }
+}
 
 // Visualizza le piante nel contenitore appropriato
 function displayPlants(plantsToShow) {
@@ -948,6 +1027,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     zoomedCardContent = document.getElementById('zoomed-card-content');
     closeCardModalButton = document.getElementById('close-card-modal');
 
+    // Inizializzazione delle nuove variabili DOM per la geolocalizzazione
+    getClimateButton = document.getElementById('get-climate-button');
+    locationStatusDiv = document.getElementById('location-status');
+    climateZoneFilter = document.getElementById('climate-zone-filter');
+
      // Inizializza Firebase all'inizio
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
@@ -1016,6 +1100,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             return; // Ferma l'evento
         }
 
+        //event listener per la geolocalizzazione
+        if (!getClimateButton || !locationStatusDiv || !climateZoneFilter) 
+
+        getClimateButton.addEventListener('click', getLocation);
+        
         // Azioni sui bottoni all'interno delle card (o della card zoomata)
         if (event.target.classList.contains('add-to-garden-button')) {
             const plantIdToAdd = event.target.dataset.plantId;
