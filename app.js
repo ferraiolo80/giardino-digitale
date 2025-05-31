@@ -702,79 +702,116 @@ function applyFiltersAndSort(plantsToFilter) {
     return filteredPlants;
 }
 
-async function getClimateFromCoordinates(latitude, longitude) {
-    showLoadingSpinner();
-    showToast("Ricerca clima in corso...", 'info');
-    try {
-        let climateZone = 'Sconosciuto';
-        if (latitude >= 35 && latitude <= 45 && longitude >= 5 && longitude <= 20) {
-            climateZone = 'Mediterraneo';
-        } else if (latitude >= 40 && latitude <= 60 && longitude >= -10 && longitude <= 30) {
-            climateZone = 'Temperato';
-        } else if (latitude < 23.5 && latitude > -23.5) {
-            climateZone = 'Tropicale';
-        } else if (latitude >= 23.5 && latitude < 35 || latitude < -23.5 && latitude > -35) {
-            climateZone = 'Subtropicale';
-        } else if (latitude > 60 || latitude < -60) {
-            climateZone = 'Boreale/Artico';
-        } else if (latitude >= 20 && latitude < 35 && longitude > -10 && longitude < 5) {
-            climateZone = 'Arido';
-        }
-
-        locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> <span>Clima dedotto: <strong>${climateZone}</strong></span>`;
-        climateZoneFilter.value = climateZone;
-        applyFiltersAndSort(); // Assicurati che applyFilters sia definita e gestisca il filtro del clima
-        showToast(`Clima dedotto: ${climateZone}`, 'success');
-
-    } catch (error) {
-        console.error("Errore nel dedurre il clima:", error);
-        locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>Impossibile dedurre il clima.</span>`;
-        showToast("Errore nel dedurre il clima.", 'error');
-    } finally {
-        hideLoadingSpinner();
-    }
-}
-
 function getLocation() {
     if (navigator.geolocation) {
-        locationStatusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Acquisizione posizione...</span>`;
-        showToast("Acquisizione della posizione...", 'info');
+        locationStatusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Acquisizione posizione in corso...';
+        showLoadingSpinner(); // Mostra spinner
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                getClimateFromCoordinates(lat, lon);
+            position => {
+                const { latitude, longitude } = position.coords;
+                getClimateFromCoordinates(latitude, longitude);
             },
-            (error) => {
-                let errorMessage = "Errore di geolocalizzazione.";
-                switch(error.code) {
+            error => {
+                let errorMessage = "Impossibile ottenere la posizione.";
+                switch (error.code) {
                     case error.PERMISSION_DENIED:
-                        errorMessage = "Accesso alla posizione negato dall'utente.";
+                        errorMessage = "Accesso alla posizione negato. Abilita la posizione nel browser.";
                         break;
                     case error.POSITION_UNAVAILABLE:
                         errorMessage = "Informazioni sulla posizione non disponibili.";
                         break;
                     case error.TIMEOUT:
-                        errorMessage = "Timeout scaduto durante l'acquisizione della posizione.";
+                        errorMessage = "Timeout nel recupero della posizione.";
                         break;
                     case error.UNKNOWN_ERROR:
-                        errorMessage = "Errore sconosciuto di geolocalizzazione.";
+                        errorMessage = "Errore sconosciuto nella geolocalizzazione.";
                         break;
                 }
-                console.error(errorMessage, error);
-                locationStatusDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>${errorMessage}</span>`;
+                locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`;
                 showToast(errorMessage, 'error');
-                hideLoadingSpinner();
-            },
-            {
-                enableHighAccuracy: true, // Tenta di ottenere la posizione più precisa possibile
-                timeout: 10000,           // Tempo massimo (ms) per attendere la posizione (10 secondi)
-                maximumAge: 0             // Non usare una posizione in cache
+                climateZoneFilter.value = ''; // Resetta il filtro clima
+                applyFilters(); // Applica i filtri senza considerare il clima
+                hideLoadingSpinner(); // Nasconde spinner in caso di errore
             }
         );
     } else {
-        locationStatusDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>Geolocalizzazione non supportata dal browser.</span>`;
-        showToast("Geolocalizzazione non supportata dal tuo browser.", 'error');
+        locationStatusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> La geolocalizzazione non è supportata dal tuo browser.';
+        showToast("Geolocalizzazione non supportata.", 'error');
+        climateZoneFilter.value = ''; // Resetta il filtro clima
+        applyFilters(); // Applica i filtri senza considerare il clima
+    }
+}
+
+// Deduce la zona climatica dalle coordinate (usando un servizio esterno o logica interna)
+async function getClimateFromCoordinates(latitude, longitude) {
+    // API Open-Meteo per temperatura e precipitazioni medie annuali
+    // (Questa è una semplificazione, un'API climatica dedicata sarebbe più accurata)
+    const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_mean,precipitation_sum&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin`;
+
+    try {
+        const response = await fetch(weatherApiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        // Estrai temperatura media giornaliera (come proxy per il clima)
+        const currentTemp = data.current_weather ? data.current_weather.temperature : null;
+        const meanTemp2m = data.daily && data.daily.temperature_2m_mean ? data.daily.temperature_2m_mean[0] : null;
+        const precipitationSum = data.daily && data.daily.precipitation_sum ? data.daily.precipitation_sum[0] : null;
+
+        let climateZone = 'Sconosciuto';
+        let statusMessage = '';
+
+        if (currentTemp !== null || meanTemp2m !== null) {
+            const tempToUse = currentTemp !== null ? currentTemp : meanTemp2m;
+
+            if (tempToUse >= 25) {
+                climateZone = 'Tropicale';
+            } else if (tempToUse >= 15 && tempToUse < 25) {
+                climateZone = 'Subtropicale';
+            } else if (tempToUse >= 5 && tempToUse < 15) {
+                climateZone = 'Temperato';
+            } else if (tempToUse >= -5 && tempToUse < 5) { // Più specifico per Mediterraneo che può avere inverni freschi
+                 if (precipitationSum !== null && precipitationSum < 10) { // Bassa piovosità per Mediterraneo
+                    climateZone = 'Arido'; // O 'Mediterraneo' se ci sono altre condizioni specifiche di pioggia/siccità
+                } else {
+                    climateZone = 'Mediterraneo'; // O Temperato se piovosità alta
+                }
+            } else if (tempToUse < -5) {
+                climateZone = 'Boreale/Artico';
+            }
+
+            // Affinamento per Mediterraneo/Arido basato su temperatura e precipitazioni
+            if (tempToUse >= 10 && tempToUse <= 25 && precipitationSum !== null && precipitationSum < 2) { // Esempio: temperato-caldo e poca pioggia = Mediterraneo/Arido
+                climateZone = 'Mediterraneo';
+            } else if (tempToUse >= 25 && precipitationSum !== null && precipitationSum < 1) {
+                climateZone = 'Arido';
+            }
+
+
+            statusMessage = `Clima dedotto: ${climateZone} (Temperatura attuale: ${currentTemp !== null ? currentTemp : 'N/A'}°C, Media giornaliera: ${meanTemp2m !== null ? meanTemp2m : 'N/A'}°C, Precipitazioni oggi: ${precipitationSum !== null ? precipitationSum : 'N/A'}mm)`;
+            locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> ${statusMessage}`;
+            showToast(`Clima rilevato: ${climateZone}`, 'success');
+
+        } else {
+            statusMessage = "Dati climatici non disponibili per questa posizione.";
+            locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${statusMessage}`;
+            showToast(statusMessage, 'info');
+        }
+
+        // Imposta il valore del filtro clima e applica i filtri
+        climateZoneFilter.value = climateZone;
+        applyFilters();
+
+    } catch (error) {
+        console.error("Errore nel recupero dei dati climatici:", error);
+        locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Errore nel recupero dei dati climatici.`;
+        showToast("Errore nel recupero dei dati climatici.", 'error');
+        climateZoneFilter.value = ''; // Resetta il filtro clima
+        applyFilters(); // Applica i filtri senza considerare il clima
+    } finally {
+        hideLoadingSpinner(); // Nasconde spinner al termine dell'operazione
     }
 }
 
