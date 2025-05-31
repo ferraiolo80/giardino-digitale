@@ -901,10 +901,7 @@ function openCardModal(plant) {
 
 // Quando il DOM è completamente caricato
 document.addEventListener('DOMContentLoaded', async () => {
-    // Inizializza Firebase all'inizio
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-
+   
     // Inizializza tutte le variabili DOM qui
     gardenContainer = document.getElementById('garden-container');
     myGardenContainer = document.getElementById('my-garden');
@@ -951,6 +948,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     zoomedCardContent = document.getElementById('zoomed-card-content');
     closeCardModalButton = document.getElementById('close-card-modal');
 
+     // Inizializza Firebase all'inizio
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
 
     // Event Listeners per l'autenticazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
