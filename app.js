@@ -36,7 +36,6 @@ let startLightSensorButton;
 let stopLightSensorButton;
 let lightDataSpan;
 let lightFeedbackSpan;
-let climateZoneFilter;
 let tempMinFilter;
 let tempMaxFilter;
 let sortBySelect; // Selettore per l'ordinamento
