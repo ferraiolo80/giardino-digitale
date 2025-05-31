@@ -620,7 +620,8 @@ async function fetchMyGardenFromFirebase() {
 function applyFiltersAndSort(plantsToFilter) {
     let filteredPlants = [...plantsToFilter];
 
-    const searchTerm = searchInput.value.toLowerCase().trim();
+    // Controlli nulli per searchInput, categoryFilter, climateZoneFilter, tempMinFilter, tempMaxFilter, sortBySelect
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
     if (searchTerm) {
         filteredPlants = filteredPlants.filter(plant =>
             (plant.name && plant.name.toLowerCase().includes(searchTerm)) ||
@@ -630,60 +631,54 @@ function applyFiltersAndSort(plantsToFilter) {
         );
     }
 
-    const category = categoryFilter.value;
+    const category = categoryFilter ? categoryFilter.value : 'all'; // Aggiunto controllo null
     if (category !== 'all') {
         filteredPlants = filteredPlants.filter(plant => plant.category === category);
     }
 
-    const selectedClimate = climateZoneFilter.value;
+    const selectedClimate = climateZoneFilter ? climateZoneFilter.value : ''; // Aggiunto controllo null
     if (selectedClimate && selectedClimate !== '' && selectedClimate !== 'Sconosciuto') {
         const climateRange = CLIMATE_TEMP_RANGES[selectedClimate];
         if (climateRange) {
             filteredPlants = filteredPlants.filter(plant => {
                 const plantMin = parseInt(plant.tempMin);
                 const plantMax = parseInt(plant.tempMax);
-
-                // Controlla che i valori siano numeri validi
                 if (isNaN(plantMin) || isNaN(plantMax)) {
                     console.warn(`La pianta ${plant.name} ha valori di temperatura non numerici. Ignorata nel filtro clima.`);
                     return false;
                 }
-
-                // La pianta è compatibile se il suo intervallo di temperatura ideale
-                // è completamente contenuto nell'intervallo del clima dedotto.
                 return plantMin >= climateRange.min && plantMax <= climateRange.max;
             });
         } else {
             console.warn(`Intervallo di temperatura non definito per il clima dedotto: ${selectedClimate}. Nessuna pianta sarà mostrata per questo filtro.`);
-            filteredPlants = []; // Nessuna pianta è compatibile con un clima sconosciuto o non mappato
+            filteredPlants = [];
         }
     }
-    const tempMin = parseFloat(tempMinFilter.value);
-    const tempMax = parseFloat(tempMaxFilter.value);
+
+    const tempMin = tempMinFilter ? parseFloat(tempMinFilter.value) : NaN; // Aggiunto controllo null
+    const tempMax = tempMaxFilter ? parseFloat(tempMaxFilter.value) : NaN; // Aggiunto controllo null
 
     // Filtra per temperatura minima
     if (!isNaN(tempMin)) {
         filteredPlants = filteredPlants.filter(plant =>
-            (plant.tempMin !== null && plant.tempMax !== null && plant.tempMin >= tempMin) || // Se range definito, min >= filtro
-            (plant.tempMin === null && plant.tempMax !== null && plant.tempMax >= tempMin) || // Se solo max, max >= filtro
-            (plant.tempMin !== null && plant.tempMax === null && plant.tempMin >= tempMin) || // Se solo min, min >= filtro
-            (plant.tempMin === null && plant.tempMax === null) // Se nessun dato, includi
+            (plant.tempMin !== null && plant.tempMax !== null && plant.tempMin >= tempMin) ||
+            (plant.tempMin === null && plant.tempMax !== null && plant.tempMax >= tempMin) ||
+            (plant.tempMin !== null && plant.tempMax === null && plant.tempMin >= tempMin) ||
+            (plant.tempMin === null && plant.tempMax === null)
         );
     }
-
     // Filtra per temperatura massima
     if (!isNaN(tempMax)) {
         filteredPlants = filteredPlants.filter(plant =>
-            (plant.tempMin !== null && plant.tempMax !== null && plant.tempMax <= tempMax) || // Se range definito, max <= filtro
-            (plant.tempMin === null && plant.tempMax !== null && plant.tempMax <= tempMax) || // Se solo max, max <= filtro
-            (plant.tempMin !== null && plant.tempMax === null && plant.tempMin <= tempMax) || // Se solo min, min <= filtro
-            (plant.tempMin === null && plant.tempMax === null) // Se nessun dato, includi
+            (plant.tempMin !== null && plant.tempMax !== null && plant.tempMax <= tempMax) ||
+            (plant.tempMin === null && plant.tempMax !== null && plant.tempMax <= tempMax) ||
+            (plant.tempMin !== null && plant.tempMax === null && plant.tempMin <= tempMax) ||
+            (plant.tempMin === null && plant.tempMax === null)
         );
     }
 
-
     // Ordinamento
-    switch (currentSortBy) {
+    switch (sortBySelect ? sortBySelect.value : 'name_asc') { // Aggiunto controllo null per sortBySelect
         case 'name_asc':
             filteredPlants.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
             break;
@@ -697,7 +692,6 @@ function applyFiltersAndSort(plantsToFilter) {
             filteredPlants.sort((a, b) => (b.category || '').localeCompare(a.category || ''));
             break;
     }
-
     return filteredPlants;
 }
 
