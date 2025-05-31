@@ -1068,6 +1068,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     getClimateButton = document.getElementById('get-climate-button');
     locationStatusDiv = document.getElementById('location-status');
     climateZoneFilter = document.getElementById('climate-zone-filter');
+    console.log('Valore di climateZoneFilter dopo getElementById:', climateZoneFilter); // AGGIUNGI QUESTA LINEA
 
      // Inizializza Firebase all'inizio
     firebase.initializeApp(firebaseConfig);
