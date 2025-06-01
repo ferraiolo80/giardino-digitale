@@ -202,7 +202,7 @@ function updateUIforAuthState(user) {
     if (user) {
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
-        authStatusSpan.innerHTML = `<i class="fas fa-spinner fa-user"></i> Benvenuto, ${user.email}!`;
+        authStatusSpan.innerHTML = `<i class="fas fa-spinner fa-user"></i>  Benvenuto  ${user.email}!`;
         logoutButton.style.display = 'block';
         
         // Assicurati che i form di aggiunta/aggiornamento siano nascosti
