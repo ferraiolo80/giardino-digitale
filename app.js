@@ -1065,6 +1065,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cardModal = document.getElementById('card-modal');
     zoomedCardContent = document.getElementById('zoomed-card-content');
     closeCardModalButton = document.getElementById('close-card-modal');
+    emptyGardenMessage = document.getElementById('empty-garden-message')
 
     // Inizializzazione delle nuove variabili DOM per la geolocalizzazione
     getClimateButton = document.getElementById('get-climate-button');
@@ -1087,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ogni volta che un filtro o l'ordinamento cambia, ricarica le piante
     if (searchInput) searchInput.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (categoryFilter) categoryFilter.addEventListener('change', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
-    if (climateZoneFilter) climateZoneFilter.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
+    if (climateZoneFilter) climateZoneFilter.addEventListener('change', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (tempMinFilter) tempMinFilter.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (sortBySelect) sortBySelect.addEventListener('change', (e) => {
