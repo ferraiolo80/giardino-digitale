@@ -798,7 +798,7 @@ function displayPlants(plantsToShow) {
     const targetContainer = isMyGardenCurrentlyVisible ? myGardenContainer : gardenContainer;
     const otherContainer = isMyGardenCurrentlyVisible ? gardenContainer : myGardenContainer;
     
-     (!targetContainer || !otherContainer || !plantsSectionHeader || !emptyGardenMessage) {
+     if (!targetContainer || !otherContainer || !plantsSectionHeader || !emptyGardenMessage) {
         console.error("Errore: Elementi DOM principali non inizializzati. Impossibile aggiornare la UI.");
         return; // Esci dalla funzione per prevenire ulteriori errori
     }
