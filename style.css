@@ -198,7 +198,7 @@ button:disabled {
 }
 
 .temp-filter-container input {
-    width: 80px; /* Specific width for temp inputs */
+    width: 150px; /* Specific width for temp inputs */
 }
 
 /* Plant Grid Layouts */
