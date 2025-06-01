@@ -697,6 +697,7 @@ function applyFiltersAndSort(plantsToFilter) {
 }
 
 function getLocation() {
+    console.log('getLocation: Funzione avviata.'); // Aggiungi questo
     if (navigator.geolocation) {
         locationStatusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Acquisizione posizione in corso...';
         showLoadingSpinner(); // Mostra spinner
