@@ -1012,7 +1012,6 @@ function openCardModal(plant) {
         <p><strong>Lux Ideali:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax}` : 'N/A'}</p>
         <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
         <p><strong>Temperatura Ideale:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
-        <p><strong>Zona Climatica:</strong> ${plant.climateZone || 'N/A'}</p>
         <div class="card-actions">
             ${isMyGardenCurrentlyVisible ? removeFromGardenButtonHtml : addToGardenButtonHtml}
             <button class="update-plant-button" data-plant-id="${plant.id}"><i class="fas fa-edit"></i> Aggiorna</button>
