@@ -216,8 +216,8 @@ function updateUIforAuthState(user) {
         myGardenContainer.style.display = 'none';
 
         // Carica i dati dal database
-        fetchPlantsFromFirestore();
-        fetchMyGardenFromFirebase();
+        await fetchPlantsFromFirestore();
+        await fetchMyGardenFromFirebase();
     } else {
         authContainerDiv.style.display = 'block';
         appContentDiv.style.display = 'none';
