@@ -393,11 +393,12 @@ async function savePlantToFirestore(e) {
     }
 
     try {
-        if (currentPlantIdToUpdate) {
-            // Aggiorna la pianta nel database
+       if (currentPlantIdToUpdate) {
+            // AGGIORNA una pianta esistente nel database 'plants'
             await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData);
             showToast('Pianta aggiornata con successo!', 'success');
-            // Aggiorna la pianta anche nel giardino dell'utente se presente
+
+            // Aggiorna la pianta anche nel giardino dell'utente (se presente)
             const user = firebase.auth().currentUser;
             if (user) {
                 const gardenRef = db.collection('gardens').doc(user.uid);
@@ -406,22 +407,29 @@ async function savePlantToFirestore(e) {
                     let currentGardenPlants = doc.data().plants || [];
                     const index = currentGardenPlants.findIndex(p => p.id === currentPlantIdToUpdate);
                     if (index !== -1) {
+                        // Mantiene il timestamp originale della pianta nel giardino
                         const originalPlantInGarden = currentGardenPlants[index];
-                        currentGardenPlants[index] = { id: currentPlantIdToUpdate, ...plantData, createdAt: originalPlantInGarden.createdAt || null // PRESERVA il timestamp originale };
+                        currentGardenPlants[index] = {
+                            id: currentPlantIdToUpdate,
+                            ...plantData, // Applica i dati aggiornati
+                            createdAt: originalPlantInGarden.createdAt || null // PRESERVA il timestamp originale
+                        };
                         await gardenRef.set({ plants: currentGardenPlants });
-                        myGarden = currentGardenPlants; // Sincronizza il giardino locale
+                        myGarden = currentGardenPlants; // Sincronizza la variabile locale
                     }
                 }
             }
         } else {
-            // Aggiungi una nuova pianta al database
+            // AGGIUNGI una NUOVA pianta al database 'plants'
+            // Solo qui impostiamo il timestamp di creazione
+            plantData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
             await db.collection('plants').add(plantData);
             showToast('Pianta aggiunta con successo!', 'success');
         }
         hidePlantForms();
         await fetchPlantsFromFirestore(); // Ricarica tutte le piante
         if (isMyGardenCurrentlyVisible) {
-        await fetchMyGardenFromFirebase(); // Ricarica il giardino se visibile
+            await fetchMyGardenFromFirebase(); // Ricarica il giardino se visibile
         }
     } catch (error) {
         showToast(`Errore durante il salvataggio: ${error.message}`, 'error');
