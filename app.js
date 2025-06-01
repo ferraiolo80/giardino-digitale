@@ -1139,9 +1139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         //event listener per la geolocalizzazione
-        if (!getClimateButton || !locationStatusDiv || !climateZoneFilter) 
-
-        getClimateButton.addEventListener('click', getLocation);
+        if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
         
         // Azioni sui bottoni all'interno delle card (o della card zoomata)
         if (event.target.classList.contains('add-to-garden-button')) {
