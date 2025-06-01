@@ -1094,6 +1094,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         climateZoneFilter.addEventListener('change', () => {
             // Quando il filtro cambia, ricarica le piante applicando i filtri
             displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants);
+         });
+    }      
+        
     if (tempMinFilter) tempMinFilter.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (sortBySelect) sortBySelect.addEventListener('change', (e) => {
