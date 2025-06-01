@@ -1037,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     logoutButton = document.getElementById('logoutButton');
     searchInput = document.getElementById('searchInput');
     categoryFilter = document.getElementById('categoryFilter');
-    climateZoneFilter = document.getElementById('climateZoneFilter');
+    
     tempMinFilter = document.getElementById('tempMinFilter');
     tempMaxFilter = document.getElementById('tempMaxFilter');
     sortBySelect = document.getElementById('sortBy');
