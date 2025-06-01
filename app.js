@@ -1090,7 +1090,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ogni volta che un filtro o l'ordinamento cambia, ricarica le piante
     if (searchInput) searchInput.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (categoryFilter) categoryFilter.addEventListener('change', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
-    if (climateZoneFilter) climateZoneFilter.addEventListener('change', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
+    if (climateZoneFilter) { // Verifica che la variabile non sia null
+        climateZoneFilter.addEventListener('change', () => {
+            // Quando il filtro cambia, ricarica le piante applicando i filtri
+            displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants);
     if (tempMinFilter) tempMinFilter.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (tempMaxFilter) tempMaxFilter.addEventListener('input', () => displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants));
     if (sortBySelect) sortBySelect.addEventListener('change', (e) => {
