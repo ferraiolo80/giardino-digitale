@@ -372,7 +372,7 @@ async function savePlantToFirestore(e) {
     showLoadingSpinner();
 
     const formPrefix = currentPlantIdToUpdate ? 'update' : 'new';
-    const plantData = {
+    let plantData = {
         name: document.getElementById(`${formPrefix}PlantName`).value.trim(),
         sunlight: document.getElementById(`${formPrefix}PlantSunlight`).value,
         idealLuxMin: document.getElementById(`${formPrefix}PlantIdealLuxMin`).value.trim() !== '' ? parseFloat(document.getElementById(`${formPrefix}PlantIdealLuxMin`).value.trim()) : null,
@@ -384,7 +384,7 @@ async function savePlantToFirestore(e) {
         description: document.getElementById(`${formPrefix}PlantDescription`).value.trim() || null,
         category: document.getElementById(`${formPrefix}PlantCategory`).value,
         image: document.getElementById(`${formPrefix}PlantImageURL`).value.trim() || null,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        //createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
     if (!validatePlantForm(plantData, !!currentPlantIdToUpdate)) {
@@ -406,7 +406,8 @@ async function savePlantToFirestore(e) {
                     let currentGardenPlants = doc.data().plants || [];
                     const index = currentGardenPlants.findIndex(p => p.id === currentPlantIdToUpdate);
                     if (index !== -1) {
-                        currentGardenPlants[index] = { id: currentPlantIdToUpdate, ...plantData };
+                        const originalPlantInGarden = currentGardenPlants[index];
+                        currentGardenPlants[index] = { id: currentPlantIdToUpdate, ...plantData, createdAt: originalPlantInGarden.createdAt || null // PRESERVA il timestamp originale };
                         await gardenRef.set({ plants: currentGardenPlants });
                         myGarden = currentGardenPlants; // Sincronizza il giardino locale
                     }
