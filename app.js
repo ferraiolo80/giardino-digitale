@@ -797,12 +797,14 @@ function displayPlants(plantsToShow) {
     let html = '';
     const targetContainer = isMyGardenCurrentlyVisible ? myGardenContainer : gardenContainer;
     const otherContainer = isMyGardenCurrentlyVisible ? gardenContainer : myGardenContainer;
-    const emptyGardenMessage = document.getElementById('empty-garden-message');
+    
+     (!targetContainer || !otherContainer || !plantsSectionHeader || !emptyGardenMessage) {
+        console.error("Errore: Elementi DOM principali non inizializzati. Impossibile aggiornare la UI.");
+        return; // Esci dalla funzione per prevenire ulteriori errori
+    }
 
     // Aggiorna l'header della sezione
-    if (plantsSectionHeader) {
-        plantsSectionHeader.textContent = isMyGardenCurrentlyVisible ? "Il Mio Giardino" : "Tutte le Piante Disponibili";
-    }
+    plantsSectionHeader.textContent = isMyGardenCurrentlyVisible ? "Il Mio Giardino" : "Tutte le Piante Disponibili";
 
     if (filteredAndSortedPlants.length === 0) {
         targetContainer.innerHTML = ''; // Svuota il contenitore
