@@ -853,6 +853,7 @@ function displayMyGarden() {
     hidePlantForms(); // Nascondi i form di aggiunta/modifica
     isMyGardenCurrentlyVisible = true;
     displayPlants(myGarden);
+    if (addNewPlantButton) addNewPlantButton.style.display = 'none';
     // Assicurati che il giardino sia scrollato in vista
     myGardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -862,6 +863,7 @@ function displayAllPlants() {
     hidePlantForms(); // Nascondi i form di aggiunta/modifica
     isMyGardenCurrentlyVisible = false;
     displayPlants(allPlants);
+    if (addNewPlantButton) addNewPlantButton.style.display = 'block';
     // Assicurati che la galleria principale sia scrollata in vista
     gardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
