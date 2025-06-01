@@ -1101,6 +1101,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
     if (addNewPlantButton) addNewPlantButton.addEventListener('click', showNewPlantForm);
 
+     //event listener per la geolocalizzazione
+    if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
+
     // Event Listeners per i form di aggiunta/aggiornamento
     const saveNewPlantButton = document.getElementById('saveNewPlantButton');
     const cancelNewPlantButton = document.getElementById('cancelNewPlantButton');
@@ -1141,9 +1144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return; // Ferma l'evento
         }
 
-        //event listener per la geolocalizzazione
-        if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
-        
+              
         // Azioni sui bottoni all'interno delle card (o della card zoomata)
         if (event.target.classList.contains('add-to-garden-button')) {
             const plantIdToAdd = event.target.dataset.plantId;
