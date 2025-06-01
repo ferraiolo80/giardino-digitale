@@ -39,6 +39,7 @@ let lightFeedbackSpan;
 let tempMinFilter;
 let tempMaxFilter;
 let sortBySelect; // Selettore per l'ordinamento
+let googleLensButton; //variabile per google lens
 
 // Variabili per le Modal
 let imageModal; // Modal per zoom immagine
@@ -1084,6 +1085,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     climateZoneFilter = document.getElementById('climateZoneFilter');
     console.log('Valore di climateZoneFilter dopo getElementById:', climateZoneFilter); // AGGIUNGI QUESTA LINEA
 
+    //inizializzazione delle variabili per google lens
+    googleLensButton = document.getElementById('googleLensButton');
+
      // Inizializza Firebase all'inizio
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
@@ -1117,6 +1121,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
     if (addNewPlantButton) addNewPlantButton.addEventListener('click', showNewPlantForm);
+
+    //Event Listener per il bottone google Lens
+    if (googleLensButton) {
+    googleLensButton.addEventListener('click', () => {
+        window.open('https://images.google.com/imghp?hl=it&gws_rd=ssl', '_blank');
+        showToast('Verrai reindirizzato alla ricerca per immagine di Google. Carica un\'immagine per l\'identificazione.', 'info');
+    });
+}
 
      //event listener per la geolocalizzazione
     if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
