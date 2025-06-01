@@ -62,8 +62,7 @@ const CLIMATE_TEMP_RANGES = {
     'Subtropicale': { min: 10, max: 38 },
     'Boreale/Artico': { min: -40, max: 20 },
     'Arido': { min: 0, max: 45 },
-    'Sconosciuto': { min: -999, max: 999 } // Ampio range per non filtrare se il clima è sconosciuto
-};
+    };
 
 let db; // Istanza di Firestore
 
