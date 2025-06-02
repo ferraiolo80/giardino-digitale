@@ -918,7 +918,7 @@ async function startLightSensor() {
     const hasPermission = await requestLightSensorPermission();
     if (!hasPermission) {
         hideLoadingSpinner();
-        if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso.</p>';
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso.</p>';
         showToast('Permesso per il sensore di luce negato o non concesso.', 'error');
         return;
     }
@@ -934,7 +934,7 @@ async function startLightSensor() {
 
             ambientLightSensor.onreading = (event) => {
                 const lux = ambientLightSensor.illuminance;
-                if (lightDataSpan) lightDataSpan.textContent = `Luminosità attuale: ${lux.toFixed(2)} lux`;
+                if (currentLuxValueSpan) currentLuxValueSpan.textContent = ` ${lux.toFixed(2)} lux`;
 
                 // *** QUESTA È LA LOGICA CHE DESIDERI PER IL FEEDBACK DELLE PIANTE ***
                 if (myGarden && myGarden.length > 0 && lux != null) {
@@ -961,18 +961,18 @@ async function startLightSensor() {
                         }
                     });
                     feedbackHtml += '</ul>';
-                    if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = feedbackHtml;
+                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = feedbackHtml;
                 } else {
                     // Messaggio se non ci sono piante nel giardino o dati lux
-                    if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = '<p>Nessuna pianta nel tuo giardino con dati Lux ideali impostati, o nessun valore rilevato.</p>';
+                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Nessuna pianta nel tuo giardino con dati Lux ideali impostati, o nessun valore rilevato.</p>';
                 }
                 // *** FINE LOGICA FEEDBACK PIANTE ***
             };
 
             ambientLightSensor.onerror = (event) => {
                 console.error("Errore sensore di luce:", event.error.name, event.error.message);
-                if (lightDataSpan) lightDataSpan.textContent = 'Errore';
-                if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
+                if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'Errore';
+                if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
                 showToast(`Errore sensore luce: ${event.error.message}`, 'error');
                 stopLightSensor(); // Ferma il sensore in caso di errore
             };
@@ -980,19 +980,19 @@ async function startLightSensor() {
             await ambientLightSensor.start();
             if (startLightSensorButton) startLightSensorButton.style.display = 'none';
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
-            if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = "Misurazione in corso...";
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = "Misurazione in corso...";
             showToast('Sensore luce avviato con successo.', 'info');
         } catch (error) {
             console.error("Impossibile avviare il sensore di luce:", error);
-            if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = `<p style="color: red;">Impossibile avviare il sensore di luce. Assicurati che il tuo dispositivo lo supporti e che tu abbia concesso i permessi. ${error.message}</p>`;
-            if (lightDataSpan) lightDataSpan.textContent = 'N/A';
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Impossibile avviare il sensore di luce. Assicurati che il tuo dispositivo lo supporti e che tu abbia concesso i permessi. ${error.message}</p>`;
+            if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A';
             showToast(`Impossibile avviare il sensore luce: ${error.message}`, 'error');
         } finally {
             hideLoadingSpinner(); // CORREZIONE: hideSpinner() -> hideLoadingSpinner()
         }
     } else {
-        if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = '<p style="color: orange;">Il sensore di luce ambientale non è supportato dal tuo dispositivo.</p>';
-        if (lightDataSpan) lightDataSpan.textContent = 'N/A';
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: orange;">Il sensore di luce ambientale non è supportato dal tuo dispositivo.</p>';
+        if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A';
         showToast('Il sensore di luce ambientale non è supportato dal tuo dispositivo.', 'info');
         hideLoadingSpinner();
     }
