@@ -37,7 +37,6 @@ let stopLightSensorButton;
 let currentLuxValueSpan;
 let lightFeedbackDiv;
 let lightDataSpan;
-let lightFeedbackSpan;
 let tempMinFilter;
 let tempMaxFilter;
 let sortBySelect; // Selettore per l'ordinamento
@@ -1004,9 +1003,9 @@ function stopLightSensor() {
     if (ambientLightSensor) {
         ambientLightSensor.stop();
         ambientLightSensor = null;
-        lightDataSpan.textContent = 'Luminosità: N/A';
-        lightFeedbackSpan.textContent = 'Sensore spento.';
-        lightFeedbackSpan.style.color = '#555';
+        currentLuxValueSpan.textContent = 'Luminosità: N/A';
+        lightFeedbackDiv.textContent = 'Sensore spento.';
+        lightFeedbackDiv.style.color = '#555';
         startLightSensorButton.style.display = 'inline-block';
         stopLightSensorButton.style.display = 'none';
         showToast('Sensore di luce fermato.', 'info');
