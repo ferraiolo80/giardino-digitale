@@ -337,7 +337,7 @@ function showUpdatePlantForm(plant) {
     document.getElementById('updatePlantIdealLuxMax').value = plant.idealLuxMax !== null ? plant.idealLuxMax.toString() : '';
     document.getElementById('updatePlantWatering').value = plant.watering || '';
     document.getElementById('updatePlantTempMin').value = plant.tempMin !== null ? plant.tempMin.toString() : '';
-    document.getElementById('updatePlantTempMax').value = plant.tempMax !== null ? plant.tempMax.oString() : '';
+    document.getElementById('updatePlantTempMax').value = plant.tempMax !== null ? plant.tempMax.toString() : '';
     document.getElementById('updatePlantDescription').value = plant.description || '';
     document.getElementById('updatePlantCategory').value = plant.category || '';
     document.getElementById('updatePlantImageURL').value = plant.image || '';
