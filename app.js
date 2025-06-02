@@ -1156,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Usa 'block' o 'flex' a seconda di come è stilizzato 'main-content-section' nel tuo CSS
             // Dalle tue snippet, 'main-content-section' sembra essere 'block' di default o 'flex' per i layout
             // Inizia con 'block', se non va controlla lo style.css per .main-content-section display
-            lightSensorContainer.style.display = 'block'; 
+            lightSensorContainer.style.display = 'flex'; 
         }
 
      //event listener per la geolocalizzazione
