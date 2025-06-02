@@ -380,7 +380,7 @@ async function savePlantToFirestore(e) {
         watering: document.getElementById(`${formPrefix}PlantWatering`).value,
         tempMin: document.getElementById(`${formPrefix}PlantTempMin`).value.trim() !== '' ? parseFloat(document.getElementById(`${formPrefix}PlantTempMin`).value.trim()) : null,
         tempMax: document.getElementById(`${formPrefix}PlantTempMax`).value.trim() !== '' ? parseFloat(document.getElementById(`${formPrefix}PlantTempMax`).value.trim()) : null,
-        climateZone: document.getElementById(`${formPrefix}PlantClimateZone`).value.trim() || null,
+        //climateZone: document.getElementById(`${formPrefix}PlantClimateZone`).value.trim() || null,
         description: document.getElementById(`${formPrefix}PlantDescription`).value.trim() || null,
         category: document.getElementById(`${formPrefix}PlantCategory`).value,
         image: document.getElementById(`${formPrefix}PlantImageURL`).value.trim() || null,
