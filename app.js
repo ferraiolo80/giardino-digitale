@@ -3,8 +3,6 @@ let allPlants = [];
 let myGarden = []; // Inizializza come array vuoto
 let currentPlantIdToUpdate = null; // Tiene traccia dell'ID della pianta da aggiornare (per modifica/eliminazione)
 let ambientLightSensor = null; // Sensore di luce ambientale
-let currentLuxValueSpan;
-let lightFeedbackDiv;
 let isMyGardenCurrentlyVisible = false; // Flag per la visualizzazione corrente (true = Mio Giardino, false = Tutte le Piante)
 let currentSortBy = 'name_asc'; // Criterio di ordinamento di default
 
@@ -36,6 +34,8 @@ let plantsSectionHeader; // Header della sezione piante (es. "Tutte le Piante Di
 let lightSensorContainer;
 let startLightSensorButton;
 let stopLightSensorButton;
+let currentLuxValueSpan;
+let lightFeedbackDiv;
 let lightDataSpan;
 let lightFeedbackSpan;
 let tempMinFilter;
