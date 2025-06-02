@@ -913,73 +913,88 @@ async function requestLightSensorPermission() {
 
 // Avvia la lettura del sensore di luce
 async function startLightSensor() {
-    showLoadingSpinner(); 
+    showLoadingSpinner(); // CORREZIONE: showSpinner() -> showLoadingSpinner()
+
+    const hasPermission = await requestLightSensorPermission();
+    if (!hasPermission) {
+        hideLoadingSpinner();
+        if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso.</p>';
+        showToast('Permesso per il sensore di luce negato o non concesso.', 'error');
+        return;
+    }
 
     if ('AmbientLightSensor' in window) {
         if (ambientLightSensor) {
-            ambientLightSensor.stop(); 
+            ambientLightSensor.stop();
+            ambientLightSensor = null; // Resetta l'istanza
         }
-        ambientLightSensor = new AmbientLightSensor();
-
-        ambientLightSensor.onreading = () => {
-            const lux = ambientLightSensor.illuminance;
-            if (currentLuxValueSpan) currentLuxValueSpan.textContent = lux.toFixed(2);
-
-            if (myGarden && myGarden.length > 0 && lux != null) {
-                let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
-                const plantsInGarden = allPlants.filter(plant => myGarden.includes(plant.id));
-
-                plantsInGarden.forEach(plant => {
-                    const minLux = plant.idealLuxMin;
-                    const maxLux = plant.idealLuxMax;
-
-                    if (minLux != null && maxLux != null) {
-                        let feedbackMessage = `${plant.name}: `;
-                        if (lux < minLux) {
-                            feedbackMessage += `<span style="color: red;">Troppo poca luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
-                        } else if (lux > maxLux) {
-                            feedbackMessage += `<span style="color: orange;">Troppa luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
-                        } else {
-                            feedbackMessage += `<span style="color: green;">Luce ideale!</span> (Richiede ${minLux}-${maxLux} Lux)`;
-                        }
-                        feedbackHtml += `<li>${feedbackMessage}</li>`;
-                    } else {
-                        feedbackHtml += `<li>${plant.name}: Nessun dato Lux ideale disponibile.</li>`;
-                    }
-                });
-                feedbackHtml += '</ul>';
-                if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = feedbackHtml;
-            } else {
-                if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Nessuna pianta nel tuo giardino con dati Lux ideali, o nessun valore rilevato.</p>';
-            }
-        };
-
-        ambientLightSensor.onerror = (event) => {
-            console.error("Errore sensore di luce:", event.error.name, event.error.message);
-            if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'Errore';
-            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
-            showToast(`Errore sensore luce: ${event.error.message}`, 'error'); 
-        };
 
         try {
-            await ambientLightSensor.start(); 
+            ambientLightSensor = new AmbientLightSensor();
+
+            ambientLightSensor.onreading = (event) => {
+                const lux = ambientLightSensor.illuminance;
+                if (lightDataSpan) lightDataSpan.textContent = `Luminosità attuale: ${lux.toFixed(2)} lux`;
+
+                // *** QUESTA È LA LOGICA CHE DESIDERI PER IL FEEDBACK DELLE PIANTE ***
+                if (myGarden && myGarden.length > 0 && lux != null) {
+                    let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
+                    // allPlants deve essere caricato e contenere tutte le piante dal DB
+                    const plantsInGarden = allPlants.filter(plant => myGarden.includes(plant.id));
+
+                    plantsInGarden.forEach(plant => {
+                        const minLux = plant.idealLuxMin;
+                        const maxLux = plant.idealLuxMax;
+
+                        if (minLux != null && maxLux != null) {
+                            let feedbackMessage = `${plant.name}: `;
+                            if (lux < minLux) {
+                                feedbackMessage += `<span style="color: red;">Troppo poca luce!</span> (Richiede <span class="math-inline">\{minLux\}\-</span>{maxLux} Lux)`;
+                            } else if (lux > maxLux) {
+                                feedbackMessage += `<span style="color: orange;">Troppa luce!</span> (Richiede <span class="math-inline">\{minLux\}\-</span>{maxLux} Lux)`;
+                            } else {
+                                feedbackMessage += `<span style="color: green;">Luce ideale!</span> (Richiede <span class="math-inline">\{minLux\}\-</span>{maxLux} Lux)`;
+                            }
+                            feedbackHtml += `<li>${feedbackMessage}</li>`;
+                        } else {
+                            feedbackHtml += `<li>${plant.name}: Nessun dato Lux ideale disponibile.</li>`;
+                        }
+                    });
+                    feedbackHtml += '</ul>';
+                    if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = feedbackHtml;
+                } else {
+                    // Messaggio se non ci sono piante nel giardino o dati lux
+                    if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = '<p>Nessuna pianta nel tuo giardino con dati Lux ideali impostati, o nessun valore rilevato.</p>';
+                }
+                // *** FINE LOGICA FEEDBACK PIANTE ***
+            };
+
+            ambientLightSensor.onerror = (event) => {
+                console.error("Errore sensore di luce:", event.error.name, event.error.message);
+                if (lightDataSpan) lightDataSpan.textContent = 'Errore';
+                if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
+                showToast(`Errore sensore luce: ${event.error.message}`, 'error');
+                stopLightSensor(); // Ferma il sensore in caso di errore
+            };
+
+            await ambientLightSensor.start();
             if (startLightSensorButton) startLightSensorButton.style.display = 'none';
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
-            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = "Misurazione in corso...";
-            showToast('Sensore luce avviato con successo.', 'info'); 
+            if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = "Misurazione in corso...";
+            showToast('Sensore luce avviato con successo.', 'info');
         } catch (error) {
             console.error("Impossibile avviare il sensore di luce:", error);
-            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Impossibile avviare il sensore di luce. Assicurati che il tuo dispositivo lo supporti e che tu abbia concesso i permessi. ${error.message}</p>`;
-            if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A';
-            showToast(`Impossibile avviare il sensore luce: ${error.message}`, 'error'); 
+            if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = `<p style="color: red;">Impossibile avviare il sensore di luce. Assicurati che il tuo dispositivo lo supporti e che tu abbia concesso i permessi. ${error.message}</p>`;
+            if (lightDataSpan) lightDataSpan.textContent = 'N/A';
+            showToast(`Impossibile avviare il sensore luce: ${error.message}`, 'error');
         } finally {
-            hideSpinner(); 
+            hideLoadingSpinner(); // CORREZIONE: hideSpinner() -> hideLoadingSpinner()
         }
     } else {
-        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: orange;">Il sensore di luce ambientale non è supportato dal tuo dispositivo.</p>';
-        if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A';
-        showToast('Il sensore di luce ambientale non è supportato dal tuo dispositivo.', 'info'); 
-        hideSpinner(); 
+        if (lightFeedbackSpan) lightFeedbackSpan.innerHTML = '<p style="color: orange;">Il sensore di luce ambientale non è supportato dal tuo dispositivo.</p>';
+        if (lightDataSpan) lightDataSpan.textContent = 'N/A';
+        showToast('Il sensore di luce ambientale non è supportato dal tuo dispositivo.', 'info');
+        hideLoadingSpinner();
     }
 }
 
