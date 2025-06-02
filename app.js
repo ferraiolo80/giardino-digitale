@@ -1086,6 +1086,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     startLightSensorButton = document.getElementById('startLightSensorButton');
     stopLightSensorButton = document.getElementById('stopLightSensorButton');
     currentLuxValueSpan = document.getElementById('currentLuxValue');
+    lightSensorContainer = document.getElementById('lightSensorContainer'); // Assicurati sia presente anche questa!
     lightFeedbackDiv = document.getElementById('lightFeedback');
     lightDataSpan = document.getElementById('currentLuxValue');
     lightFeedbackSpan = document.getElementById('lightFeedback');
@@ -1151,6 +1152,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         showToast('Verrai reindirizzato alla ricerca per immagine di Google. Carica un\'immagine per l\'identificazione.', 'info');
     });
 }
+    if (lightSensorContainer) {
+            // Usa 'block' o 'flex' a seconda di come è stilizzato 'main-content-section' nel tuo CSS
+            // Dalle tue snippet, 'main-content-section' sembra essere 'block' di default o 'flex' per i layout
+            // Inizia con 'block', se non va controlla lo style.css per .main-content-section display
+            lightSensorContainer.style.display = 'block'; 
+        }
 
      //event listener per la geolocalizzazione
     if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
