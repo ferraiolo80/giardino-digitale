@@ -913,7 +913,7 @@ async function requestLightSensorPermission() {
 
 // Avvia la lettura del sensore di luce
 async function startLightSensor() {
-    showSpinner(); 
+    showLoadingSpinner(); 
 
     if ('AmbientLightSensor' in window) {
         if (ambientLightSensor) {
