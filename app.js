@@ -938,10 +938,13 @@ async function startLightSensor() {
             } else if (lux < 5000) {
                 lightFeedbackSpan.textContent = 'Luminosità media, buona per molte piante da interno.';
                 lightFeedbackSpan.style.color = 'green';
-            } else {
+            } else if (lux < 15000){
                 lightFeedbackSpan.textContent = 'Luminosità alta, adatta a piante da pieno sole.';
                 lightFeedbackSpan.style.color = 'darkgreen';
-            }
+            }else { // Questo si attiverà per valori vicini al limite del tuo sensore (es. > 15000 fino a 65535)
+                lightFeedbackSpan.textContent = `Luminosità molto intensa (${lux.toFixed(0)} lux) - Il tuo sensore ha raggiunto il limite. Corrisponde a pieno sole o luce diretta.`;
+                lightFeedbackSpan.style.color = '#1a5200'; // Un verde ancora più scuro
+}
         };
 
         ambientLightSensor.onerror = (event) => {
