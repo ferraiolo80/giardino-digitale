@@ -125,13 +125,20 @@
             </div>
         </section>
 
-        <section class="light-sensor-container">
-            <h2>Sensore di Luce Ambientale</h2>
-            <p id="currentLuxValue">Luminosità: N/A</p>
-            <p id="lightFeedback">Sensore spento.</p>
-            <button id="startLightSensorButton"><i class="fas fa-sun"></i> Avvia Sensore</button>
-            <button id="stopLightSensorButton" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
-        </section>
+       <section id="lightSensorContainer" class="main-content-section" style="display: none;">
+    <h2>Sensore di Luce Ambientale</h2>
+    
+    <div class="sensor-controls">
+        <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
+        <button id="stopLightSensorButton" class="secondary-button" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
+    </div>
+    
+    <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
+    
+    <div id="lightFeedback">
+        <p>Attiva il sensore per la misurazione e per il feedback specifico sulle piante.</p>
+    </div>
+</section>
 
         <section id="newPlantCard" class="plant-form-card" style="display: none;">
             <h2>Aggiungi Nuova Pianta</h2>
