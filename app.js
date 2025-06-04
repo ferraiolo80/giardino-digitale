@@ -199,28 +199,27 @@ function clearFormValidationErrors(formElement) {
 // =======================================================
 
 // Aggiorna la UI in base allo stato di autenticazione dell'utente
-async function updateUIforAuthState(user) { // DEVE ESSERE 'async'
-    hideLoadingSpinner(); // Nascondi lo spinner di login/registrazione
-
+async function updateUIforAuthState(user) { 
+    hideLoadingSpinner(); 
+    
     if (user) {
         // Utente loggato
         authStatusSpan.textContent = `Benvenuto, ${user.email}!`;
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
-
+        
         // CARICAMENTO DATI CRITICO: Attendiamo che allPlants e myGarden siano popolati
         await fetchPlantsFromFirestore(); // Popola allPlants
         await fetchMyGardenFromFirebase(); // Popola myGarden
-
+        
         // Ora che i dati sono disponibili, visualizza le piante
         displayPlants(allPlants); // Mostra tutte le piante con i pulsanti corretti
-
         // ... (resto della logica per utente loggato, come impostare header, pulsanti attivi, ecc.) ...
         plantsSectionHeader.textContent = 'Tutte le Piante Disponibili';
         showAllPlantsButton.classList.add('active');
         showMyGardenButton.classList.remove('active');
         isMyGardenCurrentlyVisible = false;
-
+        
     } else {
         // Utente non loggato
         authStatusSpan.textContent = 'Non autenticato';
@@ -233,10 +232,7 @@ async function updateUIforAuthState(user) { // DEVE ESSERE 'async'
         myGarden = [];
         displayPlants([]);
     }
-        
         isMyGardenCurrentlyVisible = false;
-        // Resetta i filtri e l'ordinamento
-        // Resetta i filtri e l'ordinamento
         if (searchInput) searchInput.value = '';
         if (categoryFilter) categoryFilter.value = 'all';
         if (climateZoneFilter) climateZoneFilter.value = '';
@@ -244,7 +240,6 @@ async function updateUIforAuthState(user) { // DEVE ESSERE 'async'
         if (tempMaxFilter) tempMaxFilter.value = '';
         if (sortBySelect) sortBySelect.value = 'name_asc';
     }
-}
 
 // Gestisce il login dell'utente
 async function handleLogin(e) {
