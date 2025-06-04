@@ -913,8 +913,8 @@ async function requestLightSensorPermission() {
 // Avvia la lettura del sensore di luce
 async function startLightSensor() {
     showLoadingSpinner(); // CORREZIONE: showSpinner() -> showLoadingSpinner()
-    await fetchPlants(); // Assicura che allPlants sia aggiornato con tutte le piante
-    await loadMyGarden(); // Assicura che myGarden sia aggiornato con le piante dell'utente
+    await fetchPlantsFromFirestore(); // Assicura che allPlants sia aggiornato con tutte le piante
+    await fetchMyGardenFromFirebase(); // Assicura che myGarden sia aggiornato con le piante dell'utente
     
     const hasPermission = await requestLightSensorPermission();
     if (!hasPermission) {
