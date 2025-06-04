@@ -1272,6 +1272,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Questo listener è fondamentale e si attiva ogni volta che lo stato di autenticazione cambia (login, logout, refresh)
     // È posizionato qui per assicurarsi che tutti gli elementi DOM siano inizializzati prima che updateUIforAuthState venga chiamato.
     firebase.auth().onAuthStateChanged(async user => {
-        updateUIforAuthState(user);
+        await updateUIforAuthState(user);
     });
 });
