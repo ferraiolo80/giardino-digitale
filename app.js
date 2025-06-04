@@ -36,7 +36,6 @@ let startLightSensorButton;
 let stopLightSensorButton;
 let currentLuxValueSpan;
 let lightFeedbackDiv;
-//let lightDataSpan;
 let tempMinFilter;
 let tempMaxFilter;
 let sortBySelect; // Selettore per l'ordinamento
@@ -1104,8 +1103,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentLuxValueSpan = document.getElementById('currentLuxValue');
     lightSensorContainer = document.getElementById('lightSensorContainer'); // Assicurati sia presente anche questa!
     lightFeedbackDiv = document.getElementById('lightFeedback');
-    //lightDataSpan = document.getElementById('currentLuxValue');
-    //lightFeedbackSpan = document.getElementById('lightFeedback');
     loadingSpinner = document.getElementById('loading-spinner');
     toastContainer = document.getElementById('toast-container');
 
