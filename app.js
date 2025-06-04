@@ -566,25 +566,18 @@ async function removeFromMyGarden(plantId) {
 
 // Recupera tutte le piante dalla collezione 'plants' di Firestore
 async function fetchPlantsFromFirestore() {
-    showLoadingSpinner();
+    showLoadingSpinner(); // Potresti considerare di rimuoverlo se lo spinner è gestito da updateUIforAuthState
     try {
         const plantsRef = db.collection('plants');
         const snapshot = await plantsRef.get();
         allPlants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        console.log("Piante caricate da Firestore:", allPlants);
-        
-        // Determina quale set di piante visualizzare in base allo stato corrente
-        if (isMyGardenCurrentlyVisible) {
-             displayPlants(myGarden); // Se era già visibile il giardino, lo ricarico
-        } else {
-             displayPlants(allPlants); // Altrimenti, mostro tutte le piante
-        }
-
+        console.log("Piante caricate da Firestore:", allPlants); // Un solo console.log basta
     } catch (error) {
-        showToast(`Errore nel caricamento delle piante: ${error.message}`, 'error');
-        console.error("Errore nel caricamento delle piante: ", error);
+        console.error("Errore nel caricamento delle piante:", error);
+        showToast('Errore nel caricamento delle piante: ' + error.message, 'error');
+        allPlants = []; // Assicurati che sia vuoto in caso di errore
     } finally {
-        hideLoadingSpinner();
+        hideLoadingSpinner(); // Potresti considerare di rimuoverlo se lo spinner è gestito da updateUIforAuthState
     }
 }
 
