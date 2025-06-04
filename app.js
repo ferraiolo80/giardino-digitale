@@ -199,7 +199,7 @@ function clearFormValidationErrors(formElement) {
 // =======================================================
 
 // Aggiorna la UI in base allo stato di autenticazione dell'utente
-function updateUIforAuthState(user) {
+async function updateUIforAuthState(user) {
     if (user) {
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
