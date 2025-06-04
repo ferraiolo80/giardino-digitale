@@ -563,7 +563,7 @@ async function removeFromMyGarden(plantId) {
 
 // Recupera tutte le piante dalla collezione 'plants' di Firestore
 async function fetchPlantsFromFirestore() {
-    showLoadingSpinner(); // Potresti considerare di rimuoverlo se lo spinner è gestito da updateUIforAuthState
+    
     try {
         const plantsRef = db.collection('plants');
         const snapshot = await plantsRef.get();
@@ -574,7 +574,7 @@ async function fetchPlantsFromFirestore() {
         showToast('Errore nel caricamento delle piante: ' + error.message, 'error');
         allPlants = []; // Assicurati che sia vuoto in caso di errore
     } finally {
-        hideLoadingSpinner(); // Potresti considerare di rimuoverlo se lo spinner è gestito da updateUIforAuthState
+        
     }
 }
 
@@ -584,10 +584,9 @@ async function fetchMyGardenFromFirebase() {
     if (!user) {
         myGarden = [];
         console.log("Utente non autenticato, giardino vuoto.");
-        // Non nascondo lo spinner qui, lo fa fetchPlantsFromFirestore o l'interazione iniziale.
         return;
     }
-    showLoadingSpinner(); // Mostra spinner anche qui
+    
     try {
         const gardenRef = db.collection('gardens').doc(user.uid);
         const doc = await gardenRef.get();
@@ -606,7 +605,7 @@ async function fetchMyGardenFromFirebase() {
         showToast(`Errore nel caricamento del tuo giardino: ${error.message}`, 'error');
         console.error("Errore nel caricamento del mio giardino: ", error);
     } finally {
-        hideLoadingSpinner();
+        
     }
 }
 
@@ -904,6 +903,9 @@ async function startLightSensor() {
     showLoadingSpinner(); // CORREZIONE: showSpinner() -> showLoadingSpinner()
     await fetchPlantsFromFirestore(); // Assicura che allPlants sia aggiornato con tutte le piante
     await fetchMyGardenFromFirebase(); // Assicura che myGarden sia aggiornato con le piante dell'utente
+
+     console.log("allPlants dopo fetch in startLightSensor:", allPlants);
+    console.log("myGarden dopo fetch in startLightSensor:", myGarden);
     
     const hasPermission = await requestLightSensorPermission();
     if (!hasPermission) {
