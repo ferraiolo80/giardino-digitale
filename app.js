@@ -217,8 +217,8 @@ function updateUIforAuthState(user) {
         myGardenContainer.style.display = 'none';
 
         // Carica i dati dal database
-        fetchPlantsFromFirestore();
-        fetchMyGardenFromFirebase();
+        await fetchPlantsFromFirestore();
+        await fetchMyGardenFromFirebase();
     } else {
         authContainerDiv.style.display = 'block';
         appContentDiv.style.display = 'none';
@@ -1265,7 +1265,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Gestione dello stato di autenticazione iniziale
     // Questo listener è fondamentale e si attiva ogni volta che lo stato di autenticazione cambia (login, logout, refresh)
     // È posizionato qui per assicurarsi che tutti gli elementi DOM siano inizializzati prima che updateUIforAuthState venga chiamato.
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(async user => {
         updateUIforAuthState(user);
     });
 });
