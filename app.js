@@ -569,12 +569,12 @@ async function fetchPlantsFromFirestore() {
         const snapshot = await plantsRef.get();
         allPlants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         console.log("Piante caricate da Firestore:", allPlants); // Un solo console.log basta
+        return allPlants;
     } catch (error) {
         console.error("Errore nel caricamento delle piante:", error);
         showToast('Errore nel caricamento delle piante: ' + error.message, 'error');
         allPlants = []; // Assicurati che sia vuoto in caso di errore
-    } finally {
-        
+        return [];
     }
 }
 
@@ -584,7 +584,7 @@ async function fetchMyGardenFromFirebase() {
     if (!user) {
         myGarden = [];
         console.log("Utente non autenticato, giardino vuoto.");
-        return;
+        return [];
     }
     
     try {
@@ -593,18 +593,18 @@ async function fetchMyGardenFromFirebase() {
         if (doc.exists) {
             myGarden = doc.data().plants || [];
             console.log("Giardino caricato da Firebase:", myGarden);
+            return myGarden;
         } else {
             myGarden = [];
             console.log("Nessun documento del giardino trovato per l'utente, giardino vuoto.");
+            return [];
         }
-        // Se myGarden è attualmente visibile, lo ricarico subito
-        if (isMyGardenCurrentlyVisible) {
-            displayMyGarden();
-        }
+       
     } catch (error) {
         showToast(`Errore nel caricamento del tuo giardino: ${error.message}`, 'error');
         console.error("Errore nel caricamento del mio giardino: ", error);
-    } finally {
+        myGarden = [];
+        return []; 
         
     }
 }
