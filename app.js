@@ -938,34 +938,43 @@ async function startLightSensor() {
 
                 // *** QUESTA È LA LOGICA CHE DESIDERI PER IL FEEDBACK DELLE PIANTE ***
                 if (myGarden && myGarden.length > 0 && lux != null) {
-                    let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
-                    // allPlants deve essere caricato e contenere tutte le piante dal DB
-                    const plantsInGarden = allPlants.filter(plant => myGarden.includes(plant.id));
+            let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
+            const plantsInGarden = allPlants.filter(plant => myGarden.includes(plant.id));
 
-                    plantsInGarden.forEach(plant => {
-                        const minLux = plant.idealLuxMin;
-                        const maxLux = plant.idealLuxMax;
+            if (plantsInGarden.length > 0) {
+                plantsInGarden.forEach(plant => {
+                    const minLux = plant.idealLuxMin;
+                    const maxLux = plant.idealLuxMax;
 
-                        if (minLux != null && maxLux != null) {
-                            let feedbackMessage = `${plant.name}: `;
-                            if (lux < minLux) {
-                                feedbackMessage += `<span style="color: red;">Troppo poca luce!</span> (Richiede <span class="math-inline">\{minLux\}\-</span>{maxLux} Lux)`;
-                            } else if (lux > maxLux) {
-                                feedbackMessage += `<span style="color: orange;">Troppa luce!</span> (Richiede <span class="math-inline">\{minLux\}\-</span>{maxLux} Lux)`;
-                            } else {
-                                feedbackMessage += `<span style="color: green;">Luce ideale!</span> (Richiede <span class="math-inline">\{minLux\}\-</span>{maxLux} Lux)`;
-                            }
-                            feedbackHtml += `<li>${feedbackMessage}</li>`;
+                    // Assicurati che minLux e maxLux siano numeri e non null/undefined
+                    if (typeof minLux === 'number' && typeof maxLux === 'number' && !isNaN(minLux) && !isNaN(maxLux)) {
+                        let feedbackMessage = `${plant.name}: `;
+                        if (lux < minLux) {
+                            feedbackMessage += `<span style="color: red;">Troppo poca luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
+                        } else if (lux > maxLux) {
+                            feedbackMessage += `<span style="color: orange;">Troppa luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
                         } else {
-                            feedbackHtml += `<li>${plant.name}: Nessun dato Lux ideale disponibile.</li>`;
+                            feedbackMessage += `<span style="color: green;">Luce ideale!</span> (Richiede ${minLux}-${maxLux} Lux)`;
                         }
-                    });
-                    feedbackHtml += '</ul>';
-                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = feedbackHtml;
-                } else {
-                    // Messaggio se non ci sono piante nel giardino o dati lux
-                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Nessuna pianta nel tuo giardino con dati Lux ideali impostati, o nessun valore rilevato.</p>';
-                }
+                        feedbackHtml += `<li>${feedbackMessage}</li>`;
+                    } else {
+                        // Messaggio più chiaro se i dati Lux non sono presenti per una pianta specifica
+                        feedbackHtml += `<li>${plant.name}: <span style="color: grey;">Dati Lux ideali non impostati.</span></li>`;
+                    }
+                });
+                feedbackHtml += '</ul>'; // Chiudi la lista UL qui, dopo aver aggiunto tutti i <li>
+
+            } else {
+                // Questo else si attiva se myGarden ha ID ma nessuno di questi corrisponde a piante in allPlants
+                feedbackHtml += '</ul><p style="color: orange;">Nessuna pianta trovata nel tuo giardino corrisponde alle piante disponibili. Verifica la sincronizzazione.</p>';
+            }
+
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = feedbackHtml;
+
+        } else {
+            // Questo blocco si attiva se myGarden è vuoto O lux è null
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Aggiungi piante al tuo giardino per un feedback personalizzato, o il sensore non ha rilevato valori.</p>';
+        }
                 // *** FINE LOGICA FEEDBACK PIANTE ***
             };
 
