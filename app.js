@@ -199,39 +199,41 @@ function clearFormValidationErrors(formElement) {
 // =======================================================
 
 // Aggiorna la UI in base allo stato di autenticazione dell'utente
-async function updateUIforAuthState(user) {
+async function updateUIforAuthState(user) { // DEVE ESSERE 'async'
+    hideLoadingSpinner(); // Nascondi lo spinner di login/registrazione
+
     if (user) {
+        // Utente loggato
+        authStatusSpan.textContent = `Benvenuto, ${user.email}!`;
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
-        authStatusSpan.innerHTML = `<i class="fas fa-spinner fa-user"></i>  Benvenuto  ${user.email}`;
-        logoutButton.style.display = 'block';
-        
-        // Assicurati che i form di aggiunta/aggiornamento siano nascosti
-        newPlantCard.style.display = 'none';
-        updatePlantCard.style.display = 'none';
 
-        // Mostra il contenitore delle piante principale per default al login
-        isMyGardenCurrentlyVisible = false; // Reset dello stato
-        gardenContainer.style.display = 'grid';
-        myGardenContainer.style.display = 'none';
+        // CARICAMENTO DATI CRITICO: Attendiamo che allPlants e myGarden siano popolati
+        await fetchPlantsFromFirestore(); // Popola allPlants
+        await fetchMyGardenFromFirebase(); // Popola myGarden
 
-        // Carica i dati dal database
-        await fetchPlantsFromFirestore();
-        await fetchMyGardenFromFirebase();
+        // Ora che i dati sono disponibili, visualizza le piante
+        displayPlants(allPlants); // Mostra tutte le piante con i pulsanti corretti
+
+        // ... (resto della logica per utente loggato, come impostare header, pulsanti attivi, ecc.) ...
+        plantsSectionHeader.textContent = 'Tutte le Piante Disponibili';
+        showAllPlantsButton.classList.add('active');
+        showMyGardenButton.classList.remove('active');
+        isMyGardenCurrentlyVisible = false;
+
     } else {
+        // Utente non loggato
+        authStatusSpan.textContent = 'Non autenticato';
         authContainerDiv.style.display = 'block';
         appContentDiv.style.display = 'none';
-        authStatusSpan.textContent = '';
-        logoutButton.style.display = 'none';
-        // Nascondi tutte le sezioni di contenuto quando non loggato
-        gardenContainer.style.display = 'none';
-        myGardenContainer.style.display = 'none';
-        newPlantCard.style.display = 'none';
-        updatePlantCard.style.display = 'none';
-        
-        // Pulisci i dati locali quando l'utente fa il logout
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        // Svuota gli array e la UI se l'utente si disconnette
         allPlants = [];
         myGarden = [];
+        displayPlants([]);
+    }
+        
         isMyGardenCurrentlyVisible = false;
         // Resetta i filtri e l'ordinamento
         // Resetta i filtri e l'ordinamento
