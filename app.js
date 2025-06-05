@@ -900,37 +900,46 @@ async function requestLightSensorPermission() {
 
 // Avvia la lettura del sensore di luce
 async function startLightSensor() {
+    console.log("DEBUG: startLightSensor() avviata.");
     showLoadingSpinner();
 
     allPlants = await fetchPlantsFromFirestore();
     myGarden = await fetchMyGardenFromFirebase();
 
-    console.log("DEBUG: allPlants dopo fetch in startLightSensor:", allPlants);
-    console.log("DEBUG: myGarden dopo fetch in startLightSensor:", myGarden);
+    console.log("DEBUG: allPlants dopo fetch:", allPlants);
+    console.log("DEBUG: myGarden dopo fetch:", myGarden);
 
     const hasPermission = await requestLightSensorPermission();
     if (!hasPermission) {
+        console.log("DEBUG: Permesso sensore negato.");
         hideLoadingSpinner();
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso.</p>';
         showToast('Permesso per il sensore di luce negato o non concesso.', 'error');
-        // Assicurati che i pulsanti siano nello stato iniziale anche se il permesso è negato
         if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
         if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
         return;
     }
 
     if ('AmbientLightSensor' in window) {
+        console.log("DEBUG: AmbientLightSensor supportato.");
         if (ambientLightSensor) {
+            console.log("DEBUG: Fermando sensore esistente prima di riavviare.");
             ambientLightSensor.stop();
             ambientLightSensor = null;
         }
 
         try {
             ambientLightSensor = new AmbientLightSensor();
+            console.log("DEBUG: Nuova istanza di AmbientLightSensor creata.");
 
             ambientLightSensor.onreading = (event) => {
-                const lux = event.reading.illuminance;
-                console.log("DEBUG: Lettura Lux:", lux); // QUESTO È FONDAMENTALE SUL TELEFONO
+                // *** AGGIUNGI QUESTI NUOVI LOG PER DEBUGGARE L'ERRORE ***
+                console.log("DEBUG: Evento onreading ricevuto:", event);
+                console.log("DEBUG: Contenuto di event.reading:", event.reading);
+
+                // La riga che causa l'errore è qui:
+                const lux = event.reading.illuminance; // app.js:932
+                console.log("DEBUG: Lettura Lux:", lux); 
                 if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} lx`;
 
                 if (myGarden && myGarden.length > 0 && lux != null) {
@@ -967,7 +976,7 @@ async function startLightSensor() {
             };
 
             ambientLightSensor.onerror = (event) => {
-                console.error("Errore sensore di luce:", event.error.name, event.error.message);
+                console.error("DEBUG: Errore sensore di luce:", event.error.name, event.error.message);
                 if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
                 showToast(`Errore sensore luce: ${event.error.message}`, 'error');
                 stopLightSensor();
@@ -976,28 +985,24 @@ async function startLightSensor() {
 
             ambientLightSensor.start();
             console.log("DEBUG: Sensore avviato con successo.");
-            // Questi vengono eseguiti SOLO se il sensore è supportato e si avvia con successo
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
             if (startLightSensorButton) startLightSensorButton.style.display = 'none';
             hideLoadingSpinner();
             showToast('Misurazione luce avviata!', 'success');
 
         } catch (error) {
-            console.error("DEBUG: Errore nell'avvio del sensore di luce nel try-catch:", error); // QUESTO È FONDAMENTALE SUL TELEFONO
-            console.error("Errore nell'avvio del sensore di luce:", error);
+            console.error("DEBUG: Errore nell'avvio del sensore di luce nel try-catch:", error);
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}</p>`;
             showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
             hideLoadingSpinner();
-            // Anche in caso di errore di avvio, resetta i pulsanti allo stato iniziale
             if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
         }
-    } else { // Questo blocco è per quando 'AmbientLightSensor' NON è in window (es. su PC)
+    } else {
         console.log("DEBUG: AmbientLightSensor NON supportato dal browser o dispositivo.");
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Sensore di luce non supportato dal tuo browser o dispositivo.</p>';
         showToast('Sensore di luce non supportato dal tuo browser o dispositivo.', 'error');
         hideLoadingSpinner();
-        // Qui i pulsanti devono rimanere nello stato iniziale
         if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
         if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
     }
