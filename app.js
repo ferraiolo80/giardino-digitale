@@ -930,6 +930,7 @@ async function startLightSensor() {
 
             ambientLightSensor.onreading = (event) => {
                 const lux = event.reading.illuminance;
+                console.log("DEBUG: Lettura Lux:", lux); // QUESTO È FONDAMENTALE SUL TELEFONO
                 if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} lx`;
 
                 if (myGarden && myGarden.length > 0 && lux != null) {
@@ -974,6 +975,7 @@ async function startLightSensor() {
             };
 
             ambientLightSensor.start();
+            console.log("DEBUG: Sensore avviato con successo.");
             // Questi vengono eseguiti SOLO se il sensore è supportato e si avvia con successo
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
             if (startLightSensorButton) startLightSensorButton.style.display = 'none';
@@ -981,6 +983,7 @@ async function startLightSensor() {
             showToast('Misurazione luce avviata!', 'success');
 
         } catch (error) {
+            console.error("DEBUG: Errore nell'avvio del sensore di luce nel try-catch:", error); // QUESTO È FONDAMENTALE SUL TELEFONO
             console.error("Errore nell'avvio del sensore di luce:", error);
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}</p>`;
             showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
@@ -990,6 +993,7 @@ async function startLightSensor() {
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
         }
     } else { // Questo blocco è per quando 'AmbientLightSensor' NON è in window (es. su PC)
+        console.log("DEBUG: AmbientLightSensor NON supportato dal browser o dispositivo.");
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Sensore di luce non supportato dal tuo browser o dispositivo.</p>';
         showToast('Sensore di luce non supportato dal tuo browser o dispositivo.', 'error');
         hideLoadingSpinner();
