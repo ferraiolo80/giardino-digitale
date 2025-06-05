@@ -899,7 +899,33 @@ async function requestLightSensorPermission() {
 }
 
 // Avvia la lettura del sensore di luce
-try { // Questo try gestisce la creazione e l'avvio del sensore
+async function startLightSensor() {
+    showLoadingSpinner();
+
+    // Queste righe sono corrette e devono essere qui.
+    // Assicurati che fetchPlantsFromFirestore e fetchMyGardenFromFirebase restituiscano l'array,
+    // come discusso nei messaggi precedenti.
+    allPlants = await fetchPlantsFromFirestore();
+    myGarden = await fetchMyGardenFromFirebase();
+
+    console.log("allPlants dopo fetch in startLightSensor:", allPlants);
+    console.log("myGarden dopo fetch in startLightSensor:", myGarden);
+
+    const hasPermission = await requestLightSensorPermission();
+    if (!hasPermission) {
+        hideLoadingSpinner();
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso.</p>';
+        showToast('Permesso per il sensore di luce negato o non concesso.', 'error');
+        return;
+    }
+
+    if ('AmbientLightSensor' in window) {
+        if (ambientLightSensor) {
+            ambientLightSensor.stop();
+            ambientLightSensor = null; // Resetta l'istanza
+        }
+
+        try { // Questo try gestisce la creazione e l'avvio del sensore
             ambientLightSensor = new AmbientLightSensor();
 
             ambientLightSensor.onreading = (event) => {
@@ -963,7 +989,8 @@ try { // Questo try gestisce la creazione e l'avvio del sensore
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}</p>`;
             showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
             hideLoadingSpinner();
-          } else { // Questo else gestisce il caso in cui il sensore non sia supportato
+        }
+    } else { // Questo else gestisce il caso in cui il sensore non sia supportato
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Sensore di luce non supportato dal tuo browser o dispositivo.</p>';
         showToast('Sensore di luce non supportato dal tuo browser o dispositivo.', 'error');
         hideLoadingSpinner();
