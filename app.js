@@ -937,6 +937,16 @@ async function startLightSensor() {
                 console.log("DEBUG: Evento onreading ricevuto:", event);
                 console.log("DEBUG: Contenuto di event.reading:", event.reading);
 
+                // *** INIZIO DELLA MODIFICA CRUCIALE ***
+                if (!event.reading || typeof event.reading.illuminance === 'undefined') {
+                    console.warn("DEBUG: event.reading è undefined o illuminance non è disponibile. Saltando questa lettura.");
+                    // Puoi anche scegliere di mostrare un messaggio all'utente qui,
+                    // ad esempio "Lettura sensore non disponibile in questo momento."
+                    if (currentLuxValueSpan) currentLuxValueSpan.textContent = `N/A lx`;
+                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Lettura sensore non disponibile o non valida. Riprova in condizioni di luce diverse.</p>';
+                    return; // Esci dalla funzione onreading se i dati non sono validi
+                }
+                
                 // La riga che causa l'errore è qui:
                 const lux = event.reading.illuminance; // app.js:932
                 console.log("DEBUG: Lettura Lux:", lux); 
