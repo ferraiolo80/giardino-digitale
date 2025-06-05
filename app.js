@@ -1095,7 +1095,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     newPlantCard = document.getElementById('newPlantCard');
     updatePlantCard = document.getElementById('updatePlantCard');
     plantsSectionHeader = document.getElementById('plantsSectionHeader');
-    lightSensorContainer = document.querySelector('.light-sensor-container');
     startLightSensorButton = document.getElementById('startLightSensorButton');
     stopLightSensorButton = document.getElementById('stopLightSensorButton');
     currentLuxValueSpan = document.getElementById('currentLuxValue');
