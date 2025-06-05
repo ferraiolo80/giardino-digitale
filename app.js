@@ -963,8 +963,7 @@ try { // Questo try gestisce la creazione e l'avvio del sensore
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}</p>`;
             showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
             hideLoadingSpinner();
-        }
-    } else { // Questo else gestisce il caso in cui il sensore non sia supportato
+          } else { // Questo else gestisce il caso in cui il sensore non sia supportato
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Sensore di luce non supportato dal tuo browser o dispositivo.</p>';
         showToast('Sensore di luce non supportato dal tuo browser o dispositivo.', 'error');
         hideLoadingSpinner();
