@@ -201,6 +201,94 @@ button:disabled {
     width: 120px; /* Specific width for temp inputs */
 }
 
+/* Stili per la sezione di geolocalizzazione */
+.geolocation-section {
+    background-color: #e8f5e9; /* Verde molto chiaro */
+    border: 1px solid #c8e6c9;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.geolocation-section h2 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+.geolocation-section .action-button {
+    margin-bottom: 15px;
+}
+
+.status-message {
+    font-size: 1em;
+    color: #4CAF50;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #dcedc8; /* Sfondo leggermente più scuro per il messaggio di stato */
+    padding: 10px 15px;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+.status-message i {
+    color: #2e7d32;
+}
+
+/* NUOVI STILI PER LE PREVISIONI METEO */
+.weather-forecast {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f0f4c3; /* Giallo chiaro / crema */
+    border: 1px solid #d4e157;
+    border-radius: 8px;
+    text-align: left; /* Allinea il testo a sinistra per la leggibilità */
+    width: 100%;
+    box-sizing: border-box;
+    color: #558B2F; /* Verde scuro per il testo */
+}
+
+.weather-forecast h4 {
+    margin-top: 0;
+    color: #689F38;
+    font-size: 1.1em;
+    border-bottom: 1px solid #cddc39;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.weather-forecast p {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.weather-forecast p i {
+    color: #7CB342;
+    font-size: 1.1em;
+    min-width: 20px; /* Assicura un minimo di larghezza per l'icona */
+}
+
+.weather-forecast p strong {
+    color: #4CAF50;
+}
+
+.weather-forecast .error-message {
+    color: #D32F2F;
+    font-weight: bold;
+    text-align: center;
+}
+
 /* Plant Grid Layouts */
 #garden-container,
 #my-garden {
