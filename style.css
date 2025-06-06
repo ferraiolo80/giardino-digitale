@@ -588,7 +588,21 @@ button:disabled {
 .light-sensor-container button {
     margin: 10px 5px;
 }
+.sensor-info-row {
+    display: flex; /* Rendi questo contenitore un flex container */
+    flex-wrap: wrap; /* Permetti agli elementi di andare a capo su schermi piccoli */
+    justify-content: center; /* Centra gli elementi orizzontalmente */
+    align-items: center; /* Allinea verticalmente gli elementi */
+    gap: 20px; /* Spazio tra i pulsanti e la riga Lux */
+    width: 100%; /* Occupa tutta la larghezza disponibile */
+}
 
+.sensor-controls {
+    display: flex;
+    gap: 10px; /* Spazio tra i pulsanti Avvia/Ferma */
+    flex-wrap: wrap; /* Permetti ai pulsanti di andare a capo se necessario */
+    justify-content: center; /* Centra i pulsanti se vanno a capo */
+}
 
 /* Media Queries for Responsiveness */
 @media (max-width: 900px) {
