@@ -903,9 +903,9 @@ async function startLightSensor() {
     console.log("DEBUG: startLightSensor() avviata.");
     showLoadingSpinner();
 
+    // Caricamento dati (manteniamo questa parte, è corretta e necessaria)
     allPlants = await fetchPlantsFromFirestore();
     myGarden = await fetchMyGardenFromFirebase();
-
     console.log("DEBUG: allPlants dopo fetch:", allPlants);
     console.log("DEBUG: myGarden dopo fetch:", myGarden);
 
@@ -915,6 +915,7 @@ async function startLightSensor() {
         hideLoadingSpinner();
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso.</p>';
         showToast('Permesso per il sensore di luce negato o non concesso.', 'error');
+        // Assicurati che i pulsanti siano nello stato iniziale anche se il permesso è negato
         if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
         if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
         return;
@@ -922,6 +923,8 @@ async function startLightSensor() {
 
     if ('AmbientLightSensor' in window) {
         console.log("DEBUG: AmbientLightSensor supportato.");
+        
+        // Se c'è già un sensore attivo, fermalo prima di avviarne uno nuovo
         if (ambientLightSensor) {
             console.log("DEBUG: Fermando sensore esistente prima di riavviare.");
             ambientLightSensor.stop();
@@ -929,29 +932,19 @@ async function startLightSensor() {
         }
 
         try {
-            ambientLightSensor = new AmbientLightSensor();
-            console.log("DEBUG: Nuova istanza di AmbientLightSensor creata.");
+            // Re-instanzia il sensore con la frequenza
+            ambientLightSensor = new AmbientLightSensor({ frequency: 1000 }); // Legge ogni 1 secondo
+            console.log("DEBUG: Nuova istanza di AmbientLightSensor creata con frequency.");
+            showToast("Avvio sensore di luce...", 'info');
 
-            ambientLightSensor.onreading = (event) => {
-                // *** AGGIUNGI QUESTI NUOVI LOG PER DEBUGGARE L'ERRORE ***
-                console.log("DEBUG: Evento onreading ricevuto:", event);
-                console.log("DEBUG: Contenuto di event.reading:", event.reading);
+            ambientLightSensor.onreading = () => { // NON PASSARE 'event' come parametro se non lo usi da lì
+                const lux = ambientLightSensor.illuminance; // <--- Ritorna all'accesso diretto!
+                console.log("DEBUG: Lettura Lux (diretta):", lux); // Log per debug
 
-                // *** INIZIO DELLA MODIFICA CRUCIALE ***
-                if (!event.reading || typeof event.reading.illuminance === 'undefined') {
-                    console.warn("DEBUG: event.reading è undefined o illuminance non è disponibile. Saltando questa lettura.");
-                    // Puoi anche scegliere di mostrare un messaggio all'utente qui,
-                    // ad esempio "Lettura sensore non disponibile in questo momento."
-                    if (currentLuxValueSpan) currentLuxValueSpan.textContent = `N/A lx`;
-                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Lettura sensore non disponibile o non valida. Riprova in condizioni di luce diverse.</p>';
-                    return; // Esci dalla funzione onreading se i dati non sono validi
-                }
-                
-                // La riga che causa l'errore è qui:
-                const lux = event.reading.illuminance; // app.js:932
-                console.log("DEBUG: Lettura Lux:", lux); 
+                // Aggiorna il valore Lux nell'UI usando il tuo ID attuale
                 if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} lx`;
 
+                // Logica di feedback per le piante (manteniamo questa parte)
                 if (myGarden && myGarden.length > 0 && lux != null) {
                     let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
                     const plantsInGarden = allPlants.filter(plant => myGarden.includes(plant.id));
@@ -989,12 +982,14 @@ async function startLightSensor() {
                 console.error("DEBUG: Errore sensore di luce:", event.error.name, event.error.message);
                 if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
                 showToast(`Errore sensore luce: ${event.error.message}`, 'error');
-                stopLightSensor();
+                stopLightSensor(); // Ferma il sensore e resetta UI
                 hideLoadingSpinner();
             };
 
             ambientLightSensor.start();
             console.log("DEBUG: Sensore avviato con successo.");
+            
+            // Gestione pulsanti (come nella versione che ho modificato in precedenza per te)
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
             if (startLightSensorButton) startLightSensorButton.style.display = 'none';
             hideLoadingSpinner();
@@ -1005,14 +1000,16 @@ async function startLightSensor() {
             if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}</p>`;
             showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
             hideLoadingSpinner();
+            // Anche in caso di errore di avvio, resetta i pulsanti allo stato iniziale
             if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
             if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
         }
-    } else {
+    } else { // Questo blocco è per quando 'AmbientLightSensor' NON è in window (es. su PC)
         console.log("DEBUG: AmbientLightSensor NON supportato dal browser o dispositivo.");
         if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Sensore di luce non supportato dal tuo browser o dispositivo.</p>';
         showToast('Sensore di luce non supportato dal tuo browser o dispositivo.', 'error');
         hideLoadingSpinner();
+        // Qui i pulsanti devono rimanere nello stato iniziale
         if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
         if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
     }
