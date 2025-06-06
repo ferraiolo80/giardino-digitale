@@ -737,10 +737,23 @@ function getLocation() {
 
 // Deduce la zona climatica dalle coordinate (usando un servizio esterno o logica interna)
 async function getClimateFromCoordinates(latitude, longitude) {
+    // Assicurati che locationStatusDiv e weatherForecastDiv siano stati inizializzati in DOMContentLoaded
+    // Sono variabili globali definite all'inizio del file.
+    if (!locationStatusDiv) {
+        locationStatusDiv = document.getElementById('location-status'); // Usa l'ID corretto
+    }
+    if (!weatherForecastDiv) {
+        weatherForecastDiv = document.getElementById('weatherForecast');
+    }
+    if (!climateZoneFilter) { // Inizializza anche climateZoneFilter se non lo è
+        climateZoneFilter = document.getElementById('climateZoneFilter');
+    }
+
+
     if (locationStatusDiv) {
         locationStatusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recupero dati climatici...';
     } else {
-        console.warn("Elemento 'locationStatusDiv' non trovato.");
+        console.warn("Elemento 'location-status' non trovato."); // Messaggio più chiaro
     }
     
     showLoadingSpinner();
@@ -803,14 +816,20 @@ async function getClimateFromCoordinates(latitude, longitude) {
             }
         }
 
-
         // Aggiorna lo stato della posizione e il filtro clima
         if (locationStatusDiv) {
             locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> <span>Clima dedotto: <strong>${climateZone}</strong></span>`;
         }
+        
+        // CORREZIONE QUI: Usa climateZoneFilter e chiama applyFiltersAndSort
         if (climateZoneFilter) {
-            climateZoneFilter.value = climateZone;
-            applyFilters();
+            climateZoneFilter.value = climateZone; // Imposta il valore del filtro
+            // Ora, chiama la tua funzione di filtro.
+            // Se applyFiltersAndSort ha bisogno di 'allPlants' o 'myGarden' come argomento,
+            // devi passarlo. Presumo che accetti `allPlants` per iniziare a filtrare.
+            // Se gestisce lo stato interno (isMyGardenCurrentlyVisible) allora basta chiamarla senza argomenti o con l'argomento corretto.
+            // Per sicurezza, la chiamo con 'allPlants' come suggerito dalla firma che hai menzionato.
+            applyFiltersAndSort(isMyGardenCurrentlyVisible ? myGarden : allPlants); // Passa l'array corretto a seconda della vista
         }
 
         // AGGIORNAMENTO: Visualizza le previsioni meteo nel nuovo div
@@ -842,9 +861,11 @@ async function getClimateFromCoordinates(latitude, longitude) {
             weatherForecastDiv.innerHTML = '<p class="error-message">Impossibile caricare le previsioni meteo.</p>';
         }
         showToast(`Errore nel recupero dei dati climatici: ${error.message}`, 'error');
+        
+        // Assicurati di resettare o gestire il filtro clima anche in caso di errore
         if (climateZoneFilter) {
-            climateZoneFilter.value = '';
-            applyFilters();
+            climateZoneFilter.value = ''; // Resetta il filtro clima
+            applyFiltersAndSort(isMyGardenCurrentlyVisible ? myGarden : allPlants); // Applica i filtri nuovamente senza il filtro clima
         }
     } finally {
         hideLoadingSpinner();
