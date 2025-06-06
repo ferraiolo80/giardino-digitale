@@ -106,9 +106,13 @@
         <option value="Arido">Arido</option> 
         </select>
 </div>
-            
-              <div id="location-status" class="status-message"></div>
-            
+           
+            <div id="location-status" class="status-message">
+                <i class="fas fa-info-circle"></i> Clicca su "Ottieni Clima" per rilevare la tua zona climatica e le previsioni.
+            </div>
+            <div id="weatherForecast" class="weather-forecast">
+                </div>
+           
             <div class="temp-filter-container">
                 <i class="fas fa-temperature-three-quarters"></i>
                 <input type="number" id="tempMinFilter" placeholder="Temp Min (°C)">
@@ -243,7 +247,7 @@
                     <label for="updatePlantTempMax">Max (°C):</label>
                     <input type="number" id="updatePlantTempMax" placeholder="Es. 25 (Opzionale)">
                 </div>
-                                                   
+                                                            
                 <label for="updatePlantDescription">Descrizione:</label>
                 <textarea id="updatePlantDescription" rows="3" placeholder="Breve descrizione della pianta..."></textarea>
 
@@ -306,12 +310,12 @@
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
-                  apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-                  authDomain: "giardinodigitale.firebaseapp.com",
-                  projectId: "giardinodigitale",
-                  storageBucket: "giardinodigitale.firebasestorage.app",
-                  messagingSenderId: "96265504027",
-                  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+                    apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+                    authDomain: "giardinodigitale.firebaseapp.com",
+                    projectId: "giardinodigitale",
+                    storageBucket: "giardinodigitale.firebasestorage.app",
+                    messagingSenderId: "96265504027",
+                    appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
             };
     </script>
     <script src="app.js"></script>
