@@ -689,6 +689,11 @@ button:disabled {
 }
 
 @media (max-width: 600px) {
+    .sensor-info-row {
+        flex-direction: column; /* Impila verticalmente su schermi piccoli */
+        align-items: center;
+        gap: 15px;
+    }
     header {
         padding: 10px;
     }
