@@ -149,25 +149,27 @@ button:disabled {
     padding: 20px;
 }
 
-/* Main Buttons Container */
+//* Main Buttons Container */
 .main-buttons-container {
-    display: flex; /* Abilita Flexbox */
-    flex-wrap: wrap; /* Permette ai bottoni di andare a capo su schermi piccoli */
-    justify-content: center; /* Centra i bottoni orizzontalmente */
-    gap: 15px; /* Spazio tra i bottoni */
-    padding: 20px; /* Aggiunto padding per un migliore aspetto */
-    background-color: #e6ffe6; /* Colore di sfondo leggero */
+    display: flex;
+    flex-wrap: wrap; /* Importante: permette ai bottoni di andare a capo */
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    background-color: #e6ffe6;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin: 20px auto; /* Centra il contenitore stesso */
-    max-width: 1000px; /* Larghezza massima per il container */
+    margin: 20px auto;
+    /* AUMENTA LA LARGHEZZA MASSIMA per dare più spazio su desktop/tablet */
+    max-width: 1200px; /* Aumentato da 1000px per dare più respiro */
 }
 
 .main-buttons-container button {
-    /* Questi stili sono i valori di base per schermi grandi */
-    min-width: 180px; /* Larghezza minima per evitare che siano troppo stretti */
-    max-width: 220px; /* Larghezza massima per ogni pulsante */
-    flex-shrink: 0; /* Impedisce ai pulsanti di rimpicciolirsi troppo */
+    /* Manteniamo una larghezza controllata per i bottoni su schermi grandi */
+    min-width: 180px;
+    max-width: 220px; /* Assicura che i bottoni non diventino troppo larghi */
+    flex-grow: 0; /* Impedisce ai bottoni di "crescere" troppo e occupare tutto lo spazio */
+    flex-shrink: 0; /* Impedisce ai bottoni di rimpicciolirsi troppo */
 }
 
 /* Search, Filter & Sort Section */
