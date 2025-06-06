@@ -604,6 +604,30 @@ button:disabled {
     justify-content: center; /* Centra i pulsanti se vanno a capo */
 }
 
+/* Stili per il testo del Lux e il feedback */
+#currentLuxValue {
+    font-weight: bold;
+    color: #4CAF50; /* Verde più vivace per il valore */
+    font-size: 1.1em;
+}
+
+#lightFeedback {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: #e8f5e9; /* Sfondo leggermente verde per il feedback */
+    border: 1px solid #a5d6a7;
+    color: #388e3c;
+    width: 100%;
+    box-sizing: border-box; /* Includi padding e border nella larghezza */
+}
+
+#lightFeedback p {
+    margin: 0;
+    font-size: 0.95em;
+}
+
+
 /* Media Queries for Responsiveness */
 @media (max-width: 900px) {
     header {
