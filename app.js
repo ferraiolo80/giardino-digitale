@@ -736,8 +736,7 @@ function getLocation() {
 }
 
 // Deduce la zona climatica dalle coordinate (usando un servizio esterno o logica interna)
-async function getClimateFromCoordinates(lat, lon) {
-    // Aggiungi controllo null per locationStatusDiv
+async function getClimateFromCoordinates(latitude, longitude) {
     if (locationStatusDiv) {
         locationStatusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recupero dati climatici...';
     } else {
@@ -747,47 +746,183 @@ async function getClimateFromCoordinates(lat, lon) {
     showLoadingSpinner();
 
     try {
-        // Questa è la parte dove interrogheresti un'API esterna per convertire
-        // lat/lon in una zona climatica o in dati di temperatura per dedurla.
-        // Esempio FITTIZIO per ora, DEVI SOSTITUIRLO con la tua logica o chiamata API reale:
-        // const response = await fetch(`https://api.example.com/climate?lat=${lat}&lon=${lon}&apiKey=YOUR_API_KEY`);
-        // if (!response.ok) throw new Error('Errore nel recupero dati climatici dall\'API esterna.');
-        // const data = await response.json();
-        // const detectedZone = data.climateZone; // Assumi che l'API restituisca questo
+        // Questa è la chiamata all'API Open-Meteo per temperatura e precipitazioni
+        const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_mean,precipitation_sum,weathercode,temperature_2m_max,temperature_2m_min&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin`;
 
-        // PLACEHOLDER: Sostituisci questa logica con la tua integrazione API reale.
-        // Ad esempio, potresti avere un array di range di temperature e una logica per dedurre
-        // la zona climatica in base alla temperatura media della tua posizione corrente.
-        const detectedZone = "Temperato"; // Esempio: dovresti ottenere questo da un'API climatica
-        // Fine PLACEHOLDER
-
-        // Controlla se climateZoneFilter esiste prima di impostarne il valore
-        if (climateZoneFilter) {
-            climateZoneFilter.value = detectedZone; // Linea 803 / 810
-        } else {
-            console.warn("Elemento 'climateZoneFilter' non trovato per impostare il valore.");
-            showToast('Impossibile impostare il filtro climatico automatico.', 'warning');
+        const response = await fetch(weatherApiUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const data = await response.json();
+
+        // Estrai dati rilevanti
+        const currentTemp = data.current_weather ? data.current_weather.temperature : null;
+        const meanTemp2m = data.daily && data.daily.temperature_2m_mean ? data.daily.temperature_2m_mean[0] : null;
+        const precipitationSum = data.daily && data.daily.precipitation_sum ? data.daily.precipitation_sum[0] : null;
+        const weatherCode = data.daily && data.daily.weathercode ? data.daily.weathercode[0] : null;
+        const maxTemp = data.daily && data.daily.temperature_2m_max ? data.daily.temperature_2m_max[0] : null;
+        const minTemp = data.daily && data.daily.temperature_2m_min ? data.daily.temperature_2m_min[0] : null;
+
+        let climateZone = 'Sconosciuto';
         
-        // Controlla se locationStatusDiv esiste prima di aggiornarne il contenuto
-        if (locationStatusDiv) {
-            locationStatusDiv.textContent = `Clima rilevato: ${detectedZone}`;
+        // Logica per dedurre la zona climatica (puoi raffinarla ulteriormente)
+        if (meanTemp2m !== null) {
+            if (meanTemp2m >= 25) {
+                climateZone = 'Tropicale';
+            } else if (meanTemp2m >= 15 && meanTemp2m < 25) {
+                climateZone = 'Subtropicale';
+            } else if (meanTemp2m >= 5 && meanTemp2m < 15) {
+                climateZone = 'Temperato';
+            } else if (meanTemp2m >= -5 && meanTemp2m < 5) {
+                // Aggiungiamo una logica più specifica per Mediterraneo/Arido qui
+                if (precipitationSum !== null && precipitationSum < 5) { // Poca pioggia può indicare arido/mediterraneo
+                    climateZone = 'Arido';
+                } else {
+                    climateZone = 'Mediterraneo'; // O Temperato
+                }
+            } else if (meanTemp2m < -5) {
+                climateZone = 'Boreale/Artico';
+            }
+            // Affinamento per Mediterraneo/Arido basato su temperatura e precipitazioni
+            if (meanTemp2m >= 10 && meanTemp2m <= 20 && precipitationSum !== null && precipitationSum < 2) { 
+                climateZone = 'Mediterraneo';
+            } else if (meanTemp2m >= 25 && precipitationSum !== null && precipitationSum < 1) {
+                climateZone = 'Arido';
+            }
+        } else if (currentTemp !== null) { // Fallback se media non disponibile
+             if (currentTemp >= 25) {
+                climateZone = 'Tropicale';
+            } else if (currentTemp >= 15 && currentTemp < 25) {
+                climateZone = 'Subtropicale';
+            } else if (currentTemp >= 5 && currentTemp < 15) {
+                climateZone = 'Temperato';
+            } else if (currentTemp >= -5 && currentTemp < 5) {
+                climateZone = 'Mediterraneo';
+            } else if (currentTemp < -5) {
+                climateZone = 'Boreale/Artico';
+            }
         }
-        showToast(`Clima rilevato: ${detectedZone}`, 'info');
 
-        displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants); // Aggiorna la visualizzazione dopo aver impostato il filtro
+
+        // Aggiorna lo stato della posizione e il filtro clima
+        if (locationStatusDiv) {
+            locationStatusDiv.innerHTML = `<i class="fas fa-location-dot"></i> <span>Clima dedotto: <strong>${climateZone}</strong></span>`;
+        }
+        if (climateZoneFilter) {
+            climateZoneFilter.value = climateZone;
+            applyFilters();
+        }
+
+        // AGGIORNAMENTO: Visualizza le previsioni meteo nel nuovo div
+        if (weatherForecastDiv) {
+            let weatherHtml = '<h4>Previsioni Meteo (oggi):</h4>';
+            if (currentTemp !== null) {
+                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong>${currentTemp.toFixed(1)}°C</strong></p>`;
+            }
+            if (maxTemp !== null && minTemp !== null) {
+                weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min: <strong>${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
+            }
+            if (precipitationSum !== null) {
+                weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni: <strong>${precipitationSum.toFixed(1)} mm</strong></p>`;
+            }
+            if (weatherCode !== null) {
+                weatherHtml += `<p><i class="${getWeatherIcon(weatherCode)}"></i> Condizione: ${getWeatherDescription(weatherCode)}</p>`;
+            }
+            weatherForecastDiv.innerHTML = weatherHtml;
+        }
+
+        showToast(`Clima rilevato: ${climateZone}`, 'success');
 
     } catch (error) {
         console.error('Errore nel recupero dei dati climatici:', error);
-        // Controlla se locationStatusDiv esiste prima di aggiornarne il contenuto
         if (locationStatusDiv) {
-            locationStatusDiv.textContent = 'Errore nel recupero dei dati climatici.';
+            locationStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Errore nel recupero dei dati climatici.`;
+        }
+        if (weatherForecastDiv) {
+            weatherForecastDiv.innerHTML = '<p class="error-message">Impossibile caricare le previsioni meteo.</p>';
         }
         showToast(`Errore nel recupero dei dati climatici: ${error.message}`, 'error');
+        if (climateZoneFilter) {
+            climateZoneFilter.value = '';
+            applyFilters();
+        }
     } finally {
         hideLoadingSpinner();
     }
 }
+
+// Funzione per ottenere l'icona Font Awesome dal weathercode di Open-Meteo
+function getWeatherIcon(weathercode) {
+    // I codici WMO Weather interpretation codes (WWMO)
+    // Riferimento: https://www.nodatime.org/tz/WMO%20weather%20codes.html (o la documentazione Open-Meteo)
+    switch (weathercode) {
+        case 0: return 'fas fa-sun'; // Clear sky
+        case 1: // Mainly clear
+        case 2: // Partly cloudy
+        case 3: return 'fas fa-cloud-sun'; // Overcast
+        case 45: // Fog
+        case 48: return 'fas fa-smog'; // Depositing rime fog
+        case 51: // Drizzle: Light
+        case 53: // Drizzle: Moderate
+        case 55: return 'fas fa-cloud-drizzle'; // Drizzle: Dense intensity
+        case 56: // Freezing Drizzle: Light
+        case 57: return 'fas fa-cloud-sleet'; // Freezing Drizzle: Dense intensity
+        case 61: // Rain: Light
+        case 63: // Rain: Moderate
+        case 65: return 'fas fa-cloud-showers-heavy'; // Rain: Heavy intensity
+        case 66: // Freezing Rain: Light
+        case 67: return 'fas fa-cloud-hail-heavy'; // Freezing Rain: Heavy intensity
+        case 71: // Snow fall: Light
+        case 73: // Snow fall: Moderate
+        case 75: return 'fas fa-snowflake'; // Snow fall: Heavy intensity
+        case 77: return 'fas fa-cloud-meatball'; // Snow grains (Non c'è un'icona perfetta, ma si avvicina)
+        case 80: // Rain showers: Light
+        case 81: // Rain showers: Moderate
+        case 82: return 'fas fa-cloud-showers-heavy'; // Rain showers: Violent
+        case 85: // Snow showers: Light
+        case 86: return 'fas fa-snowflake'; // Snow showers: Heavy
+        case 95: return 'fas fa-cloud-bolt'; // Thunderstorm: Light or moderate
+        case 96: // Thunderstorm with slight hail
+        case 99: return 'fas fa-cloud-bolt'; // Thunderstorm with heavy hail
+        default: return 'fas fa-question'; // Unknown
+    }
+}
+
+// Funzione per ottenere una descrizione testuale dal weathercode
+function getWeatherDescription(weathercode) {
+    switch (weathercode) {
+        case 0: return 'Cielo sereno';
+        case 1: return 'Cielo prevalentemente sereno';
+        case 2: return 'Parzialmente nuvoloso';
+        case 3: return 'Nuvoloso';
+        case 45: return 'Nebbia';
+        case 48: return 'Nebbia gelata';
+        case 51: return 'Pioggerella leggera';
+        case 53: return 'Pioggerella moderata';
+        case 55: return 'Pioggerella intensa';
+        case 56: return 'Pioggerella gelata leggera';
+        case 57: return 'Pioggerella gelata intensa';
+        case 61: return 'Pioggia leggera';
+        case 63: return 'Pioggia moderata';
+        case 65: return 'Pioggia intensa';
+        case 66: return 'Pioggia gelata leggera';
+        case 67: return 'Pioggia gelata intensa';
+        case 71: return 'Nevicata leggera';
+        case 73: return 'Nevicata moderata';
+        case 75: return 'Nevicata intensa';
+        case 77: return 'Grandinata leggera';
+        case 80: return 'Acquazzoni leggeri';
+        case 81: return 'Acquazzoni moderati';
+        case 82: return 'Acquazzoni violenti';
+        case 85: return 'Nevicate leggere';
+        case 86: return 'Nevicate intense';
+        case 95: return 'Temporale';
+        case 96: return 'Temporale con grandine leggera';
+        case 99: return 'Temporale con grandine intensa';
+        default: return 'Condizione sconosciuta';
+    }
+}
+
 // Visualizza le piante nel contenitore appropriato
 function displayPlants(plantsToShow) {
     const user = firebase.auth().currentUser;
