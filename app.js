@@ -204,7 +204,7 @@ async function updateUIforAuthState(user) {
     
     if (user) {
         // Utente loggato
-        authStatusSpan.textContent = `Benvenuto, ${user.email}!`;
+        authStatusSpan.textHTML = `<i class="fas fa-user"></i>  ${user.email}`;
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
         
@@ -269,7 +269,7 @@ async function handleRegister(e) {
     showLoadingSpinner();
     try {
         await firebase.auth().createUserWithEmailAndPassword(email, password);
-        showToast('Registrazione effettuata con successo!', 'success');
+        showToast('Registrato con successo!', 'success');
         // updateUIforAuthState viene chiamato automaticamente da onAuthStateChanged
     } catch (error) {
         registerError.textContent = `Errore di registrazione: ${error.message}`;
@@ -942,7 +942,7 @@ async function startLightSensor() {
                 console.log("DEBUG: Lettura Lux (diretta):", lux); // Log per debug
 
                 // Aggiorna il valore Lux nell'UI usando il tuo ID attuale
-                if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} lx`;
+                if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} `;
 
                 // Logica di feedback per le piante (manteniamo questa parte)
                 if (myGarden && myGarden.length > 0 && lux != null) {
