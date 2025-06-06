@@ -225,23 +225,20 @@ button:disabled {
     margin-bottom: 15px;
 }
 
+/* Stili per il messaggio di stato della posizione */
 .status-message {
-    font-size: 1em;
-    color: #4CAF50;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #dcedc8; /* Sfondo leggermente più scuro per il messaggio di stato */
-    padding: 10px 15px;
+    text-align: center;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #e0f2f7; /* Colore di sfondo leggero per lo stato */
+    border: 1px solid #b3e5fc;
     border-radius: 5px;
-    width: 100%;
-    box-sizing: border-box;
-    justify-content: center;
+    color: #0288d1; /* Colore testo blu */
 }
 
 .status-message i {
-    color: #2e7d32;
+    margin-right: 8px;
+    color: #01579b;
 }
 
 /* NUOVI STILI PER LE PREVISIONI METEO */
@@ -778,6 +775,19 @@ button:disabled {
 }
 
 @media (max-width: 600px) {
+weather-forecast {
+        margin: 15px auto;
+        padding: 12px;
+        max-width: 90%; /* Occupa più larghezza su schermi piccoli */
+    }
+    .weather-forecast h4 {
+        font-size: 1.2em;
+    }
+    .weather-forecast p {
+        font-size: 1em;
+    }
+}
+    
     .sensor-info-row {
         flex-direction: column; /* Impila verticalmente su schermi piccoli */
         align-items: center;
