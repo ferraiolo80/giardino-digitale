@@ -246,37 +246,38 @@ button:disabled {
 
 /* NUOVI STILI PER LE PREVISIONI METEO */
 .weather-forecast {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #f0f4c3; /* Giallo chiaro / crema */
-    border: 1px solid #d4e157;
+    background-color: #f0f8f0; /* Un verde molto chiaro */
+    border: 1px solid #d4edda;
     border-radius: 8px;
-    text-align: left; /* Allinea il testo a sinistra per la leggibilità */
-    width: 100%;
-    box-sizing: border-box;
-    color: #558B2F; /* Verde scuro per il testo */
+    padding: 15px 20px;
+    margin: 20px auto; /* Centra orizzontalmente e aggiunge margini */
+    max-width: 400px; /* Limita la larghezza massima per una migliore leggibilità */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centra il testo all'interno del container */
+    color: #333;
 }
 
 .weather-forecast h4 {
+    font-size: 1.4em; /* Rendi il titolo più grande */
+    color: #2e7d32; /* Colore verde scuro per il titolo */
     margin-top: 0;
-    color: #689F38;
-    font-size: 1.1em;
-    border-bottom: 1px solid #cddc39;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #a5d6a7; /* Linea tratteggiata sotto il titolo */
 }
 
 .weather-forecast p {
     margin: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 1.1em;
+    display: flex; /* Permette all'icona e al testo di stare sulla stessa riga */
+    align-items: center; /* Allinea verticalmente icona e testo */
+    justify-content: center; /* Centra l'icona e il testo */
 }
 
 .weather-forecast p i {
-    color: #7CB342;
-    font-size: 1.1em;
-    min-width: 20px; /* Assicura un minimo di larghezza per l'icona */
+    margin-right: 10px; /* Spazio tra icona e testo */
+    color: #4CAF50; /* Colore verde per le icone */
+    font-size: 1.2em; /* Rendi le icone leggermente più grandi */
 }
 
 .weather-forecast p strong {
