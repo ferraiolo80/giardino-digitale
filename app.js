@@ -55,6 +55,7 @@ let toastContainer; // Contenitore per i toast
 let getClimateButton;       // Variabile per il bottone "Ottieni Clima"
 let locationStatusDiv;      // Variabile per il div di stato della posizione
 let climateZoneFilter;
+let weatherForecastDiv
 
 const CLIMATE_TEMP_RANGES = {
     'Mediterraneo': { min: 5, max: 35 },
