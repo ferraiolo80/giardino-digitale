@@ -149,7 +149,7 @@ button:disabled {
     padding: 20px;
 }
 
-//* Main Buttons Container */
+/* Main Buttons Container */
 .main-buttons-container {
     display: flex;
     flex-wrap: wrap; /* Importante: permette ai bottoni di andare a capo */
@@ -160,14 +160,12 @@ button:disabled {
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin: 20px auto;
-    /* AUMENTA LA LARGHEZZA MASSIMA per dare più spazio su desktop/tablet */
-    max-width: 1200px; /* Aumentato da 1000px per dare più respiro */
+    max-width: 1200px; /* Aumentato per dare più respiro su desktop */
 }
 
 .main-buttons-container button {
-    /* Manteniamo una larghezza controllata per i bottoni su schermi grandi */
     min-width: 180px;
-    max-width: 220px; /* Assicura che i bottoni non diventino troppo larghi */
+    max-width: 220px; /* Larghezza massima per ogni pulsante su schermi grandi */
     flex-grow: 0; /* Impedisce ai bottoni di "crescere" troppo e occupare tutto lo spazio */
     flex-shrink: 0; /* Impedisce ai bottoni di rimpicciolirsi troppo */
 }
@@ -215,7 +213,7 @@ button:disabled {
     width: 120px; /* Specific width for temp inputs */
 }
 
-/* Stili per la sezione di geolocalizzazione (per il bottone "Ottieni Clima") */
+/* Stili per la sezione di geolocalizzazione */
 .geolocation-section {
     background-color: #e8f5e9; /* Verde molto chiaro */
     border: 1px solid #c8e6c9;
@@ -686,3 +684,208 @@ button:disabled {
 }
 
 .light-sensor-container button {
+    margin: 10px 5px;
+}
+.sensor-info-row {
+    display: flex; /* Rendi questo contenitore un flex container */
+    flex-wrap: wrap; /* Permetti agli elementi di andare a capo su schermi piccoli */
+    justify-content: center; /* Centra gli elementi orizzontalmente */
+    align-items: center; /* Allinea verticalmente gli elementi */
+    gap: 20px; /* Spazio tra i pulsanti e la riga Lux */
+    width: 100%; /* Occupa tutta la larghezza disponibile */
+}
+
+.sensor-controls {
+    display: flex;
+    gap: 10px; /* Spazio tra i pulsanti Avvia/Ferma */
+    flex-wrap: wrap; /* Permetti ai pulsanti di andare a capo se necessario */
+    justify-content: center; /* Centra i pulsanti se vanno a capo */
+}
+
+/* Stili per il testo del Lux e il feedback */
+#currentLuxValue {
+    font-weight: bold;
+    color: #4CAF50; /* Verde più vivace per il valore */
+    font-size: 1.1em;
+}
+
+#lightFeedback {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: #e8f5e9; /* Sfondo leggermente verde per il feedback */
+    border: 1px solid #a5d6a7;
+    color: #388e3c;
+    width: 100%;
+    box-sizing: border-box; /* Includi padding e border nella larghezza */
+}
+
+#lightFeedback p {
+    margin: 0;
+    font-size: 0.95em;
+}
+
+
+/* Media Queries for Responsiveness */
+
+/* Regole per schermi fino a 900px (tablet e schermi desktop più piccoli) */
+@media (max-width: 900px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+    header h1 {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+    }
+    #auth-status {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    nav {
+        width: 100%;
+        text-align: center;
+    }
+    .main-buttons-container {
+        flex-direction: column; /* I bottoni principali si impilano verticalmente */
+        align-items: center; /* Centra i bottoni impilati */
+        gap: 10px;
+        padding: 15px;
+        max-width: 90%; /* Limita la larghezza del contenitore su schermi medi */
+    }
+    .main-buttons-container button {
+        width: 90%; /* Su schermi <= 900px, i bottoni prendono una larghezza maggiore */
+        max-width: 300px; /* Limite massimo per evitare che siano troppo larghi su tablet */
+        margin: 0 auto; /* Centra i singoli bottoni impilati */
+    }
+    .search-filter-sort-container {
+        flex-direction: column; /* I filtri si impilano verticalmente */
+        align-items: stretch; /* Si estendono in larghezza */
+        padding: 15px;
+    }
+    .search-filter-sort-container > div {
+        width: 100%; /* Larghezza piena per i box dei filtri */
+    }
+    .temp-filter-container {
+        flex-direction: column; /* Stack temp inputs vertically */
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .temp-filter-container input {
+        width: calc(100% - 24px); /* Full width minus padding */
+    }
+    #garden-container, /* Corretto selettore per plant-grid */
+    #my-garden { /* Corretto selettore per plant-grid */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        padding: 15px;
+        gap: 20px;
+    }
+    .plant-card {
+        max-width: unset; /* Allow cards to fill available space */
+    }
+    .plant-form-card {
+        padding: 20px;
+        max-width: 90%;
+    }
+    .modal-content {
+        max-width: 90%;
+    }
+    #card-modal .modal-content {
+        max-width: 90%;
+        padding: 20px;
+    }
+    .sensor-info-row {
+        flex-direction: column; /* Impila verticalmente su schermi più piccoli */
+        align-items: center;
+        gap: 15px;
+    }
+    .toast {
+        min-width: unset;
+        width: calc(100% - 40px);
+        left: 20px;
+        right: 20px;
+    }
+}
+
+/* Regole specifiche per schermi ancora più piccoli (fino a 600px - la maggior parte degli smartphone) */
+@media (max-width: 600px) {
+    header {
+        padding: 10px;
+    }
+    header h1 {
+        font-size: 1.5em;
+    }
+    .auth-container {
+        padding: 25px;
+        margin: 20px auto;
+    }
+    /* main-buttons-container button non ha bisogno di una regola specifica qui
+       perché è già gestito dalla media query a 900px che impila e dimensiona. */
+    .search-filter-sort-container {
+        padding: 15px;
+    }
+    #garden-container, /* Corretto selettore per plant-grid */
+    #my-garden { /* Corretto selettore per plant-grid */
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        padding: 10px;
+        gap: 15px;
+    }
+    .plant-card h3 {
+        font-size: 1.3em;
+    }
+    .plant-image {
+        height: 150px;
+    }
+    .plant-card p {
+        font-size: 0.85em;
+    }
+    .card-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    .card-actions button {
+        width: 100%;
+        font-size: 0.85em;
+    }
+    .plant-form-card {
+        padding: 15px;
+    }
+    .plant-form-card h2 {
+        font-size: 1.5em;
+    }
+    .plant-form-card input,
+    .plant-form-card select,
+    .plant-form-card textarea {
+        padding: 10px;
+    }
+    .lux-input-group, .temp-input-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .lux-input-group input, .temp-input-group input {
+        width: calc(100% - 20px); /* Full width minus padding */
+    }
+    /* Toast rules are already handled in the 900px media query and apply here too */
+    .close-button {
+        font-size: 30px;
+        right: 15px;
+    }
+    #card-modal .modal-content {
+        padding: 15px;
+    }
+    /* Regole specifiche per weather-forecast all'interno della media query 600px */
+    .weather-forecast {
+        margin: 15px auto;
+        padding: 12px;
+        max-width: 90%; /* Occupa più larghezza su schermi piccoli */
+    }
+    .weather-forecast h4 {
+        font-size: 1.2em;
+    }
+    .weather-forecast p {
+        font-size: 1em;
+    }
+}
