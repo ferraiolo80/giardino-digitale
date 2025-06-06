@@ -181,6 +181,10 @@ button:disabled {
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     margin-bottom: 30px;
+    margin-left: auto; /* Centra il contenitore se ha una max-width */
+    margin-right: auto;
+    max-width: 1200px; /* Assicurati che abbia una max-width se vuoi che sia centrato */
+}
 }
 
 .search-filter-sort-container > div {
