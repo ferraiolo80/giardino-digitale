@@ -813,6 +813,12 @@ button:disabled {
         left: 20px;
         right: 20px;
     }
+    weather-forecast {
+        margin: 15px auto; /* Riduci margini per schermi piccoli */
+        padding: 12px;
+        max-width: 90%; /* Occupare più larghezza su schermi piccoli */
+        width: auto; /* Lascia che la larghezza si adatti al contenitore padre */
+    }
 }
 
 /* Regole specifiche per schermi ancora più piccoli (fino a 600px - la maggior parte degli smartphone) */
