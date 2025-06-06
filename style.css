@@ -151,11 +151,23 @@ button:disabled {
 
 /* Main Buttons Container */
 .main-buttons-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 30px;
+    display: flex; /* Abilita Flexbox */
     flex-wrap: wrap; /* Permette ai bottoni di andare a capo su schermi piccoli */
+    justify-content: center; /* Centra i bottoni orizzontalmente */
+    gap: 15px; /* Spazio tra i bottoni */
+    padding: 20px; /* Aggiunto padding per un migliore aspetto */
+    background-color: #e6ffe6; /* Colore di sfondo leggero */
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin: 20px auto; /* Centra il contenitore stesso */
+    max-width: 1000px; /* Larghezza massima per il container */
+}
+
+.main-buttons-container button {
+    /* Questi stili sono i valori di base per schermi grandi */
+    min-width: 180px; /* Larghezza minima per evitare che siano troppo stretti */
+    max-width: 220px; /* Larghezza massima per ogni pulsante */
+    flex-shrink: 0; /* Impedisce ai pulsanti di rimpicciolirsi troppo */
 }
 
 /* Search, Filter & Sort Section */
@@ -201,7 +213,7 @@ button:disabled {
     width: 120px; /* Specific width for temp inputs */
 }
 
-/* Stili per la sezione di geolocalizzazione */
+/* Stili per la sezione di geolocalizzazione (per il bottone "Ottieni Clima") */
 .geolocation-section {
     background-color: #e8f5e9; /* Verde molto chiaro */
     border: 1px solid #c8e6c9;
@@ -241,7 +253,7 @@ button:disabled {
     color: #01579b;
 }
 
-/* NUOVI STILI PER LE PREVISIONI METEO */
+/* STILI PER LE PREVISIONI METEO */
 .weather-forecast {
     background-color: #f0f8f0; /* Un verde molto chiaro */
     border: 1px solid #d4edda;
@@ -672,196 +684,3 @@ button:disabled {
 }
 
 .light-sensor-container button {
-    margin: 10px 5px;
-}
-.sensor-info-row {
-    display: flex; /* Rendi questo contenitore un flex container */
-    flex-wrap: wrap; /* Permetti agli elementi di andare a capo su schermi piccoli */
-    justify-content: center; /* Centra gli elementi orizzontalmente */
-    align-items: center; /* Allinea verticalmente gli elementi */
-    gap: 20px; /* Spazio tra i pulsanti e la riga Lux */
-    width: 100%; /* Occupa tutta la larghezza disponibile */
-}
-
-.sensor-controls {
-    display: flex;
-    gap: 10px; /* Spazio tra i pulsanti Avvia/Ferma */
-    flex-wrap: wrap; /* Permetti ai pulsanti di andare a capo se necessario */
-    justify-content: center; /* Centra i pulsanti se vanno a capo */
-}
-
-/* Stili per il testo del Lux e il feedback */
-#currentLuxValue {
-    font-weight: bold;
-    color: #4CAF50; /* Verde più vivace per il valore */
-    font-size: 1.1em;
-}
-
-#lightFeedback {
-    margin-top: 10px;
-    padding: 10px 15px;
-    border-radius: 5px;
-    background-color: #e8f5e9; /* Sfondo leggermente verde per il feedback */
-    border: 1px solid #a5d6a7;
-    color: #388e3c;
-    width: 100%;
-    box-sizing: border-box; /* Includi padding e border nella larghezza */
-}
-
-#lightFeedback p {
-    margin: 0;
-    font-size: 0.95em;
-}
-
-
-/* Media Queries for Responsiveness */
-@media (max-width: 900px) {
-    header {
-        flex-direction: column;
-        text-align: center;
-        padding: 15px;
-    }
-    header h1 {
-        font-size: 1.8em;
-        margin-bottom: 10px;
-    }
-    #auth-status {
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
-    nav {
-        width: 100%;
-        text-align: center;
-    }
-    .main-buttons-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-    .search-filter-sort-container {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .search-filter-sort-container > div {
-        width: 100%; /* Full width for filter boxes */
-    }
-    .temp-filter-container {
-        flex-direction: column; /* Stack temp inputs vertically */
-        align-items: flex-start;
-        gap: 5px;
-    }
-    .temp-filter-container input {
-        width: calc(100% - 24px); /* Full width minus padding */
-    }
-    .plant-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        padding: 15px;
-        gap: 20px;
-    }
-    .plant-card {
-        max-width: unset; /* Allow cards to fill available space */
-    }
-    .plant-form-card {
-        padding: 20px;
-        max-width: 90%;
-    }
-    .modal-content {
-        max-width: 90%;
-    }
-    #card-modal .modal-content {
-        max-width: 90%;
-        padding: 20px;
-    }
-}
-
-@media (max-width: 600px) {
-weather-forecast {
-        margin: 15px auto;
-        padding: 12px;
-        max-width: 90%; /* Occupa più larghezza su schermi piccoli */
-    }
-    .weather-forecast h4 {
-        font-size: 1.2em;
-    }
-    .weather-forecast p {
-        font-size: 1em;
-    }
-}
-    
-    .sensor-info-row {
-        flex-direction: column; /* Impila verticalmente su schermi piccoli */
-        align-items: center;
-        gap: 15px;
-    }
-    header {
-        padding: 10px;
-    }
-    header h1 {
-        font-size: 1.5em;
-    }
-    .auth-container {
-        padding: 25px;
-        margin: 20px auto;
-    }
-    .main-buttons-container button {
-        width: 90%;
-    }
-    .search-filter-sort-container {
-        padding: 15px;
-    }
-    .plant-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        padding: 10px;
-        gap: 15px;
-    }
-    .plant-card h3 {
-        font-size: 1.3em;
-    }
-    .plant-image {
-        height: 150px;
-    }
-    .plant-card p {
-        font-size: 0.85em;
-    }
-    .card-actions {
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-    }
-    .card-actions button {
-        width: 100%;
-        font-size: 0.85em;
-    }
-    .plant-form-card {
-        padding: 15px;
-    }
-    .plant-form-card h2 {
-        font-size: 1.5em;
-    }
-    .plant-form-card input,
-    .plant-form-card select,
-    .plant-form-card textarea {
-        padding: 10px;
-    }
-    .lux-input-group, .temp-input-group {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-    .lux-input-group input, .temp-input-group input {
-        width: calc(100% - 20px); /* Full width minus padding */
-    }
-    .toast {
-        min-width: unset;
-        width: calc(100% - 40px);
-        left: 20px;
-        right: 20px;
-    }
-    .close-button {
-        font-size: 30px;
-        right: 15px;
-    }
-    #card-modal .modal-content {
-        padding: 15px;
-    }
-}
