@@ -1148,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Inizializzazione delle nuove variabili DOM per la geolocalizzazione
     getClimateButton = document.getElementById('get-climate-button');
     locationStatusDiv = document.getElementById('location-status');
+    weatherForecastDiv = document.getElementById('weatherForecast');
     climateZoneFilter = document.getElementById('climateZoneFilter');
     console.log('Valore di climateZoneFilter dopo getElementById:', climateZoneFilter); // AGGIUNGI QUESTA LINEA
 
