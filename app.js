@@ -204,7 +204,7 @@ async function updateUIforAuthState(user) {
     
     if (user) {
         // Utente loggato
-        authStatusSpan.textHTML = `<i class="fas fa-user"></i>  ${user.email}`;
+        authStatusSpan.innertHTML = `<i class="fas fa-user"></i>  ${user.email}`;
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
         
