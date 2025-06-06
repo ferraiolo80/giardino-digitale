@@ -1130,6 +1130,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentLuxValueSpan = document.getElementById('currentLuxValue');
     lightSensorContainer = document.getElementById('lightSensorContainer'); // Assicurati sia presente anche questa!
     lightFeedbackDiv = document.getElementById('lightFeedback');
+    console.log("DEBUG: currentLuxValueSpan è:", currentLuxValueSpan); // Aggiungi questi log
+    console.log("DEBUG: lightFeedbackDiv è:", lightFeedbackDiv);     // Per verificare che non siano null
     loadingSpinner = document.getElementById('loading-spinner');
     toastContainer = document.getElementById('toast-container');
 
