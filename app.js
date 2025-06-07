@@ -290,28 +290,24 @@ function clearFormValidationErrors(formElement) {
 async function updateUIforAuthState(user) {
     if (user) {
         // Utente loggato
-        loginContainerDiv.style.display = 'none';
-        appContentDiv.style.display = 'block'; // O 'flex' se usi flexbox per il layout principale
+        authContainerDiv.style.display = 'none'; // Usa authContainerDiv
+        appContentDiv.style.display = 'block'; // O 'flex'
         authStatusSpan.textContent = `Loggato come: ${user.email}`;
         logoutButton.style.display = 'block';
-        addNewPlantButton.style.display = 'block'; // Assicurati che il bottone "Aggiungi" sia visibile
+        addNewPlantButton.style.display = 'block';
 
-        // Carica e mostra le piante solo dopo l'autenticazione
         await fetchAndDisplayPlants();
-        await fetchAndDisplayMyGarden(); // Se vuoi mostrarlo all'inizio o passare tra le gallerie
-        // ... (altri elementi UI specifici per utente loggato) ...
+        await fetchAndDisplayMyGarden();
 
-        // Imposta lo stato iniziale del giardino/galleria
-        isMyGardenCurrentlyVisible = false; // O true, a seconda di cosa vuoi mostrare per primo
-        updateGalleryVisibility(); // Chiama questa funzione per mostrare la galleria corretta
+        isMyGardenCurrentlyVisible = false;
+        updateGalleryVisibility();
     } else {
         // Utente non loggato
-        loginContainerDiv.style.display = 'flex'; // O 'block'
+        authContainerDiv.style.display = 'flex'; // O 'block'
         appContentDiv.style.display = 'none';
         authStatusSpan.textContent = 'Non loggato';
         logoutButton.style.display = 'none';
         addNewPlantButton.style.display = 'none';
-        // ... (altri elementi UI specifici per utente non loggato) ...
     }
     hideLoadingSpinner();
 }
