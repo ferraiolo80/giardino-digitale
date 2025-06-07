@@ -1567,15 +1567,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Chiudi la modal della card se è aperta
             if (cardModal.style.display === 'flex') cardModal.style.display = 'none';
         } else if (event.target.classList.contains('update-plant-button')) {
-            const plantIdToUpdate = event.target.dataset.plantId;
-            const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate) || myGarden.find(p => p.id === plantIdToUpdate);
-            if (plantToUpdate) {
-                showUpdatePlantForm(plantToUpdate);
-                // Chiudi la modal della card se è aperta
-                if (cardModal.style.display === 'flex') cardModal.style.display = 'none';
-            } else {
-                showToast(`Pianta con ID ${plantIdToUpdate} non trovata per l'aggiornamento.`, 'error');
-            }
+    const plantIdToUpdate = event.target.dataset.plantId;
+    // La riga successiva NON è necessaria per la CHIAMATA a showUpdatePlantForm
+    // const plantToUpdate = allPlants.find(p => p.id === plantIdToUpdate) || myGarden.find(p => p.id === plantIdToUpdate);
+
+    // DEBUG: Aggiungi un console.log per vedere l'ID
+    console.log("ID della pianta per aggiornamento:", plantIdToUpdate);
+
+    if (plantIdToUpdate) { // Verifica che l'ID sia presente
+        // CORREZIONE: Passa plantIdToUpdate (la stringa ID)
+        showUpdatePlantForm(plantIdToUpdate);
+        // Chiudi la modal della card se è aperta
+        if (cardModal.style.display === 'flex') cardModal.style.display = 'none';
+    } else {
+        showToast(`ID della pianta non trovato per l'aggiornamento.`, 'error');
+    }
         } else if (event.target.classList.contains('delete-plant-from-db-button')) {
             const plantIdToDelete = event.target.dataset.plantId;
             if (confirm('Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.')) {
