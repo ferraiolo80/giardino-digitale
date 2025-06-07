@@ -469,7 +469,6 @@ async function showUpdatePlantForm(plantId) {
     } finally {
         hideLoadingSpinner();
     }
-}
 
 async function displayPlantDetailsInModal(plantId) {
     if (!plantId) {
