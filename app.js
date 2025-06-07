@@ -599,7 +599,7 @@ function resetPlantForms() { // <--- NESSUN "ASYNC" QUI
 
         if (currentPlantId) {
             // Aggiorna la pianta esistente
-            await firestore.collection('plants').doc(currentPlantId).update(plantData);
+            firestore.collection('plants').doc(currentPlantId).update(plantData);
             showToast('Pianta aggiornata con successo!', 'success');
         } else {
             // Aggiungi una nuova pianta
