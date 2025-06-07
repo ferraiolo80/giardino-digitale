@@ -56,8 +56,8 @@ let locationStatusDiv;      // Variabile per il div di stato della posizione
 let climateZoneFilter;
 let weatherForecastDiv
 
-let newPlantImageUploadInput;
-let newUploadedImageUrlInput;
+//let newPlantImageUploadInput;
+//let newUploadedImageUrlInput;
 let newPlantImagePreview;
 let newPlantForm;
 let updatePlantNameInput; // Nuovo
