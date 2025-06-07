@@ -497,17 +497,17 @@ async function savePlantToFirestore(e) {
     }
 }
     // Funzione per resettare i campi del form della pianta
-function resetPlantForm() {
+// Funzione per resettare i campi dei form delle piante
+function resetPlantForms() {
     // Resetta i campi del form "Aggiungi Nuova Pianta"
     if (newPlantCard) {
         document.getElementById('newPlantName').value = '';
-        document.getElementById('newPlantDescription').value = '';
+        document.getElementById('newPlantDescription').value = ''; // Resetta la descrizione
         document.getElementById('newPlantCategory').value = 'Altro';
         document.getElementById('newMinTemp').value = '';
         document.getElementById('newMaxTemp').value = '';
         document.getElementById('newMinLux').value = '';
         document.getElementById('newMaxLux').value = '';
-        document.getElementById('newPlantNotes').value = '';
 
         if (newUploadedImageUrlInput) newUploadedImageUrlInput.value = '';
         if (newPlantImagePreview) {
@@ -519,13 +519,12 @@ function resetPlantForm() {
     // Resetta i campi del form "Aggiorna Pianta"
     if (updatePlantCard) {
         document.getElementById('updatePlantName').value = '';
-        document.getElementById('updatePlantDescription').value = '';
+        document.getElementById('updatePlantDescription').value = ''; // Resetta la descrizione
         document.getElementById('updatePlantCategory').value = 'Altro';
         document.getElementById('updateMinTemp').value = '';
         document.getElementById('updateMaxTemp').value = '';
         document.getElementById('updateMinLux').value = '';
         document.getElementById('updateMaxLux').value = '';
-        document.getElementById('updatePlantNotes').value = '';
 
         if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
         if (updatePlantImagePreview) {
