@@ -536,7 +536,7 @@ async function savePlantToFirestore(e) {
 }
     // Funzione per resettare i campi del form della pianta
 // Funzione per resettare i campi dei form delle piante
-function resetPlantForms() {
+async function resetPlantForms() {
     // Resetta i campi del form "Aggiungi Nuova Pianta"
     if (newPlantCard) {
         document.getElementById('newPlantName').value = '';
