@@ -298,18 +298,18 @@
     <h3 class="form-title">Aggiungi Nuova Pianta</h3>
     <form id="new-plant-form">
         <label for="newPlantName">Nome Pianta:</label>
-        <input type="text" id="newPlantName" required>
+        <input type="text" data-form-field="newPlantName" required>
 
         <label for="newPlantImageUpload">Carica Immagine:</label>
-        <input type="file" id="newPlantImageUpload" accept="image/*">
-        <input type="hidden" id="newUploadedImageUrl">
-        <img id="newPlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
+        <input type="file" data-form-field="newPlantImageUpload" accept="image/*">
+        <input type="hidden" data-form-field="newUploadedImageUrl">
+        <img data-form-field="newPlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
 
         <label for="newPlantDescription">Descrizione:</label>
-        <textarea id="newPlantDescription"></textarea>
+        <textarea data-form-field="newPlantDescription"></textarea>
 
         <label for="newPlantCategory">Categoria:</label>
-        <select id="newPlantCategory">
+        <select data-form-field="newPlantCategory">
             <option value="Fiore">Fiore</option>
             <option value="Frutta">Frutta</option>
             <option value="Verdura">Verdura</option>
@@ -317,16 +317,16 @@
         </select>
 
         <label for="newMinTemp">Temperatura Minima (°C):</label>
-        <input type="number" id="newMinTemp">
+        <input type="number" data-form-field="newMinTemp">
 
         <label for="newMaxTemp">Temperatura Massima (°C):</label>
-        <input type="number" id="newMaxTemp">
+        <input type="number" data-form-field="newMaxTemp">
 
         <label for="newMinLux">Luminosità Minima (Lux):</label>
-        <input type="number" id="newMinLux">
+        <input type="number" data-form-field="newMinLux">
 
         <label for="newMaxLux">Luminosità Massima (Lux):</label>
-        <input type="number" id="newMaxLux">
+        <input type="number" data-form-field="newMaxLux">
 
         <button type="submit" class="button primary-button">Aggiungi Pianta</button>
         <button type="button" class="button secondary-button" id="cancelAddPlant">Annulla</button>
@@ -335,20 +335,19 @@
 
 <div id="updatePlantFormTemplate" style="display: none;">
     <h3 class="form-title">Aggiorna Pianta</h3>
-    <form id="update-plant-form">
-        <label for="updatePlantName">Nome Pianta:</label>
-        <input type="text" id="updatePlantName" required>
+    <form id="update-plant-form"> <label for="updatePlantName">Nome Pianta:</label>
+        <input type="text" data-form-field="updatePlantName" required>
 
         <label for="updatePlantImageUpload">Carica Immagine:</label>
-        <input type="file" id="updatePlantImageUpload" accept="image/*">
-        <input type="hidden" id="updateUploadedImageUrl">
-        <img id="updatePlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
+        <input type="file" data-form-field="updatePlantImageUpload" accept="image/*">
+        <input type="hidden" data-form-field="updateUploadedImageUrl">
+        <img data-form-field="updatePlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
 
         <label for="updatePlantDescription">Descrizione:</label>
-        <textarea id="updatePlantDescription"></textarea>
+        <textarea data-form-field="updatePlantDescription"></textarea>
 
         <label for="updatePlantCategory">Categoria:</label>
-        <select id="updatePlantCategory">
+        <select data-form-field="updatePlantCategory">
             <option value="Fiore">Fiore</option>
             <option value="Frutta">Frutta</option>
             <option value="Verdura">Verdura</option>
@@ -356,16 +355,16 @@
         </select>
 
         <label for="updateMinTemp">Temperatura Minima (°C):</label>
-        <input type="number" id="updateMinTemp">
+        <input type="number" data-form-field="updateMinTemp">
 
         <label for="updateMaxTemp">Temperatura Massima (°C):</label>
-        <input type="number" id="updateMaxTemp">
+        <input type="number" data-form-field="updateMaxTemp">
 
         <label for="updateMinLux">Luminosità Minima (Lux):</label>
-        <input type="number" id="updateMinLux">
+        <input type="number" data-form-field="updateMinLux">
 
         <label for="updateMaxLux">Luminosità Massima (Lux):</label>
-        <input type="number" id="updateMaxLux">
+        <input type="number" data-form-field="updateMaxLux">
 
         <button type="submit" class="button primary-button">Salva Modifiche</button>
         <button type="button" class="button secondary-button" id="cancelUpdatePlant">Annulla</button>
