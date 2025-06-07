@@ -1481,11 +1481,14 @@ document.addEventListener('DOMContentLoaded', async () => {
      // Inizializza Firebase all'inizio
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
+    storage = firebase.storage();
+    storageRef = storage.ref();
 
-    // Inizializza il servizio Storage
-    const storage = firebase.storage();
-    const storageRef = storage.ref(); // Corretto: .ref() è il metodo corretto per ottenere il riferimento alla root
-
+    // Inizializzazione dei TEMPLATE HTML e del contenitore della modale
+    newPlantFormTemplate = document.getElementById('newPlantFormTemplate');
+    updatePlantFormTemplate = document.getElementById('updatePlantFormTemplate');
+    modalFormContent = document.getElementById('modal-form-content'); // NUOVO ID!
+    
     // Event Listeners per l'autenticazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
