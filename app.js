@@ -1608,24 +1608,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (modalFormContent) {
-        modalFormContent.addEventListener('submit', async (event) => {
+   if (zoomedCardContent) { // Ora usiamo zoomedCardContent
+        zoomedCardContent.addEventListener('submit', async (event) => {
             const form = event.target;
             if (form.id === 'new-plant-form' || form.id === 'update-plant-form') {
-                event.preventDefault(); // Impedisce il submit standard
-                await savePlantToFirestore(event); // Chiama la funzione di salvataggio
+                event.preventDefault();
+                await savePlantToFirestore(event);
             }
         });
 
         // Event listener per i click all'interno della modale (per i bottoni "Annulla")
-        modalFormContent.addEventListener('click', (event) => {
+        zoomedCardContent.addEventListener('click', (event) => {
             const target = event.target;
             if (target.id === 'cancelAddPlant' || target.id === 'cancelUpdatePlant') {
-                event.preventDefault(); // Impedisce l'azione predefinita
-                resetPlantForms(); // Chiude la modale e pulisce
+                event.preventDefault();
+                resetPlantForms();
             }
         });
     }
+});
 
     // Gestione clic sulle card delle piante (aggiungi/rimuovi/aggiorna/elimina/zoom)
     document.body.addEventListener('click', async (event) => {
