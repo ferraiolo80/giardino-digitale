@@ -202,9 +202,10 @@
                     <option value="Altro">Altro</option>
                 </select>
 
-                <label for="newPlantImageURL">URL Immagine (Opzionale):</label>
-                <input type="url" id="newPlantImageURL" placeholder="https://esempio.com/immagine.jpg">
-
+                <label for="newPlantImageUpload">Carica Foto:</label>
+                <input type="file" id="newPlantImageUpload" accept="image/*">
+                <input type="hidden" id="newUploadedImageUrl"> <img id="newPlantImagePreview" src="" alt="Anteprima Foto pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
+                
                 <div class="form-actions">
                     <button type="submit" id="saveNewPlantButton">Salva Pianta</button>
                     <button type="button" id="cancelNewPlantButton" class="cancel-button">Annulla</button>
@@ -270,9 +271,10 @@
                     <option value="Altro">Altro</option>
                 </select>
 
-                <label for="updatePlantImageURL">URL Immagine (Opzionale):</label>
-                <input type="url" id="updatePlantImageURL" placeholder="https://esempio.com/immagine.jpg">
-
+                <label for="updatePlantImageUpload">Carica Foto:</label>
+                <input type="file" id="updatePlantImageUpload" accept="image/*">
+                <input type="hidden" id="updateUploadedImageUrl"> <img id="updatePlantImagePreview" src="" alt="Anteprima Foto pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
+                
                 <div class="form-actions">
                     <button type="submit" id="saveUpdatePlantButton">Salva Modifiche</button>
                     <button type="button" id="cancelUpdatePlantButton" class="cancel-button">Annulla</button>
