@@ -1367,6 +1367,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
 
+    // Inizializza il servizio Storage
+    const storage = firebase.storage();
+    const storageRef = storage.ref(); // Riferimento alla root del bucket Storage
+
     // Event Listeners per l'autenticazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
