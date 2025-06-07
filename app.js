@@ -61,6 +61,13 @@ let newPlantImageUploadInput;
 let newUploadedImageUrlInput;
 let newPlantImagePreview;
 let newPlantForm;
+let updatePlantNameInput; // Nuovo
+let updatePlantDescriptionInput; // Nuovo
+let updatePlantCategoryInput; // Nuovo
+let updateMinTempInput; // Nuovo
+let updateMaxTempInput; // Nuovo
+let updateMinLuxInput; // Nuovo
+let updateMaxLuxInput; // Nuovo
 let updatePlantImageUploadInput;
 let updateUploadedImageUrlInput;
 let updatePlantImagePreview;
@@ -1458,6 +1465,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateUploadedImageUrlInput = document.getElementById('updateUploadedImageUrl');
     updatePlantImagePreview = document.getElementById('updatePlantImagePreview');
     updatePlantForm = document.getElementById('update-plant-card'); 
+    updatePlantNameInput = document.getElementById('updatePlantName');
+    updatePlantDescriptionInput = document.getElementById('updatePlantDescription');
+    updatePlantCategoryInput = document.getElementById('updatePlantCategory');
+    updateMinTempInput = document.getElementById('updateMinTemp');
+    updateMaxTempInput = document.getElementById('updateMaxTemp');
+    updateMinLuxInput = document.getElementById('updateMinLux');
+    updateMaxLuxInput = document.getElementById('updateMaxLux');
     
      // Inizializza Firebase all'inizio
     firebase.initializeApp(firebaseConfig);
