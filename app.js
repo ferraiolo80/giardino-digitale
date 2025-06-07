@@ -619,7 +619,6 @@ function resetPlantForms() { // <--- NESSUN "ASYNC" QUI
         showToast('Errore nel salvataggio della pianta.', 'error');
         hideLoadingSpinner();
     }
-}
 
 // Elimina una pianta dal database Firestore e dal giardino di tutti gli utenti
 async function deletePlantFromDatabase(plantId) {
