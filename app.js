@@ -550,81 +550,82 @@ function hidePlantForms() {
 
 // Funzione per salvare/aggiornare una pianta nel Firestore
 
-async function savePlantToFirestore(e) {
-    e.preventDefault();
+async function savePlantToFirestore(event) {
+    event.preventDefault();
 
-    let plantNameInput, imageUrlInput;
-    let descriptionInput, categoryInput, minTempInput, maxTempInput, minLuxInput, maxLuxInput;
+    showLoadingSpinner();
 
-    if (currentPlantIdToUpdate) {
-        plantNameInput = document.getElementById('updatePlantName');
-        imageUrlInput = updateUploadedImageUrlInput;
-        descriptionInput = document.getElementById('updatePlantDescription');
-        categoryInput = document.getElementById('updatePlantCategory');
-        minTempInput = document.getElementById('updateMinTemp');
-        maxTempInput = document.getElementById('updateMaxTemp');
-        minLuxInput = document.getElementById('updateMinLux');
-        maxLuxInput = document.getElementById('updateMaxLux');
-    } else {
-        plantNameInput = document.getElementById('newPlantName');
-        imageUrlInput = newUploadedImageUrlInput;
-        descriptionInput = document.getElementById('newPlantDescription');
-        categoryInput = document.getElementById('newPlantCategory');
-        minTempInput = document.getElementById('newMinTemp');
-        maxTempInput = document.getElementById('newMaxTemp');
-        minLuxInput = document.getElementById('newMinLux');
-        maxLuxInput = document.getElementById('newMaxLux');
-    }
+    const formElement = event.target;
+    const formId = formElement.id;
 
-    const plantName = plantNameInput ? plantNameInput.value.trim() : '';
-    const imageUrl = imageUrlInput ? imageUrlInput.value.trim() : '';
-    const description = descriptionInput ? descriptionInput.value.trim() : '';
-    const category = categoryInput ? categoryInput.value.trim() : '';
-    const minTemp = minTempInput ? parseFloat(minTempInput.value) : null;
-    const maxTemp = maxTempInput ? parseFloat(maxTempInput.value) : null;
-    const minLux = minLuxInput ? parseInt(minLuxInput.value, 10) : null;
-    const maxLux = maxLuxInput ? parseInt(maxLuxInput.value, 10) : null;
-
-    if (!plantName) {
-        showToast('Il nome della pianta è obbligatorio.', 'error');
-        return;
-    }
-    if (!imageUrl) {
-        showToast('Devi caricare un\'immagine per la pianta.', 'error');
-        return;
-    }
-
-    const plantData = {
-        name: plantName,
-        imageUrl: imageUrl,
-        description: description,
-        category: category,
-        minTemp: isNaN(minTemp) ? null : minTemp,
-        maxTemp: isNaN(maxTemp) ? null : maxTemp,
-        minLux: isNaN(minLux) ? null : minLux,
-        maxLux: isNaN(maxLux) ? null : maxLux,
-        ownerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null
-    };
+    let plantData = {};
+    let imageUrl = null;
 
     try {
-        showLoadingSpinner();
-        if (currentPlantIdToUpdate) {
-            await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData);
-            showToast('Pianta aggiornata con successo!', 'success');
-        } else {
+        if (formId === 'new-plant-form') {
+            // Recupera i valori usando data-form-field
+            const name = formElement.querySelector('[data-form-field="newPlantName"]').value;
+            const description = formElement.querySelector('[data-form-field="newPlantDescription"]').value;
+            const category = formElement.querySelector('[data-form-field="newPlantCategory"]').value;
+            const minTemp = formElement.querySelector('[data-form-field="newMinTemp"]').value ? Number(formElement.querySelector('[data-form-field="newMinTemp"]').value) : null;
+            const maxTemp = formElement.querySelector('[data-form-field="newMaxTemp"]').value ? Number(formElement.querySelector('[data-form-field="newMaxTemp"]').value) : null;
+            const minLux = formElement.querySelector('[data-form-field="newMinLux"]').value ? Number(formElement.querySelector('[data-form-field="newMinLux"]').value) : null;
+            const maxLux = formElement.querySelector('[data-form-field="newMaxLux"]').value ? Number(formElement.querySelector('[data-form-field="newMaxLux"]').value) : null;
+            const imageFile = formElement.querySelector('[data-form-field="newPlantImageUpload"]').files[0];
+
+            plantData = {
+                name, description, category, minTemp, maxTemp, minLux, maxLux,
+                ownedBy: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (imageFile) {
+                imageUrl = await uploadImageAndGetUrl(imageFile);
+            }
+            plantData.imageUrl = imageUrl;
+
             await db.collection('plants').add(plantData);
-            showToast('Pianta aggiunta con successo!', 'success');
+            showToast('Pianta aggiunta con successo!');
+
+        } else if (formId === 'update-plant-form' && currentPlantIdToUpdate) {
+            // Recupera i valori usando data-form-field
+            const name = formElement.querySelector('[data-form-field="updatePlantName"]').value;
+            const description = formElement.querySelector('[data-form-field="updatePlantDescription"]').value;
+            const category = formElement.querySelector('[data-form-field="updatePlantCategory"]').value;
+            const minTemp = formElement.querySelector('[data-form-field="updateMinTemp"]').value ? Number(formElement.querySelector('[data-form-field="updateMinTemp"]').value) : null;
+            const maxTemp = formElement.querySelector('[data-form-field="updateMaxTemp"]').value ? Number(formElement.querySelector('[data-form-field="updateMaxTemp"]').value) : null;
+            const minLux = formElement.querySelector('[data-form-field="updateMinLux"]').value ? Number(formElement.querySelector('[data-form-field="updateMinLux"]').value) : null;
+            const maxLux = formElement.querySelector('[data-form-field="updateMaxLux"]').value ? Number(formElement.querySelector('[data-form-field="updateMaxLux"]').value) : null;
+
+            const imageFile = formElement.querySelector('[data-form-field="updatePlantImageUpload"]').files[0];
+            const existingImageUrl = formElement.querySelector('[data-form-field="updateUploadedImageUrl"]').value;
+
+            plantData = {
+                name, description, category, minTemp, maxTemp, minLux, maxLux,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (imageFile) {
+                imageUrl = await uploadImageAndGetUrl(imageFile);
+            } else if (existingImageUrl) {
+                imageUrl = existingImageUrl;
+            } else {
+                imageUrl = null;
+            }
+            plantData.imageUrl = imageUrl;
+
+            await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData);
+            showToast('Pianta aggiornata con successo!');
         }
 
-        resetPlantForms(); // Chiama la funzione corretta
-        await fetchPlants();
-        hideLoadingSpinner();
-        newPlantCard.style.display = 'none';
-        updatePlantCard.style.display = 'none';
+        resetPlantForms();
+        await fetchAndDisplayPlants();
+        await fetchAndDisplayMyGarden();
 
     } catch (error) {
-        console.error("Errore nel salvataggio della pianta:", error);
-        showToast('Errore nel salvataggio della pianta.', 'error');
+        console.error("Errore nel salvataggio/aggiornamento della pianta:", error);
+        showToast('Errore nel salvataggio/aggiornamento della pianta.', 'error');
+    } finally {
         hideLoadingSpinner();
     }
 }
