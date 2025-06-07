@@ -580,7 +580,7 @@ function resetPlantForms() {
 }
 
     // Funzione per popolare il form di aggiornamento quando si clicca su "Modifica"
-function populatePlantFormForUpdate(plant) {
+async function populatePlantFormForUpdate(plant) {
     if (updatePlantCard) updatePlantCard.style.display = 'block';
     if (newPlantCard) newPlantCard.style.display = 'none'; // Assicurati che l'altro form sia nascosto
 
