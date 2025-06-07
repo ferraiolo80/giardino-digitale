@@ -122,6 +122,38 @@ function showToast(message, type = 'info', duration = 3000) {
     }, duration);
 }
 
+/**
+ * Carica un'immagine su Firebase Storage e restituisce l'URL pubblico.
+ * @param {File} file Il file immagine da caricare.
+ * @returns {Promise<string>} Una Promise che si risolve con l'URL pubblico dell'immagine.
+ */
+async function uploadImageAndGetUrl(file) {
+    if (!file) {
+        console.warn("Nessun file selezionato per il caricamento.");
+        return null;
+    }
+
+    showLoadingSpinner(); // Assicurati che showLoadingSpinner() sia definita
+
+    // Crea un nome file univoco per evitare sovrascritture
+    const fileName = `${Date.now()}_${file.name}`;
+    const imageRef = storageRef.child(`plant_images/${fileName}`); // Salva le immagini in una cartella 'plant_images'
+
+    try {
+        const snapshot = await imageRef.put(file); // Carica il file
+        const downloadURL = await snapshot.ref.getDownloadURL(); // Ottieni l'URL pubblico
+        showToast('Immagine caricata con successo!', 'success'); // Assicurati che showToast() sia definita
+        return downloadURL;
+    } catch (error) {
+        console.error("Errore nel caricamento dell'immagine:", error);
+        showToast('Errore nel caricamento dell\'immagine.', 'error');
+        throw error; // Propaga l'errore per gestirlo a livello superiore
+    } finally {
+        hideLoadingSpinner(); // Assicurati che hideLoadingSpinner() sia definita
+    }
+}
+
+
 // Valida i campi del form di aggiunta/modifica pianta
 function validatePlantForm(plantData, isUpdate = false) {
     let isValid = true;
