@@ -28,8 +28,7 @@ let categoryFilter;
 let addNewPlantButton;
 let showAllPlantsButton;
 let showMyGardenButton;
-let newPlantCard; // Modulo per aggiungere nuova pianta
-let updatePlantCard; // Modulo per aggiornare pianta esistente
+
 let plantsSectionHeader; // Header della sezione piante (es. "Tutte le Piante Disponibili")
 let lightSensorContainer;
 let startLightSensorButton;
