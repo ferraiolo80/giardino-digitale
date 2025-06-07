@@ -413,56 +413,72 @@ function showNewPlantForm() {
     newPlantCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Mostra il form per aggiornare una pianta esistente
+
 // Funzione per mostrare il form di aggiornamento pianta e popolarlo
-// Funzione per mostrare il form di aggiornamento pianta e popolarlo
+
 async function showUpdatePlantForm(plantId) {
     if (!plantId) {
         console.error('ID pianta non fornito per l\'aggiornamento.');
         showToast('Errore: ID pianta non fornito per l\'aggiornamento.', 'error');
         return;
     }
+    if (!modalFormContent || !updatePlantFormTemplate || !cardModal) {
+        console.error("Elementi DOM per il form di aggiornamento non trovati.");
+        showToast("Errore: Impossibile aprire il form di aggiornamento pianta.", 'error');
+        return;
+    }
 
-   try {
-        showLoadingSpinner();
+    showLoadingSpinner();
+    try {
         const plantDoc = await db.collection('plants').doc(plantId).get();
 
         if (plantDoc.exists) {
             const plant = { id: plantDoc.id, ...plantDoc.data() };
-            updatePlantCard.style.display = 'block'; // Assicurati che updatePlantCard sia correttamente inizializzato e visibile
 
-            // Aggiungi un console.log per verificare che updatePlantCard sia presente
-            console.log("updatePlantCard DOM element:", updatePlantCard);
+            modalFormContent.innerHTML = ''; // Pulisci il contenuto precedente
+            const clonedForm = updatePlantFormTemplate.cloneNode(true);
+            clonedForm.style.display = 'block';
+            modalFormContent.appendChild(clonedForm);
 
-            newPlantCard.style.display = 'none';
+            cardModal.style.display = 'flex'; // Mostra la modale
 
-            currentPlantIdToUpdate = plant.id;
+            currentPlantIdToUpdate = plant.id; // Imposta l'ID per il salvataggio
 
-            // Popola i campi del form di aggiornamento con i dati della pianta esistente
-            // USA ORA LE VARIABILI INIZIALIZZATE
-            if (updatePlantNameInput) updatePlantNameInput.value = plant.name || '';
-            if (updatePlantDescriptionInput) updatePlantDescriptionInput.value = plant.description || '';
-            if (updatePlantCategoryInput) updatePlantCategoryInput.value = plant.category || 'Altro';
-            if (updateMinTempInput) updateMinTempInput.value = plant.minTemp !== null ? plant.minTemp : ''; // Questa era la riga che dava errore
-            if (updateMaxTempInput) updateMaxTempInput.value = plant.maxTemp !== null ? plant.maxTemp : '';
-            if (updateMinLuxInput) updateMinLuxInput.value = plant.minLux !== null ? plant.minLux : '';
-            if (updateMaxLuxInput) updateMaxLuxInput.value = plant.maxLux !== null ? plant.maxLux : '';
+            // RECUPERA GLI ELEMENTI DEL FORM CLONATO per popolarli
+            const updateFormElement = modalFormContent.querySelector('#update-plant-form');
+            if (updateFormElement) {
+                updateFormElement.querySelector('#updatePlantName').value = plant.name || '';
+                updateFormElement.querySelector('#updatePlantDescription').value = plant.description || '';
+                updateFormElement.querySelector('#updatePlantCategory').value = plant.category || 'Altro';
+                updateFormElement.querySelector('#updateMinTemp').value = plant.minTemp !== null ? plant.minTemp : '';
+                updateFormElement.querySelector('#updateMaxTemp').value = plant.maxTemp !== null ? plant.maxTemp : '';
+                updateFormElement.querySelector('#updateMinLux').value = plant.minLux !== null ? plant.minLux : '';
+                updateFormElement.querySelector('#updateMaxLux').value = plant.maxLux !== null ? plant.maxLux : '';
 
-            // Queste erano già con le variabili, le ho incluse per completezza
-            if (plant.imageUrl) {
-                if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = plant.imageUrl;
-                if (updatePlantImagePreview) {
-                    updatePlantImagePreview.src = plant.imageUrl;
-                    updatePlantImagePreview.style.display = 'block';
+                // Gestione immagine esistente e input file
+                const updatePlantImagePreviewElement = updateFormElement.querySelector('#updatePlantImagePreview');
+                const updateUploadedImageUrlElement = updateFormElement.querySelector('#updateUploadedImageUrl');
+                const updatePlantImageUploadElement = updateFormElement.querySelector('#updatePlantImageUpload'); // L'input file
+
+                if (plant.imageUrl) {
+                    if (updateUploadedImageUrlElement) updateUploadedImageUrlElement.value = plant.imageUrl;
+                    if (updatePlantImagePreviewElement) {
+                        updatePlantImagePreviewElement.src = plant.imageUrl;
+                        updatePlantImagePreviewElement.style.display = 'block';
+                    }
+                } else {
+                    if (updateUploadedImageUrlElement) updateUploadedImageUrlElement.value = '';
+                    if (updatePlantImagePreviewElement) {
+                        updatePlantImagePreviewElement.src = '';
+                        updatePlantImagePreviewElement.style.display = 'none';
+                    }
                 }
+                if (updatePlantImageUploadElement) updatePlantImageUploadElement.value = ''; // Resetta input file per nuova selezione
+
             } else {
-                if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
-                if (updatePlantImagePreview) {
-                    updatePlantImagePreview.src = '';
-                    updatePlantImagePreview.style.display = 'none';
-                }
+                console.error("Form di aggiornamento clonat non trovato nel modal content.");
+                showToast("Errore interno: form di aggiornamento non disponibile.", 'error');
             }
-            if (updatePlantImageUploadInput) updatePlantImageUploadInput.value = '';
 
         } else {
             showToast('Pianta non trovata per l\'aggiornamento.', 'error');
