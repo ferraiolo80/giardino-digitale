@@ -1447,10 +1447,10 @@ function openCardModal(plant) {
 document.addEventListener('DOMContentLoaded', async () => {
    
     // Inizializza tutte le variabili DOM qui
-    gardenContainer = document.getElementById('garden-container');
-    myGardenContainer = document.getElementById('my-garden');
     authContainerDiv = document.getElementById('auth-container');
     appContentDiv = document.getElementById('app-content');
+    gardenContainer = document.getElementById('garden-container');
+    myGardenContainer = document.getElementById('my-garden');
     loginButton = document.getElementById('loginButton');
     registerButton = document.getElementById('registerButton');
     showLoginLink = document.getElementById('showLogin');
