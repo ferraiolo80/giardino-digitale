@@ -172,8 +172,8 @@ function showAddPlantForm() {
     }
     const newUploadedImageUrlElement = newPlantForm.querySelector('[data-form-field="newUploadedImageUrl"]');
     if (newUploadedImageUrlElement) newUploadedImageUrlElement.value = '';
-}
-// Mostra un messaggio toast
+
+    // Mostra un messaggio toast
 function showToast(message, type = 'info', duration = 3000) {
     if (!toastContainer) {
         console.warn('Toast container non trovato.');
