@@ -1442,6 +1442,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     //inizializzazione delle variabili per google lens
     googleLensButton = document.getElementById('googleLensButton');
 
+     // Inizializzazione dei moduli di login/registrazione
+    loginForm = document.getElementById('login-form'); // Assicurati che l'ID corrisponda al tuo HTML
+    registerForm = document.getElementById('register-form'); // Assicurati che l'ID corrisponda al tuo HTML
+
+
     // Inizializzazione variabili DOM per "Add New Plant" form
     newPlantImageUploadInput = document.getElementById('newPlantImageUpload');
     newUploadedImageUrlInput = document.getElementById('newUploadedImageUrl');
