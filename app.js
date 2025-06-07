@@ -95,33 +95,6 @@ function hideLoadingSpinner() {
     }
 }
 
-// Mostra un messaggio toast
-function showToast(message, type = 'info', duration = 3000) {
-    if (!toastContainer) {
-        console.warn('Toast container non trovato.');
-        return;
-    }
-
-    const toast = document.createElement('div');
-    toast.classList.add('toast', `toast-${type}`);
-    toast.textContent = message;
-    toastContainer.appendChild(toast);
-
-    // Mostra il toast con animazione
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-
-    // Nascondi e rimuovi il toast dopo la durata specificata
-    setTimeout(() => {
-        toast.classList.remove('show');
-        toast.classList.add('hide');
-        toast.addEventListener('transitionend', () => {
-            toast.remove();
-        }, { once: true });
-    }, duration);
-}
-
 /**
  * Carica un'immagine su Firebase Storage e restituisce l'URL pubblico.
  * @param {File} file Il file immagine da caricare.
@@ -153,6 +126,32 @@ async function uploadImageAndGetUrl(file) {
     }
 }
 
+// Mostra un messaggio toast
+function showToast(message, type = 'info', duration = 3000) {
+    if (!toastContainer) {
+        console.warn('Toast container non trovato.');
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.classList.add('toast', `toast-${type}`);
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    // Mostra il toast con animazione
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+
+    // Nascondi e rimuovi il toast dopo la durata specificata
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        toast.addEventListener('transitionend', () => {
+            toast.remove();
+        }, { once: true });
+    }, duration);
+}
 
 // Valida i campi del form di aggiunta/modifica pianta
 function validatePlantForm(plantData, isUpdate = false) {
