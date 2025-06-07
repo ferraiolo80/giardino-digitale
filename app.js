@@ -146,22 +146,22 @@ async function uploadImageAndGetUrl(file) {
 }
 
 function showAddPlantForm() {
-    if (!modalFormContent || !newPlantFormTemplate || !cardModal) {
+    if (!zoomedCardContent || !newPlantFormTemplate || !cardModal) {
         console.error("Elementi DOM per il form di aggiunta non trovati.");
         showToast("Errore: Impossibile aprire il form di aggiunta pianta.", 'error');
         return;
     }
 
-    modalFormContent.innerHTML = '';
+    zoomedCardContent.innerHTML = '';
     const clonedForm = newPlantFormTemplate.cloneNode(true);
     clonedForm.style.display = 'block';
-    modalFormContent.appendChild(clonedForm);
+    zoomedCardContent.appendChild(clonedForm);
 
     cardModal.style.display = 'flex';
 
     currentPlantIdToUpdate = null;
 
-    const newPlantForm = modalFormContent.querySelector('#new-plant-form'); // Ottieni il riferimento al form clonato
+    const newPlantForm = zoomedCardContent.querySelector('#new-plant-form'); // Ottieni il riferimento al form clonato
     if (newPlantForm) newPlantForm.reset();
 
     // Accedi agli elementi dell'immagine dal form clonato
@@ -404,7 +404,7 @@ async function showUpdatePlantForm(plantId) {
         showToast('Errore: ID pianta non fornito per l\'aggiornamento.', 'error');
         return;
     }
-    if (!modalFormContent || !updatePlantFormTemplate || !cardModal) {
+    if (!zoomedCardContent || !updatePlantFormTemplate || !cardModal) {
         console.error("Elementi DOM per il form di aggiornamento non trovati.");
         showToast("Errore: Impossibile aprire il form di aggiornamento pianta.", 'error');
         return;
@@ -417,16 +417,16 @@ async function showUpdatePlantForm(plantId) {
         if (plantDoc.exists) {
             const plant = { id: plantDoc.id, ...plantDoc.data() };
 
-            modalFormContent.innerHTML = '';
+            zoomedCardContent.innerHTML = '';
             const clonedForm = updatePlantFormTemplate.cloneNode(true);
             clonedForm.style.display = 'block';
-            modalFormContent.appendChild(clonedForm);
+            zoomedCardContent.appendChild(clonedForm);
 
             cardModal.style.display = 'flex';
 
             currentPlantIdToUpdate = plant.id;
 
-            const updateFormElement = modalFormContent.querySelector('#update-plant-form');
+            const updateFormElement = zoomedCardContent.querySelector('#update-plant-form');
             if (updateFormElement) {
                 updateFormElement.querySelector('[data-form-field="updatePlantName"]').value = plant.name || '';
                 updateFormElement.querySelector('[data-form-field="updatePlantDescription"]').value = plant.description || '';
@@ -476,7 +476,7 @@ async function displayPlantDetailsInModal(plantId) {
         console.error('ID pianta non fornito per i dettagli.');
         return;
     }
-    if (!modalFormContent || !cardModal) {
+    if (!zoomedCardContent || !cardModal) {
         console.error("Elementi DOM per i dettagli modali non trovati.");
         showToast("Errore: Impossibile aprire i dettagli della pianta.", 'error');
         return;
@@ -489,7 +489,7 @@ async function displayPlantDetailsInModal(plantId) {
         if (plantDoc.exists) {
             const plant = { id: plantDoc.id, ...plantDoc.data() };
 
-            modalFormContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
+            zoomedCardContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
 
             const detailsHtml = `
                 <div class="plant-details-content">
@@ -501,7 +501,7 @@ async function displayPlantDetailsInModal(plantId) {
                     <p><strong>Luminosità ideale:</strong> ${plant.minLux !== null ? plant.minLux : '?'} - ${plant.maxLux !== null ? plant.maxLux : '?'} Lux</p>
                     </div>
             `;
-            modalFormContent.innerHTML = detailsHtml;
+            zoomedCardContent.innerHTML = detailsHtml;
             cardModal.style.display = 'flex'; // Mostra la modale
         } else {
             showToast('Dettagli pianta non trovati.', 'error');
@@ -616,8 +616,8 @@ async function savePlantToFirestore(event) {
 // Funzione per resettare i campi dei form delle piante
 
 function resetPlantForms() {
-    if (modalFormContent) {
-        modalFormContent.innerHTML = ''; // Pulisce il contenuto della modale
+    if (zoomedCardContent) {
+        zoomedCardContent.innerHTML = ''; // Pulisce il contenuto della modale
     }
     if (cardModal) {
         cardModal.style.display = 'none'; // Nasconde la modale
@@ -1534,7 +1534,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Inizializzazione dei TEMPLATE HTML e del contenitore della modale
     newPlantFormTemplate = document.getElementById('newPlantFormTemplate');
     updatePlantFormTemplate = document.getElementById('updatePlantFormTemplate');
-    modalFormContent = document.getElementById('zoomed-card-content'); // NUOVO ID!
+    zoomedCardContent = document.getElementById('zoomed-card-content'); // NUOVO ID!
     
     // Event Listeners per l'autenticazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
