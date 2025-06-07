@@ -1614,58 +1614,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-// Event Listener per l'input file del form "Aggiungi Nuova Pianta"
-    if (newPlantImageUploadInput) {
-        newPlantImageUploadInput.addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                try {
-                    const imageUrl = await uploadImageAndGetUrl(file);
-                    if (imageUrl) {
-                        newUploadedImageUrlInput.value = imageUrl; // Salva l'URL nell'input nascosto
-                        newPlantImagePreview.src = imageUrl; // Mostra l'anteprima
-                        newPlantImagePreview.style.display = 'block'; // Rendi visibile l'anteprima
-                    }
-                } catch (error) {
-                    console.error("Fallimento nel caricamento o nell'ottenimento dell'URL (new plant):", error);
-                    newUploadedImageUrlInput.value = ''; // Resetta l'input nascosto
-                    newPlantImagePreview.src = '';
-                    newPlantImagePreview.style.display = 'none';
-                }
-            } else {
-                newUploadedImageUrlInput.value = ''; // Nessun file selezionato, resetta
-                newPlantImagePreview.src = '';
-                newPlantImagePreview.style.display = 'none';
-            }
-        });
-    }
 
-    // Event Listener per l'input file del form "Aggiorna Pianta"
-    if (updatePlantImageUploadInput) {
-        updatePlantImageUploadInput.addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                try {
-                    const imageUrl = await uploadImageAndGetUrl(file);
-                    if (imageUrl) {
-                        updateUploadedImageUrlInput.value = imageUrl; // Salva l'URL nell'input nascosto
-                        updatePlantImagePreview.src = imageUrl; // Mostra l'anteprima
-                        updatePlantImagePreview.style.display = 'block'; // Rendi visibile l'anteprima
-                    }
-                } catch (error) {
-                    console.error("Fallimento nel caricamento o nell'ottenimento dell'URL (update plant):", error);
-                    updateUploadedImageUrlInput.value = ''; // Resetta l'input nascosto
-                    updatePlantImagePreview.src = '';
-                    updatePlantImagePreview.style.display = 'none';
-                }
-            } else {
-                updateUploadedImageUrlInput.value = ''; // Nessun file selezionato, resetta
-                updatePlantImagePreview.src = '';
-                updatePlantImagePreview.style.display = 'none';
-            }
-        });
-    }
-    
     // Chiusura modali
     if (closeImageModalButton) closeImageModalButton.addEventListener('click', () => { imageModal.style.display = 'none'; });
     if (imageModal) imageModal.addEventListener('click', (e) => { if (e.target === imageModal) imageModal.style.display = 'none'; });
