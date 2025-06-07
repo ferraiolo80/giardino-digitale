@@ -564,46 +564,6 @@ function resetPlantForms() { // <<< NESSUN "ASYNC" QUI
 
     hideLoadingSpinner();
 }
-    
-    // Crea l'oggetto dati della pianta
-    const plantData = {
-        name: plantName,
-        imageUrl: imageUrl, // Ora l'URL proviene SEMPRE da Firebase Storage
-        description: description,
-        category: category,
-        minTemp: isNaN(minTemp) ? null : minTemp, // Gestisci NaN
-        maxTemp: isNaN(maxTemp) ? null : maxTemp,
-        minLux: isNaN(minLux) ? null : minLux,
-        maxLux: isNaN(maxLux) ? null : maxLux,
-        notes: notes,
-        ownerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null // ID utente autenticato
-    };
-
-    try {
-        showLoadingSpinner(); // Mostra lo spinner di caricamento
-
-        if (currentPlantId) {
-            // Aggiorna la pianta esistente
-            firestore.collection('plants').doc(currentPlantId).update(plantData);
-            showToast('Pianta aggiornata con successo!', 'success');
-        } else {
-            // Aggiungi una nuova pianta
-            firestore.collection('plants').add(plantData);
-            showToast('Pianta aggiunta con successo!', 'success');
-        }
-
-        resetPlantForm(); // Resetta i campi del form e nasconde l'anteprima
-        fetchPlants(); // Ricarica e visualizza tutte le piante aggiornate
-        hideLoadingSpinner(); // Nasconde lo spinner
-        // Chiudi il form/modal dopo il salvataggio
-        newPlantCard.style.display = 'none';
-        updatePlantCard.style.display = 'none';
-
-    } catch (error) {
-        console.error("Errore nel salvataggio della pianta:", error);
-        showToast('Errore nel salvataggio della pianta.', 'error');
-        hideLoadingSpinner();
-    }
 
 // Elimina una pianta dal database Firestore e dal giardino di tutti gli utenti
 async function deletePlantFromDatabase(plantId) {
