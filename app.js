@@ -429,6 +429,104 @@ async function savePlantToFirestore(e) {
         return;
     }
 
+    // Funzione per resettare i campi del form della pianta
+function resetPlantForm() {
+    // Resetta i campi del form "Aggiungi Nuova Pianta"
+    if (newPlantCard) {
+        document.getElementById('newPlantName').value = '';
+        document.getElementById('newPlantDescription').value = '';
+        document.getElementById('newPlantCategory').value = 'Altro';
+        document.getElementById('newMinTemp').value = '';
+        document.getElementById('newMaxTemp').value = '';
+        document.getElementById('newMinLux').value = '';
+        document.getElementById('newMaxLux').value = '';
+        document.getElementById('newPlantNotes').value = '';
+
+        if (newUploadedImageUrlInput) newUploadedImageUrlInput.value = '';
+        if (newPlantImagePreview) {
+            newPlantImagePreview.src = '';
+            newPlantImagePreview.style.display = 'none';
+        }
+    }
+
+    // Resetta i campi del form "Aggiorna Pianta"
+    if (updatePlantCard) {
+        document.getElementById('updatePlantName').value = '';
+        document.getElementById('updatePlantDescription').value = '';
+        document.getElementById('updatePlantCategory').value = 'Altro';
+        document.getElementById('updateMinTemp').value = '';
+        document.getElementById('updateMaxTemp').value = '';
+        document.getElementById('updateMinLux').value = '';
+        document.getElementById('updateMaxLux').value = '';
+        document.getElementById('updatePlantNotes').value = '';
+
+        if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
+        if (updatePlantImagePreview) {
+            updatePlantImagePreview.src = '';
+            updatePlantImagePreview.style.display = 'none';
+        }
+    }
+
+    currentPlantIdToUpdate = null; // Resetta l'ID della pianta da aggiornare
+
+    if (newPlantCard) newPlantCard.style.display = 'none';
+    if (updatePlantCard) updatePlantCard.style.display = 'none';
+
+    hideLoadingSpinner();
+}
+
+    // Funzione per popolare il form di aggiornamento quando si clicca su "Modifica"
+function populatePlantFormForUpdate(plant) {
+    if (updatePlantCard) updatePlantCard.style.display = 'block';
+    if (newPlantCard) newPlantCard.style.display = 'none'; // Assicurati che l'altro form sia nascosto
+
+    currentPlantIdToUpdate = plant.id;
+
+    // Popola i campi del form di aggiornamento con i dati della pianta esistente
+    const plantNameInput = document.getElementById('updatePlantName');
+    if (plantNameInput) plantNameInput.value = plant.name || '';
+
+    const plantDescriptionInput = document.getElementById('updatePlantDescription');
+    if (plantDescriptionInput) plantDescriptionInput.value = plant.description || '';
+
+    const categoryInput = document.getElementById('updatePlantCategory');
+    if (categoryInput) categoryInput.value = plant.category || 'Altro';
+
+    const minTempInput = document.getElementById('updateMinTemp');
+    if (minTempInput) minTempInput.value = plant.minTemp !== null ? plant.minTemp : '';
+
+    const maxTempInput = document.getElementById('updateMaxTemp');
+    if (maxTempInput) maxTempInput.value = plant.maxTemp !== null ? plant.maxTemp : '';
+
+    const minLuxInput = document.getElementById('updateMinLux');
+    if (minLuxInput) minLuxInput.value = plant.minLux !== null ? plant.minLux : '';
+
+    const maxLuxInput = document.getElementById('updateMaxLux');
+    if (maxLuxInput) maxLuxInput.value = plant.maxLux !== null ? plant.maxLux : '';
+
+    const notesInput = document.getElementById('updatePlantNotes');
+    if (notesInput) notesInput.value = plant.notes || '';
+
+
+    // Popola l'input nascosto con l'URL esistente e mostra l'anteprima
+    if (plant.imageUrl) {
+        if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = plant.imageUrl;
+        if (updatePlantImagePreview) {
+            updatePlantImagePreview.src = plant.imageUrl;
+            updatePlantImagePreview.style.display = 'block';
+        }
+    } else {
+        if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
+        if (updatePlantImagePreview) {
+            updatePlantImagePreview.src = '';
+            updatePlantImagePreview.style.display = 'none';
+        }
+    }
+
+    // Resetta l'input file per una nuova selezione (se l'utente vuole cambiare l'immagine)
+    if (updatePlantImageUploadInput) updatePlantImageUploadInput.value = '';
+}
+
     // Crea l'oggetto dati della pianta
     const plantData = {
         name: plantName,
@@ -1393,7 +1491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Inizializza il servizio Storage
     const storage = firebase.storage();
-    const storageRef = storage.storage().ref(); // Corretto: .storage().ref() per le librerie compat
+    const storageRef = storage.ref(); // Corretto: .ref() è il metodo corretto per ottenere il riferimento alla root
 
     // Event Listeners per l'autenticazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
