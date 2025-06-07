@@ -151,28 +151,27 @@ function showAddPlantForm() {
         return;
     }
 
-    modalFormContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
-    const clonedForm = newPlantFormTemplate.cloneNode(true); // Clona il div template e i suoi figli
-    clonedForm.style.display = 'block'; // Rende visibile il contenuto clonat
-    modalFormContent.appendChild(clonedForm); // Inserisce il form clonat
+    modalFormContent.innerHTML = '';
+    const clonedForm = newPlantFormTemplate.cloneNode(true);
+    clonedForm.style.display = 'block';
+    modalFormContent.appendChild(clonedForm);
 
-    cardModal.style.display = 'flex'; // Mostra la modale
+    cardModal.style.display = 'flex';
 
-    currentPlantIdToUpdate = null; // Assicurati che l'ID di aggiornamento sia nullo
+    currentPlantIdToUpdate = null;
 
-    // Resetta i campi del form (se necessario, in base a come funziona il form clonat
-    const newPlantForm = modalFormContent.querySelector('#new-plant-form');
-    if (newPlantForm) newPlantForm.reset(); // Usa .reset() per pulire il form
-    // Assicurati che l'anteprima immagine sia nascosta
-    const newPlantImagePreview = newPlantForm.querySelector('#newPlantImagePreview');
-    if (newPlantImagePreview) {
-        newPlantImagePreview.src = '';
-        newPlantImagePreview.style.display = 'none';
+    const newPlantForm = modalFormContent.querySelector('#new-plant-form'); // Ottieni il riferimento al form clonato
+    if (newPlantForm) newPlantForm.reset();
+
+    // Accedi agli elementi dell'immagine dal form clonato
+    const newPlantImagePreviewElement = newPlantForm.querySelector('[data-form-field="newPlantImagePreview"]');
+    if (newPlantImagePreviewElement) {
+        newPlantImagePreviewElement.src = '';
+        newPlantImagePreviewElement.style.display = 'none';
     }
-    const newUploadedImageUrl = newPlantForm.querySelector('#newUploadedImageUrl');
-    if(newUploadedImageUrl) newUploadedImageUrl.value = '';
+    const newUploadedImageUrlElement = newPlantForm.querySelector('[data-form-field="newUploadedImageUrl"]');
+    if (newUploadedImageUrlElement) newUploadedImageUrlElement.value = '';
 }
-
 // Mostra un messaggio toast
 function showToast(message, type = 'info', duration = 3000) {
     if (!toastContainer) {
