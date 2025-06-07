@@ -1526,8 +1526,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Inizializzazione variabili DOM per "Add New Plant" form
-    newPlantImageUploadInput = document.getElementById('newPlantImageUpload');
-    newUploadedImageUrlInput = document.getElementById('newUploadedImageUrl');
+    //newPlantImageUploadInput = document.getElementById('newPlantImageUpload');
+    //newUploadedImageUrlInput = document.getElementById('newUploadedImageUrl');
     newPlantImagePreview = document.getElementById('newPlantImagePreview');
     newPlantForm = document.getElementById('new-plant-card'); 
 
