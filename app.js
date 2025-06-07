@@ -384,27 +384,32 @@ async function showUpdatePlantForm(plantId) {
         return;
     }
 
-    try {
+   try {
         showLoadingSpinner();
         const plantDoc = await db.collection('plants').doc(plantId).get();
 
         if (plantDoc.exists) {
             const plant = { id: plantDoc.id, ...plantDoc.data() };
-            updatePlantCard.style.display = 'block';
+            updatePlantCard.style.display = 'block'; // Assicurati che updatePlantCard sia correttamente inizializzato e visibile
+
+            // Aggiungi un console.log per verificare che updatePlantCard sia presente
+            console.log("updatePlantCard DOM element:", updatePlantCard);
+
             newPlantCard.style.display = 'none';
 
             currentPlantIdToUpdate = plant.id;
 
             // Popola i campi del form di aggiornamento con i dati della pianta esistente
-            document.getElementById('updatePlantName').value = plant.name || '';
-            document.getElementById('updatePlantDescription').value = plant.description || '';
-            document.getElementById('updatePlantCategory').value = plant.category || 'Altro';
-            document.getElementById('updateMinTemp').value = plant.minTemp !== null ? plant.minTemp : '';
-            document.getElementById('updateMaxTemp').value = plant.maxTemp !== null ? plant.maxTemp : '';
-            document.getElementById('updateMinLux').value = plant.minLux !== null ? plant.minLux : '';
-            document.getElementById('updateMaxLux').value = plant.maxLux !== null ? plant.maxLux : '';
+            // USA ORA LE VARIABILI INIZIALIZZATE
+            if (updatePlantNameInput) updatePlantNameInput.value = plant.name || '';
+            if (updatePlantDescriptionInput) updatePlantDescriptionInput.value = plant.description || '';
+            if (updatePlantCategoryInput) updatePlantCategoryInput.value = plant.category || 'Altro';
+            if (updateMinTempInput) updateMinTempInput.value = plant.minTemp !== null ? plant.minTemp : ''; // Questa era la riga che dava errore
+            if (updateMaxTempInput) updateMaxTempInput.value = plant.maxTemp !== null ? plant.maxTemp : '';
+            if (updateMinLuxInput) updateMinLuxInput.value = plant.minLux !== null ? plant.minLux : '';
+            if (updateMaxLuxInput) updateMaxLuxInput.value = plant.maxLux !== null ? plant.maxLux : '';
 
-            // Popola l'input nascosto con l'URL esistente e mostra l'anteprima
+            // Queste erano già con le variabili, le ho incluse per completezza
             if (plant.imageUrl) {
                 if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = plant.imageUrl;
                 if (updatePlantImagePreview) {
@@ -418,7 +423,6 @@ async function showUpdatePlantForm(plantId) {
                     updatePlantImagePreview.style.display = 'none';
                 }
             }
-            // Resetta l'input file per una nuova selezione (se l'utente vuole cambiare l'immagine)
             if (updatePlantImageUploadInput) updatePlantImageUploadInput.value = '';
 
         } else {
