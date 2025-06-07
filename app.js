@@ -144,6 +144,35 @@ async function uploadImageAndGetUrl(file) {
     });
 }
 
+function showAddPlantForm() {
+    if (!modalFormContent || !newPlantFormTemplate || !cardModal) {
+        console.error("Elementi DOM per il form di aggiunta non trovati.");
+        showToast("Errore: Impossibile aprire il form di aggiunta pianta.", 'error');
+        return;
+    }
+
+    modalFormContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
+    const clonedForm = newPlantFormTemplate.cloneNode(true); // Clona il div template e i suoi figli
+    clonedForm.style.display = 'block'; // Rende visibile il contenuto clonat
+    modalFormContent.appendChild(clonedForm); // Inserisce il form clonat
+
+    cardModal.style.display = 'flex'; // Mostra la modale
+
+    currentPlantIdToUpdate = null; // Assicurati che l'ID di aggiornamento sia nullo
+
+    // Resetta i campi del form (se necessario, in base a come funziona il form clonat
+    const newPlantForm = modalFormContent.querySelector('#new-plant-form');
+    if (newPlantForm) newPlantForm.reset(); // Usa .reset() per pulire il form
+    // Assicurati che l'anteprima immagine sia nascosta
+    const newPlantImagePreview = newPlantForm.querySelector('#newPlantImagePreview');
+    if (newPlantImagePreview) {
+        newPlantImagePreview.src = '';
+        newPlantImagePreview.style.display = 'none';
+    }
+    const newUploadedImageUrl = newPlantForm.querySelector('#newUploadedImageUrl');
+    if(newUploadedImageUrl) newUploadedImageUrl.value = '';
+}
+
 // Mostra un messaggio toast
 function showToast(message, type = 'info', duration = 3000) {
     if (!toastContainer) {
