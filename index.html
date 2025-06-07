@@ -144,19 +144,7 @@
     </div>
 </section>
 
-        <section id="newPlantCard" class="plant-form-card" style="display: none;">
-            <h2>Nuova Pianta</h2>
-            <form id="newPlantForm">
-                <label for="newPlantName">Nome:</label>
-                <input type="text" id="newPlantName" required>
-
-                <label for="newPlantSunlight">Esposizione al Sole:</label>
-                <select id="newPlantSunlight" required>
-                    <option value="">Seleziona</option>
-                    <option value="Pieno Sole">Pieno Sole (luce solare diretta per almeno 6 ore al giorno)</option>
-                    <option value="Mezz'ombra">Mezz'ombra (luce solare diretta per un periodo compreso tra 2 e 5 ore al giorno)</option>
-                    <option value="Ombra">Ombra (luce solare indiretta e in modo limitato)</option>
-                </select>
+        
 
                 <div class="lux-input-group">
                     <label for="newPlantIdealLuxMin">Lux Ideali Min:</label>
@@ -305,14 +293,91 @@
         <div class="modal-content" id="zoomed-card-content">
             </div>
     </div>
+    
+<div id="newPlantFormTemplate" style="display: none;">
+    <h3 class="form-title">Aggiungi Nuova Pianta</h3>
+    <form id="new-plant-form">
+        <label for="newPlantName">Nome Pianta:</label>
+        <input type="text" id="newPlantName" required>
 
+        <label for="newPlantImageUpload">Carica Immagine:</label>
+        <input type="file" id="newPlantImageUpload" accept="image/*">
+        <input type="hidden" id="newUploadedImageUrl">
+        <img id="newPlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
 
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
+        <label for="newPlantDescription">Descrizione:</label>
+        <textarea id="newPlantDescription"></textarea>
 
-    <script>
+        <label for="newPlantCategory">Categoria:</label>
+        <select id="newPlantCategory">
+            <option value="Fiore">Fiore</option>
+            <option value="Frutta">Frutta</option>
+            <option value="Verdura">Verdura</option>
+            <option value="Altro">Altro</option>
+        </select>
+
+        <label for="newMinTemp">Temperatura Minima (°C):</label>
+        <input type="number" id="newMinTemp">
+
+        <label for="newMaxTemp">Temperatura Massima (°C):</label>
+        <input type="number" id="newMaxTemp">
+
+        <label for="newMinLux">Luminosità Minima (Lux):</label>
+        <input type="number" id="newMinLux">
+
+        <label for="newMaxLux">Luminosità Massima (Lux):</label>
+        <input type="number" id="newMaxLux">
+
+        <button type="submit" class="button primary-button">Aggiungi Pianta</button>
+        <button type="button" class="button secondary-button" id="cancelAddPlant">Annulla</button>
+    </form>
+</div>
+
+<div id="updatePlantFormTemplate" style="display: none;">
+    <h3 class="form-title">Aggiorna Pianta</h3>
+    <form id="update-plant-form">
+        <label for="updatePlantName">Nome Pianta:</label>
+        <input type="text" id="updatePlantName" required>
+
+        <label for="updatePlantImageUpload">Carica Immagine:</label>
+        <input type="file" id="updatePlantImageUpload" accept="image/*">
+        <input type="hidden" id="updateUploadedImageUrl">
+        <img id="updatePlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
+
+        <label for="updatePlantDescription">Descrizione:</label>
+        <textarea id="updatePlantDescription"></textarea>
+
+        <label for="updatePlantCategory">Categoria:</label>
+        <select id="updatePlantCategory">
+            <option value="Fiore">Fiore</option>
+            <option value="Frutta">Frutta</option>
+            <option value="Verdura">Verdura</option>
+            <option value="Altro">Altro</option>
+        </select>
+
+        <label for="updateMinTemp">Temperatura Minima (°C):</label>
+        <input type="number" id="updateMinTemp">
+
+        <label for="updateMaxTemp">Temperatura Massima (°C):</label>
+        <input type="number" id="updateMaxTemp">
+
+        <label for="updateMinLux">Luminosità Minima (Lux):</label>
+        <input type="number" id="updateMinLux">
+
+        <label for="updateMaxLux">Luminosità Massima (Lux):</label>
+        <input type="number" id="updateMaxLux">
+
+        <button type="submit" class="button primary-button">Salva Modifiche</button>
+        <button type="button" class="button secondary-button" id="cancelUpdatePlant">Annulla</button>
+    </form>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
+
+<script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
                     apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
