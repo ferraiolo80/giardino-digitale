@@ -404,28 +404,29 @@ async function showUpdatePlantForm(plantId) {
         showToast('Errore: ID pianta non fornito per l\'aggiornamento.', 'error');
         return;
     }
-    if (!zoomedCardContent || !updatePlantFormTemplate || !cardModal) {
+    if (!zoomedCardContent || !updatePlantFormTemplate || !cardModal) { // Usa zoomedCardContent
         console.error("Elementi DOM per il form di aggiornamento non trovati.");
         showToast("Errore: Impossibile aprire il form di aggiornamento pianta.", 'error');
         return;
     }
 
     showLoadingSpinner();
-     try {
+    try {
         const plantDoc = await db.collection('plants').doc(plantId).get();
 
-        if (plantDoc.exists) {
+        if (plantDoc.exists) { // Questo if si chiude correttamente dopo il blocco else if per il form non trovato
             const plant = { id: plantDoc.id, ...plantDoc.data() };
 
-            zoomedCardContent.innerHTML = '';
+            zoomedCardContent.innerHTML = ''; // Pulisci il contenuto precedente
             const clonedForm = updatePlantFormTemplate.cloneNode(true);
             clonedForm.style.display = 'block';
             zoomedCardContent.appendChild(clonedForm);
 
-            cardModal.style.display = 'flex';
+            cardModal.style.display = 'flex'; // Mostra la modale
 
-            currentPlantIdToUpdate = plant.id;
+            currentPlantIdToUpdate = plant.id; // Imposta l'ID per il salvataggio
 
+            // RECUPERA GLI ELEMENTI DEL FORM CLONATO per popolarli
             const updateFormElement = zoomedCardContent.querySelector('#update-plant-form');
             if (updateFormElement) {
                 updateFormElement.querySelector('[data-form-field="updatePlantName"]').value = plant.name || '';
@@ -436,6 +437,7 @@ async function showUpdatePlantForm(plantId) {
                 updateFormElement.querySelector('[data-form-field="updateMinLux"]').value = plant.minLux !== null ? plant.minLux : '';
                 updateFormElement.querySelector('[data-form-field="updateMaxLux"]').value = plant.maxLux !== null ? plant.maxLux : '';
 
+                // Gestione immagine esistente e input file
                 const updatePlantImagePreviewElement = updateFormElement.querySelector('[data-form-field="updatePlantImagePreview"]');
                 const updateUploadedImageUrlElement = updateFormElement.querySelector('[data-form-field="updateUploadedImageUrl"]');
                 const updatePlantImageUploadElement = updateFormElement.querySelector('[data-form-field="updatePlantImageUpload"]');
@@ -453,14 +455,14 @@ async function showUpdatePlantForm(plantId) {
                         updatePlantImagePreviewElement.style.display = 'none';
                     }
                 }
-                if (updatePlantImageUploadElement) updatePlantImageUploadElement.value = '';
+                if (updatePlantImageUploadElement) updatePlantImageUploadElement.value = ''; // Resetta input file per nuova selezione
 
             } else {
-                console.error("Form di aggiornamento clonat non trovato nel modal content.");
+                console.error("Form di aggiornamento clonato non trovato nel modal content.");
                 showToast("Errore interno: form di aggiornamento non disponibile.", 'error');
             }
-
-        } else {
+        } // <-- QUESTO '}' chiude l'if (plantDoc.exists) correttamente
+        else { // <-- QUESTO 'else' ora è associato correttamente all'if (plantDoc.exists)
             showToast('Pianta non trovata per l\'aggiornamento.', 'error');
         }
     } catch (error) {
@@ -469,6 +471,7 @@ async function showUpdatePlantForm(plantId) {
     } finally {
         hideLoadingSpinner();
     }
+} // <-- Questa è la chiusura CORRETTA della funzione showUpdatePlantForm.
 
 async function displayPlantDetailsInModal(plantId) {
     if (!plantId) {
