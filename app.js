@@ -57,6 +57,15 @@ let locationStatusDiv;      // Variabile per il div di stato della posizione
 let climateZoneFilter;
 let weatherForecastDiv
 
+let newPlantImageUploadInput;
+let newUploadedImageUrlInput;
+let newPlantImagePreview;
+let newPlantForm;
+let updatePlantImageUploadInput;
+let updateUploadedImageUrlInput;
+let updatePlantImagePreview;
+let updatePlantForm; // Assicurati di avere un riferimento al form per "Update Plant" (es. `#update-plant-form`)
+
 const CLIMATE_TEMP_RANGES = {
     'Mediterraneo': { min: 5, max: 35 },
     'Temperato': { min: -10, max: 30 },
@@ -1198,6 +1207,37 @@ function stopLightSensor() {
     console.log("DEBUG: UI per sensore luce resettata.");
 }
 
+/**
+ * Carica un'immagine su Firebase Storage e restituisce l'URL pubblico.
+ * @param {File} file Il file immagine da caricare.
+ * @returns {Promise<string>} Una Promise che si risolve con l'URL pubblico dell'immagine.
+ */
+async function uploadImageAndGetUrl(file) {
+    if (!file) {
+        console.warn("Nessun file selezionato per il caricamento.");
+        return null;
+    }
+
+    showLoadingSpinner(); // Assicurati che showLoadingSpinner() sia definita
+
+    // Crea un nome file univoco per evitare sovrascritture
+    const fileName = `${Date.now()}_${file.name}`;
+    const imageRef = storageRef.child(`plant_images/${fileName}`); // Salva le immagini in una cartella 'plant_images'
+
+    try {
+        const snapshot = await imageRef.put(file); // Carica il file
+        const downloadURL = await snapshot.ref.getDownloadURL(); // Ottieni l'URL pubblico
+        showToast('Immagine caricata con successo!', 'success'); // Assicurati che showToast() sia definita
+        return downloadURL;
+    } catch (error) {
+        console.error("Errore nel caricamento dell'immagine:", error);
+        showToast('Errore nel caricamento dell\'immagine.', 'error');
+        throw error; // Propaga l'errore per gestirlo a livello superiore
+    } finally {
+        hideLoadingSpinner(); // Assicurati che hideLoadingSpinner() sia definita
+    }
+}
+
 // =======================================================
 // 6. GESTIONE MODALI (Immagine e Card Completa)
 // =======================================================
@@ -1310,6 +1350,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     //inizializzazione delle variabili per google lens
     googleLensButton = document.getElementById('googleLensButton');
+
+    // Inizializzazione variabili DOM per "Add New Plant" form
+    newPlantImageUploadInput = document.getElementById('newPlantImageUpload');
+    newUploadedImageUrlInput = document.getElementById('newUploadedImageUrl');
+    newPlantImagePreview = document.getElementById('newPlantImagePreview');
+    newPlantForm = document.getElementById('add-plant-form'); // VERIFICA CHE L'ID DEL TUO FORM SIA CORRETTO!
+
+    // Inizializzazione variabili DOM per "Update Plant" form
+    updatePlantImageUploadInput = document.getElementById('updatePlantImageUpload');
+    updateUploadedImageUrlInput = document.getElementById('updateUploadedImageUrl');
+    updatePlantImagePreview = document.getElementById('updatePlantImagePreview');
+    updatePlantForm = document.getElementById('update-plant-form'); // VERIFICA CHE L'ID DEL TUO FORM SIA CORRETTO!
 
      // Inizializza Firebase all'inizio
     firebase.initializeApp(firebaseConfig);
@@ -1434,6 +1486,58 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+// Event Listener per l'input file del form "Aggiungi Nuova Pianta"
+    if (newPlantImageUploadInput) {
+        newPlantImageUploadInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                try {
+                    const imageUrl = await uploadImageAndGetUrl(file);
+                    if (imageUrl) {
+                        newUploadedImageUrlInput.value = imageUrl; // Salva l'URL nell'input nascosto
+                        newPlantImagePreview.src = imageUrl; // Mostra l'anteprima
+                        newPlantImagePreview.style.display = 'block'; // Rendi visibile l'anteprima
+                    }
+                } catch (error) {
+                    console.error("Fallimento nel caricamento o nell'ottenimento dell'URL (new plant):", error);
+                    newUploadedImageUrlInput.value = ''; // Resetta l'input nascosto
+                    newPlantImagePreview.src = '';
+                    newPlantImagePreview.style.display = 'none';
+                }
+            } else {
+                newUploadedImageUrlInput.value = ''; // Nessun file selezionato, resetta
+                newPlantImagePreview.src = '';
+                newPlantImagePreview.style.display = 'none';
+            }
+        });
+    }
+
+    // Event Listener per l'input file del form "Aggiorna Pianta"
+    if (updatePlantImageUploadInput) {
+        updatePlantImageUploadInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                try {
+                    const imageUrl = await uploadImageAndGetUrl(file);
+                    if (imageUrl) {
+                        updateUploadedImageUrlInput.value = imageUrl; // Salva l'URL nell'input nascosto
+                        updatePlantImagePreview.src = imageUrl; // Mostra l'anteprima
+                        updatePlantImagePreview.style.display = 'block'; // Rendi visibile l'anteprima
+                    }
+                } catch (error) {
+                    console.error("Fallimento nel caricamento o nell'ottenimento dell'URL (update plant):", error);
+                    updateUploadedImageUrlInput.value = ''; // Resetta l'input nascosto
+                    updatePlantImagePreview.src = '';
+                    updatePlantImagePreview.style.display = 'none';
+                }
+            } else {
+                updateUploadedImageUrlInput.value = ''; // Nessun file selezionato, resetta
+                updatePlantImagePreview.src = '';
+                updatePlantImagePreview.style.display = 'none';
+            }
+        });
+    }
+    
     // Chiusura modali
     if (closeImageModalButton) closeImageModalButton.addEventListener('click', () => { imageModal.style.display = 'none'; });
     if (imageModal) imageModal.addEventListener('click', (e) => { if (e.target === imageModal) imageModal.style.display = 'none'; });
