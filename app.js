@@ -1642,7 +1642,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             return; // Ferma l'evento
         }
-
               
         // Azioni sui bottoni all'interno delle card (o della card zoomata)
         if (event.target.classList.contains('add-to-garden-button')) {
