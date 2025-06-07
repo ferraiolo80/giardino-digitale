@@ -73,6 +73,7 @@ let updatePlantImagePreview;
 let updatePlantForm; // Assicurati di avere un riferimento al form per "Update Plant" (es. `#update-plant-form`)
 let loginForm; // Aggiungi questa riga
 let registerForm; // Aggiungi questa riga
+let emptyGardenMessage;
 
 const CLIMATE_TEMP_RANGES = {
     'Mediterraneo': { min: 5, max: 35 },
