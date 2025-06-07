@@ -1355,14 +1355,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     newPlantImageUploadInput = document.getElementById('newPlantImageUpload');
     newUploadedImageUrlInput = document.getElementById('newUploadedImageUrl');
     newPlantImagePreview = document.getElementById('newPlantImagePreview');
-    newPlantForm = document.getElementById('add-plant-form'); // VERIFICA CHE L'ID DEL TUO FORM SIA CORRETTO!
+    newPlantForm = document.getElementById('new-plant-card'); 
 
     // Inizializzazione variabili DOM per "Update Plant" form
     updatePlantImageUploadInput = document.getElementById('updatePlantImageUpload');
     updateUploadedImageUrlInput = document.getElementById('updateUploadedImageUrl');
     updatePlantImagePreview = document.getElementById('updatePlantImagePreview');
-    updatePlantForm = document.getElementById('update-plant-form'); // VERIFICA CHE L'ID DEL TUO FORM SIA CORRETTO!
-
+    updatePlantForm = document.getElementById('update-plant-card'); 
+    
      // Inizializza Firebase all'inizio
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
