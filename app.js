@@ -1557,6 +1557,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    if (modalFormContent) {
+        modalFormContent.addEventListener('submit', async (event) => {
+            const form = event.target;
+            if (form.id === 'new-plant-form' || form.id === 'update-plant-form') {
+                event.preventDefault(); // Impedisce il submit standard
+                await savePlantToFirestore(event); // Chiama la funzione di salvataggio
+            }
+        });
+
+        // Event listener per i click all'interno della modale (per i bottoni "Annulla")
+        modalFormContent.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.id === 'cancelAddPlant' || target.id === 'cancelUpdatePlant') {
+                event.preventDefault(); // Impedisce l'azione predefinita
+                resetPlantForms(); // Chiude la modale e pulisce
+            }
+        });
+    }
+
     // Gestione clic sulle card delle piante (aggiungi/rimuovi/aggiorna/elimina/zoom)
     document.body.addEventListener('click', async (event) => {
         // Zoom immagine (solo se clicchi direttamente sull'immagine)
@@ -1619,9 +1638,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (closeImageModalButton) closeImageModalButton.addEventListener('click', () => { imageModal.style.display = 'none'; });
     if (imageModal) imageModal.addEventListener('click', (e) => { if (e.target === imageModal) imageModal.style.display = 'none'; });
 
-    if (closeCardModalButton) closeCardModalButton.addEventListener('click', () => { cardModal.style.display = 'none'; });
-    if (cardModal) cardModal.addEventListener('click', (e) => { if (e.target === cardModal) cardModal.style.display = 'none'; });
-
+    // Modifica il listener di chiusura cardModal per chiamare resetPlantForms
+    if (closeCardModalButton) closeCardModalButton.addEventListener('click', resetPlantForms); // Chiama reset per pulire e nascondere
+    if (cardModal) cardModal.addEventListener('click', (e) => { if (e.target === cardModal) resetPlantForms(); });
 
     // Event Listeners per il sensore di luce
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
