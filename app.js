@@ -367,24 +367,62 @@ function showNewPlantForm() {
 }
 
 // Mostra il form per aggiornare una pianta esistente
-function showUpdatePlantForm(plant) {
-    currentPlantIdToUpdate = plant.id;
-    document.getElementById('updatePlantName').value = plant.name || '';
-    document.getElementById('updatePlantSunlight').value = plant.sunlight || '';
-    document.getElementById('updatePlantIdealLuxMin').value = plant.idealLuxMin !== null ? plant.idealLuxMin.toString() : '';
-    document.getElementById('updatePlantIdealLuxMax').value = plant.idealLuxMax !== null ? plant.idealLuxMax.toString() : '';
-    document.getElementById('updatePlantWatering').value = plant.watering || '';
-    document.getElementById('updatePlantTempMin').value = plant.tempMin !== null ? plant.tempMin.toString() : '';
-    document.getElementById('updatePlantTempMax').value = plant.tempMax !== null ? plant.tempMax.toString() : '';
-    document.getElementById('updatePlantDescription').value = plant.description || '';
-    document.getElementById('updatePlantCategory').value = plant.category || '';
-    document.getElementById('updatePlantImageURL').value = plant.image || '';
+// Funzione per mostrare il form di aggiornamento pianta e popolarlo
+async function showUpdatePlantForm(plantId) {
+    if (!plantId) {
+        console.error('ID pianta non fornito per l\'aggiornamento.');
+        showToast('Errore: ID pianta non fornito per l\'aggiornamento.', 'error');
+        return;
+    }
 
-    newPlantCard.style.display = 'none';
-    updatePlantCard.style.display = 'block';
-    clearFormValidationErrors(updatePlantCard);
+    try {
+        showLoadingSpinner();
+        const plantDoc = await db.collection('plants').doc(plantId).get();
 
-    updatePlantCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (plantDoc.exists) {
+            const plant = { id: plantDoc.id, ...plantDoc.data() };
+            updatePlantCard.style.display = 'block'; // Mostra il form di aggiornamento
+            newPlantCard.style.display = 'none'; // Assicurati che l'altro form sia nascosto
+
+            currentPlantIdToUpdate = plant.id;
+
+            // Popola i campi del form di aggiornamento
+            document.getElementById('updatePlantName').value = plant.name || '';
+            document.getElementById('updatePlantDescription').value = plant.description || ''; // OK
+            document.getElementById('updatePlantCategory').value = plant.category || 'Altro';
+            document.getElementById('updateMinTemp').value = plant.minTemp !== null ? plant.minTemp : '';
+            document.getElementById('updateMaxTemp').value = plant.maxTemp !== null ? plant.maxTemp : '';
+            document.getElementById('updateMinLux').value = plant.minLux !== null ? plant.minLux : '';
+            document.getElementById('updateMaxLux').value = plant.maxLux !== null ? plant.maxLux : '';
+
+
+            // Popola l'input nascosto con l'URL esistente e mostra l'anteprima
+            if (plant.imageUrl) {
+                if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = plant.imageUrl;
+                if (updatePlantImagePreview) {
+                    updatePlantImagePreview.src = plant.imageUrl;
+                    updatePlantImagePreview.style.display = 'block';
+                }
+            } else {
+                // Se non c'è un URL, assicurati che l'anteprima sia nascosta e l'input vuoto
+                if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
+                if (updatePlantImagePreview) {
+                    updatePlantImagePreview.src = '';
+                    updatePlantImagePreview.style.display = 'none';
+                }
+            }
+            // Resetta l'input file per una nuova selezione (se l'utente vuole cambiare l'immagine)
+            if (updatePlantImageUploadInput) updatePlantImageUploadInput.value = '';
+
+        } else {
+            showToast('Pianta non trovata per l\'aggiornamento.', 'error');
+        }
+    } catch (error) {
+        console.error("Errore nel recupero della pianta per l'aggiornamento:", error);
+        showToast('Errore nel recupero della pianta per l\'aggiornamento.', 'error');
+    } finally {
+        hideLoadingSpinner();
+    }
 }
 
 // Nasconde tutti i form di aggiunta/aggiornamento pianta
