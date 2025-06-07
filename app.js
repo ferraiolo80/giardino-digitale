@@ -85,6 +85,8 @@ const CLIMATE_TEMP_RANGES = {
     };
 
 let db; // Istanza di Firestore
+let storage; // Per Firebase Storage
+let storageRef; // Per la reference del root di Storage
 
 // =======================================================
 // 1. FUNZIONI UTILITY (Feedback Utente e Validazione)
