@@ -428,36 +428,34 @@ async function showUpdatePlantForm(plantId) {
     }
 
     showLoadingSpinner();
-    try {
+     try {
         const plantDoc = await db.collection('plants').doc(plantId).get();
 
         if (plantDoc.exists) {
             const plant = { id: plantDoc.id, ...plantDoc.data() };
 
-            modalFormContent.innerHTML = ''; // Pulisci il contenuto precedente
+            modalFormContent.innerHTML = '';
             const clonedForm = updatePlantFormTemplate.cloneNode(true);
             clonedForm.style.display = 'block';
             modalFormContent.appendChild(clonedForm);
 
-            cardModal.style.display = 'flex'; // Mostra la modale
+            cardModal.style.display = 'flex';
 
-            currentPlantIdToUpdate = plant.id; // Imposta l'ID per il salvataggio
+            currentPlantIdToUpdate = plant.id;
 
-            // RECUPERA GLI ELEMENTI DEL FORM CLONATO per popolarli
             const updateFormElement = modalFormContent.querySelector('#update-plant-form');
             if (updateFormElement) {
-                updateFormElement.querySelector('#updatePlantName').value = plant.name || '';
-                updateFormElement.querySelector('#updatePlantDescription').value = plant.description || '';
-                updateFormElement.querySelector('#updatePlantCategory').value = plant.category || 'Altro';
-                updateFormElement.querySelector('#updateMinTemp').value = plant.minTemp !== null ? plant.minTemp : '';
-                updateFormElement.querySelector('#updateMaxTemp').value = plant.maxTemp !== null ? plant.maxTemp : '';
-                updateFormElement.querySelector('#updateMinLux').value = plant.minLux !== null ? plant.minLux : '';
-                updateFormElement.querySelector('#updateMaxLux').value = plant.maxLux !== null ? plant.maxLux : '';
+                updateFormElement.querySelector('[data-form-field="updatePlantName"]').value = plant.name || '';
+                updateFormElement.querySelector('[data-form-field="updatePlantDescription"]').value = plant.description || '';
+                updateFormElement.querySelector('[data-form-field="updatePlantCategory"]').value = plant.category || 'Altro';
+                updateFormElement.querySelector('[data-form-field="updateMinTemp"]').value = plant.minTemp !== null ? plant.minTemp : '';
+                updateFormElement.querySelector('[data-form-field="updateMaxTemp"]').value = plant.maxTemp !== null ? plant.maxTemp : '';
+                updateFormElement.querySelector('[data-form-field="updateMinLux"]').value = plant.minLux !== null ? plant.minLux : '';
+                updateFormElement.querySelector('[data-form-field="updateMaxLux"]').value = plant.maxLux !== null ? plant.maxLux : '';
 
-                // Gestione immagine esistente e input file
-                const updatePlantImagePreviewElement = updateFormElement.querySelector('#updatePlantImagePreview');
-                const updateUploadedImageUrlElement = updateFormElement.querySelector('#updateUploadedImageUrl');
-                const updatePlantImageUploadElement = updateFormElement.querySelector('#updatePlantImageUpload'); // L'input file
+                const updatePlantImagePreviewElement = updateFormElement.querySelector('[data-form-field="updatePlantImagePreview"]');
+                const updateUploadedImageUrlElement = updateFormElement.querySelector('[data-form-field="updateUploadedImageUrl"]');
+                const updatePlantImageUploadElement = updateFormElement.querySelector('[data-form-field="updatePlantImageUpload"]');
 
                 if (plant.imageUrl) {
                     if (updateUploadedImageUrlElement) updateUploadedImageUrlElement.value = plant.imageUrl;
@@ -472,7 +470,7 @@ async function showUpdatePlantForm(plantId) {
                         updatePlantImagePreviewElement.style.display = 'none';
                     }
                 }
-                if (updatePlantImageUploadElement) updatePlantImageUploadElement.value = ''; // Resetta input file per nuova selezione
+                if (updatePlantImageUploadElement) updatePlantImageUploadElement.value = '';
 
             } else {
                 console.error("Form di aggiornamento clonat non trovato nel modal content.");
