@@ -579,58 +579,7 @@ function resetPlantForms() {
     hideLoadingSpinner();
 }
 
-    // Funzione per popolare il form di aggiornamento quando si clicca su "Modifica"
-async function populatePlantFormForUpdate(plant) {
-    if (updatePlantCard) updatePlantCard.style.display = 'block';
-    if (newPlantCard) newPlantCard.style.display = 'none'; // Assicurati che l'altro form sia nascosto
-
-    currentPlantIdToUpdate = plant.id;
-
-    // Popola i campi del form di aggiornamento con i dati della pianta esistente
-    const plantNameInput = document.getElementById('updatePlantName');
-    if (plantNameInput) plantNameInput.value = plant.name || '';
-
-    const plantDescriptionInput = document.getElementById('updatePlantDescription');
-    if (plantDescriptionInput) plantDescriptionInput.value = plant.description || '';
-
-    const categoryInput = document.getElementById('updatePlantCategory');
-    if (categoryInput) categoryInput.value = plant.category || 'Altro';
-
-    const minTempInput = document.getElementById('updateMinTemp');
-    if (minTempInput) minTempInput.value = plant.minTemp !== null ? plant.minTemp : '';
-
-    const maxTempInput = document.getElementById('updateMaxTemp');
-    if (maxTempInput) maxTempInput.value = plant.maxTemp !== null ? plant.maxTemp : '';
-
-    const minLuxInput = document.getElementById('updateMinLux');
-    if (minLuxInput) minLuxInput.value = plant.minLux !== null ? plant.minLux : '';
-
-    const maxLuxInput = document.getElementById('updateMaxLux');
-    if (maxLuxInput) maxLuxInput.value = plant.maxLux !== null ? plant.maxLux : '';
-
-    const notesInput = document.getElementById('updatePlantNotes');
-    if (notesInput) notesInput.value = plant.notes || '';
-
-
-    // Popola l'input nascosto con l'URL esistente e mostra l'anteprima
-    if (plant.imageUrl) {
-        if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = plant.imageUrl;
-        if (updatePlantImagePreview) {
-            updatePlantImagePreview.src = plant.imageUrl;
-            updatePlantImagePreview.style.display = 'block';
-        }
-    } else {
-        if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
-        if (updatePlantImagePreview) {
-            updatePlantImagePreview.src = '';
-            updatePlantImagePreview.style.display = 'none';
-        }
-    }
-
-    // Resetta l'input file per una nuova selezione (se l'utente vuole cambiare l'immagine)
-    if (updatePlantImageUploadInput) updatePlantImageUploadInput.value = '';
-}
-
+    
     // Crea l'oggetto dati della pianta
     const plantData = {
         name: plantName,
