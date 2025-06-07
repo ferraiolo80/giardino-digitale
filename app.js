@@ -634,47 +634,15 @@ async function savePlantToFirestore(e) {
    
 // Funzione per resettare i campi dei form delle piante
 
-function resetPlantForms() { // <<< NESSUN "ASYNC" QUI
-    // Resetta i campi del form "Aggiungi Nuova Pianta"
-    if (newPlantCard) {
-        document.getElementById('newPlantName').value = '';
-        document.getElementById('newPlantDescription').value = '';
-        document.getElementById('newPlantCategory').value = 'Altro';
-        document.getElementById('newMinTemp').value = '';
-        document.getElementById('newMaxTemp').value = '';
-        document.getElementById('newMinLux').value = '';
-        document.getElementById('newMaxLux').value = '';
-
-        if (newUploadedImageUrlInput) newUploadedImageUrlInput.value = '';
-        if (newPlantImagePreview) {
-            newPlantImagePreview.src = '';
-            newPlantImagePreview.style.display = 'none';
-        }
+function resetPlantForms() {
+    if (modalFormContent) {
+        modalFormContent.innerHTML = ''; // Pulisce il contenuto della modale
     }
-
-    // Resetta i campi del form "Aggiorna Pianta"
-    if (updatePlantCard) {
-        document.getElementById('updatePlantName').value = '';
-        document.getElementById('updatePlantDescription').value = '';
-        document.getElementById('updatePlantCategory').value = 'Altro';
-        document.getElementById('updateMinTemp').value = '';
-        document.getElementById('updateMaxTemp').value = '';
-        document.getElementById('updateMinLux').value = '';
-        document.getElementById('updateMaxLux').value = '';
-
-        if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
-        if (updatePlantImagePreview) {
-            updatePlantImagePreview.src = '';
-            updatePlantImagePreview.style.display = 'none';
-        }
+    if (cardModal) {
+        cardModal.style.display = 'none'; // Nasconde la modale
     }
-
-    currentPlantIdToUpdate = null;
-
-    if (newPlantCard) newPlantCard.style.display = 'none';
-    if (updatePlantCard) updatePlantCard.style.display = 'none';
-
-    hideLoadingSpinner();
+    currentPlantIdToUpdate = null; // Resetta l'ID
+    hideLoadingSpinner(); // Assicurati che lo spinner sia nascosto
 }
 
 // Elimina una pianta dal database Firestore e dal giardino di tutti gli utenti
