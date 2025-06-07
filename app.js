@@ -1487,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Inizializzazione dei TEMPLATE HTML e del contenitore della modale
     newPlantFormTemplate = document.getElementById('newPlantFormTemplate');
     updatePlantFormTemplate = document.getElementById('updatePlantFormTemplate');
-    modalFormContent = document.getElementById('modal-form-content'); // NUOVO ID!
+    modalFormContent = document.getElementById('zoomed-card-content'); // NUOVO ID!
     
     // Event Listeners per l'autenticazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
