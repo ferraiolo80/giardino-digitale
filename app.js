@@ -536,11 +536,12 @@ async function savePlantToFirestore(e) {
 }
     // Funzione per resettare i campi del form della pianta
 // Funzione per resettare i campi dei form delle piante
-async function resetPlantForms() {
+// Funzione per resettare i campi dei form delle piante
+function resetPlantForms() { // <--- NESSUN "ASYNC" QUI
     // Resetta i campi del form "Aggiungi Nuova Pianta"
     if (newPlantCard) {
         document.getElementById('newPlantName').value = '';
-        document.getElementById('newPlantDescription').value = ''; // Resetta la descrizione
+        document.getElementById('newPlantDescription').value = '';
         document.getElementById('newPlantCategory').value = 'Altro';
         document.getElementById('newMinTemp').value = '';
         document.getElementById('newMaxTemp').value = '';
@@ -557,7 +558,7 @@ async function resetPlantForms() {
     // Resetta i campi del form "Aggiorna Pianta"
     if (updatePlantCard) {
         document.getElementById('updatePlantName').value = '';
-        document.getElementById('updatePlantDescription').value = ''; // Resetta la descrizione
+        document.getElementById('updatePlantDescription').value = '';
         document.getElementById('updatePlantCategory').value = 'Altro';
         document.getElementById('updateMinTemp').value = '';
         document.getElementById('updateMaxTemp').value = '';
@@ -571,14 +572,13 @@ async function resetPlantForms() {
         }
     }
 
-    currentPlantIdToUpdate = null; // Resetta l'ID della pianta da aggiornare
+    currentPlantIdToUpdate = null;
 
     if (newPlantCard) newPlantCard.style.display = 'none';
     if (updatePlantCard) updatePlantCard.style.display = 'none';
 
-    hideLoadingSpinner();
+    hideLoadingSpinner(); // Questa funzione può essere asincrona o meno, ma non è definita qui. Se è sincrona va bene, altrimenti deve essere gestita altrove.
 }
-
     
     // Crea l'oggetto dati della pianta
     const plantData = {
