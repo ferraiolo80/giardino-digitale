@@ -603,12 +603,12 @@ function resetPlantForms() { // <--- NESSUN "ASYNC" QUI
             showToast('Pianta aggiornata con successo!', 'success');
         } else {
             // Aggiungi una nuova pianta
-            await firestore.collection('plants').add(plantData);
+            firestore.collection('plants').add(plantData);
             showToast('Pianta aggiunta con successo!', 'success');
         }
 
         resetPlantForm(); // Resetta i campi del form e nasconde l'anteprima
-        await fetchPlants(); // Ricarica e visualizza tutte le piante aggiornate
+        fetchPlants(); // Ricarica e visualizza tutte le piante aggiornate
         hideLoadingSpinner(); // Nasconde lo spinner
         // Chiudi il form/modal dopo il salvataggio
         newPlantCard.style.display = 'none';
