@@ -490,6 +490,50 @@ async function showUpdatePlantForm(plantId) {
         hideLoadingSpinner();
     }
 }
+
+async function displayPlantDetailsInModal(plantId) {
+    if (!plantId) {
+        console.error('ID pianta non fornito per i dettagli.');
+        return;
+    }
+    if (!modalFormContent || !cardModal) {
+        console.error("Elementi DOM per i dettagli modali non trovati.");
+        showToast("Errore: Impossibile aprire i dettagli della pianta.", 'error');
+        return;
+    }
+
+    showLoadingSpinner();
+    try {
+        const plantDoc = await db.collection('plants').doc(plantId).get();
+
+        if (plantDoc.exists) {
+            const plant = { id: plantDoc.id, ...plantDoc.data() };
+
+            modalFormContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
+
+            const detailsHtml = `
+                <div class="plant-details-content">
+                    <h2>${plant.name}</h2>
+                    <img src="${plant.imageUrl || 'https://via.placeholder.com/150'}" alt="${plant.name}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <p><strong>Descrizione:</strong> ${plant.description || 'Nessuna descrizione.'}</p>
+                    <p><strong>Categoria:</strong> ${plant.category || 'Nessuna categoria.'}</p>
+                    <p><strong>Temperatura ideale:</strong> ${plant.minTemp !== null ? plant.minTemp : '?'}°C - ${plant.maxTemp !== null ? plant.maxTemp : '?'}°C</p>
+                    <p><strong>Luminosità ideale:</strong> ${plant.minLux !== null ? plant.minLux : '?'} - ${plant.maxLux !== null ? plant.maxLux : '?'} Lux</p>
+                    </div>
+            `;
+            modalFormContent.innerHTML = detailsHtml;
+            cardModal.style.display = 'flex'; // Mostra la modale
+        } else {
+            showToast('Dettagli pianta non trovati.', 'error');
+        }
+    } catch (error) {
+        console.error("Errore nel recupero dei dettagli della pianta:", error);
+        showToast('Errore nel recupero dei dettagli della pianta.', 'error');
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
 // Nasconde tutti i form di aggiunta/aggiornamento pianta
 function hidePlantForms() {
     if (newPlantCard) {
