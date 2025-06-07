@@ -1393,7 +1393,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Inizializza il servizio Storage
     const storage = firebase.storage();
-    const storageRef = storage.ref(); // Riferimento alla root del bucket Storage
+    const storageRef = storage.storage().ref(); // Corretto: .storage().ref() per le librerie compat
 
     // Event Listeners per l'autenticazione
     if (loginButton) loginButton.addEventListener('click', handleLogin);
