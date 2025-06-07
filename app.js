@@ -112,27 +112,36 @@ function hideLoadingSpinner() {
  */
 async function uploadImageAndGetUrl(file) {
     if (!file) {
-        console.warn("Nessun file selezionato per il caricamento.");
+        console.warn("Nessun file fornito per il caricamento.");
         return null;
     }
 
-    showLoadingSpinner();
+    const storagePath = `plant_images/${Date.now()}_${file.name}`;
+    const imageRef = storageRef.child(storagePath); // storageRef ORA DEVE ESSERE DEFINITO
+    const uploadTask = imageRef.put(file);
 
-    const fileName = `${Date.now()}_${file.name}`; // Nome file univoco
-    const imageRef = storageRef.child(`plant_images/${fileName}`); // Salva in una cartella 'plant_images'
-
-    try {
-        const snapshot = await imageRef.put(file); // Carica il file
-        const downloadURL = await snapshot.ref.getDownloadURL(); // Ottieni l'URL pubblico
-        showToast('Immagine caricata con successo!', 'success');
-        return downloadURL;
-    } catch (error) {
-        console.error("Errore nel caricamento dell'immagine:", error);
-        showToast('Errore nel caricamento dell\'immagine.', 'error');
-        throw error;
-    } finally {
-        hideLoadingSpinner();
-    }
+    return new Promise((resolve, reject) => {
+        uploadTask.on(
+            'state_changed',
+            snapshot => {
+                // Puoi aggiungere qui una logica per la percentuale di caricamento
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                // console.log('Upload is ' + progress + '% done');
+            },
+            error => {
+                console.error("Errore durante l'upload dell'immagine:", error);
+                reject(error);
+            },
+            () => {
+                uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
+                    resolve(downloadURL);
+                }).catch(error => {
+                    console.error("Errore nell'ottenere l'URL di download:", error);
+                    reject(error);
+                });
+            }
+        );
+    });
 }
 
 // Mostra un messaggio toast
