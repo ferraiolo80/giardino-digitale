@@ -106,23 +106,22 @@ async function uploadImageAndGetUrl(file) {
         return null;
     }
 
-    showLoadingSpinner(); // Assicurati che showLoadingSpinner() sia definita
+    showLoadingSpinner();
 
-    // Crea un nome file univoco per evitare sovrascritture
-    const fileName = `${Date.now()}_${file.name}`;
-    const imageRef = storageRef.child(`plant_images/${fileName}`); // Salva le immagini in una cartella 'plant_images'
+    const fileName = `${Date.now()}_${file.name}`; // Nome file univoco
+    const imageRef = storageRef.child(`plant_images/${fileName}`); // Salva in una cartella 'plant_images'
 
     try {
         const snapshot = await imageRef.put(file); // Carica il file
         const downloadURL = await snapshot.ref.getDownloadURL(); // Ottieni l'URL pubblico
-        showToast('Immagine caricata con successo!', 'success'); // Assicurati che showToast() sia definita
+        showToast('Immagine caricata con successo!', 'success');
         return downloadURL;
     } catch (error) {
         console.error("Errore nel caricamento dell'immagine:", error);
         showToast('Errore nel caricamento dell\'immagine.', 'error');
-        throw error; // Propaga l'errore per gestirlo a livello superiore
+        throw error;
     } finally {
-        hideLoadingSpinner(); // Assicurati che hideLoadingSpinner() sia definita
+        hideLoadingSpinner();
     }
 }
 
@@ -368,6 +367,7 @@ function showNewPlantForm() {
 
 // Mostra il form per aggiornare una pianta esistente
 // Funzione per mostrare il form di aggiornamento pianta e popolarlo
+// Funzione per mostrare il form di aggiornamento pianta e popolarlo
 async function showUpdatePlantForm(plantId) {
     if (!plantId) {
         console.error('ID pianta non fornito per l\'aggiornamento.');
@@ -381,20 +381,19 @@ async function showUpdatePlantForm(plantId) {
 
         if (plantDoc.exists) {
             const plant = { id: plantDoc.id, ...plantDoc.data() };
-            updatePlantCard.style.display = 'block'; // Mostra il form di aggiornamento
-            newPlantCard.style.display = 'none'; // Assicurati che l'altro form sia nascosto
+            updatePlantCard.style.display = 'block';
+            newPlantCard.style.display = 'none';
 
             currentPlantIdToUpdate = plant.id;
 
-            // Popola i campi del form di aggiornamento
+            // Popola i campi del form di aggiornamento con i dati della pianta esistente
             document.getElementById('updatePlantName').value = plant.name || '';
-            document.getElementById('updatePlantDescription').value = plant.description || ''; // OK
+            document.getElementById('updatePlantDescription').value = plant.description || '';
             document.getElementById('updatePlantCategory').value = plant.category || 'Altro';
             document.getElementById('updateMinTemp').value = plant.minTemp !== null ? plant.minTemp : '';
             document.getElementById('updateMaxTemp').value = plant.maxTemp !== null ? plant.maxTemp : '';
             document.getElementById('updateMinLux').value = plant.minLux !== null ? plant.minLux : '';
             document.getElementById('updateMaxLux').value = plant.maxLux !== null ? plant.maxLux : '';
-
 
             // Popola l'input nascosto con l'URL esistente e mostra l'anteprima
             if (plant.imageUrl) {
@@ -404,7 +403,6 @@ async function showUpdatePlantForm(plantId) {
                     updatePlantImagePreview.style.display = 'block';
                 }
             } else {
-                // Se non c'è un URL, assicurati che l'anteprima sia nascosta e l'input vuoto
                 if (updateUploadedImageUrlInput) updateUploadedImageUrlInput.value = '';
                 if (updatePlantImagePreview) {
                     updatePlantImagePreview.src = '';
@@ -424,7 +422,6 @@ async function showUpdatePlantForm(plantId) {
         hideLoadingSpinner();
     }
 }
-
 // Nasconde tutti i form di aggiunta/aggiornamento pianta
 function hidePlantForms() {
     if (newPlantCard) {
@@ -442,52 +439,43 @@ function hidePlantForms() {
 // 3. INTERAZIONE CON FIRESTORE (CRUD Piante)
 // =======================================================
 
-// Salva o aggiorna una pianta nel database Firestore
 // Funzione per salvare/aggiornare una pianta nel Firestore
-// Funzione per salvare/aggiornare una pianta nel Firestore
+
 async function savePlantToFirestore(e) {
-    e.preventDefault(); // Previene il ricaricamento della pagina al submit del form
+    e.preventDefault();
 
     let plantNameInput, imageUrlInput;
-    // Ho cambiato da "notesInput" a "descriptionInput" per rispecchiare il tuo HTML
     let descriptionInput, categoryInput, minTempInput, maxTempInput, minLuxInput, maxLuxInput;
 
-    // Determina se stiamo aggiungendo una nuova pianta o aggiornandone una esistente
-    if (currentPlantIdToUpdate) { // Stiamo aggiornando una pianta esistente
+    if (currentPlantIdToUpdate) {
         plantNameInput = document.getElementById('updatePlantName');
-        imageUrlInput = updateUploadedImageUrlInput; // Input nascosto per l'URL caricato
-        descriptionInput = document.getElementById('updatePlantDescription'); // OK
+        imageUrlInput = updateUploadedImageUrlInput;
+        descriptionInput = document.getElementById('updatePlantDescription');
         categoryInput = document.getElementById('updatePlantCategory');
         minTempInput = document.getElementById('updateMinTemp');
         maxTempInput = document.getElementById('updateMaxTemp');
         minLuxInput = document.getElementById('updateMinLux');
         maxLuxInput = document.getElementById('updateMaxLux');
-        // Eliminato riferimento a updatePlantNotes - usa updatePlantDescription
-
-    } else { // Stiamo aggiungendo una nuova pianta
+    } else {
         plantNameInput = document.getElementById('newPlantName');
-        imageUrlInput = newUploadedImageUrlInput; // Input nascosto per l'URL caricato
-        descriptionInput = document.getElementById('newPlantDescription'); // OK
+        imageUrlInput = newUploadedImageUrlInput;
+        descriptionInput = document.getElementById('newPlantDescription');
         categoryInput = document.getElementById('newPlantCategory');
         minTempInput = document.getElementById('newMinTemp');
         maxTempInput = document.getElementById('newMaxTemp');
         minLuxInput = document.getElementById('newMinLux');
         maxLuxInput = document.getElementById('newMaxLux');
-        // Eliminato riferimento a newPlantNotes - usa newPlantDescription
     }
 
-    // Recupera i valori dai campi di input (usando .trim() per rimuovere spazi extra)
     const plantName = plantNameInput ? plantNameInput.value.trim() : '';
     const imageUrl = imageUrlInput ? imageUrlInput.value.trim() : '';
-    const description = descriptionInput ? descriptionInput.value.trim() : ''; // Usa description
+    const description = descriptionInput ? descriptionInput.value.trim() : '';
     const category = categoryInput ? categoryInput.value.trim() : '';
     const minTemp = minTempInput ? parseFloat(minTempInput.value) : null;
     const maxTemp = maxTempInput ? parseFloat(maxTempInput.value) : null;
     const minLux = minLuxInput ? parseInt(minLuxInput.value, 10) : null;
     const maxLux = maxLuxInput ? parseInt(maxLuxInput.value, 10) : null;
-    // Eliminato variabile notes, usa direttamente description
 
-    // Validazione dei campi obbligatori
     if (!plantName) {
         showToast('Il nome della pianta è obbligatorio.', 'error');
         return;
@@ -497,23 +485,20 @@ async function savePlantToFirestore(e) {
         return;
     }
 
-    // Crea l'oggetto dati della pianta
     const plantData = {
         name: plantName,
-        imageUrl: imageUrl, // Ora l'URL proviene SEMPRE da Firebase Storage
-        description: description, // Usa description
+        imageUrl: imageUrl,
+        description: description,
         category: category,
         minTemp: isNaN(minTemp) ? null : minTemp,
         maxTemp: isNaN(maxTemp) ? null : maxTemp,
         minLux: isNaN(minLux) ? null : minLux,
         maxLux: isNaN(maxLux) ? null : maxLux,
-        // Eliminato campo notes, ora la descrizione fa da "note"
         ownerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null
     };
 
     try {
         showLoadingSpinner();
-
         if (currentPlantIdToUpdate) {
             await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData);
             showToast('Pianta aggiornata con successo!', 'success');
@@ -522,7 +507,7 @@ async function savePlantToFirestore(e) {
             showToast('Pianta aggiunta con successo!', 'success');
         }
 
-        resetPlantForms(); // Ora questa funzione esisterà con il nome corretto
+        resetPlantForms(); // Chiama la funzione corretta
         await fetchPlants();
         hideLoadingSpinner();
         newPlantCard.style.display = 'none';
@@ -534,10 +519,10 @@ async function savePlantToFirestore(e) {
         hideLoadingSpinner();
     }
 }
-    // Funzione per resettare i campi del form della pianta
+   
 // Funzione per resettare i campi dei form delle piante
-// Funzione per resettare i campi dei form delle piante
-function resetPlantForms() { // <--- NESSUN "ASYNC" QUI
+
+function resetPlantForms() { // <<< NESSUN "ASYNC" QUI
     // Resetta i campi del form "Aggiungi Nuova Pianta"
     if (newPlantCard) {
         document.getElementById('newPlantName').value = '';
@@ -577,7 +562,7 @@ function resetPlantForms() { // <--- NESSUN "ASYNC" QUI
     if (newPlantCard) newPlantCard.style.display = 'none';
     if (updatePlantCard) updatePlantCard.style.display = 'none';
 
-    hideLoadingSpinner(); // Questa funzione può essere asincrona o meno, ma non è definita qui. Se è sincrona va bene, altrimenti deve essere gestita altrove.
+    hideLoadingSpinner();
 }
     
     // Crea l'oggetto dati della pianta
