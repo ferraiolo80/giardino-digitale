@@ -406,49 +406,48 @@ function hidePlantForms() {
 
 // Salva o aggiorna una pianta nel database Firestore
 // Funzione per salvare/aggiornare una pianta nel Firestore
+// Funzione per salvare/aggiornare una pianta nel Firestore
 async function savePlantToFirestore(e) {
     e.preventDefault(); // Previene il ricaricamento della pagina al submit del form
 
-    let plantNameInput, imageUrlInput, currentPlantId;
-    let descriptionInput, categoryInput, minTempInput, maxTempInput, minLuxInput, maxLuxInput, notesInput; // Aggiungi qui gli altri campi del form che stai usando
+    let plantNameInput, imageUrlInput;
+    // Ho cambiato da "notesInput" a "descriptionInput" per rispecchiare il tuo HTML
+    let descriptionInput, categoryInput, minTempInput, maxTempInput, minLuxInput, maxLuxInput;
 
     // Determina se stiamo aggiungendo una nuova pianta o aggiornandone una esistente
     if (currentPlantIdToUpdate) { // Stiamo aggiornando una pianta esistente
         plantNameInput = document.getElementById('updatePlantName');
         imageUrlInput = updateUploadedImageUrlInput; // Input nascosto per l'URL caricato
-        descriptionInput = document.getElementById('updatePlantDescription');
+        descriptionInput = document.getElementById('updatePlantDescription'); // OK
         categoryInput = document.getElementById('updatePlantCategory');
         minTempInput = document.getElementById('updateMinTemp');
         maxTempInput = document.getElementById('updateMaxTemp');
         minLuxInput = document.getElementById('updateMinLux');
         maxLuxInput = document.getElementById('updateMaxLux');
-        notesInput = document.getElementById('updatePlantNotes'); // Assicurati di avere questo ID
+        // Eliminato riferimento a updatePlantNotes - usa updatePlantDescription
 
-        currentPlantId = currentPlantIdToUpdate;
     } else { // Stiamo aggiungendo una nuova pianta
         plantNameInput = document.getElementById('newPlantName');
         imageUrlInput = newUploadedImageUrlInput; // Input nascosto per l'URL caricato
-        descriptionInput = document.getElementById('newPlantDescription');
+        descriptionInput = document.getElementById('newPlantDescription'); // OK
         categoryInput = document.getElementById('newPlantCategory');
         minTempInput = document.getElementById('newMinTemp');
         maxTempInput = document.getElementById('newMaxTemp');
         minLuxInput = document.getElementById('newMinLux');
         maxLuxInput = document.getElementById('newMaxLux');
-        notesInput = document.getElementById('newPlantNotes'); // Assicurati di avere questo ID
-
-        currentPlantId = null;
+        // Eliminato riferimento a newPlantNotes - usa newPlantDescription
     }
 
     // Recupera i valori dai campi di input (usando .trim() per rimuovere spazi extra)
     const plantName = plantNameInput ? plantNameInput.value.trim() : '';
     const imageUrl = imageUrlInput ? imageUrlInput.value.trim() : '';
-    const description = descriptionInput ? descriptionInput.value.trim() : '';
-    const category = categoryInput ? categoryInput.value.trim() : ''; // Aggiungi .trim() anche qui
-    const minTemp = minTempInput ? parseFloat(minTempInput.value) : null; // Usa null se non compilato
+    const description = descriptionInput ? descriptionInput.value.trim() : ''; // Usa description
+    const category = categoryInput ? categoryInput.value.trim() : '';
+    const minTemp = minTempInput ? parseFloat(minTempInput.value) : null;
     const maxTemp = maxTempInput ? parseFloat(maxTempInput.value) : null;
     const minLux = minLuxInput ? parseInt(minLuxInput.value, 10) : null;
     const maxLux = maxLuxInput ? parseInt(maxLuxInput.value, 10) : null;
-    const notes = notesInput ? notesInput.value.trim() : '';
+    // Eliminato variabile notes, usa direttamente description
 
     // Validazione dei campi obbligatori
     if (!plantName) {
@@ -460,6 +459,43 @@ async function savePlantToFirestore(e) {
         return;
     }
 
+    // Crea l'oggetto dati della pianta
+    const plantData = {
+        name: plantName,
+        imageUrl: imageUrl, // Ora l'URL proviene SEMPRE da Firebase Storage
+        description: description, // Usa description
+        category: category,
+        minTemp: isNaN(minTemp) ? null : minTemp,
+        maxTemp: isNaN(maxTemp) ? null : maxTemp,
+        minLux: isNaN(minLux) ? null : minLux,
+        maxLux: isNaN(maxLux) ? null : maxLux,
+        // Eliminato campo notes, ora la descrizione fa da "note"
+        ownerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null
+    };
+
+    try {
+        showLoadingSpinner();
+
+        if (currentPlantIdToUpdate) {
+            await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData);
+            showToast('Pianta aggiornata con successo!', 'success');
+        } else {
+            await db.collection('plants').add(plantData);
+            showToast('Pianta aggiunta con successo!', 'success');
+        }
+
+        resetPlantForms(); // Ora questa funzione esisterà con il nome corretto
+        await fetchPlants();
+        hideLoadingSpinner();
+        newPlantCard.style.display = 'none';
+        updatePlantCard.style.display = 'none';
+
+    } catch (error) {
+        console.error("Errore nel salvataggio della pianta:", error);
+        showToast('Errore nel salvataggio della pianta.', 'error');
+        hideLoadingSpinner();
+    }
+}
     // Funzione per resettare i campi del form della pianta
 function resetPlantForm() {
     // Resetta i campi del form "Aggiungi Nuova Pianta"
