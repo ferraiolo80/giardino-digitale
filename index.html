@@ -12,7 +12,7 @@
         <!-- Sezione Login -->
         <section id="login-form">
             <h2>Accedi</h2>
-            <form id="login-form-element"> <!-- Assicurati che questo ID sia presente! -->
+            <form id="login-form-element"> <!-- QUESTO ID E' FONDAMENTALE! -->
                 <label for="loginEmail">Email:</label>
                 <input type="email" id="loginEmail" placeholder="La tua email" required autocomplete="current-password">
                 <label for="loginPassword">Password:</label>
@@ -26,7 +26,7 @@
         <!-- Sezione Registrazione -->
         <section id="register-form" style="display: none;">
             <h2>Registrati</h2>
-            <form id="register-form-element"> <!-- Assicurati che questo ID sia presente! -->
+            <form id="register-form-element"> <!-- ANCHE QUESTO ID E' FONDAMENTALE! -->
                 <label for="registerEmail">Email:</label>
                 <input type="email" id="registerEmail" placeholder="La tua email" required>
                 <label for="registerPassword">Password:</label>
@@ -198,17 +198,17 @@
 
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
-        const firebaseConfig = {
-         apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-         authDomain: "giardinodigitale.firebaseapp.com",
-         projectId: "giardinodigitale",
-         storageBucket: "giardinodigitale.firebasestorage.app",
-         messagingSenderId: "96265504027",
-         appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
-        };
+       const firebaseConfig = {
+  apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+  authDomain: "giardinodigitale.firebaseapp.com",
+  projectId: "giardinodigitale",
+  storageBucket: "giardinodigitale.firebasestorage.app",
+  messagingSenderId: "96265504027",
+  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+};
 
         // Inizializza Firebase
         firebase.initializeApp(firebaseConfig);
     </script>
-    <script src="app.js"></script>
+    <script src="app.js"></script> <!-- IL TUO APP.JS DEVE ESSERE CARICATO PER ULTIMO -->
 </body>
