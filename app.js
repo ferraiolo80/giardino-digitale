@@ -52,6 +52,7 @@ let closeCardModalButton; // Bottone di chiusura per la modale dettagli/form
 let newPlantFormTemplate; // Template HTML per il form Aggiungi Pianta
 let updatePlantFormTemplate; // Template HTML per il form Aggiorna Pianta
 let emptyGardenMessage; // Messaggio per il giardino vuoto
+let loginFormElement; // Variabile per il form di login
 
 // Flag per lo stato di preparazione del DOM
 let isDomReady = false;
@@ -568,6 +569,7 @@ function filterPlants() {
                             (isNaN(maxTemp) || (plant.maxTemp !== null && plant.maxTemp <= maxTemp));
 
         // Filtro per zona climatica (assicurati che 'climateZones' esista nei tuoi dati pianta)
+        // La tua HTML ha valori come "Tropicale", "Temperata", ecc.
         const matchesClimateZone = climateZone === 'All' || (plant.climateZones && plant.climateZones.includes(climateZone));
 
         return matchesSearch && matchesCategory && matchesTemp && matchesClimateZone;
@@ -690,7 +692,7 @@ async function showUpdatePlantForm(plantId) {
             clonedForm.style.display = 'block';
             zoomedCardContent.appendChild(clonedForm);
 
-            cardModal.style.display = 'flex'; // Mostra la modale
+            cardModal.style.display = 'flex';
 
             currentPlantIdToUpdate = plant.id; // Imposta l'ID per il salvataggio
 
@@ -853,11 +855,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     registerButton = document.getElementById('register-button');
     showLoginLink = document.getElementById('show-login');
     showRegisterLink = document.getElementById('show-register');
-    emailInput = document.getElementById('email');
-    passwordInput = document.getElementById('password');
+    // Aggiornato per corrispondere agli ID del tuo HTML ripristinato
+    emailInput = document.getElementById('loginEmail');
+    passwordInput = document.getElementById('loginPassword');
     loginError = document.getElementById('login-error');
-    registerEmailInput = document.getElementById('register-email');
-    registerPasswordInput = document.getElementById('register-password');
+    registerEmailInput = document.getElementById('registerEmail'); // Assicurati che l'HTML abbia questo ID
+    registerPasswordInput = document.getElementById('registerPassword'); // Assicurati che l'HTML abbia questo ID
     registerError = document.getElementById('register-error');
     authStatusSpan = document.getElementById('auth-status');
     logoutButton = document.getElementById('logout-button');
@@ -888,6 +891,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     tempMaxFilter = document.getElementById('tempMaxFilter');
     sortBySelect = document.getElementById('sortBySelect');
 
+    // Assicurati che il form di login abbia l'ID 'login-form-element'
+    // Se non lo ha, l'evento submit non funzionerà
+    loginFormElement = document.getElementById('login-form-element');
+
     // Inizializzazione Firebase Firestore e Storage (dipendenti dall'inizializzazione in index.html)
     db = firebase.firestore();
     storage = firebase.storage();
@@ -911,8 +918,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // --- SETUP LISTENER PER I CONTROLLI UI ---
-    // Listener per il pulsante di login (Ora il form ha un ID e gestiamo il submit)
-    const loginFormElement = document.getElementById('login-form-element'); // Ricorda di aggiungere ID al form in HTML
+    // Listener per il submit del form di login
     if (loginFormElement) {
         loginFormElement.addEventListener('submit', async (event) => {
             event.preventDefault(); // Impedisce il ricaricamento della pagina
@@ -920,6 +926,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Listener per il pulsante di registrazione
     if (registerButton) registerButton.addEventListener('click', register);
     if (logoutButton) logoutButton.addEventListener('click', logout);
 
