@@ -127,7 +127,7 @@ async function updateUIforAuthState(user) {
     if (!isDomReady) {
         console.warn("updateUIforAuthState chiamato prima che il DOM sia completamente pronto. Riproverò.");
         // Aggiungi un piccolo ritardo per consentire al DOM di essere pronto
-        setTimeout(() => updateUIforAuthState(user), 50);
+        setTimeout(() => updateUIforAuthState(user), 150);
         return;
     }
 
