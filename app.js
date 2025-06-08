@@ -820,11 +820,11 @@ function displayPlants(plantsToShow) {
             const removeFromGardenButtonHtml = isMyGardenCurrentlyVisible ?
                 `<button class="action-button remove-button" data-plant-id="${plant.id}"><i class="fas fa-minus-circle"></i> Rimuovi</button>` : '';
 
-            // Solo i bottoni di modifica ed eliminazione sono visibili in "Tutte le piante" se l'utente ha creato quella pianta
-            // O, più semplicemente, rendiamoli sempre visibili nelle card, ma la logica di permission la gestiamo in Firebase Rules
-            // Per semplicità UI, li mostriamo e gestiamo l'azione in JS.
-            const updateButtonHtml = `<button class="action-button update-plant-button" data-plant-id="${plant.id}"><i class="fas fa-edit"></i> Aggiorna</button>`;
-            const deleteButtonHtml = `<button class="action-button delete-plant-from-db-button" data-plant-id="${plant.id}"><i class="fas fa-trash"></i> Elimina</button>`;
+            // I bottoni di modifica ed eliminazione sono sempre visibili se l'utente è loggato
+            // La logica di permission (es. solo l'owner può modificare/eliminare) dovrebbe essere nelle Firebase Security Rules
+            // Per ora, li mostriamo e gestiamo l'azione in JS.
+            const updateButtonHtml = user ? `<button class="action-button update-plant-button" data-plant-id="${plant.id}"><i class="fas fa-edit"></i> Aggiorna</button>` : '';
+            const deleteButtonHtml = user ? `<button class="action-button delete-plant-from-db-button" data-plant-id="${plant.id}"><i class="fas fa-trash"></i> Elimina</button>` : '';
 
 
             html += `
@@ -1245,33 +1245,46 @@ function openImageModal(imageUrl) {
 }
 
 // Apre la modal della card completa o del form
-function openCardModal(contentNode, plantData = null) {
-    if (!cardModal || !zoomedCardContent || !contentNode) {
+function openCardModal(templateElement, plantData = null) {
+    if (!cardModal || !zoomedCardContent || !templateElement) {
         console.error("Elementi DOM per la modale della card non trovati o contenuto non valido.");
         return;
     }
 
     zoomedCardContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
-    const clonedContent = contentNode.cloneNode(true);
+    // Clona il nodo del template direttamente (senza .content)
+    const clonedContent = templateElement.cloneNode(true);
     clonedContent.style.display = 'block'; // Assicurati che il contenuto clonato sia visibile
-    zoomedCardContent.appendChild(clonedContent);
+
+    // Appendi la form direttamente se il template è una form, altrimenti il div che la contiene
+    let targetFormElement = clonedContent;
+    if (clonedContent.tagName !== 'FORM') { // Se il template è un div che contiene la form
+        targetFormElement = clonedContent.querySelector('form');
+    }
+
+    if (!targetFormElement) {
+        console.error("Form non trovata all'interno del template clonato.");
+        return;
+    }
+
+    zoomedCardContent.appendChild(clonedContent); // Aggiungi il div/form clonato alla modale
     cardModal.style.display = 'flex'; // Mostra la modale
 
     // Se è un form di aggiornamento, popola i campi
-    if (plantData && clonedContent.id === 'updatePlantFormContent') {
+    if (plantData && targetFormElement.id === 'updatePlantFormContent') {
         currentPlantIdToUpdate = plantData.id;
-        clonedContent.querySelector('#updatePlantName').value = plantData.name || '';
-        clonedContent.querySelector('#updatePlantSunlight').value = plantData.sunlight || '';
-        clonedContent.querySelector('#updatePlantIdealLuxMin').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
-        clonedContent.querySelector('#updatePlantIdealLuxMax').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
-        clonedContent.querySelector('#updatePlantWatering').value = plantData.watering || '';
-        clonedContent.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
-        clonedContent.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
-        clonedContent.querySelector('#updatePlantDescription').value = plantData.description || '';
-        clonedContent.querySelector('#updatePlantCategory').value = plantData.category || '';
+        targetFormElement.querySelector('#updatePlantName').value = plantData.name || '';
+        targetFormElement.querySelector('#updatePlantSunlight').value = plantData.sunlight || '';
+        targetFormElement.querySelector('#updatePlantIdealLuxMin').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
+        targetFormElement.querySelector('#updatePlantIdealLuxMax').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
+        targetFormElement.querySelector('#updatePlantWatering').value = plantData.watering || '';
+        targetFormElement.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
+        targetFormElement.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
+        targetFormElement.querySelector('#updatePlantDescription').value = plantData.description || '';
+        targetFormElement.querySelector('#updatePlantCategory').value = plantData.category || '';
 
-        const updateImagePreview = clonedContent.querySelector('#updatePlantImagePreview');
-        const updateImageURLHidden = clonedContent.querySelector('#updatePlantImageURL');
+        const updateImagePreview = targetFormElement.querySelector('#updatePlantImagePreview');
+        const updateImageURLHidden = targetFormElement.querySelector('#updatePlantImageURL');
 
         if (plantData.image) {
             updateImagePreview.src = plantData.image;
@@ -1284,7 +1297,7 @@ function openCardModal(contentNode, plantData = null) {
         }
 
         // Listener per l'anteprima dell'immagine durante il caricamento
-        const updatePlantImageUpload = clonedContent.querySelector('#updatePlantImageUpload');
+        const updatePlantImageUpload = targetFormElement.querySelector('#updatePlantImageUpload');
         if (updatePlantImageUpload) {
             updatePlantImageUpload.onchange = (event) => {
                 const file = event.target.files[0];
@@ -1302,18 +1315,18 @@ function openCardModal(contentNode, plantData = null) {
                 }
             };
         }
-    } else if (clonedContent.id === 'newPlantFormContent') {
+    } else if (targetFormElement.id === 'newPlantFormContent') {
         // Form di nuova pianta, resetta i campi
-        clonedContent.reset(); // Assumendo che sia un form
-        clearFormValidationErrors(clonedContent);
+        targetFormElement.reset(); // Assumendo che sia un form
+        clearFormValidationErrors(targetFormElement);
         currentPlantIdToUpdate = null; // Nessuna pianta associata per l'aggiornamento
 
-        const newImagePreview = clonedContent.querySelector('#newPlantImagePreview');
+        const newImagePreview = targetFormElement.querySelector('#newPlantImagePreview');
         if (newImagePreview) {
             newImagePreview.src = '';
             newImagePreview.style.display = 'none';
         }
-        const newPlantImageUpload = clonedContent.querySelector('#newPlantImageUpload');
+        const newPlantImageUpload = targetFormElement.querySelector('#newPlantImageUpload');
         if (newPlantImageUpload) {
             newPlantImageUpload.value = ''; // Resetta il campo file input
             newPlantImageUpload.onchange = (event) => {
@@ -1334,18 +1347,20 @@ function openCardModal(contentNode, plantData = null) {
     }
 
     // Aggiungi listener per i bottoni all'interno del form della modale (Salva/Annulla/Elimina)
-    const saveButton = clonedContent.querySelector('#saveNewPlantButton') || clonedContent.querySelector('#saveUpdatePlantButton');
-    const cancelButton = clonedContent.querySelector('#cancelNewPlantButton') || clonedContent.querySelector('#cancelUpdatePlantButton');
-    const deleteDbButton = clonedContent.querySelector('#deletePlant'); // Solo nel form di update
+    const saveButton = targetFormElement.querySelector('#saveNewPlantButton') || targetFormElement.querySelector('#saveUpdatePlantButton');
+    const cancelButton = targetFormElement.querySelector('#cancelNewPlantButton') || targetFormElement.querySelector('#cancelUpdatePlantButton');
+    const deleteDbButton = targetFormElement.querySelector('#deletePlant'); // Solo nel form di update
 
-    if (saveButton) saveButton.onclick = savePlantToFirestore;
-    if (cancelButton) cancelButton.onclick = closeCardModal;
+    // Usa addEventListener e la delegazione per i bottoni (per evitare problemi con cloni)
+    if (saveButton) saveButton.addEventListener('click', savePlantToFirestore);
+    if (cancelButton) cancelButton.addEventListener('click', closeCardModal);
     if (deleteDbButton) {
-        deleteDbButton.onclick = async () => {
+        deleteDbButton.addEventListener('click', async (event) => {
+            event.stopPropagation(); // Evita che il click si propaghi al parent della modale
             if (currentPlantIdToUpdate && confirm('Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.')) {
                 await deletePlantFromDatabase(currentPlantIdToUpdate);
             }
-        };
+        });
     }
 }
 
@@ -1413,8 +1428,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     emptyGardenMessage = document.getElementById('empty-garden-message')
 
     // Template dei form (li recuperiamo come nodi DOM da clonare)
-    newPlantFormTemplate = document.getElementById('newPlantFormTemplate').content.cloneNode(true).firstElementChild;
-    updatePlantFormTemplate = document.getElementById('updatePlantFormTemplate').content.cloneNode(true).firstElementChild;
+    // CORREZIONE: NON usare .content qui perché newPlantFormTemplate e updatePlantFormTemplate sono div, non <template>
+    const newPlantFormTemplateDiv = document.getElementById('newPlantFormTemplate');
+    const updatePlantFormTemplateDiv = document.getElementById('updatePlantFormTemplate');
+
+    if (newPlantFormTemplateDiv) {
+        newPlantFormTemplate = newPlantFormTemplateDiv.querySelector('form');
+    } else {
+        console.error("newPlantFormTemplateDiv non trovato! Impossibile inizializzare il template.");
+    }
+    if (updatePlantFormTemplateDiv) {
+        updatePlantFormTemplate = updatePlantFormTemplateDiv.querySelector('form');
+    } else {
+        console.error("updatePlantFormTemplateDiv non trovato! Impossibile inizializzare il template.");
+    }
+
 
     // Inizializzazione delle variabili DOM per la geolocalizzazione
     getClimateButton = document.getElementById('get-climate-button');
@@ -1450,6 +1478,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Listeners per i bottoni di navigazione principale
     if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
+    // Ora passiamo direttamente la FORM del template, non il DIV contenitore
     if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => openCardModal(newPlantFormTemplate));
     if (googleLensButton) {
         googleLensButton.addEventListener('click', () => {
@@ -1479,7 +1508,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (event.target.classList.contains('add-to-garden-button')) {
                 await addToMyGarden(plantId);
             } else if (event.target.classList.contains('update-plant-button')) {
-                openCardModal(updatePlantFormTemplate, plant);
+                openCardModal(updatePlantFormTemplate, plant); // Passa la form template e i dati della pianta
             } else if (event.target.classList.contains('delete-plant-from-db-button')) {
                 if (confirm('Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.')) {
                     await deletePlantFromDatabase(plantId);
@@ -1524,7 +1553,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (event.target.classList.contains('remove-button')) {
                 await removeFromMyGarden(plantId);
             } else if (event.target.classList.contains('update-plant-button')) {
-                openCardModal(updatePlantFormTemplate, plant);
+                openCardModal(updatePlantFormTemplate, plant); // Passa la form template e i dati della pianta
             } else if (event.target.classList.contains('delete-plant-from-db-button')) {
                 if (confirm('Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.')) {
                     await deletePlantFromDatabase(plantId);
