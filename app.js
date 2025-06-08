@@ -119,14 +119,26 @@ async function logout() {
 }
 
 async function updateUIforAuthState(user) {
+    // Aggiungi controlli per assicurarti che gli elementi DOM siano stati inizializzati
+    if (!authContainerDiv || !appContentDiv || !logoutButton || !addNewPlantButton) {
+        console.warn("Elementi DOM non ancora pronti per updateUIforAuthState.");
+        // Puoi aggiungere un ritardo o un meccanismo per riprovare se necessario,
+        // ma in un setup tipico con DOMContentLoaded, questo warning dovrebbe essere raro.
+        // Per ora, possiamo uscire o aggiungere un piccolo ritardo per riprovare.
+        // Una soluzione più robusta potrebbe essere un flag o un observer.
+        // Per semplicità e debug, iniziamo con un semplice 'return'.
+        return;
+    }
+
     if (user) {
         // Utente loggato
         authContainerDiv.style.display = 'none';
         appContentDiv.style.display = 'block';
-        authStatusSpan.textContent = `Loggato come: ${user.email}`;
+        if (authStatusSpan) authStatusSpan.textContent = `Loggato come: ${user.email}`;
         logoutButton.style.display = 'block';
         addNewPlantButton.style.display = 'block';
 
+        // Carica dati solo se l'utente è loggato e i DOM sono pronti
         await fetchAndDisplayPlants();
         await fetchAndDisplayMyGarden();
 
@@ -136,13 +148,17 @@ async function updateUIforAuthState(user) {
         // Utente non loggato
         authContainerDiv.style.display = 'flex';
         appContentDiv.style.display = 'none';
-        authStatusSpan.textContent = 'Non loggato';
+        if (authStatusSpan) authStatusSpan.textContent = 'Non loggato';
         logoutButton.style.display = 'none';
         addNewPlantButton.style.display = 'none';
+
+        // Pulisci le gallerie quando l'utente si disconnette
+        if (gardenContainer) gardenContainer.innerHTML = '';
+        if (myGardenContainer) myGardenContainer.innerHTML = '';
+        if (emptyGardenMessage) emptyGardenMessage.style.display = 'none';
     }
     hideLoadingSpinner();
 }
-
 // Funzioni per la gestione delle piante (CRUD)
 function createPlantCard(plant, type = 'all') {
     const plantCard = document.createElement('div');
