@@ -13,6 +13,8 @@
     <title>Giardino Digitale</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Carica Tailwind CSS per una stilizzazione rapida -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <div id="loading-spinner" class="loading-spinner" style="display: none;"></div>
@@ -99,6 +101,18 @@
             <div id="lightFeedback"></div>
             <button id="start-light-sensor" class="button primary-button">Avvia Sensore</button>
             <button id="stop-light-sensor" class="button secondary-button" style="display: none;">Ferma Sensore</button>
+        </section>
+
+        <!-- NUOVA SEZIONE: Meteo Attuale -->
+        <section id="weather-container" class="weather-container p-4 bg-white rounded-lg shadow-md mt-4">
+            <h3 class="text-xl font-semibold mb-2">Meteo Attuale</h3>
+            <div class="flex flex-col sm:flex-row items-center justify-between mb-4">
+                <input type="text" id="city-input" placeholder="Es. Roma,IT" value="Prato,IT" class="input-field p-2 border border-gray-300 rounded-md mb-2 sm:mb-0 sm:mr-2 flex-grow">
+                <button id="get-weather-button" class="button primary-button bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md">Ottieni Clima</button>
+            </div>
+            <div id="weather-display" class="text-center">
+                <p>Clicca "Ottieni Clima" o attendi il caricamento...</p>
+            </div>
         </section>
 
         <!-- Gallerie delle Piante -->
@@ -215,12 +229,12 @@
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
-                    apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-                    authDomain: "giardinodigitale.firebaseapp.com",
-                    projectId: "giardinodigitale",
-                    storageBucket: "giardinodigitale.firebasestorage.app",
-                    messagingSenderId: "96265504027",
-                    appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+                  apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+  authDomain: "giardinodigitale.firebaseapp.com",
+  projectId: "giardinodigitale",
+  storageBucket: "giardinodigitale.firebasestorage.app",
+  messagingSenderId: "96265504027",
+  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
                 };
 
         // Inizializza Firebase
