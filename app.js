@@ -858,12 +858,20 @@ function displayPlants(plantsToShow) {
 function displayMyGarden() {
     isMyGardenCurrentlyVisible = true;
     displayPlants(myGarden);
+    // Auto-scroll alla sezione delle piante
+    if (plantsSectionHeader) {
+        plantsSectionHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // Funzione per mostrare tutte le piante disponibili
 function displayAllPlants() {
     isMyGardenCurrentlyVisible = false;
     displayPlants(allPlants);
+    // Auto-scroll alla sezione delle piante
+    if (plantsSectionHeader) {
+        plantsSectionHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // =======================================================
@@ -1126,7 +1134,7 @@ async function getClimateFromCoordinates(latitude, longitude) {
         if (weatherForecastDiv) {
             let weatherHtml = '<h4>Previsioni Meteo (oggi):</h4>';
             if (currentTemp !== null) {
-                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong> ${currentTemp.toFixed(1)}°C</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong>  ${currentTemp.toFixed(1)}°C</strong></p>`;
             }
             if (maxTemp !== null && minTemp !== null) {
                 weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min: <strong>  ${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
@@ -1253,38 +1261,27 @@ function openCardModal(templateElement, plantData = null) {
 
     zoomedCardContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
     // Clona il nodo del template direttamente (senza .content)
-    const clonedContent = templateElement.cloneNode(true);
-    clonedContent.style.display = 'block'; // Assicurati che il contenuto clonato sia visibile
+    const clonedForm = templateElement.cloneNode(true);
+    clonedForm.style.display = 'block'; // Assicurati che il contenuto clonato sia visibile
 
-    // Appendi la form direttamente se il template è una form, altrimenti il div che la contiene
-    let targetFormElement = clonedContent;
-    if (clonedContent.tagName !== 'FORM') { // Se il template è un div che contiene la form
-        targetFormElement = clonedContent.querySelector('form');
-    }
-
-    if (!targetFormElement) {
-        console.error("Form non trovata all'interno del template clonato.");
-        return;
-    }
-
-    zoomedCardContent.appendChild(clonedContent); // Aggiungi il div/form clonato alla modale
+    zoomedCardContent.appendChild(clonedForm); // Aggiungi il div/form clonato alla modale
     cardModal.style.display = 'flex'; // Mostra la modale
 
     // Se è un form di aggiornamento, popola i campi
-    if (plantData && targetFormElement.id === 'updatePlantFormContent') {
+    if (plantData && clonedForm.id === 'updatePlantFormContent') {
         currentPlantIdToUpdate = plantData.id;
-        targetFormElement.querySelector('#updatePlantName').value = plantData.name || '';
-        targetFormElement.querySelector('#updatePlantSunlight').value = plantData.sunlight || '';
-        targetFormElement.querySelector('#updatePlantIdealLuxMin').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
-        targetFormElement.querySelector('#updatePlantIdealLuxMax').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
-        targetFormElement.querySelector('#updatePlantWatering').value = plantData.watering || '';
-        targetFormElement.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
-        targetFormElement.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
-        targetFormElement.querySelector('#updatePlantDescription').value = plantData.description || '';
-        targetFormElement.querySelector('#updatePlantCategory').value = plantData.category || '';
+        clonedForm.querySelector('#updatePlantName').value = plantData.name || '';
+        clonedForm.querySelector('#updatePlantSunlight').value = plantData.sunlight || '';
+        clonedForm.querySelector('#updatePlantIdealLuxMin').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
+        clonedForm.querySelector('#updatePlantIdealLuxMax').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
+        clonedForm.querySelector('#updatePlantWatering').value = plantData.watering || '';
+        clonedForm.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
+        clonedForm.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
+        clonedForm.querySelector('#updatePlantDescription').value = plantData.description || '';
+        clonedForm.querySelector('#updatePlantCategory').value = plantData.category || '';
 
-        const updateImagePreview = targetFormElement.querySelector('#updatePlantImagePreview');
-        const updateImageURLHidden = targetFormElement.querySelector('#updatePlantImageURL');
+        const updateImagePreview = clonedForm.querySelector('#updatePlantImagePreview');
+        const updateImageURLHidden = clonedForm.querySelector('#updatePlantImageURL');
 
         if (plantData.image) {
             updateImagePreview.src = plantData.image;
@@ -1297,7 +1294,7 @@ function openCardModal(templateElement, plantData = null) {
         }
 
         // Listener per l'anteprima dell'immagine durante il caricamento
-        const updatePlantImageUpload = targetFormElement.querySelector('#updatePlantImageUpload');
+        const updatePlantImageUpload = clonedForm.querySelector('#updatePlantImageUpload');
         if (updatePlantImageUpload) {
             updatePlantImageUpload.onchange = (event) => {
                 const file = event.target.files[0];
@@ -1315,18 +1312,18 @@ function openCardModal(templateElement, plantData = null) {
                 }
             };
         }
-    } else if (targetFormElement.id === 'newPlantFormContent') {
+    } else if (clonedForm.id === 'newPlantFormContent') {
         // Form di nuova pianta, resetta i campi
-        targetFormElement.reset(); // Assumendo che sia un form
-        clearFormValidationErrors(targetFormElement);
+        clonedForm.reset(); // Assumendo che sia un form
+        clearFormValidationErrors(clonedForm);
         currentPlantIdToUpdate = null; // Nessuna pianta associata per l'aggiornamento
 
-        const newImagePreview = targetFormElement.querySelector('#newPlantImagePreview');
+        const newImagePreview = clonedForm.querySelector('#newPlantImagePreview');
         if (newImagePreview) {
             newImagePreview.src = '';
             newImagePreview.style.display = 'none';
         }
-        const newPlantImageUpload = targetFormElement.querySelector('#newPlantImageUpload');
+        const newPlantImageUpload = clonedForm.querySelector('#newPlantImageUpload');
         if (newPlantImageUpload) {
             newPlantImageUpload.value = ''; // Resetta il campo file input
             newPlantImageUpload.onchange = (event) => {
@@ -1347,9 +1344,9 @@ function openCardModal(templateElement, plantData = null) {
     }
 
     // Aggiungi listener per i bottoni all'interno del form della modale (Salva/Annulla/Elimina)
-    const saveButton = targetFormElement.querySelector('#saveNewPlantButton') || targetFormElement.querySelector('#saveUpdatePlantButton');
-    const cancelButton = targetFormElement.querySelector('#cancelNewPlantButton') || targetFormElement.querySelector('#cancelUpdatePlantButton');
-    const deleteDbButton = targetFormElement.querySelector('#deletePlant'); // Solo nel form di update
+    const saveButton = clonedForm.querySelector('#saveNewPlantButton') || clonedForm.querySelector('#saveUpdatePlantButton');
+    const cancelButton = clonedForm.querySelector('#cancelNewPlantButton') || clonedForm.querySelector('#cancelUpdatePlantButton');
+    const deleteDbButton = clonedForm.querySelector('#deletePlant'); // Solo nel form di update
 
     // Usa addEventListener e la delegazione per i bottoni (per evitare problemi con cloni)
     if (saveButton) saveButton.addEventListener('click', savePlantToFirestore);
