@@ -54,6 +54,13 @@ let updatePlantFormTemplate; // Template HTML per il form Aggiorna Pianta
 let emptyGardenMessage; // Messaggio per il giardino vuoto
 let loginFormElement; // Variabile per il form di login
 
+// NUOVE VARIABILI DOM PER IL METEO
+let weatherContainer;
+let weatherDisplay;
+let cityInput;
+let getWeatherButton;
+
+
 // Flag per lo stato di preparazione del DOM
 let isDomReady = false;
 
@@ -145,6 +152,11 @@ async function updateUIforAuthState(user) {
 
             await fetchAndDisplayPlants();
             await fetchAndDisplayMyGarden();
+            // Inizializza il meteo all'avvio dell'app per l'utente loggato
+            if (cityInput) { // Assicurati che l'input della città esista prima di chiamare
+                await fetchWeatherData(cityInput.value);
+            }
+
 
             isMyGardenCurrentlyVisible = false;
             updateGalleryVisibility();
@@ -160,6 +172,8 @@ async function updateUIforAuthState(user) {
             if (gardenContainer) gardenContainer.innerHTML = '';
             if (myGardenContainer) myGardenContainer.innerHTML = '';
             if (emptyGardenMessage) emptyGardenMessage.style.display = 'none';
+            // Pulisci anche il display meteo
+            if (weatherDisplay) weatherDisplay.innerHTML = '<p>Clicca "Ottieni Clima" o attendi il caricamento...</p>';
         }
     } catch (error) {
         console.error("Errore durante l'aggiornamento dell'UI di autenticazione:", error);
@@ -847,6 +861,77 @@ function stopLightSensor() {
     }
 }
 
+// NUOVE FUNZIONI PER IL METEO
+async function fetchWeatherData(city) {
+    if (!city) {
+        showToast('Per favore, inserisci una città per il meteo.', 'info');
+        return;
+    }
+    showLoadingSpinner();
+    // Ottieni la tua API Key gratuita da OpenWeatherMap (https://openweathermap.org/api)
+    // Sostituisci 'YOUR_OPENWEATHERMAP_API_KEY' con la tua chiave reale.
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY';
+    // Assicurati che l'API Key sia presente
+    if (apiKey === 'YOUR_OPENWEATHERMAP_API_KEY' || !apiKey) {
+        showToast('Per favore, imposta la tua API Key di OpenWeatherMap in app.js per il meteo.', 'error');
+        hideLoadingSpinner();
+        if (weatherDisplay) weatherDisplay.innerHTML = `<p class="text-red-500">API Key Meteo non configurata!</p>`;
+        return;
+    }
+
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=it`;
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('API Key non valida o mancante. Ottienine una da OpenWeatherMap.');
+            }
+            if (response.status === 404) {
+                throw new Error('Città non trovata. Controlla il nome.');
+            }
+            throw new Error(`Errore HTTP: ${response.status}`);
+        }
+        const data = await response.json();
+        displayWeather(data);
+    } catch (error) {
+        console.error("Errore nel recupero dati meteo:", error);
+        showToast(`Errore meteo: ${error.message}`, 'error');
+        if (weatherDisplay) weatherDisplay.innerHTML = `<p class="text-red-500">Impossibile caricare i dati meteo: ${error.message}</p>`;
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
+function displayWeather(data) {
+    if (!weatherDisplay) return;
+
+    if (data.cod !== 200) { // Check for OpenWeatherMap specific error codes (e.g., 400, 404)
+        weatherDisplay.innerHTML = `<p class="text-red-500">Errore: ${data.message || 'Dati non disponibili.'}</p>`;
+        return;
+    }
+
+    const { name, main, weather, wind } = data;
+    const iconCode = weather[0].icon;
+    // Utilizza https se possibile, ma molti iFrame bloccano contenuti misti. Potrebbe essere necessario un proxy se l'immagine non carica.
+    const iconUrl = `http://openweathermap.org/img/wn/${iconCode}@2x.png`; // Aggiunto @2x per icone più grandi
+
+    weatherDisplay.innerHTML = `
+        <div class="weather-card flex flex-col items-center justify-center p-4 bg-blue-100 rounded-lg shadow-inner">
+            <h4 class="text-2xl font-bold text-blue-800 mb-2">${name}</h4>
+            <img src="${iconUrl}" alt="${weather[0].description}" class="w-20 h-20 object-contain mb-2">
+            <p class="text-4xl font-extrabold text-blue-900">${main.temp.toFixed(1)}°C</p>
+            <p class="text-xl capitalize text-blue-700 mb-2">${weather[0].description}</p>
+            <div class="flex justify-around w-full text-blue-600 text-sm">
+                <p>Umidità: ${main.humidity}%</p>
+                <p>Vento: ${wind.speed.toFixed(1)} m/s</p>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Aggiornato: ${new Date(data.dt * 1000).toLocaleTimeString('it-IT')}</p>
+        </div>
+    `;
+}
+
+
 // Inizializzazione DOM e Listener eventi: Esegui quando il DOM è completamente caricato
 document.addEventListener('DOMContentLoaded', async () => {
     // --- INIZIALIZZAZIONE VARIABILI DOM ESSENZIALI ---
@@ -892,6 +977,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     tempMinFilter = document.getElementById('tempMinFilter');
     tempMaxFilter = document.getElementById('tempMaxFilter');
     sortBySelect = document.getElementById('sortBySelect');
+
+    // INIZIALIZZAZIONE NUOVE VARIABILI DOM PER IL METEO
+    weatherContainer = document.getElementById('weather-container');
+    weatherDisplay = document.getElementById('weather-display');
+    cityInput = document.getElementById('city-input');
+    getWeatherButton = document.getElementById('get-weather-button');
+
 
     // Assicurati che il form di login abbia l'ID 'login-form-element'
     loginFormElement = document.getElementById('login-form-element');
@@ -1031,6 +1123,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Listeners per il sensore di luce
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
+
+    // Event listener per il bottone "Ottieni Clima"
+    if (getWeatherButton) getWeatherButton.addEventListener('click', () => fetchWeatherData(cityInput.value));
 
     // Event listener per i SUBMIT dei form all'interno della modale (DELEGAZIONE EVENTI)
     // Questo cattura i submit dei form 'new-plant-form' e 'update-plant-form' quando sono clonati nella modale
