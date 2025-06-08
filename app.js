@@ -474,16 +474,6 @@ async function showUpdatePlantForm(plantId) {
 } // <-- Questa è la chiusura CORRETTA della funzione showUpdatePlantForm.
 
 async function displayPlantDetailsInModal(plantId) {
-    if (!plantId) {
-        console.error('ID pianta non fornito per i dettagli.');
-        return;
-    }
-    if (!zoomedCardContent || !cardModal) {
-        console.error("Elementi DOM per i dettagli modali non trovati.");
-        showToast("Errore: Impossibile aprire i dettagli della pianta.", 'error');
-        return;
-    }
-
     showLoadingSpinner();
     try {
         const plantDoc = await db.collection('plants').doc(plantId).get();
@@ -491,27 +481,34 @@ async function displayPlantDetailsInModal(plantId) {
         if (plantDoc.exists) {
             const plant = { id: plantDoc.id, ...plantDoc.data() };
 
-            zoomedCardContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
-
-            const detailsHtml = `
-                <div class="plant-details-content">
+            zoomedCardContent.innerHTML = `
+                <div class="plant-details-header">
+                    <img id="modalImage" src="${plant.imageUrl || 'https://via.placeholder.com/150'}" alt="${plant.name}" class="plant-details-image">
                     <h2>${plant.name}</h2>
-                    <img src="${plant.imageUrl || 'https://via.placeholder.com/150'}" alt="${plant.name}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
-                    <p><strong>Descrizione:</strong> ${plant.description || 'Nessuna descrizione.'}</p>
-                    <p><strong>Categoria:</strong> ${plant.category || 'Nessuna categoria.'}</p>
-                    <p><strong>Temperatura ideale:</strong> ${plant.minTemp !== null ? plant.minTemp : '?'}°C - ${plant.maxTemp !== null ? plant.maxTemp : '?'}°C</p>
-                    <p><strong>Luminosità ideale:</strong> ${plant.minLux !== null ? plant.minLux : '?'} - ${plant.maxLux !== null ? plant.maxLux : '?'} Lux</p>
-                    </div>
+                </div>
+                <div class="plant-details-body">
+                    <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
+                    <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
+                    <p><strong>Temperatura Ideale:</strong> ${plant.minTemp !== null ? plant.minTemp : 'N/A'}°C - ${plant.maxTemp !== null ? plant.maxTemp : 'N/A'}°C</p>
+                    <p><strong>Luminosità Ideale:</strong> ${plant.minLux !== null ? plant.minLux : 'N/A'} Lux - ${plant.maxLux !== null ? plant.maxLux : 'N/A'} Lux</p>
+                </div>
             `;
-            zoomedCardContent.innerHTML = detailsHtml;
-            cardModal.style.display = 'flex'; // Mostra la modale
+
+            // Ora, gestiamo l'immagine direttamente nell'HTML del template.
+            // NON CI SERVE PIÙ IL BLOCCO if(plant.imageUrl) QUI.
+            // Il src dell'immagine è già impostato con un fallback.
+            // Rimuovi completamente il blocco problematico che avevi prima.
+
         } else {
-            showToast('Dettagli pianta non trovati.', 'error');
+            console.warn("Pianta non trovata per i dettagli:", plantId);
+            zoomedCardContent.innerHTML = `<p>Dettagli pianta non disponibili.</p>`;
         }
     } catch (error) {
         console.error("Errore nel recupero dei dettagli della pianta:", error);
-        showToast('Errore nel recupero dei dettagli della pianta.', 'error');
+        showToast('Errore nel caricamento dei dettagli della pianta.', 'error');
+        zoomedCardContent.innerHTML = `<p>Errore nel caricamento dei dettagli.</p>`;
     } finally {
+        cardModal.style.display = 'flex'; // Mostra la modale DOPO aver caricato i dettagli
         hideLoadingSpinner();
     }
 }
