@@ -874,7 +874,8 @@ async function fetchWeatherData(city) {
     // Non è più necessario il controllo 'YOUR_OPENWEATHERMAP_API_KEY' qui
     // perché l'ambiente Canvas gestirà l'iniezione della chiave.
 
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=it`;
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_mean,precipitation_sum,weathercode,temperature_2m_max,temperature_2m_min&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin`;
+
 
     try {
         const response = await fetch(apiUrl);
