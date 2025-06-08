@@ -1701,4 +1701,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     firebase.auth().onAuthStateChanged(async user => {
         await updateUIforAuthState(user);
     });
-});
