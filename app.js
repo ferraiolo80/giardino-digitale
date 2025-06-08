@@ -221,8 +221,9 @@ function createPlantCard(plant, type = 'all') {
 async function fetchAndDisplayPlants() {
     showLoadingSpinner();
     try {
+        // Controllo aggiuntivo per assicurarsi che gardenContainer non sia null
         if (!gardenContainer) {
-            console.error("gardenContainer non trovato.");
+            console.error("gardenContainer non trovato. Impossibile caricare le piante.");
             return;
         }
         gardenContainer.innerHTML = ''; // Pulisci il contenitore
@@ -248,8 +249,9 @@ async function fetchAndDisplayPlants() {
 async function fetchAndDisplayMyGarden() {
     showLoadingSpinner();
     try {
+        // Controllo aggiuntivo per assicurarsi che myGardenContainer non sia null
         if (!myGardenContainer) {
-            console.error("myGardenContainer non trovato.");
+            console.error("myGardenContainer non trovato. Impossibile caricare il giardino.");
             return;
         }
         myGardenContainer.innerHTML = ''; // Pulisci il contenitore
@@ -694,7 +696,7 @@ async function showUpdatePlantForm(plantId) {
 
             cardModal.style.display = 'flex';
 
-            currentPlantIdToUpdate = plant.id; // Imposta l'ID per il salvataggio
+            currentPlantIdToUpdate = plant.id;
 
             // RECUPERA GLI ELEMENTI DEL FORM CLONATO per popolarli
             const updateFormElement = zoomedCardContent.querySelector('#update-plant-form');
@@ -855,7 +857,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     registerButton = document.getElementById('register-button');
     showLoginLink = document.getElementById('show-login');
     showRegisterLink = document.getElementById('show-register');
-    // Aggiornato per corrispondere agli ID del tuo HTML ripristinato
+    // Allineato agli ID del tuo HTML ripristinato
     emailInput = document.getElementById('loginEmail');
     passwordInput = document.getElementById('loginPassword');
     loginError = document.getElementById('login-error');
@@ -892,7 +894,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     sortBySelect = document.getElementById('sortBySelect');
 
     // Assicurati che il form di login abbia l'ID 'login-form-element'
-    // Se non lo ha, l'evento submit non funzionerà
     loginFormElement = document.getElementById('login-form-element');
 
     // Inizializzazione Firebase Firestore e Storage (dipendenti dall'inizializzazione in index.html)
