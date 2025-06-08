@@ -28,6 +28,7 @@ let registerPasswordInput;
 let registerError;
 let authStatusSpan;
 let logoutButton;
+let loginFormElement;
 let searchInput;
 let categoryFilter;
 let addNewPlantButton;
