@@ -748,7 +748,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showLoginLink = document.getElementById('show-login');
     showRegisterLink = document.getElementById('show-register');
 
-    / MODIFICHE QUI: Assicurati che questi ID corrispondano al tuo HTML
+    // MODIFICHE QUI: Assicurati che questi ID corrispondano al tuo HTML
        
     emailInput = document.getElementById('email');
     passwordInput = document.getElementById('password');
