@@ -1,4 +1,19 @@
-<!DOCTYPE html>
+<!DOCTYPE html> <!-- AGGIUNTO O VERIFICATO: Deve essere la primissima riga! -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Giardino">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512x512.png">
+    <link rel="manifest" href="manifest.json">
+    <title>Giardino Digitale</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
 <body>
     <div id="loading-spinner" class="loading-spinner" style="display: none;"></div>
     <div id="toast" class="toast"></div>
@@ -15,9 +30,9 @@
             <h2>Accedi</h2>
             <form id="login-form-element"> <!-- QUESTO ID DEVE ESSERE QUI! -->
                 <label for="loginEmail">Email:</label>
-                <input type="email" id="loginEmail" placeholder="La tua email" required autocomplete="current-password">
+                <input type="email" id="loginEmail" name="loginEmail" placeholder="La tua email" required autocomplete="current-password"> <!-- AGGIUNTO name -->
                 <label for="loginPassword">Password:</label>
-                <input type="password" id="loginPassword" placeholder="La tua password" required autocomplete="current-password">
+                <input type="password" id="loginPassword" name="loginPassword" placeholder="La tua password" required autocomplete="current-password"> <!-- AGGIUNTO name -->
                 <button type="submit" id="login-button">Accedi</button>
             </form>
             <p id="login-error" class="error-message"></p>
@@ -29,9 +44,9 @@
             <h2>Registrati</h2>
             <form id="register-form-element"> <!-- ANCHE QUESTO ID DEVE ESSERE QUI! -->
                 <label for="registerEmail">Email:</label>
-                <input type="email" id="registerEmail" placeholder="La tua email" required>
+                <input type="email" id="registerEmail" name="registerEmail" placeholder="La tua email" required> <!-- AGGIUNTO name -->
                 <label for="registerPassword">Password:</label>
-                <input type="password" id="registerPassword" placeholder="Crea password" required>
+                <input type="password" id="registerPassword" name="registerPassword" placeholder="Crea password" required> <!-- AGGIUNTO name -->
                 <button type="submit" id="register-button">Registrati</button>
             </form>
             <p id="register-error" class="error-message"></p>
@@ -42,17 +57,17 @@
     <div id="app-content" style="display: none;">
         <!-- Sezione Filtri e Ordina -->
         <section class="filters-sort">
-            <input type="search" id="search-input" placeholder="Cerca pianta...">
-            <select id="category-filter">
+            <input type="search" id="search-input" name="search-input" placeholder="Cerca pianta..."> <!-- AGGIUNTO name -->
+            <select id="category-filter" name="category-filter"> <!-- AGGIUNTO name -->
                 <option value="All">Tutte le Categorie</option>
                 <option value="Fiore">Fiore</option>
                 <option value="Frutta">Frutta</option>
                 <option value="Verdura">Verdura</option>
                 <option value="Altro">Altro</option>
             </select>
-            <input type="number" id="tempMinFilter" placeholder="Temp Min (°C)">
-            <input type="number" id="tempMaxFilter" placeholder="Temp Max (°C)">
-            <select id="climateZoneFilter">
+            <input type="number" id="tempMinFilter" name="tempMinFilter" placeholder="Temp Min (°C)"> <!-- AGGIUNTO name -->
+            <input type="number" id="tempMaxFilter" name="tempMaxFilter" placeholder="Temp Max (°C)"> <!-- AGGIUNTO name -->
+            <select id="climateZoneFilter" name="climateZoneFilter"> <!-- AGGIUNTO name -->
                 <option value="All">Tutte le Zone Climatiche</option>
                 <option value="Tropicale">Tropicale</option>
                 <option value="Temperata">Temperata</option>
@@ -61,7 +76,7 @@
                 <option value="Polare">Polare</option>
                 <option value="Mediterranea">Mediterranea</option>
             </select>
-            <select id="sortBySelect">
+            <select id="sortBySelect" name="sortBySelect"> <!-- AGGIUNTO name -->
                 <option value="name_asc">Nome (A-Z)</option>
                 <option value="name_desc">Nome (Z-A)</option>
                 <option value="category_asc">Categoria (A-Z)</option>
@@ -116,36 +131,36 @@
     <div id="newPlantFormTemplate" style="display: none;">
         <h3 class="form-title">Aggiungi Nuova Pianta</h3>
         <form id="new-plant-form">
-            <label for="newPlantName">Nome Pianta:</label>
-            <input type="text" data-form-field="newPlantName" required>
+            <label for="newPlantNameInput">Nome Pianta:</label> <!-- Aggiornato for -->
+            <input type="text" id="newPlantNameInput" name="newPlantName" data-form-field="newPlantName" required> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="newPlantImageUpload">Carica Immagine:</label>
-            <input type="file" data-form-field="newPlantImageUpload" accept="image/*">
-            <input type="hidden" data-form-field="newUploadedImageUrl">
+            <label for="newPlantImageUploadInput">Carica Immagine:</label> <!-- Aggiornato for -->
+            <input type="file" id="newPlantImageUploadInput" name="newPlantImageUpload" data-form-field="newPlantImageUpload" accept="image/*"> <!-- AGGIUNTO ID e NAME -->
+            <input type="hidden" name="newUploadedImageUrl" data-form-field="newUploadedImageUrl"> <!-- AGGIUNTO NAME -->
             <img data-form-field="newPlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
 
-            <label for="newPlantDescription">Descrizione:</label>
-            <textarea data-form-field="newPlantDescription"></textarea>
+            <label for="newPlantDescriptionInput">Descrizione:</label> <!-- Aggiornato for -->
+            <textarea id="newPlantDescriptionInput" name="newPlantDescription" data-form-field="newPlantDescription"></textarea> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="newPlantCategory">Categoria:</label>
-            <select data-form-field="newPlantCategory">
+            <label for="newPlantCategoryInput">Categoria:</label> <!-- Aggiornato for -->
+            <select id="newPlantCategoryInput" name="newPlantCategory" data-form-field="newPlantCategory"> <!-- AGGIUNTO ID e NAME -->
                 <option value="Fiore">Fiore</option>
                 <option value="Frutta">Frutta</option>
                 <option value="Verdura">Verdura</option>
                 <option value="Altro">Altro</option>
             </select>
 
-            <label for="newMinTemp">Temperatura Minima (°C):</label>
-            <input type="number" data-form-field="newMinTemp">
+            <label for="newMinTempInput">Temperatura Minima (°C):</label> <!-- Aggiornato for -->
+            <input type="number" id="newMinTempInput" name="newMinTemp" data-form-field="newMinTemp"> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="newMaxTemp">Temperatura Massima (°C):</label>
-            <input type="number" data-form-field="newMaxTemp">
+            <label for="newMaxTempInput">Temperatura Massima (°C):</label> <!-- Aggiornato for -->
+            <input type="number" id="newMaxTempInput" name="newMaxTemp" data-form-field="newMaxTemp"> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="newMinLux">Luminosità Minima (Lux):</label>
-            <input type="number" data-form-field="newMinLux">
+            <label for="newMinLuxInput">Luminosità Minima (Lux):</label> <!-- Aggiornato for -->
+            <input type="number" id="newMinLuxInput" name="newMinLux" data-form-field="newMinLux"> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="newMaxLux">Luminosità Massima (Lux):</label>
-            <input type="number" data-form-field="newMaxLux">
+            <label for="newMaxLuxInput">Luminosità Massima (Lux):</label> <!-- Aggiornato for -->
+            <input type="number" id="newMaxLuxInput" name="newMaxLux" data-form-field="newMaxLux"> <!-- AGGIUNTO ID e NAME -->
 
             <button type="submit" class="button primary-button">Aggiungi Pianta</button>
             <button type="button" class="button secondary-button" id="cancelAddPlant">Annulla</button>
@@ -155,36 +170,36 @@
     <div id="updatePlantFormTemplate" style="display: none;">
         <h3 class="form-title">Aggiorna Pianta</h3>
         <form id="update-plant-form">
-            <label for="updatePlantName">Nome Pianta:</label>
-            <input type="text" data-form-field="updatePlantName" required>
+            <label for="updatePlantNameInput">Nome Pianta:</label> <!-- Aggiornato for -->
+            <input type="text" id="updatePlantNameInput" name="updatePlantName" data-form-field="updatePlantName" required> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="updatePlantImageUpload">Carica Immagine:</label>
-            <input type="file" data-form-field="updatePlantImageUpload" accept="image/*">
-            <input type="hidden" data-form-field="updateUploadedImageUrl">
+            <label for="updatePlantImageUploadInput">Carica Immagine:</label> <!-- Aggiornato for -->
+            <input type="file" id="updatePlantImageUploadInput" name="updatePlantImageUpload" data-form-field="updatePlantImageUpload" accept="image/*"> <!-- AGGIUNTO ID e NAME -->
+            <input type="hidden" name="updateUploadedImageUrl" data-form-field="updateUploadedImageUrl"> <!-- AGGIUNTO NAME -->
             <img data-form-field="updatePlantImagePreview" src="" alt="Anteprima immagine pianta" style="max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: none;">
 
-            <label for="updatePlantDescription">Descrizione:</label>
-            <textarea data-form-field="updatePlantDescription"></textarea>
+            <label for="updatePlantDescriptionInput">Descrizione:</label> <!-- Aggiornato for -->
+            <textarea id="updatePlantDescriptionInput" name="updatePlantDescription" data-form-field="updatePlantDescription"></textarea> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="updatePlantCategory">Categoria:</label>
-            <select data-form-field="updatePlantCategory">
+            <label for="updatePlantCategoryInput">Categoria:</label> <!-- Aggiornato for -->
+            <select id="updatePlantCategoryInput" name="updatePlantCategory" data-form-field="updatePlantCategory"> <!-- AGGIUNTO ID e NAME -->
                 <option value="Fiore">Fiore</option>
                 <option value="Frutta">Frutta</option>
                 <option value="Verdura">Verdura</option>
                 <option value="Altro">Altro</option>
             </select>
 
-            <label for="updateMinTemp">Temperatura Minima (°C):</label>
-            <input type="number" data-form-field="updateMinTemp">
+            <label for="updateMinTempInput">Temperatura Minima (°C):</label> <!-- Aggiornato for -->
+            <input type="number" id="updateMinTempInput" name="updateMinTemp" data-form-field="updateMinTemp"> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="updateMaxTemp">Temperatura Massima (°C):</label>
-            <input type="number" data-form-field="updateMaxTemp">
+            <label for="updateMaxTempInput">Temperatura Massima (°C):</label> <!-- Aggiornato for -->
+            <input type="number" id="updateMaxTempInput" name="updateMaxTemp" data-form-field="updateMaxTemp"> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="updateMinLux">Luminosità Minima (Lux):</label>
-            <input type="number" data-form-field="updateMinLux">
+            <label for="updateMinLuxInput">Luminosità Minima (Lux):</label> <!-- Aggiornato for -->
+            <input type="number" id="updateMinLuxInput" name="updateMinLux" data-form-field="updateMinLux"> <!-- AGGIUNTO ID e NAME -->
 
-            <label for="updateMaxLux">Luminosità Massima (Lux):</label>
-            <input type="number" data-form-field="updateMaxLux">
+            <label for="updateMaxLuxInput">Luminosità Massima (Lux):</label> <!-- Aggiornato for -->
+            <input type="number" id="updateMaxLuxInput" name="updateMaxLux" data-form-field="updateMaxLux"> <!-- AGGIUNTO ID e NAME -->
 
             <button type="submit" class="button primary-button">Salva Modifiche</button>
             <button type="button" class="button secondary-button" id="cancelUpdatePlant">Annulla</button>
@@ -200,16 +215,17 @@
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
-                    apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-                    authDomain: "giardinodigitale.firebaseapp.com",
-                    projectId: "giardinodigitale",
-                    storageBucket: "giardinodigitale.appspot.com",
-                    messagingSenderId: "305018691515",
-                    appId: "1:305018691515:web:644a4aa89617d59850125c"
-                };
+          apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+          authDomain: "giardinodigitale.firebaseapp.com",
+          projectId: "giardinodigitale",
+          storageBucket: "giardinodigitale.firebasestorage.app",
+          messagingSenderId: "96265504027",
+          appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+        };
 
         // Inizializza Firebase
         firebase.initializeApp(firebaseConfig);
     </script>
     <script src="app.js"></script> <!-- IL TUO APP.JS DEVE ESSERE CARICATO PER ULTIMO -->
 </body>
+</html>
