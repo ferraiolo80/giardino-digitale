@@ -747,6 +747,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     registerButton = document.getElementById('register-button');
     showLoginLink = document.getElementById('show-login');
     showRegisterLink = document.getElementById('show-register');
+
+    / MODIFICHE QUI: Assicurati che questi ID corrispondano al tuo HTML
+       
     emailInput = document.getElementById('email');
     passwordInput = document.getElementById('password');
     loginError = document.getElementById('login-error');
@@ -782,6 +785,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     tempMaxFilter = document.getElementById('tempMaxFilter');
     sortBySelect = document.getElementById('sortBySelect');
 
+    // AGGIUNGI QUESTA INIZIALIZZAZIONE PER IL FORM DI LOGIN:
+    loginFormElement = document.getElementById('login-form-element');
+
+
 
     // Inizializzazione Firebase Firestore e Storage
     // Queste variabili sono dipendenti dall'inizializzazione di Firebase che avviene in index.html
@@ -803,7 +810,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // --- SETUP LISTENER DOPO INIZIALIZZAZIONE DOM ---
-    if (loginButton) loginButton.addEventListener('click', login);
+    //if (loginButton) loginButton.addEventListener('click', login);
+    if (loginFormElement) { // Usa la variabile del form qui
+        loginFormElement.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impedisce il ricaricamento della pagina
+            await login();
+        });
+    }
     if (registerButton) registerButton.addEventListener('click', register);
     if (logoutButton) logoutButton.addEventListener('click', logout);
     if (showLoginLink) showLoginLink.addEventListener('click', () => {
