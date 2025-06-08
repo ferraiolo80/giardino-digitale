@@ -868,16 +868,11 @@ async function fetchWeatherData(city) {
         return;
     }
     showLoadingSpinner();
-    // Ottieni la tua API Key gratuita da OpenWeatherMap (https://openweathermap.org/api)
-    // Sostituisci 'YOUR_OPENWEATHERMAP_API_KEY' con la tua chiave reale.
-    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY';
-    // Assicurati che l'API Key sia presente
-    if (apiKey === 'YOUR_OPENWEATHERMAP_API_KEY' || !apiKey) {
-        showToast('Per favore, imposta la tua API Key di OpenWeatherMap in app.js per il meteo.', 'error');
-        hideLoadingSpinner();
-        if (weatherDisplay) weatherDisplay.innerHTML = `<p class="text-red-500">API Key Meteo non configurata!</p>`;
-        return;
-    }
+    // La chiave API sarà fornita automaticamente dall'ambiente Canvas.
+    // Non è necessario inserirla manualmente qui, basta lasciare la stringa vuota.
+    const apiKey = "";
+    // Non è più necessario il controllo 'YOUR_OPENWEATHERMAP_API_KEY' qui
+    // perché l'ambiente Canvas gestirà l'iniezione della chiave.
 
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=it`;
 
@@ -885,7 +880,7 @@ async function fetchWeatherData(city) {
         const response = await fetch(apiUrl);
         if (!response.ok) {
             if (response.status === 401) {
-                throw new Error('API Key non valida o mancante. Ottienine una da OpenWeatherMap.');
+                throw new Error('API Key non valida o mancante. Se stai testando in locale, potresti doverla inserire.');
             }
             if (response.status === 404) {
                 throw new Error('Città non trovata. Controlla il nome.');
