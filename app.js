@@ -60,6 +60,10 @@ let newPlantFormTemplate;
 let updatePlantFormTemplate;
 let emptyGardenMessage; // Messaggio per il giardino vuoto
 
+// Nuovo bottone "Torna su"
+let scrollToTopButton;
+
+
 const CLIMATE_TEMP_RANGES = {
     'Mediterraneo': { min: 5, max: 35 },
     'Temperato': { min: -10, max: 30 },
@@ -234,7 +238,7 @@ async function updateUIforAuthState(user) {
         await fetchPlantsFromFirestore(); // Popola allPlants
         await fetchMyGardenFromFirebase(); // Popola myGarden
 
-        // Visualizza le piante predefinite (Tutte le Piante)
+        // Visualizza le piante predefinita (Tutte le Piante)
         displayAllPlants();
 
         // Tenta di ottenere il clima all'avvio se l'utente è loggato
@@ -448,24 +452,21 @@ async function savePlantToFirestore(e) {
             if (isUpdateForm && existingImageUrl && existingImageUrl !== finalImageUrl) {
                 await deleteImage(existingImageUrl);
             }
-        } else if (isUpdateForm && !existingImageUrl) {
-            // Se è un update, nessun nuovo file, e nessun URL esistente,
-            // significa che l'immagine è stata rimossa dall'utente (se c'era).
-            // Rimuovi il campo `image` da Firestore.
-            plantData.image = firebase.firestore.FieldValue.delete();
+        } else if (isUpdateForm && existingImageUrl === '') { // Utente ha esplicitamente rimosso l'immagine
+            plantData.image = firebase.firestore.FieldValue.delete(); // Rimuovi il campo `image` da Firestore
         } else if (!isUpdateForm && !finalImageUrl) {
-            // Se è una nuova pianta e nessun file caricato, imposta 'image' a null esplicitamente.
-            plantData.image = null;
+            plantData.image = null; // Forza a null se non c'è immagine per nuova pianta
+        } else if (isUpdateForm && finalImageUrl === null) {
+            // Non fare nulla, mantieni l'URL esistente se non ne è stato caricato uno nuovo e non è stato rimosso
         }
+
 
         if (finalImageUrl !== null && typeof finalImageUrl === 'string') {
             plantData.image = finalImageUrl; // Assegna l'URL finale se esiste
-        } else if (finalImageUrl === null && !isUpdateForm) {
-            plantData.image = null; // Forza a null se non c'è immagine per nuova pianta
+        } else if (finalImageUrl === null && !isUpdateForm && plantData.image !== firebase.firestore.FieldValue.delete()) {
+            // Solo per nuova pianta se non c'è immagine e non è stata rimossa esplicitamente
+            plantData.image = null;
         }
-        // Per gli update, se finalImageUrl è null e non c'è un file, il campo non viene sovrascritto
-        // a meno che non sia stato esplicitamente impostato a FieldValue.delete() sopra.
-
 
         if (isUpdateForm) {
             await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData);
@@ -891,7 +892,7 @@ async function requestLightSensorPermission() {
             console.log('Permesso sensore luce già concesso.');
             return true;
         } else if (result.state === 'prompt') {
-            showToast("Permesso sensore luce richiesto. Potrebbe apparire un popup.", 'info');
+            showToast("Permesso sensore luce richiesto. Potrebbe apparire un popup. Accetta per continuare.", 'info');
             return true;
         } else {
             showToast("Permesso sensore luce negato. Impossibile leggere la luce.", 'error');
@@ -915,8 +916,8 @@ async function startLightSensor() {
     const hasPermission = await requestLightSensorPermission();
     if (!hasPermission) {
         hideLoadingSpinner();
-        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso.</p>';
-        showToast('Permesso per il sensore di luce negato o non concesso.', 'error');
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Permesso per il sensore di luce negato o non concesso. Assicurati di navigare su HTTPS e di aver concesso il permesso richiesto.</p>';
+        showToast('Permesso per il sensore di luce negato o non concesso. Controlla le impostazioni del browser.', 'error');
         if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
         if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
         return;
@@ -970,7 +971,7 @@ async function startLightSensor() {
 
             ambientLightSensor.onerror = (event) => {
                 console.error("Errore sensore di luce:", event.error.name, event.error.message);
-                if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}</p>`;
+                if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi. </p>`;
                 showToast(`Errore sensore luce: ${event.error.message}`, 'error');
                 stopLightSensor();
                 hideLoadingSpinner();
@@ -984,7 +985,7 @@ async function startLightSensor() {
 
         } catch (error) {
             console.error("Errore nell'avvio del sensore di luce nel try-catch:", error);
-            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}</p>`;
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi.</p>`;
             showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
             hideLoadingSpinner();
             if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
@@ -1134,13 +1135,13 @@ async function getClimateFromCoordinates(latitude, longitude) {
         if (weatherForecastDiv) {
             let weatherHtml = '<h4>Previsioni Meteo (oggi):</h4>';
             if (currentTemp !== null) {
-                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong>  ${currentTemp.toFixed(1)}°C</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong>${currentTemp.toFixed(1)}°C</strong></p>`;
             }
             if (maxTemp !== null && minTemp !== null) {
-                weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min: <strong>  ${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min: <strong>${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
             }
             if (precipitationSum !== null) {
-                weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni: <strong>  ${precipitationSum.toFixed(1)} mm</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni: <strong>${precipitationSum.toFixed(1)} mm</strong></p>`;
             }
             if (weatherCode !== null) {
                 weatherHtml += `<p><i class="${getWeatherIcon(weatherCode)}"></i> Condizione: ${getWeatherDescription(weatherCode)}</p>`;
@@ -1425,7 +1426,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     emptyGardenMessage = document.getElementById('empty-garden-message')
 
     // Template dei form (li recuperiamo come nodi DOM da clonare)
-    // CORREZIONE: NON usare .content qui perché newPlantFormTemplate e updatePlantFormTemplate sono div, non <template>
+    // newPlantFormTemplate e updatePlantFormTemplate sono div, non <template>
     const newPlantFormTemplateDiv = document.getElementById('newPlantFormTemplate');
     const updatePlantFormTemplateDiv = document.getElementById('updatePlantFormTemplate');
 
@@ -1439,6 +1440,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.error("updatePlantFormTemplateDiv non trovato! Impossibile inizializzare il template.");
     }
+
+    // Inizializzazione del nuovo bottone "Torna su"
+    scrollToTopButton = document.getElementById('scrollToTopButton');
 
 
     // Inizializzazione delle variabili DOM per la geolocalizzazione
@@ -1589,6 +1593,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Listeners per il sensore di luce
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
+
+    // Gestione bottone "Torna su"
+    if (scrollToTopButton && appContentDiv) {
+        // Mostra/nascondi il bottone in base allo scroll
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) { // Mostra il bottone dopo 200px di scroll
+                scrollToTopButton.style.display = 'flex';
+            } else {
+                scrollToTopButton.style.display = 'none';
+            }
+        });
+        // Scrolla all'inizio della sezione 'app-content'
+        scrollToTopButton.addEventListener('click', () => {
+            appContentDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
 
     // Gestione dello stato di autenticazione iniziale
     firebase.auth().onAuthStateChanged(async user => {
