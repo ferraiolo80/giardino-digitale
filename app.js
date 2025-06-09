@@ -1135,16 +1135,16 @@ async function getClimateFromCoordinates(latitude, longitude) {
         if (weatherForecastDiv) {
             let weatherHtml = '<h4>Previsioni Meteo (oggi):</h4>';
             if (currentTemp !== null) {
-                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong>${currentTemp.toFixed(1)}°C</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale:<strong> ${currentTemp.toFixed(1)}°C</strong></p>`;
             }
             if (maxTemp !== null && minTemp !== null) {
-                weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min: <strong>${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min:<strong> ${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
             }
             if (precipitationSum !== null) {
-                weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni: <strong>${precipitationSum.toFixed(1)} mm</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni:<strong> ${precipitationSum.toFixed(1)} mm</strong></p>`;
             }
             if (weatherCode !== null) {
-                weatherHtml += `<p><i class="${getWeatherIcon(weatherCode)}"></i> Condizione: ${getWeatherDescription(weatherCode)}</p>`;
+                weatherHtml += `<p><i class="${getWeatherIcon(weatherCode)}"></i>  ${getWeatherDescription(weatherCode)}</p>`;
             }
             weatherForecastDiv.innerHTML = weatherHtml;
         }
