@@ -12,7 +12,9 @@
     <link rel="manifest" href="manifest.json">
     <title>Giardino Digitale</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==>" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Cropper.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
 </head>
 <body>
     <div id="loading-spinner" class="loading-spinner" style="display: none;"></div>
@@ -165,6 +167,26 @@
         </div>
     </div>
 
+    <!-- NUOVA MODAL PER IL RITAGLIO DELL'IMMAGINE -->
+    <div id="crop-modal" class="modal" style="display: none;">
+        <div class="modal-content crop-modal-content">
+            <h2>Ritaglia Immagine</h2>
+            <div class="img-container">
+                <img id="image-to-crop" src="" alt="Immagine da ritagliare">
+            </div>
+            <div class="crop-controls">
+                <button id="rotate-left" class="action-button" title="Ruota a sinistra"><i class="fas fa-undo"></i></button>
+                <button id="rotate-right" class="action-button" title="Ruota a destra"><i class="fas fa-redo"></i></button>
+                <button id="zoom-in" class="action-button" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                <button id="zoom-out" class="action-button" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+            </div>
+            <div class="form-actions">
+                <button id="save-cropped-image" class="action-button primary-button"><i class="fas fa-crop"></i> Salva Ritagliata</button>
+                <button id="cancel-cropping" class="secondary-button"><i class="fas fa-times-circle"></i> Annulla</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Contenuti dei form (template nascosti per essere clonati nelle modali) -->
     <div id="newPlantFormTemplate" style="display: none;">
         <h3 class="form-title">Aggiungi Nuova Pianta</h3>
@@ -190,9 +212,9 @@
             <label for="newPlantWatering">Annaffiatura:</label>
             <select id="newPlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa (dal basso, sottovaso)</option>
-                <option value="Media">Media (terreno umido, non inzuppato)</option>
-                <option value="Alta">Alta (direttamente sul substrato)</option>
+                <option value="Bassa">Bassa (dal basso)</option>
+                <option value="Media">Media (umido)</option>
+                <option value="Alta">Alta (sul substrato)</option>
             </select>
 
             <div class="temp-input-group">
@@ -225,7 +247,7 @@
             </select>
 
             <label for="newPlantImageUpload">Carica Immagine (Opzionale):</label>
-            <input type="file" id="newPlantImageUpload" accept="image/*">
+            <input type="file" id="newPlantImageUpload" accept="image/*" capture="camera">
             <img id="newPlantImagePreview" src="" alt="Anteprima Immagine" style="max-width: 150px; display: none; margin-top: 10px;">
 
             <div class="form-actions">
@@ -259,9 +281,9 @@
             <label for="updatePlantWatering">Annaffiatura:</label>
             <select id="updatePlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa (dal basso, sottovaso)</option>
-                <option value="Media">Media (terreno umido, non inzuppato)</option>
-                <option value="Alta">Alta (direttamente sul substrato)</option>
+                <option value="Bassa">Bassa (dal basso)</option>
+                <option value="Media">Media (umido)</option>
+                <option value="Alta">Alta (sul substrato)</option>
             </select>
 
             <div class="temp-input-group">
@@ -294,7 +316,7 @@
             </select>
 
             <label for="updatePlantImageUpload">Carica Nuova Immagine (Opzionale):</label>
-            <input type="file" id="updatePlantImageUpload" accept="image/*">
+            <input type="file" id="updatePlantImageUpload" accept="image/*" capture="camera">
             <img id="updatePlantImagePreview" src="" alt="Anteprima Immagine" style="max-width: 150px; display: none; margin-top: 10px;">
             <input type="hidden" id="updatePlantImageURL" value=""> <!-- Campo nascosto per l'URL esistente -->
 
@@ -317,6 +339,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
+    <!-- Cropper.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
