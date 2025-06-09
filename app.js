@@ -63,6 +63,15 @@ let emptyGardenMessage; // Messaggio per il giardino vuoto
 // Nuovo bottone "Torna su"
 let scrollToTopButton;
 
+// Variabili per il ritaglio
+let cropModal;
+let imageToCrop;
+let cropper; // Istanza di Cropper.js
+let currentCroppingFile = null; // File attualmente in fase di ritaglio
+let currentCroppingImagePreviewElement = null; // Elemento <img> di anteprima associato all'input file
+let currentCroppingHiddenUrlElement = null; // Elemento input hidden per l'URL esistente (solo per update form)
+let isUpdateFormCropping = false; // Flag per distinguere se il ritaglio è per un nuovo inserimento o un aggiornamento
+
 
 const CLIMATE_TEMP_RANGES = {
     'Mediterraneo': { min: 5, max: 35 },
@@ -404,8 +413,10 @@ async function savePlantToFirestore(e) {
     }
 
     let plantData = {};
-    let imageFile = null;
-    let existingImageUrl = null;
+    // currentCroppingFile sarà il file (originale o ritagliato) da caricare
+    let imageFile = currentCroppingFile;
+    let existingImageUrl = isUpdateForm ? (form.querySelector('#updatePlantImageURL').value || null) : null;
+
 
     if (isUpdateForm) {
         // Form di aggiornamento
@@ -421,8 +432,11 @@ async function savePlantToFirestore(e) {
             category: form.querySelector('#updatePlantCategory').value,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         };
-        imageFile = form.querySelector('#updatePlantImageUpload').files[0];
-        existingImageUrl = form.querySelector('#updatePlantImageURL').value || null;
+        // Se non c'è un nuovo file (currentCroppingFile è null) e l'URL esistente è stato esplicitamente rimosso
+        // (ad esempio, l'utente ha caricato un'immagine e poi l'ha "rimossa" non selezionando nulla di nuovo)
+        if (!imageFile && existingImageUrl === '') {
+            plantData.image = firebase.firestore.FieldValue.delete();
+        }
 
     } else {
         // Form di nuova pianta
@@ -439,34 +453,27 @@ async function savePlantToFirestore(e) {
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             ownerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null,
         };
-        imageFile = form.querySelector('#newPlantImageUpload').files[0];
+        if (!imageFile) {
+            plantData.image = null; // Forza a null se non c'è immagine per nuova pianta
+        }
     }
 
     try {
         let finalImageUrl = existingImageUrl; // Inizializza con l'URL esistente per gli update
 
         if (imageFile) {
-            // Se c'è un nuovo file, caricalo e ottieni il nuovo URL
+            // Se c'è un nuovo file (già ritagliato o originale), caricalo e ottieni il nuovo URL
             finalImageUrl = await uploadImage(imageFile, 'plant_images');
             // Se stiamo aggiornando e c'era un'immagine esistente diversa, eliminiamo la vecchia immagine in storage
             if (isUpdateForm && existingImageUrl && existingImageUrl !== finalImageUrl) {
                 await deleteImage(existingImageUrl);
             }
-        } else if (isUpdateForm && existingImageUrl === '') { // Utente ha esplicitamente rimosso l'immagine
-            plantData.image = firebase.firestore.FieldValue.delete(); // Rimuovi il campo `image` da Firestore
-        } else if (!isUpdateForm && !finalImageUrl) {
-            plantData.image = null; // Forza a null se non c'è immagine per nuova pianta
-        } else if (isUpdateForm && finalImageUrl === null) {
-            // Non fare nulla, mantieni l'URL esistente se non ne è stato caricato uno nuovo e non è stato rimosso
-        }
-
-
-        if (finalImageUrl !== null && typeof finalImageUrl === 'string') {
             plantData.image = finalImageUrl; // Assegna l'URL finale se esiste
-        } else if (finalImageUrl === null && !isUpdateForm && plantData.image !== firebase.firestore.FieldValue.delete()) {
-            // Solo per nuova pianta se non c'è immagine e non è stata rimossa esplicitamente
-            plantData.image = null;
+        } else if (isUpdateForm && !plantData.hasOwnProperty('image')) {
+            // Se è un update, nessun nuovo file, e non è stata esplicitamente richiesta la rimozione,
+            // allora mantiene l'immagine esistente. Non tocchiamo plantData.image.
         }
+
 
         if (isUpdateForm) {
             await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData);
@@ -499,6 +506,12 @@ async function savePlantToFirestore(e) {
             showToast('Pianta aggiunta con successo!', 'success');
         }
         closeCardModal(); // Chiude la modale dopo il salvataggio
+        // Resetta le variabili di stato per il ritaglio dopo il salvataggio
+        currentCroppingFile = null;
+        currentCroppingImagePreviewElement = null;
+        currentCroppingHiddenUrlElement = null;
+        isUpdateFormCropping = false;
+
         await fetchPlantsFromFirestore();
         await fetchMyGardenFromFirebase();
         displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants); // Riapplica i filtri e l'ordinamento
@@ -1136,13 +1149,13 @@ async function getClimateFromCoordinates(latitude, longitude) {
             let weatherHtml = '<h4>Previsioni Meteo (oggi):</h4>';
             // Aggiunto spazio dopo i due punti
             if (currentTemp !== null) {
-                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong>${currentTemp.toFixed(1)}°C</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-temperature-half"></i> Temperatura attuale: <strong> ${currentTemp.toFixed(1)}°C</strong></p>`;
             }
             if (maxTemp !== null && minTemp !== null) {
-                weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min: <strong>${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-thermometer-half"></i> Max/Min: <strong> ${maxTemp.toFixed(1)}°C / ${minTemp.toFixed(1)}°C</strong></p>`;
             }
             if (precipitationSum !== null) {
-                weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni: <strong>${precipitationSum.toFixed(1)} mm</strong></p>`;
+                weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni: <strong> ${precipitationSum.toFixed(1)} mm</strong></p>`;
             }
             if (weatherCode !== null) {
                 weatherHtml += `<p><i class="${getWeatherIcon(weatherCode)}"></i> Condizione: ${getWeatherDescription(weatherCode)}</p>`;
@@ -1243,7 +1256,7 @@ function getWeatherDescription(weathercode) {
 
 
 // =======================================================
-// 7. GESTIONE MODALI (Immagine e Card Completa/Form)
+// 7. GESTIONE MODALI (Immagine, Card Completa/Form, Ritaglio)
 // =======================================================
 
 // Apre la modal dell'immagine
@@ -1268,6 +1281,12 @@ function openCardModal(templateElement, plantData = null) {
 
     zoomedCardContent.appendChild(clonedForm); // Aggiungi il div/form clonato alla modale
     cardModal.style.display = 'flex'; // Mostra la modale
+
+    // Resetta le variabili di stato per il ritaglio ogni volta che apriamo la modale
+    currentCroppingFile = null;
+    currentCroppingImagePreviewElement = null;
+    currentCroppingHiddenUrlElement = null;
+    isUpdateFormCropping = false;
 
     // Se è un form di aggiornamento, popola i campi
     if (plantData && clonedForm.id === 'updatePlantFormContent') {
@@ -1295,22 +1314,23 @@ function openCardModal(templateElement, plantData = null) {
             updateImageURLHidden.value = '';
         }
 
-        // Listener per l'anteprima dell'immagine durante il caricamento
+        // Listener per l'input file del form di aggiornamento
         const updatePlantImageUpload = clonedForm.querySelector('#updatePlantImageUpload');
         if (updatePlantImageUpload) {
             updatePlantImageUpload.onchange = (event) => {
                 const file = event.target.files[0];
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        updateImagePreview.src = e.target.result;
-                        updateImagePreview.style.display = 'block';
-                        updateImageURLHidden.value = ''; // Pulisci l'URL nascosto se un nuovo file è selezionato
-                    };
-                    reader.readAsDataURL(file);
+                    currentCroppingFile = file;
+                    currentCroppingImagePreviewElement = updateImagePreview;
+                    currentCroppingHiddenUrlElement = updateImageURLHidden;
+                    isUpdateFormCropping = true;
+                    openCropModal(file);
                 } else {
+                    // Se l'utente annulla la selezione del file, rimuovi l'anteprima e segna per eliminazione immagine esistente
                     updateImagePreview.src = '';
                     updateImagePreview.style.display = 'none';
+                    updateImageURLHidden.value = ''; // Segna per eliminazione dell'immagine esistente
+                    currentCroppingFile = null; // Nessun file da caricare
                 }
             };
         }
@@ -1325,21 +1345,21 @@ function openCardModal(templateElement, plantData = null) {
             newImagePreview.src = '';
             newImagePreview.style.display = 'none';
         }
+        // Listener per l'input file del form di nuova pianta
         const newPlantImageUpload = clonedForm.querySelector('#newPlantImageUpload');
         if (newPlantImageUpload) {
             newPlantImageUpload.value = ''; // Resetta il campo file input
             newPlantImageUpload.onchange = (event) => {
                 const file = event.target.files[0];
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        newImagePreview.src = e.target.result;
-                        newImagePreview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
+                    currentCroppingFile = file;
+                    currentCroppingImagePreviewElement = newImagePreview;
+                    isUpdateFormCropping = false;
+                    openCropModal(file);
                 } else {
                     newImagePreview.src = '';
                     newImagePreview.style.display = 'none';
+                    currentCroppingFile = null;
                 }
             };
         }
@@ -1374,6 +1394,97 @@ function closeCardModal() {
 }
 
 
+// NUOVE FUNZIONI PER IL RITAGLIO IMMAGINE
+function openCropModal(file) {
+    if (!cropModal || !imageToCrop) {
+        showToast("Errore: Impossibile avviare il ritaglio. Elementi mancanti.", 'error');
+        console.error("Cropping modal elements not found.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imageToCrop.src = e.target.result;
+        cropModal.style.display = 'flex'; // Mostra la modal di ritaglio
+
+        // Distruggi la vecchia istanza di Cropper se esiste
+        if (cropper) {
+            cropper.destroy();
+        }
+        // Inizializza Cropper.js sulla nuova immagine
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: 1, // Imposta un rapporto 1:1 per il ritaglio (quadrato)
+            viewMode: 1, // Definisce la modalità di visualizzazione del cropper
+            autoCropArea: 0.8, // Area di ritaglio automatica (80% dell'immagine)
+            background: false, // Nessuno sfondo a scacchi
+            // Altre opzioni di personalizzazione:
+            // minCropBoxWidth: 100,
+            // minCropBoxHeight: 100,
+            // movable: true,
+            // zoomable: true,
+            // rotatable: true,
+            // scalable: true,
+            // zoomOnTouch: true,
+            // zoomOnWheel: true,
+            // cropBoxMovable: true,
+            // cropBoxResizable: true,
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function closeCropModal() {
+    if (cropper) {
+        cropper.destroy(); // Distrugge l'istanza di Cropper
+        cropper = null;
+    }
+    if (cropModal) {
+        cropModal.style.display = 'none'; // Nasconde la modal di ritaglio
+    }
+    imageToCrop.src = ''; // Pulisce l'immagine nel cropper
+}
+
+async function saveCroppedImage() {
+    if (!cropper) {
+        showToast("Nessuna immagine da ritagliare.", 'error');
+        return;
+    }
+    showLoadingSpinner();
+
+    try {
+        const croppedCanvas = cropper.getCroppedCanvas();
+        croppedCanvas.toBlob(async (blob) => {
+            if (blob) {
+                // Creiamo un oggetto File dal Blob per coerenza con uploadImage
+                const croppedFile = new File([blob], `cropped_plant_${Date.now()}.png`, { type: 'image/png' });
+                currentCroppingFile = croppedFile; // Salva il file ritagliato nella variabile globale
+
+                // Aggiorna l'anteprima nel form (con un URL temporaneo per non aspettare l'upload)
+                if (currentCroppingImagePreviewElement) {
+                    currentCroppingImagePreviewElement.src = URL.createObjectURL(blob);
+                    currentCroppingImagePreviewElement.style.display = 'block';
+                }
+                // Se è un update, resetta l'URL nascosto per indicare che c'è un nuovo file
+                if (isUpdateFormCropping && currentCroppingHiddenUrlElement) {
+                    currentCroppingHiddenUrlElement.value = '';
+                }
+
+                closeCropModal(); // Chiudi la modal di ritaglio
+                hideLoadingSpinner();
+                showToast("Immagine ritagliata con successo!", 'success');
+            } else {
+                showToast("Errore durante il ritaglio dell'immagine.", 'error');
+                hideLoadingSpinner();
+            }
+        }, 'image/png', 0.9); // Formato e qualità dell'immagine ritagliata
+    } catch (error) {
+        console.error("Errore nel salvataggio dell'immagine ritagliata:", error);
+        showToast("Errore nel ritaglio: " + error.message, 'error');
+        hideLoadingSpinner();
+    }
+}
+
+
 // =======================================================
 // 8. INIZIALIZZAZIONE E GESTIONE EVENTI DOM
 // =======================================================
@@ -1394,7 +1505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     passwordInput = document.getElementById('loginPassword');
     loginError = document.getElementById('login-error');
     registerEmailInput = document.getElementById('registerEmail');
-    registerPasswordInput = document = document.getElementById('registerPassword');
+    registerPasswordInput = document.getElementById('registerPassword');
     registerError = document.getElementById('register-error');
     authStatusSpan = document.getElementById('auth-status');
     logoutButton = document.getElementById('logoutButton');
@@ -1425,6 +1536,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     zoomedCardContent = document.getElementById('zoomed-card-content');
     closeCardModalButton = document.getElementById('close-card-modal');
     emptyGardenMessage = document.getElementById('empty-garden-message')
+
+    // Modale di ritaglio
+    cropModal = document.getElementById('crop-modal');
+    imageToCrop = document.getElementById('image-to-crop');
+    const rotateLeftButton = document.getElementById('rotate-left');
+    const rotateRightButton = document.getElementById('rotate-right');
+    const zoomInButton = document.getElementById('zoom-in');
+    const zoomOutButton = document.getElementById('zoom-out');
+    const saveCroppedImageButton = document.getElementById('save-cropped-image');
+    const cancelCroppingButton = document.getElementById('cancel-cropping');
 
     // Template dei form (li recuperiamo come nodi DOM da clonare)
     const newPlantFormTemplateDiv = document.getElementById('newPlantFormTemplate');
@@ -1596,6 +1717,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (closeCardModalButton) closeCardModalButton.addEventListener('click', closeCardModal); // Chiude la modale con la funzione che pulisce e resetta
     if (cardModal) cardModal.addEventListener('click', (e) => { if (e.target === cardModal) closeCardModal(); });
+
+    // Event listeners per la modal di ritaglio
+    if (rotateLeftButton) rotateLeftButton.addEventListener('click', () => cropper && cropper.rotate(-90));
+    if (rotateRightButton) rotateRightButton.addEventListener('click', () => cropper && cropper.rotate(90));
+    if (zoomInButton) zoomInButton.addEventListener('click', () => cropper && cropper.zoom(0.1));
+    if (zoomOutButton) zoomOutButton.addEventListener('click', () => cropper && cropper.zoom(-0.1));
+    if (saveCroppedImageButton) saveCroppedImageButton.addEventListener('click', saveCroppedImage);
+    if (cancelCroppingButton) cancelCroppingButton.addEventListener('click', closeCropModal);
+    if (cropModal) cropModal.addEventListener('click', (e) => { // Chiudi cliccando sullo sfondo
+        if (e.target === cropModal) closeCropModal();
+    });
 
 
     // Event Listeners per il sensore di luce
