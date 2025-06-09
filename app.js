@@ -72,6 +72,13 @@ let currentCroppingImagePreviewElement = null; // Elemento <img> di anteprima as
 let currentCroppingHiddenUrlElement = null; // Elemento input hidden per l'URL esistente (solo per update form)
 let isUpdateFormCropping = false; // Flag per distinguere se il ritaglio è per un nuovo inserimento o un aggiornamento
 
+// Nuove variabili DOM per controlli sensore/manuale
+let autoSensorControls;
+let manualLuxInputControls;
+let manualLuxInput;
+let applyManualLuxButton;
+let currentLuxValueManualSpan;
+
 
 const CLIMATE_TEMP_RANGES = {
     'Mediterraneo': { min: 5, max: 35 },
@@ -918,6 +925,40 @@ async function requestLightSensorPermission() {
     }
 }
 
+// Funzione per aggiornare il feedback sul sensore di luce (usata sia da sensore automatico che manuale)
+function updateLightFeedback(lux) {
+    if (myGarden && myGarden.length > 0 && lux != null) {
+        let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
+        const plantsInGardenWithLuxData = myGarden.filter(plant =>
+            typeof plant.idealLuxMin === 'number' && typeof plant.idealLuxMax === 'number' && !isNaN(plant.idealLuxMin) && !isNaN(plant.idealLuxMax)
+        );
+
+        if (plantsInGardenWithLuxData.length > 0) {
+            plantsInGardenWithLuxData.forEach(plant => {
+                const minLux = plant.idealLuxMin;
+                const maxLux = plant.idealLuxMax;
+
+                let feedbackMessage = `${plant.name}: `;
+                if (lux < minLux) {
+                    feedbackMessage += `<span style="color: red;">Troppo poca luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
+                } else if (lux > maxLux) {
+                    feedbackMessage += `<span style="color: orange;">Troppa luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
+                } else {
+                    feedbackMessage += `<span style="color: green;">Luce ideale!</span> (Richiede ${minLux}-${maxLux} Lux)`;
+                }
+                feedbackHtml += `<li>${feedbackMessage}</li>`;
+            });
+            feedbackHtml += '</ul>';
+        } else {
+            feedbackHtml += '</ul><p style="color: orange;">Nessuna pianta nel tuo giardino con dati Lux ideali impostati.</p>';
+        }
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = feedbackHtml;
+    } else {
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Aggiungi piante al tuo giardino e imposta i loro Lux ideali per un feedback personalizzato, o il sensore non ha rilevato valori.</p>';
+    }
+}
+
+
 // Avvia la lettura del sensore di luce
 async function startLightSensor() {
     showLoadingSpinner();
@@ -925,6 +966,17 @@ async function startLightSensor() {
     // Re-fetch dei dati per assicurarsi che siano aggiornati
     allPlants = await fetchPlantsFromFirestore();
     myGarden = await fetchMyGardenFromFirebase();
+
+    // Check for API support first
+    if (!('AmbientLightSensor' in window)) {
+        hideLoadingSpinner();
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Sensore di luce non supportato dal tuo browser o dispositivo. Utilizza l\'inserimento manuale.</p>';
+        showToast('Sensore di luce non supportato dal tuo browser o dispositivo.', 'error');
+        // Ensure manual controls are visible and auto controls are hidden
+        if (autoSensorControls) autoSensorControls.style.display = 'none';
+        if (manualLuxInputControls) manualLuxInputControls.style.display = 'block';
+        return; // Exit early if not supported
+    }
 
     const hasPermission = await requestLightSensorPermission();
     if (!hasPermission) {
@@ -936,77 +988,40 @@ async function startLightSensor() {
         return;
     }
 
-    if ('AmbientLightSensor' in window) {
-        if (ambientLightSensor) {
-            ambientLightSensor.stop();
-            ambientLightSensor = null;
-        }
+    // Proceed with sensor activation if supported and permission is handled
+    if (ambientLightSensor) {
+        ambientLightSensor.stop();
+        ambientLightSensor = null;
+    }
 
-        try {
-            ambientLightSensor = new AmbientLightSensor({ frequency: 1000 });
-            showToast("Avvio sensore di luce...", 'info');
+    try {
+        ambientLightSensor = new AmbientLightSensor({ frequency: 1000 });
+        showToast("Avvio sensore di luce...", 'info');
 
-            ambientLightSensor.onreading = () => {
-                const lux = ambientLightSensor.illuminance;
-                if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} `;
+        ambientLightSensor.onreading = () => {
+            const lux = ambientLightSensor.illuminance;
+            if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} `;
+            updateLightFeedback(lux); // Call shared feedback function
+        };
 
-                if (myGarden && myGarden.length > 0 && lux != null) {
-                    let feedbackHtml = '<h4>Feedback Luce per il tuo Giardino:</h4><ul>';
-                    // Filtra le piante del giardino per assicurarsi che abbiano dati validi per il feedback
-                    const plantsInGardenWithLuxData = myGarden.filter(plant =>
-                        typeof plant.idealLuxMin === 'number' && typeof plant.idealLuxMax === 'number' && !isNaN(plant.idealLuxMin) && !isNaN(plant.idealLuxMax)
-                    );
-
-                    if (plantsInGardenWithLuxData.length > 0) {
-                        plantsInGardenWithLuxData.forEach(plant => {
-                            const minLux = plant.idealLuxMin;
-                            const maxLux = plant.idealLuxMax;
-
-                            let feedbackMessage = `${plant.name}: `;
-                            if (lux < minLux) {
-                                feedbackMessage += `<span style="color: red;">Troppo poca luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
-                            } else if (lux > maxLux) {
-                                feedbackMessage += `<span style="color: orange;">Troppa luce!</span> (Richiede ${minLux}-${maxLux} Lux)`;
-                            } else {
-                                feedbackMessage += `<span style="color: green;">Luce ideale!</span> (Richiede ${minLux}-${maxLux} Lux)`;
-                            }
-                            feedbackHtml += `<li>${feedbackMessage}</li>`;
-                        });
-                        feedbackHtml += '</ul>';
-                    } else {
-                        feedbackHtml += '</ul><p style="color: orange;">Nessuna pianta nel tuo giardino con dati Lux ideali impostati.</p>';
-                    }
-                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = feedbackHtml;
-                } else {
-                    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Aggiungi piante al tuo giardino e imposta i loro Lux ideali per un feedback personalizzato, o il sensore non ha rilevato valori.</p>';
-                }
-            };
-
-            ambientLightSensor.onerror = (event) => {
-                console.error("Errore sensore di luce:", event.error.name, event.error.message);
-                if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi. </p>`;
-                showToast(`Errore sensore luce: ${event.error.message}`, 'error');
-                stopLightSensor();
-                hideLoadingSpinner();
-            };
-
-            ambientLightSensor.start();
-            if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
-            if (startLightSensorButton) startLightSensorButton.style.display = 'none';
+        ambientLightSensor.onerror = (event) => {
+            console.error("Errore sensore di luce:", event.error.name, event.error.message);
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi. </p>`;
+            showToast(`Errore sensore luce: ${event.error.message}`, 'error');
+            stopLightSensor(); // Stop sensor on error
             hideLoadingSpinner();
-            showToast('Misurazione luce avviata!', 'success');
+        };
 
-        } catch (error) {
-            console.error("Errore nell'avvio del sensore di luce nel try-catch:", error);
-            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi.</p>`;
-            showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
-            hideLoadingSpinner();
-            if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
-            if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
-        }
-    } else {
-        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: red;">Sensore di luce non supportato dal tuo browser o dispositivo.</p>';
-        showToast('Sensore di luce non supportato dal tuo browser o dispositivo.', 'error');
+        ambientLightSensor.start();
+        if (stopLightSensorButton) stopLightSensorButton.style.display = 'inline-block';
+        if (startLightSensorButton) startLightSensorButton.style.display = 'none';
+        hideLoadingSpinner();
+        showToast('Misurazione luce avviata!', 'success');
+
+    } catch (error) {
+        console.error("Errore nell'avvio del sensore di luce nel try-catch:", error);
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi.</p>`;
+        showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
         hideLoadingSpinner();
         if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
         if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
@@ -1024,14 +1039,38 @@ function stopLightSensor() {
         ambientLightSensor = null;
     }
 
+    // Always reset auto sensor buttons if they were active
     if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
     if (stopLightSensorButton) stopLightSensorButton.style.display = 'none';
 
-    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Attiva il sensore per la misurazione e per il feedback specifico sulle piante.</p>';
+    // Reset feedback and lux display
+    if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Attiva il sensore o inserisci un valore per il feedback specifico sulle piante.</p>';
     if (currentLuxValueSpan) currentLuxValueSpan.textContent = 'N/A lx';
+    if (currentLuxValueManualSpan) currentLuxValueManualSpan.textContent = 'N/A lx'; // Reset manual display as well
 
     showToast('Misurazione luce fermata.', 'info');
 }
+
+// Applica il valore Lux inserito manualmente
+async function applyManualLux() {
+    const manualLuxValue = parseFloat(manualLuxInput.value);
+
+    if (isNaN(manualLuxValue) || manualLuxValue < 0) {
+        showToast('Inserisci un valore Lux valido (un numero positivo).', 'error');
+        return;
+    }
+
+    showLoadingSpinner();
+    // Re-fetch dei dati per assicurarsi che siano aggiornati
+    allPlants = await fetchPlantsFromFirestore();
+    myGarden = await fetchMyGardenFromFirebase();
+    hideLoadingSpinner();
+
+    if (currentLuxValueManualSpan) currentLuxValueManualSpan.textContent = `${manualLuxValue.toFixed(2)} `;
+    updateLightFeedback(manualLuxValue);
+    showToast(`Valore Lux ${manualLuxValue.toFixed(2)} applicato.`, 'success');
+}
+
 
 // =======================================================
 // 6. FUNZIONI PER GEOLOCALIZZAZIONE E METEO (Open-Meteo)
@@ -1158,7 +1197,7 @@ async function getClimateFromCoordinates(latitude, longitude) {
                 weatherHtml += `<p><i class="fas fa-cloud-showers-heavy"></i> Precipitazioni:&nbsp;&nbsp;<strong>${precipitationSum.toFixed(1)} mm</strong></p>`;
             }
             if (weatherCode !== null) {
-                weatherHtml += `<p><i class="${getWeatherIcon(weatherCode)}"></i> ${getWeatherDescription(weatherCode)}</p>`;
+                weatherHtml += `<p><i class="${getWeatherIcon(weatherCode)}"></i> Condizione: ${getWeatherDescription(weatherCode)}</p>`;
             }
             weatherForecastDiv.innerHTML = weatherHtml;
         }
@@ -1505,7 +1544,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     passwordInput = document.getElementById('loginPassword');
     loginError = document.getElementById('login-error');
     registerEmailInput = document.getElementById('registerEmail');
-    registerPasswordInput = document.getElementById('registerPassword');
+    registerPasswordInput = document = document.getElementById('registerPassword');
     registerError = document.getElementById('register-error');
     authStatusSpan = document.getElementById('auth-status');
     logoutButton = document.getElementById('logoutButton');
@@ -1547,6 +1586,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const saveCroppedImageButton = document.getElementById('save-cropped-image');
     const cancelCroppingButton = document.getElementById('cancel-cropping');
 
+    // Nuove variabili DOM per controlli sensore/manuale
+    autoSensorControls = document.getElementById('autoSensorControls');
+    manualLuxInputControls = document.getElementById('manualLuxInputControls');
+    manualLuxInput = document.getElementById('manualLuxInput');
+    applyManualLuxButton = document.getElementById('applyManualLuxButton');
+    currentLuxValueManualSpan = document.getElementById('currentLuxValueManual');
+
+
     // Template dei form (li recuperiamo come nodi DOM da clonare)
     const newPlantFormTemplateDiv = document.getElementById('newPlantFormTemplate');
     const updatePlantFormTemplateDiv = document.getElementById('updatePlantFormTemplate');
@@ -1572,13 +1619,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     weatherForecastDiv = document.getElementById('weatherForecast');
     climateZoneFilter = document.getElementById('climateZoneFilter');
 
-    // Nascondi la sezione del sensore di luce se l'API non è supportata
+    // Gestisci la visibilità della sezione del sensore di luce all'avvio
     if (!('AmbientLightSensor' in window)) {
         if (lightSensorContainer) {
-            lightSensorContainer.style.display = 'none';
-            showToast("Il sensore di luce ambientale non è supportato dal tuo browser o dispositivo. La sezione è stata nascosta.", 'info', 5000);
+            // Se il sensore non è supportato, nascondi i controlli automatici e mostra quelli manuali
+            if (autoSensorControls) autoSensorControls.style.display = 'none';
+            if (manualLuxInputControls) manualLuxInputControls.style.display = 'block';
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: blue;">Sensore di luce non supportato dal tuo dispositivo. Inserisci i Lux manualmente.</p>';
+            showToast("Sensore di luce ambientale non supportato. Inserisci Lux manualmente.", 'info', 5000);
         }
+    } else {
+        // Se il sensore è supportato, mostra i controlli automatici e nascondi quelli manuali
+        if (autoSensorControls) autoSensorControls.style.display = 'block';
+        if (manualLuxInputControls) manualLuxInputControls.style.display = 'none';
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Attiva il sensore per la misurazione e per il feedback specifico sulle piante.</p>'; // Reset default message
+        // Add event listeners for the automatic sensor only if supported
+        if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
+        if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
     }
+
+    // Always add event listener for manual input button, as it's an alternative
+    if (applyManualLuxButton) applyManualLuxButton.addEventListener('click', applyManualLux);
 
 
     // Inizializza Firebase all'inizio
@@ -1729,10 +1790,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.target === cropModal) closeCropModal();
     });
 
-
-    // Event Listeners per il sensore di luce
-    if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
-    if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
 
     // Gestione bottone "Torna su"
     if (scrollToTopButton && appContentDiv) {
