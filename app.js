@@ -1394,7 +1394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     passwordInput = document.getElementById('loginPassword');
     loginError = document.getElementById('login-error');
     registerEmailInput = document.getElementById('registerEmail');
-    registerPasswordInput = document.getElementById('registerPassword');
+    registerPasswordInput = document = document.getElementById('registerPassword');
     registerError = document.getElementById('register-error');
     authStatusSpan = document.getElementById('auth-status');
     logoutButton = document.getElementById('logoutButton');
@@ -1427,7 +1427,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     emptyGardenMessage = document.getElementById('empty-garden-message')
 
     // Template dei form (li recuperiamo come nodi DOM da clonare)
-    // newPlantFormTemplate e updatePlantFormTemplate sono div, non <template>
     const newPlantFormTemplateDiv = document.getElementById('newPlantFormTemplate');
     const updatePlantFormTemplateDiv = document.getElementById('updatePlantFormTemplate');
 
@@ -1451,6 +1450,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     locationStatusDiv = document.getElementById('location-status');
     weatherForecastDiv = document.getElementById('weatherForecast');
     climateZoneFilter = document.getElementById('climateZoneFilter');
+
+    // Nascondi la sezione del sensore di luce se l'API non è supportata
+    if (!('AmbientLightSensor' in window)) {
+        if (lightSensorContainer) {
+            lightSensorContainer.style.display = 'none';
+            showToast("Il sensore di luce ambientale non è supportato dal tuo browser o dispositivo. La sezione è stata nascosta.", 'info', 5000);
+        }
+    }
 
 
     // Inizializza Firebase all'inizio
