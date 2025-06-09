@@ -175,9 +175,9 @@
             <label for="newPlantSunlight">Esposizione al Sole:</label>
             <select id="newPlantSunlight" required>
                 <option value="">Seleziona</option>
-                <option value="Pieno Sole">Pieno Sole (luce solare diretta ≥ 6h)</option>
-                <option value="Mezz'ombra">Mezz'ombra (luce solare diretta 2-5h)</option>
-                <option value="Ombra">Ombra (luce solare indiretta/limitata)</option>
+                <option value="Pieno Sole">Pieno Sole (≥ 6h diretta)</option>
+                <option value="Mezz'ombra">Mezz'ombra (2-5h diretta)</option>
+                <option value="Ombra">Ombra (indiretta/limitata)</option>
             </select>
 
             <div class="lux-input-group">
@@ -244,9 +244,9 @@
             <label for="updatePlantSunlight">Esposizione al Sole:</label>
             <select id="updatePlantSunlight" required>
                 <option value="">Seleziona</option>
-                <option value="Pieno Sole">Pieno Sole (luce solare diretta ≥ 6h)</option>
-                <option value="Mezz'ombra">Mezz'ombra (luce solare diretta 2-5h)</option>
-                <option value="Ombra">Ombra (luce solare indiretta/limitata)</option>
+                <option value="Pieno Sole">Pieno Sole (≥ 6h diretta)</option>
+                <option value="Mezz'ombra">Mezz'ombra (2-5h diretta)</option>
+                <option value="Ombra">Ombra (indiretta/limitata)</option>
             </select>
 
             <div class="lux-input-group">
@@ -306,6 +306,11 @@
         </form>
     </div>
 
+    <!-- Nuovo bottone "Torna su" -->
+    <button id="scrollToTopButton" class="scroll-to-top-button" style="display: none;">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
 
     <!-- Script Firebase e il tuo app.js -->
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -319,7 +324,7 @@
             apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
             authDomain: "giardinodigitale.firebaseapp.com",
             projectId: "giardinodigitale",
-            storageBucket: "giardinodigitale.appspot.com", 
+            storageBucket: "giardinodigitale.appspot.com",
             messagingSenderId: "305018691515",
             appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
         };
