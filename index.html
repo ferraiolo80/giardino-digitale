@@ -130,15 +130,25 @@
 
         <section id="lightSensorContainer" class="light-sensor-container">
             <h2>Sensore di Luce Ambientale</h2>
-            <div class="sensor-info-row">
-                <div class="sensor-controls">
-                    <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
-                    <button id="stopLightSensorButton" class="secondary-button" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
+            <div id="autoSensorControls" style="display: none;">
+                <div class="sensor-info-row">
+                    <div class="sensor-controls">
+                        <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
+                        <button id="stopLightSensorButton" class="secondary-button" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
+                    </div>
+                    <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
                 </div>
-                <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
+            </div>
+            <div id="manualLuxInputControls" style="display: none;">
+                <div class="sensor-info-row">
+                    <label for="manualLuxInput">Inserisci Lux manualmente:</label>
+                    <input type="number" id="manualLuxInput" placeholder="Lux es. 500" min="0" step="1">
+                    <button id="applyManualLuxButton" class="action-button"><i class="fas fa-check"></i> Applica Lux</button>
+                    <p>Valore Lux applicato: <span id="currentLuxValueManual">N/A</span> lx</p>
+                </div>
             </div>
             <div id="lightFeedback">
-                <p>Attiva il sensore per la misurazione e il feedback specifico sulle piante.</p>
+                <p>Attiva il sensore o inserisci un valore per il feedback specifico sulle piante.</p>
             </div>
         </section>
 
