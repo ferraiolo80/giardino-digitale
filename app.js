@@ -79,6 +79,12 @@ let manualLuxInput;
 let applyManualLuxButton;
 let currentLuxValueManualSpan;
 
+// Costante per l'immagine placeholder di default
+const DEFAULT_PLACEHOLDER_IMAGE = 'https://placehold.co/150x150/EEEEEE/333333?text=No+Image';
+
+// Flag per distinguere se stiamo modificando una pianta del giardino personale
+let isEditingMyGardenPlant = false;
+
 
 const CLIMATE_TEMP_RANGES = {
     'Mediterraneo': { min: 5, max: 35 },
@@ -366,7 +372,7 @@ function clearLoginRegisterErrors() {
 /**
  * Carica un'immagine su Firebase Storage.
  * @param {File} file - Il file immagine da caricare.
- * @param {string} folderPath - Il percorso della cartella in Storage (es. 'plant_images').
+ * @param {string} folderPath - Il percorso della cartella in Storage (es. 'plant_images' o 'user_plant_images').
  * @returns {Promise<string|null>} Una Promise che si risolve con l'URL di download o null.
  */
 async function uploadImage(file, folderPath) {
@@ -421,7 +427,7 @@ async function savePlantToFirestore(e) {
     showLoadingSpinner();
 
     // Get the actual form element from the event target (the button)
-    const form = e.target.closest('form'); // <--- CORREZIONE QUI
+    const form = e.target.closest('form');
     if (!form) {
         console.error('savePlantToFirestore: Form non trovato. Uscita.');
         hideLoadingSpinner();
@@ -429,155 +435,151 @@ async function savePlantToFirestore(e) {
         return;
     }
 
-    // Determina se è un nuovo form o un aggiornamento in base all'ID del form
-    const isUpdateForm = form.id === 'updatePlantFormContent';
-    console.log(`savePlantToFirestore: È un form di aggiornamento? ${isUpdateForm}. ID form: ${form.id}`);
-
     if (!validatePlantForm(form)) { // Pass the actual form element to validation
-        hideLoadingSpinner(); // Spinner hidden here if validation fails
+        hideLoadingSpinner();
         showToast('Compila correttamente tutti i campi obbligatori.', 'error');
         console.log('savePlantToFirestore: Validazione form fallita. Uscita.');
-        return; // Early exit
+        return;
     }
 
-    let plantData = {};
-    // currentCroppingFile sarà il file (originale o ritagliato) da caricare
-    let imageFile = currentCroppingFile;
-    let existingImageUrl = isUpdateForm ? (form.querySelector('#updatePlantImageURL').value || null) : null;
-    console.log('savePlantToFirestore: File immagine per ritaglio:', imageFile);
-    console.log('savePlantToFirestore: URL immagine esistente (se update):', existingImageUrl);
+    // Collect base plant data from the form
+    let plantData = {
+        name: form.querySelector('[id$="PlantName"]').value.trim(),
+        sunlight: form.querySelector('[id$="PlantSunlight"]').value,
+        idealLuxMin: form.querySelector('[id$="IdealLuxMin"]').value.trim() !== '' ? parseFloat(form.querySelector('[id$="IdealLuxMin"]').value.trim()) : null,
+        idealLuxMax: form.querySelector('[id$="IdealLuxMax"]').value.trim() !== '' ? parseFloat(form.querySelector('[id$="IdealLuxMax"]').value.trim()) : null,
+        watering: form.querySelector('[id$="PlantWatering"]').value,
+        tempMin: form.querySelector('[id$="TempMin"]').value.trim() !== '' ? parseFloat(form.querySelector('[id$="TempMin"]').value.trim()) : null,
+        tempMax: form.querySelector('[id$="TempMax"]').value.trim() !== '' ? parseFloat(form.querySelector('[id$="TempMax"]').value.trim()) : null,
+        potSize: form.querySelector('[id$="PotSize"]').value.trim() || null,
+        category: form.querySelector('[id$="PlantCategory"]').value,
+    };
 
-
-    if (isUpdateForm) {
-        // Form di aggiornamento
-        plantData = {
-            name: form.querySelector('#updatePlantName').value.trim(),
-            sunlight: form.querySelector('#updatePlantSunlight').value,
-            idealLuxMin: form.querySelector('#updatePlantIdealLuxMin').value.trim() !== '' ? parseFloat(form.querySelector('#updatePlantIdealLuxMin').value.trim()) : null,
-            idealLuxMax: form.querySelector('#updatePlantIdealLuxMax').value.trim() !== '' ? parseFloat(form.querySelector('#updatePlantIdealLuxMax').value.trim()) : null,
-            watering: form.querySelector('#updatePlantWatering').value,
-            tempMin: form.querySelector('#updatePlantTempMin').value.trim() !== '' ? parseFloat(form.querySelector('#updatePlantTempMin').value.trim()) : null,
-            tempMax: form.querySelector('#updatePlantTempMax').value.trim() !== '' ? parseFloat(form.querySelector('#updatePlantTempMax').value.trim()) : null,
-            // Campo "Dimensione Vaso"
-            potSize: form.querySelector('#updatePlantPotSize').value.trim() || null,
-            category: form.querySelector('#updatePlantCategory').value,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        };
-        // Se non c'è un nuovo file (currentCroppingFile è null) e l'URL esistente è stato esplicitamente rimosso
-        // (ad esempio, l'utente ha caricato un'immagine e poi l'ha "rimossa" non selezionando nulla di nuovo)
-        if (!imageFile && existingImageUrl === '') {
-            plantData.image = firebase.firestore.FieldValue.delete();
-            console.log('savePlantToFirestore: Immagine esistente marcata per eliminazione (utente l\'ha rimossa).');
-        }
-
-    } else {
-        // Form di nuova pianta
-        plantData = {
-            name: form.querySelector('#newPlantName').value.trim(),
-            sunlight: form.querySelector('#newPlantSunlight').value,
-            idealLuxMin: form.querySelector('#newPlantIdealLuxMin').value.trim() !== '' ? parseFloat(form.querySelector('#newPlantIdealLuxMin').value.trim()) : null,
-            idealLuxMax: form.querySelector('#newPlantIdealLuxMax').value.trim() !== '' ? parseFloat(form.querySelector('#newPlantIdealLuxMax').value.trim()) : null,
-            watering: form.querySelector('#newPlantWatering').value,
-            tempMin: form.querySelector('#newPlantTempMin').value.trim() !== '' ? parseFloat(form.querySelector('#newPlantTempMin').value.trim()) : null,
-            tempMax: form.querySelector('#newPlantTempMax').value.trim() !== '' ? parseFloat(form.querySelector('#newPlantTempMax').value.trim()) : null,
-            // Campo "Dimensione Vaso"
-            potSize: form.querySelector('#newPlantPotSize').value.trim() || null,
-            category: form.querySelector('#newPlantCategory').value,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            ownerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null,
-        };
-        if (!imageFile) {
-            plantData.image = null; // Forza a null se non c'è immagine per nuova pianta
-            console.log('savePlantToFirestore: Nessun file immagine per nuova pianta, impostato a null.');
-        }
-    }
-    console.log('savePlantToFirestore: Dati pianta preparati:', plantData);
-
+    let oldImageUrlToDelete = null; // To track image in storage that needs deletion
 
     try {
-        let finalImageUrl = existingImageUrl; // Inizializza con l'URL esistente per gli update
-
-        if (imageFile) {
-            console.log('savePlantToFirestore: Tentativo di caricare nuova immagine.');
-            finalImageUrl = await uploadImage(imageFile, 'plant_images'); // Await for image upload
-            console.log('savePlantToFirestore: Caricamento immagine completato. Nuovo URL:', finalImageUrl);
-
-            // Se stiamo aggiornando e c'era un'immagine esistente diversa, eliminiamo la vecchia immagine in storage
-            if (isUpdateForm && existingImageUrl && existingImageUrl !== finalImageUrl) {
-                console.log('savePlantToFirestore: Immagine esistente diversa rilevata. Eliminazione vecchia immagine.');
-                await deleteImage(existingImageUrl); // Await for image delete
-                console.log('savePlantToFirestore: Vecchia immagine eliminata.');
-            }
-            plantData.image = finalImageUrl; // Assegna l'URL finale se esiste
-        } else if (isUpdateForm && !plantData.hasOwnProperty('image')) {
-            // Se è un update, nessun nuovo file, e non è stata esplicitamente richiesta la rimozione,
-            // allora mantiene l'immagine esistente. Non tocchiamo plantData.image.
-            console.log('savePlantToFirestore: Nessuna nuova immagine, mantenimento immagine esistente.');
-        }
-
-        console.log('savePlantToFirestore: Dati pianta finali per Firestore:', plantData);
-
-        if (isUpdateForm) {
-            console.log('savePlantToFirestore: Aggiornamento pianta nel database. ID:', currentPlantIdToUpdate);
-            await db.collection('plants').doc(currentPlantIdToUpdate).update(plantData); // Await for update
-            console.log('savePlantToFirestore: Pianta aggiornata con successo nel database.');
-            showToast('Pianta aggiornata con successo!', 'success');
-
-            // Aggiorna la pianta anche nel giardino dell'utente (se presente)
+        if (isEditingMyGardenPlant) { // Stiamo modificando una pianta nel "Mio Giardino"
+            console.log('savePlantToFirestore: Modifica di una pianta nel Mio Giardino.');
             const user = firebase.auth().currentUser;
-            if (user) {
-                console.log('savePlantToFirestore: Utente loggato, aggiornamento giardino utente.');
-                const gardenRef = db.collection('gardens').doc(user.uid);
-                console.log('savePlantToFirestore: Recupero documento giardino.');
-                const doc = await gardenRef.get(); // Await get doc
-                console.log('savePlantToFirestore: Documento giardino recuperato. Esiste?', doc.exists);
-                if (doc.exists) {
-                    let currentGardenPlants = doc.data().plants || [];
-                    const index = currentGardenPlants.findIndex(p => p.id === currentPlantIdToUpdate);
-                    if (index !== -1) {
-                        const originalPlantInGarden = currentGardenPlants[index];
-                        currentGardenPlants[index] = {
-                            id: currentPlantIdToUpdate,
-                            ...plantData,
-                            createdAt: originalPlantInGarden.createdAt || null // PRESERVA il timestamp originale
-                        };
-                        // Rimuovi 'updatedAt' per Firestore FieldValue dal modello locale
-                        delete currentGardenPlants[index].updatedAt;
-                        console.log('savePlantToFirestore: Aggiornamento pianta nel giardino utente.');
-                        await gardenRef.set({ plants: currentGardenPlants }); // Await set doc
-                        console.log('savePlantToFirestore: Pianta aggiornata nel giardino utente.');
-                        myGarden = currentGardenPlants;
+            if (!user) { throw new Error("Utente non autenticato per salvare il giardino."); }
+
+            const gardenRef = db.collection('gardens').doc(user.uid);
+            const gardenDoc = await gardenRef.get();
+            let currentGardenPlants = gardenDoc.exists ? (gardenDoc.data().plants || []) : [];
+
+            const plantIndex = currentGardenPlants.findIndex(p => p.id === currentPlantIdToUpdate);
+
+            if (plantIndex !== -1) {
+                const existingGardenPlant = currentGardenPlants[plantIndex];
+                console.log('savePlantToFirestore: Pianta esistente nel giardino trovata:', existingGardenPlant.name);
+
+                // Gestione caricamento immagine utente-specifica
+                if (currentCroppingFile) { // Se un nuovo file è stato caricato/ritagliato
+                    if (existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) { // Se c'era una vecchia immagine user-specifica
+                        oldImageUrlToDelete = existingGardenPlant.userImage;
+                        console.log('savePlantToFirestore: Vecchia userImage marcata per eliminazione:', oldImageUrlToDelete);
                     }
+                    // Carica la nuova immagine user-specifica
+                    plantData.userImage = await uploadImage(currentCroppingFile, `user_plant_images/${user.uid}`);
+                    console.log('savePlantToFirestore: Nuova userImage caricata:', plantData.userImage);
+
+                } else if (form.querySelector('[id$="ImageURL"]') && form.querySelector('[id$="ImageURL"]').value === '' && existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                    // L'utente ha svuotato l'input file E la pianta aveva una userImage, significa che vuole rimuoverla
+                    oldImageUrlToDelete = existingGardenPlant.userImage;
+                    plantData.userImage = firebase.firestore.FieldValue.delete(); // Rimuovi esplicitamente il campo
+                    console.log('savePlantToFirestore: userImage rimossa esplicitamente. Vecchia userImage marcata per eliminazione:', oldImageUrlToDelete);
+                } else {
+                    // Nessun nuovo file e nessun campo cleared, mantieni la userImage esistente o lascia null se non c'era
+                    plantData.userImage = existingGardenPlant.userImage || null;
+                    console.log('savePlantToFirestore: Nessun nuovo file, userImage mantenuta:', plantData.userImage);
+                }
+
+                // Unisci i campi aggiornati dalla form nell'oggetto pianta esistente del giardino
+                currentGardenPlants[plantIndex] = {
+                    ...existingGardenPlant, // Mantieni tutti i campi originali (es. 'image' dalla pianta pubblica)
+                    ...plantData,         // Sovrascrivi con i nuovi dati della form, inclusa la nuova/vecchia/null userImage
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Aggiorna l'intero array di piante nel documento del giardino
+                await gardenRef.set({ plants: currentGardenPlants }, { merge: true });
+                myGarden = currentGardenPlants; // Aggiorna lo stato locale per refresh immediato della UI
+                showToast('Pianta nel tuo giardino aggiornata con successo!', 'success');
+                console.log('savePlantToFirestore: Pianta nel giardino aggiornata in Firestore.');
+
+            } else {
+                throw new Error("Pianta non trovata nel tuo giardino per l'aggiornamento.");
+            }
+
+        } else { // Stiamo aggiungendo una nuova pianta pubblica O aggiornando una pianta pubblica esistente
+            console.log('savePlantToFirestore: Aggiunta/Modifica di una pianta pubblica.');
+            // Gestione caricamento immagine per pianta pubblica (campo 'image')
+            if (currentCroppingFile) { // Se un nuovo file è stato caricato/ritagliato
+                plantData.image = await uploadImage(currentCroppingFile, 'plant_images'); // Carica nell'album immagini generiche
+                console.log('savePlantToFirestore: Immagine pubblica caricata:', plantData.image);
+            } else {
+                // Se nessun file caricato, per nuove piante l'immagine è null, per aggiornamenti mantiene la precedente
+                if (!currentPlantIdToUpdate) { // Nuova pianta pubblica
+                    plantData.image = null; // Sarà il placeholder
+                    console.log('savePlantToFirestore: Nuova pianta pubblica senza immagine.');
+                } else { // Aggiornamento di pianta pubblica senza nuovo file
+                    // Recupera l'immagine esistente dal documento per non eliminarla
+                    const existingPlantDoc = await db.collection('plants').doc(currentPlantIdToUpdate).get();
+                    plantData.image = existingPlantDoc.exists ? (existingPlantDoc.data().image || null) : null;
+                    console.log('savePlantToFirestore: Nessun nuovo file per pianta pubblica, mantenimento immagine esistente:', plantData.image);
                 }
             }
-        } else {
-            console.log('savePlantToFirestore: Aggiunta nuova pianta al database.');
-            const docRef = await db.collection('plants').add(plantData); // Await for add
-            console.log('savePlantToFirestore: Nuova pianta aggiunta con successo. ID:', docRef.id);
-            showToast('Pianta aggiunta con successo!', 'success');
+
+
+            if (currentPlantIdToUpdate) { // Aggiornamento di una pianta pubblica esistente
+                console.log('savePlantToFirestore: Aggiornamento pianta pubblica. ID:', currentPlantIdToUpdate);
+                const existingPlantDoc = await db.collection('plants').doc(currentPlantIdToUpdate).get();
+                if (existingPlantDoc.exists && existingPlantDoc.data().image && currentCroppingFile) {
+                    oldImageUrlToDelete = existingPlantDoc.data().image; // Marca la vecchia immagine pubblica per eliminazione
+                    console.log('savePlantToFirestore: Vecchia immagine pubblica marcata per eliminazione:', oldImageUrlToDelete);
+                }
+                await db.collection('plants').doc(currentPlantIdToUpdate).update({
+                    ...plantData, // Usa il plantData preparato, incluso il campo 'image'
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('Pianta pubblica aggiornata con successo!', 'success');
+                console.log('savePlantToFirestore: Pianta pubblica aggiornata in Firestore.');
+            } else { // Aggiunta di una nuova pianta pubblica
+                console.log('savePlantToFirestore: Aggiunta nuova pianta pubblica.');
+                plantData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                plantData.ownerId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
+                await db.collection('plants').add(plantData);
+                showToast('Nuova pianta pubblica aggiunta con successo!', 'success');
+                console.log('savePlantToFirestore: Nuova pianta pubblica aggiunta in Firestore.');
+            }
         }
 
-        console.log('savePlantToFirestore: Chiusura modale.');
-        closeCardModal(); // Modal closed here if try block succeeds
-        // Resetta le variabili di stato per il ritaglio dopo il salvataggio
-        currentCroppingFile = null;
+        // --- Pulizia comune dopo operazioni Firestore riuscite ---
+        closeCardModal(); // Chiude la modale
+        currentCroppingFile = null; // Resetta lo stato del ritaglio
         currentCroppingImagePreviewElement = null;
         currentCroppingHiddenUrlElement = null;
         isUpdateFormCropping = false;
         console.log('savePlantToFirestore: Variabili di ritaglio resettate.');
 
-        console.log('savePlantToFirestore: Ricaricamento piante da Firestore.');
-        await fetchPlantsFromFirestore(); // Await fetch
-        console.log('savePlantToFirestore: Ricaricamento giardino da Firebase.');
-        await fetchMyGardenFromFirebase(); // Await fetch
-        console.log('savePlantToFirestore: Aggiornamento visualizzazione piante.');
-        displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants); // Display update
-        console.log('savePlantToFirestore: Funzione completata con successo.');
+        // Ricarica e ridisplay di tutti i dati
+        await fetchPlantsFromFirestore();
+        await fetchMyGardenFromFirebase();
+        displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants);
+        console.log('savePlantToFirestore: Dati ricaricati e visualizzazione aggiornata.');
+
+        // Elimina la vecchia immagine da storage se marcata
+        if (oldImageUrlToDelete) {
+            console.log('savePlantToFirestore: Inizio eliminazione immagine obsoleta dallo storage.');
+            await deleteImage(oldImageUrlToDelete);
+            console.log('savePlantToFirestore: Immagine obsoleta eliminata.');
+        }
+
     } catch (error) {
         console.error("savePlantToFirestore: Errore durante il salvataggio della pianta: ", error);
-        showToast(`Errore durante il salvataggio: ${error.message}`, 'error'); // Toast on error
+        showToast(`Errore durante il salvataggio: ${error.message}`, 'error');
     } finally {
-        hideLoadingSpinner(); // Spinner hidden here regardless of success or error
+        hideLoadingSpinner();
         console.log('savePlantToFirestore: Blocco finally eseguito.');
     }
 }
@@ -599,10 +601,12 @@ async function deletePlantFromDatabase(plantId) {
         console.log('deletePlantFromDatabase: Dati pianta recuperati:', plantData);
 
         // 1. Elimina l'immagine associata da Storage
-        if (plantData.image) {
-            console.log('deletePlantFromDatabase: Tentativo di eliminare immagine associata.');
+        // Questo elimina SOLO l'immagine 'generica' della pianta pubblica.
+        // Le userImage nei giardini degli utenti non vengono toccate da qui.
+        if (plantData.image && plantData.image !== DEFAULT_PLACEHOLDER_IMAGE) {
+            console.log('deletePlantFromDatabase: Tentativo di eliminare immagine associata (pubblica).');
             await deleteImage(plantData.image);
-            console.log('deletePlantFromDatabase: Immagine associata eliminata.');
+            console.log('deletePlantFromDatabase: Immagine associata (pubblica) eliminata.');
         }
 
         // 2. Elimina la pianta dalla collezione 'plants'
@@ -616,14 +620,24 @@ async function deletePlantFromDatabase(plantId) {
         const gardensSnapshot = await db.collection('gardens').get();
         const batch = db.batch();
 
-        gardensSnapshot.docs.forEach(doc => {
+        for (const doc of gardensSnapshot.docs) {
             let currentGardenPlants = doc.data().plants || [];
+            const plantInGarden = currentGardenPlants.find(plant => plant.id === plantId);
+
             const updatedGardenPlants = currentGardenPlants.filter(plant => plant.id !== plantId);
             if (updatedGardenPlants.length !== currentGardenPlants.length) {
                 batch.update(doc.ref, { plants: updatedGardenPlants });
                 console.log(`deletePlantFromDatabase: Marcato giardino di ${doc.id} per aggiornamento.`);
+
+                // Se la pianta aveva una userImage, elimina anche quella
+                if (plantInGarden && plantInGarden.userImage && plantInGarden.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                    console.log(`deletePlantFromDatabase: Eliminazione userImage da giardino di ${doc.id}: ${plantInGarden.userImage}`);
+                    // NON usare await qui, lascia che il batch si occupi di Firestore e poi l'eliminazione storage può essere asincrona separata
+                    // o gestita esternamente se ci sono più eliminazioni. Per singola eliminazione, va bene qui.
+                    await deleteImage(plantInGarden.userImage);
+                }
             }
-        });
+        }
         await batch.commit();
         console.log('deletePlantFromDatabase: Aggiornamento batch dei giardini completato.');
 
@@ -680,18 +694,19 @@ async function addToMyGarden(plantId) {
                 id: plantToAdd.id,
                 name: plantToAdd.name,
                 category: plantToAdd.category,
-                image: plantToAdd.image || null,
+                image: plantToAdd.image || null, // Keep the generic image from public collection
+                userImage: null, // NEW: Initialize user-specific image to null
                 sunlight: plantToAdd.sunlight,
                 watering: plantToAdd.watering,
                 idealLuxMin: plantToAdd.idealLuxMin,
                 idealLuxMax: plantToAdd.idealLuxMax,
                 tempMin: plantToAdd.tempMin,
                 tempMax: plantToAdd.tempMax,
-                potSize: plantToAdd.potSize || null, // Aggiunto potSize
-                createdAt: plantToAdd.createdAt || firebase.firestore.FieldValue.serverTimestamp()
+                potSize: plantToAdd.potSize || null,
+                createdAt: plantToAdd.createdAt || firebase.firestore.FieldValue.serverTimestamp() // Keep original timestamp
             });
             console.log('addToMyGarden: Aggiornamento documento giardino con nuova pianta.');
-            await gardenRef.set({ plants: currentGardenPlants });
+            await gardenRef.set({ plants: currentGardenPlants }); // Set the whole array
             myGarden = currentGardenPlants;
             showToast('Pianta aggiunta al tuo giardino!', 'success');
             displayPlants(isMyGardenCurrentlyVisible ? myGarden : allPlants); // Aggiorna la visualizzazione
@@ -723,7 +738,7 @@ async function removeFromMyGarden(plantId) {
     }
 
     // Modal di conferma personalizzata anziché alert()
-    if (!confirm('Sei sicuro di voler rimuovere questa pianta dal tuo giardino?')) {
+    if (!confirm('Sei sicuro di voler rimuovere questa pianta dal tuo giardino? Questa azione non elimina la pianta dal database pubblico.')) {
         hideLoadingSpinner();
         console.log('removeFromMyGarden: Rimozione annullata dall\'utente.');
         return;
@@ -736,9 +751,17 @@ async function removeFromMyGarden(plantId) {
         if (doc.exists) {
             let currentGardenPlants = doc.data().plants || [];
             console.log('removeFromMyGarden: Piante attuali nel giardino:', currentGardenPlants.length);
+            const plantToRemove = currentGardenPlants.find(plant => plant.id === plantId);
+
             const updatedGardenPlants = currentGardenPlants.filter(plant => plant.id !== plantId);
 
             if (updatedGardenPlants.length !== currentGardenPlants.length) {
+                // Se la pianta aveva una userImage, eliminala dallo storage quando viene rimossa dal giardino
+                if (plantToRemove && plantToRemove.userImage && plantToRemove.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                    console.log(`removeFromMyGarden: Eliminazione userImage associata: ${plantToRemove.userImage}`);
+                    await deleteImage(plantToRemove.userImage);
+                }
+
                 console.log('removeFromMyGarden: Aggiornamento documento giardino con pianta rimossa.');
                 await gardenRef.set({ plants: updatedGardenPlants });
                 myGarden = updatedGardenPlants;
@@ -933,10 +956,20 @@ function displayPlants(plantsToShow) {
             const updateButtonHtml = user ? `<button class="action-button update-plant-button" data-plant-id="${plant.id}"><i class="fas fa-edit"></i> Aggiorna</button>` : '';
             const deleteButtonHtml = user ? `<button class="action-button delete-plant-from-db-button" data-plant-id="${plant.id}"><i class="fas fa-trash"></i> Elimina</button>` : '';
 
+            // Determina quale immagine visualizzare
+            let imageUrlToDisplay = DEFAULT_PLACEHOLDER_IMAGE; // Fallback generico
+            if (isMyGardenCurrentlyVisible) {
+                // Se nella vista "Mio Giardino", prioritizza userImage, poi plant.image (dalla pubblica), poi placeholder
+                imageUrlToDisplay = plant.userImage || plant.image || DEFAULT_PLACEHOLDER_IMAGE;
+            } else {
+                // Se nella vista "Tutte le Piante", usa plant.image (dalla pubblica), poi placeholder
+                imageUrlToDisplay = plant.image || DEFAULT_PLACEHOLDER_IMAGE;
+            }
+
 
             html += `
                 <div class="plant-card" data-plant-id="${plant.id}">
-                    <img src="${plant.image || 'https://placehold.co/150x150/EEEEEE/333333?text=No+Image'}" alt="${plant.name}" class="plant-image">
+                    <img src="${imageUrlToDisplay}" alt="${plant.name}" class="plant-image">
                     <h3>${plant.name}</h3>
                     <p><strong>Esposizione al Sole:</strong> ${plant.sunlight || 'N/A'}</p>
                     <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
@@ -1058,7 +1091,6 @@ async function startLightSensor() {
     console.log('startLightSensor: Re-fetch piante e giardino.');
     allPlants = await fetchPlantsFromFirestore();
     myGarden = await fetchMyGardenFromFirebase();
-    console.log('startLightSensor: Re-fetch completato.');
 
     // Check for API support first
     if (!('AmbientLightSensor' in window)) {
@@ -1424,23 +1456,29 @@ function openImageModal(imageUrl) {
     }
 }
 
-// Apre la modal della card completa o del form
-function openCardModal(templateElement, plantData = null) {
-    if (!cardModal || !zoomedCardContent || !templateElement) {
+/**
+ * Apre la modal per visualizzare i dettagli della pianta o per i form di aggiunta/aggiornamento.
+ * @param {HTMLElement} formTemplateElement Il template HTML del form (newPlantFormTemplate o updatePlantFormTemplate).
+ * @param {Object} [plantData=null] I dati della pianta se si sta aggiornando una pianta esistente.
+ * @param {boolean} [isFromMyGarden=false] Indica se l'azione proviene dalla sezione "Mio Giardino".
+ */
+async function openCardModal(formTemplateElement, plantData = null, isFromMyGarden = false) {
+    if (!cardModal || !zoomedCardContent || !formTemplateElement) {
         console.error("openCardModal: Elementi DOM per la modale della card non trovati o contenuto non valido.");
         return;
     }
     console.log('openCardModal: Avvio funzione.');
 
     zoomedCardContent.innerHTML = ''; // Pulisce qualsiasi contenuto precedente
-    // Clona il nodo del template direttamente (senza .content)
-    const clonedForm = templateElement.cloneNode(true);
-    clonedForm.style.display = 'block'; // Assicurati che il contenuto clonato sia visibile
+    const clonedForm = formTemplateElement.cloneNode(true); // Clona il template del form
+    clonedForm.style.display = 'block';
 
-    zoomedCardContent.appendChild(clonedForm); // Aggiungi il div/form clonato alla modale
+    zoomedCardContent.appendChild(clonedForm); // Aggiungi il form clonato alla modale
     cardModal.style.display = 'flex'; // Mostra la modale
-    console.log('openCardModal: Modale card aperta. Tipo form:', clonedForm.id);
 
+    // Imposta il flag globale basato sulla provenienza
+    isEditingMyGardenPlant = isFromMyGarden;
+    console.log('openCardModal: Modale card aperta. Tipo form:', clonedForm.id, 'isEditingMyGardenPlant:', isEditingMyGardenPlant);
 
     // Resetta le variabili di stato per il ritaglio ogni volta che apriamo la modale
     currentCroppingFile = null;
@@ -1448,84 +1486,87 @@ function openCardModal(templateElement, plantData = null) {
     currentCroppingHiddenUrlElement = null;
     isUpdateFormCropping = false;
 
-    // Se è un form di aggiornamento, popola i campi
-    if (plantData && clonedForm.id === 'updatePlantFormContent') {
+    // Elementi comuni per la gestione dell'immagine
+    const imageUploadInput = clonedForm.querySelector('[id$="ImageUpload"]');
+    const imagePreviewElement = clonedForm.querySelector('[id$="ImagePreview"]');
+    const imageURLHiddenInput = clonedForm.querySelector('[id$="ImageURL"]');
+
+
+    if (plantData) { // Scenario di aggiornamento
         currentPlantIdToUpdate = plantData.id;
         console.log('openCardModal: Popolamento form di aggiornamento per pianta ID:', currentPlantIdToUpdate);
-        clonedForm.querySelector('#updatePlantName').value = plantData.name || '';
-        clonedForm.querySelector('#updatePlantSunlight').value = plantData.sunlight || '';
-        clonedForm.querySelector('#updatePlantIdealLuxMin').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
-        clonedForm.querySelector('#updatePlantIdealLuxMax').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
-        clonedForm.querySelector('#updatePlantWatering').value = plantData.watering || '';
-        clonedForm.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
-        clonedForm.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
-        clonedForm.querySelector('#updatePlantPotSize').value = plantData.potSize || ''; // Popola il campo dimensione vaso
-        clonedForm.querySelector('#updatePlantCategory').value = plantData.category || '';
 
-        const updateImagePreview = clonedForm.querySelector('#updatePlantImagePreview');
-        const updateImageURLHidden = clonedForm.querySelector('#updatePlantImageURL');
+        // Popola i campi testuali e select
+        clonedForm.querySelector('[id$="PlantName"]').value = plantData.name || '';
+        clonedForm.querySelector('[id$="PlantSunlight"]').value = plantData.sunlight || '';
+        clonedForm.querySelector('[id$="IdealLuxMin"]').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
+        clonedForm.querySelector('[id$="IdealLuxMax"]').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
+        clonedForm.querySelector('[id$="PlantWatering"]').value = plantData.watering || '';
+        clonedForm.querySelector('[id$="TempMin"]').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
+        clonedForm.querySelector('[id$="TempMax"]').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
+        clonedForm.querySelector('[id$="PotSize"]').value = plantData.potSize || '';
+        clonedForm.querySelector('[id$="PlantCategory"]').value = plantData.category || '';
 
-        if (plantData.image) {
-            updateImagePreview.src = plantData.image;
-            updateImagePreview.style.display = 'block';
-            updateImageURLHidden.value = plantData.image; // Salva l'URL esistente
-            console.log('openCardModal: Immagine esistente popolata nel form di update.');
+        // Gestione dell'immagine per la preview e il campo nascosto
+        let displayImage = DEFAULT_PLACEHOLDER_IMAGE;
+        if (isFromMyGarden && plantData.userImage) { // Se editing from My Garden AND plant has a userImage
+            displayImage = plantData.userImage;
+            if (imageURLHiddenInput) imageURLHiddenInput.value = plantData.userImage; // Salva la userImage esistente
+            console.log('openCardModal: Visualizzazione userImage esistente in update form.');
+        } else if (plantData.image) { // Altrimenti, usa l'immagine generica (dalla pubblica)
+            displayImage = plantData.image;
+            if (imageURLHiddenInput) imageURLHiddenInput.value = plantData.image; // Salva l'immagine generica esistente
+            console.log('openCardModal: Visualizzazione immagine generica esistente in update form.');
         } else {
-            updateImagePreview.src = '';
-            updateImagePreview.style.display = 'none';
-            updateImageURLHidden.value = '';
-            console.log('openCardModal: Nessuna immagine esistente per update.');
+            if (imageURLHiddenInput) imageURLHiddenInput.value = ''; // Nessuna immagine
+            console.log('openCardModal: Nessuna immagine esistente in update form, usando placeholder.');
         }
+        imagePreviewElement.src = displayImage;
+        imagePreviewElement.style.display = 'block';
+
 
         // Listener per l'input file del form di aggiornamento
-        const updatePlantImageUpload = clonedForm.querySelector('#updatePlantImageUpload');
-        if (updatePlantImageUpload) {
-            updatePlantImageUpload.onchange = (event) => {
+        if (imageUploadInput) {
+            imageUploadInput.onchange = (event) => {
                 console.log('openCardModal: File input change detected for update form.');
                 const file = event.target.files[0];
                 if (file) {
                     currentCroppingFile = file;
-                    currentCroppingImagePreviewElement = updateImagePreview;
-                    currentCroppingHiddenUrlElement = updateImageURLHidden;
+                    currentCroppingImagePreviewElement = imagePreviewElement;
+                    currentCroppingHiddenUrlElement = imageURLHiddenInput;
                     isUpdateFormCropping = true;
                     openCropModal(file);
                 } else {
-                    // Se l'utente annulla la selezione del file, rimuovi l'anteprima e segna per eliminazione immagine esistente
-                    updateImagePreview.src = '';
-                    updateImagePreview.style.display = 'none';
-                    updateImageURLHidden.value = ''; // Segna per eliminazione dell'immagine esistente
-                    currentCroppingFile = null; // Nessun file da caricare
+                    // Se l'utente annulla la selezione del file, rimuovi l'anteprima e segna per potenziale eliminazione immagine
+                    imagePreviewElement.src = DEFAULT_PLACEHOLDER_IMAGE;
+                    if (imageURLHiddenInput) imageURLHiddenInput.value = ''; // Segna per rimozione dell'immagine esistente
+                    currentCroppingFile = null;
                     console.log('openCardModal: File input annullato per update form.');
                 }
             };
         }
-    } else if (clonedForm.id === 'newPlantFormContent') {
-        // Form di nuova pianta, resetta i campi
-        clonedForm.reset(); // Assumendo che sia un form
+    } else { // Scenario di aggiunta nuova pianta (sempre pubblica inizialmente)
+        clonedForm.reset();
         clearFormValidationErrors(clonedForm);
-        currentPlantIdToUpdate = null; // Nessuna pianta associata per l'aggiornamento
-        console.log('openCardModal: Reset form nuova pianta.');
+        currentPlantIdToUpdate = null;
+        isEditingMyGardenPlant = false; // Assicurati che sia false per nuove piante pubbliche
 
-        const newImagePreview = clonedForm.querySelector('#newPlantImagePreview');
-        if (newImagePreview) {
-            newImagePreview.src = '';
-            newImagePreview.style.display = 'none';
+        if (imagePreviewElement) {
+            imagePreviewElement.src = DEFAULT_PLACEHOLDER_IMAGE;
+            imagePreviewElement.style.display = 'block'; // Mostra sempre il placeholder per nuove piante
         }
-        // Listener per l'input file del form di nuova pianta
-        const newPlantImageUpload = clonedForm.querySelector('#newPlantImageUpload');
-        if (newPlantImageUpload) {
-            newPlantImageUpload.value = ''; // Resetta il campo file input
-            newPlantImageUpload.onchange = (event) => {
+        if (imageUploadInput) {
+            imageUploadInput.value = ''; // Resetta il campo file input
+            imageUploadInput.onchange = (event) => {
                 console.log('openCardModal: File input change detected for new plant form.');
                 const file = event.target.files[0];
                 if (file) {
                     currentCroppingFile = file;
-                    currentCroppingImagePreviewElement = newImagePreview;
+                    currentCroppingImagePreviewElement = imagePreviewElement;
                     isUpdateFormCropping = false;
                     openCropModal(file);
                 } else {
-                    newImagePreview.src = '';
-                    newImagePreview.style.display = 'none';
+                    imagePreviewElement.src = DEFAULT_PLACEHOLDER_IMAGE;
                     currentCroppingFile = null;
                     console.log('openCardModal: File input annullato per new plant form.');
                 }
@@ -1538,7 +1579,6 @@ function openCardModal(templateElement, plantData = null) {
     const cancelButton = clonedForm.querySelector('#cancelNewPlantButton') || clonedForm.querySelector('#cancelUpdatePlantButton');
     const deleteDbButton = clonedForm.querySelector('#deletePlant'); // Solo nel form di update
 
-    // Usa addEventListener e la delegazione per i bottoni (per evitare problemi con cloni)
     if (saveButton) saveButton.addEventListener('click', savePlantToFirestore);
     if (cancelButton) cancelButton.addEventListener('click', closeCardModal);
     if (deleteDbButton) {
@@ -1830,8 +1870,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Listeners per i bottoni di navigazione principale
     if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
-    // Ora passiamo direttamente la FORM del template, non il DIV contenitore
-    if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => openCardModal(newPlantFormTemplate));
+    // Ora passiamo direttamente la FORM del template, non il DIV contenitore, e il flag isFromMyGarden
+    if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => openCardModal(newPlantFormTemplate, null, false));
     if (googleLensButton) {
         googleLensButton.addEventListener('click', () => {
             window.open('https://images.google.com/imghp?hl=it&gws_rd=ssl', '_blank');
@@ -1864,7 +1904,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (event.target.classList.contains('add-to-garden-button')) {
                 await addToMyGarden(plantId);
             } else if (event.target.classList.contains('update-plant-button')) {
-                openCardModal(updatePlantFormTemplate, plant); // Passa la form template e i dati della pianta
+                openCardModal(updatePlantFormTemplate, plant, false); // Viene dalla vista "Tutte le Piante" (publica)
             } else if (event.target.classList.contains('delete-plant-from-db-button')) {
                 if (confirm('Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.')) {
                     await deletePlantFromDatabase(plantId);
@@ -1873,7 +1913,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Se cliccato sulla card ma non su un bottone o immagine, mostra i dettagli nella modale
                 let detailsHtml = `
                     <div class="plant-details-header">
-                        <img src="${plant.image || 'https://placehold.co/150x150/EEEEEE/333333?text=No+Image'}" alt="${plant.name}" class="plant-details-image">
+                        <img src="${plant.image || DEFAULT_PLACEHOLDER_IMAGE}" alt="${plant.name}" class="plant-details-image">
                         <h2>${plant.name}</h2>
                     </div>
                     <div class="plant-details-body">
@@ -1909,7 +1949,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (event.target.classList.contains('remove-button')) {
                 await removeFromMyGarden(plantId);
             } else if (event.target.classList.contains('update-plant-button')) {
-                openCardModal(updatePlantFormTemplate, plant); // Passa la form template e i dati della pianta
+                openCardModal(updatePlantFormTemplate, plant, true); // Viene dalla vista "Mio Giardino"
             } else if (event.target.classList.contains('delete-plant-from-db-button')) {
                 if (confirm('Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.')) {
                     await deletePlantFromDatabase(plantId);
@@ -1918,7 +1958,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Mostra dettagli
                 let detailsHtml = `
                     <div class="plant-details-header">
-                        <img src="${plant.image || 'https://placehold.co/150x150/EEEEEE/333333?text=No+Image'}" alt="${plant.name}" class="plant-details-image">
+                        <img src="${plant.userImage || plant.image || DEFAULT_PLACEHOLDER_IMAGE}" alt="${plant.name}" class="plant-details-image">
                         <h2>${plant.name}</h2>
                     </div>
                     <div class="plant-details-body">
