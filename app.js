@@ -435,7 +435,8 @@ async function savePlantToFirestore(e) {
             watering: form.querySelector('#updatePlantWatering').value,
             tempMin: form.querySelector('#updatePlantTempMin').value.trim() !== '' ? parseFloat(form.querySelector('#updatePlantTempMin').value.trim()) : null,
             tempMax: form.querySelector('#updatePlantTempMax').value.trim() !== '' ? parseFloat(form.querySelector('#updatePlantTempMax').value.trim()) : null,
-            description: form.querySelector('#updatePlantDescription').value.trim() || null,
+            // Campo "Dimensione Vaso"
+            potSize: form.querySelector('#updatePlantPotSize').value.trim() || null,
             category: form.querySelector('#updatePlantCategory').value,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         };
@@ -455,7 +456,8 @@ async function savePlantToFirestore(e) {
             watering: form.querySelector('#newPlantWatering').value,
             tempMin: form.querySelector('#newPlantTempMin').value.trim() !== '' ? parseFloat(form.querySelector('#newPlantTempMin').value.trim()) : null,
             tempMax: form.querySelector('#newPlantTempMax').value.trim() !== '' ? parseFloat(form.querySelector('#newPlantTempMax').value.trim()) : null,
-            description: form.querySelector('#newPlantDescription').value.trim() || null,
+            // Campo "Dimensione Vaso"
+            potSize: form.querySelector('#newPlantPotSize').value.trim() || null,
             category: form.querySelector('#newPlantCategory').value,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             ownerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null,
@@ -616,7 +618,7 @@ async function addToMyGarden(plantId) {
                 idealLuxMax: plantToAdd.idealLuxMax,
                 tempMin: plantToAdd.tempMin,
                 tempMax: plantToAdd.tempMax,
-                description: plantToAdd.description,
+                potSize: plantToAdd.potSize || null, // Aggiunto potSize
                 // Conserva il timestamp originale della creazione della pianta se necessario
                 createdAt: plantToAdd.createdAt || firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -738,7 +740,7 @@ function applyFiltersAndSort(plantsToFilter) {
     if (searchTerm) {
         filteredPlants = filteredPlants.filter(plant =>
             (plant.name && plant.name.toLowerCase().includes(searchTerm)) ||
-            (plant.description && plant.description.toLowerCase().includes(searchTerm)) ||
+            (plant.potSize && plant.potSize.toLowerCase().includes(searchTerm)) || // Cerca anche nella dimensione vaso
             (plant.category && plant.category.toLowerCase().includes(searchTerm))
         );
     }
@@ -1020,7 +1022,7 @@ async function startLightSensor() {
 
     } catch (error) {
         console.error("Errore nell'avvio del sensore di luce nel try-catch:", error);
-        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi.</p>`;
+        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore nell'avvio del sensore: ${error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi.</p`;
         showToast(`Errore nell'avvio del sensore: ${error.message}`, 'error');
         hideLoadingSpinner();
         if (startLightSensorButton) startLightSensorButton.style.display = 'inline-block';
@@ -1337,7 +1339,7 @@ function openCardModal(templateElement, plantData = null) {
         clonedForm.querySelector('#updatePlantWatering').value = plantData.watering || '';
         clonedForm.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
         clonedForm.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
-        clonedForm.querySelector('#updatePlantDescription').value = plantData.description || '';
+        clonedForm.querySelector('#updatePlantPotSize').value = plantData.potSize || ''; // Popola il campo dimensione vaso
         clonedForm.querySelector('#updatePlantCategory').value = plantData.category || '';
 
         const updateImagePreview = clonedForm.querySelector('#updatePlantImagePreview');
@@ -1712,12 +1714,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h2>${plant.name}</h2>
                     </div>
                     <div class="plant-details-body">
-                        <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
                         <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
                         <p><strong>Esposizione al Sole:</strong> ${plant.sunlight || 'N/A'}</p>
                         <p><strong>Lux Ideali:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax}` : 'N/A'}</p>
                         <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
                         <p><strong>Temperatura Ideale:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
+                        <p><strong>Dimensione Vaso:</strong> ${plant.potSize || 'N/A'}</p>
                         <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
                     </div>
                 `;
@@ -1757,12 +1759,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h2>${plant.name}</h2>
                     </div>
                     <div class="plant-details-body">
-                        <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
                         <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
                         <p><strong>Esposizione al Sole:</strong> ${plant.sunlight || 'N/A'}</p>
                         <p><strong>Lux Ideali:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax}` : 'N/A'}</p>
                         <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
                         <p><strong>Temperatura Ideale:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
+                        <p><strong>Dimensione Vaso:</strong> ${plant.potSize || 'N/A'}</p>
                         <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
                     </div>
                 `;
