@@ -197,9 +197,21 @@
         </div>
     </div>
 
+    <!-- NUOVA MODAL PER LA CONFERMA PERSONALIZZATA -->
+    <div id="confirmation-modal" class="modal" style="display: none;">
+        <div class="modal-content confirmation-modal-content">
+            <h2 id="confirmation-title">Conferma Azione</h2>
+            <p id="confirmation-message">Sei sicuro di voler procedere?</p>
+            <div class="modal-buttons">
+                <button id="confirm-yes" class="action-button primary-button">Sì</button>
+                <button id="confirm-no" class="secondary-button">No</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Contenuti dei form (template nascosti per essere clonati nelle modali) -->
     <div id="newPlantFormTemplate" style="display: none;">
-        <h3 class="form-title">Aggiungi Nuova Pianta</h3>
+        <h3 class="form-title">Aggiungi Nuova Pianta Pubblica</h3>
         <form id="newPlantFormContent">
             <label for="newPlantName">Nome:</label>
             <input type="text" id="newPlantName" required>
@@ -222,9 +234,9 @@
             <label for="newPlantWatering">Annaffiatura:</label>
             <select id="newPlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa (dal basso)</option>
-                <option value="Media">Media (umido)</option>
-                <option value="Alta">Alta (sul substrato)</option>
+                <option value="Bassa">Bassa</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
             </select>
 
             <div class="temp-input-group">
@@ -291,9 +303,9 @@
             <label for="updatePlantWatering">Annaffiatura:</label>
             <select id="updatePlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa (dal basso)</option>
-                <option value="Media">Media (umido)</option>
-                <option value="Alta">Alta (sul substrato)</option>
+                <option value="Bassa">Bassa</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
             </select>
 
             <div class="temp-input-group">
@@ -324,6 +336,18 @@
                 <option value="Pianta">Pianta</option>
                 <option value="Altro">Altro</option>
             </select>
+
+            <!-- NUOVI CAMPI PER PROMEMORIA ANNAFFIATURA -->
+            <div id="wateringReminderFields" style="display: none;">
+                <h4>Promemoria Annaffiatura</h4>
+                <label for="updatePlantWateringIntervalDays">Intervallo Annaffiatura (giorni):</label>
+                <input type="number" id="updatePlantWateringIntervalDays" min="1" placeholder="Es. 7 (ogni 7 giorni)">
+                
+                <label>Ultima Annaffiatura:</label>
+                <p id="lastWateredDisplay">N/A</p>
+                <button type="button" id="wateredTodayButton" class="action-button">Annaffiato Oggi!</button>
+            </div>
+            <!-- FINE NUOVI CAMPI -->
 
             <label for="updatePlantImageUpload">Carica Nuova Immagine (Opzionale):</label>
             <input type="file" id="updatePlantImageUpload" accept="image/*" capture="camera">
