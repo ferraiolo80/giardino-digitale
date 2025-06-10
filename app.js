@@ -147,64 +147,65 @@ function validatePlantForm(formElement) {
     clearFormValidationErrors(formElement); // Pulisce errori precedenti
 
     const nameInput = formElement.querySelector('[id$="PlantName"]');
-    if (!nameInput.value.trim()) {
-        showFormValidationError(nameInput.id, 'Il nome è obbligatorio.');
+    if (!nameInput || !nameInput.value.trim()) { // Aggiunto controllo !nameInput
+        showFormValidationError(nameInput ? nameInput.id : null, 'Il nome è obbligatorio.');
         isValid = false;
     }
 
     const sunlightInput = formElement.querySelector('[id$="PlantSunlight"]');
-    if (!sunlightInput.value) {
-        showFormValidationError(sunlightInput.id, 'L\'esposizione al sole è obbligatoria.');
+    if (!sunlightInput || !sunlightInput.value) { // Aggiunto controllo !sunlightInput
+        showFormValidationError(sunlightInput ? sunlightInput.id : null, 'L\'esposizione al sole è obbligatoria.');
         isValid = false;
     }
 
     const wateringInput = formElement.querySelector('[id$="PlantWatering"]');
-    if (!wateringInput.value) {
-        showFormValidationError(wateringInput.id, 'La frequenza di innaffiatura è obbligatoria.');
+    if (!wateringInput || !wateringInput.value) { // Aggiunto controllo !wateringInput
+        showFormValidationError(wateringInput ? wateringInput.id : null, 'La frequenza di innaffiatura è obbligatoria.');
         isValid = false;
     }
 
     const categoryInput = formElement.querySelector('[id$="PlantCategory"]');
-    if (!categoryInput.value) {
-        showFormValidationError(categoryInput.id, 'La categoria è obbligatoria.');
+    if (!categoryInput || !categoryInput.value) { // Aggiunto controllo !categoryInput
+        showFormValidationError(categoryInput ? categoryInput.id : null, 'La categoria è obbligatoria.');
         isValid = false;
     }
 
     // Validazione lux min/max
     const luxMinInput = formElement.querySelector('[id$="IdealLuxMin"]');
     const luxMaxInput = formElement.querySelector('[id$="IdealLuxMax"]');
-    const luxMin = luxMinInput.value ? parseFloat(luxMinInput.value) : null;
-    const luxMax = luxMaxInput.value ? parseFloat(luxMaxInput.value) : null;
+    const luxMin = luxMinInput && luxMinInput.value ? parseFloat(luxMinInput.value) : null; // Aggiunto controllo !luxMinInput
+    const luxMax = luxMaxInput && luxMaxInput.value ? parseFloat(luxMaxInput.value) : null; // Aggiunto controllo !luxMaxInput
 
-    if (luxMinInput.value !== '' && (isNaN(luxMin) || luxMin < 0)) {
+
+    if (luxMinInput && luxMinInput.value !== '' && (isNaN(luxMin) || luxMin < 0)) { // Aggiunto controllo luxMinInput
         showFormValidationError(luxMinInput.id, 'Lux Min deve essere un numero positivo.');
         isValid = false;
     }
-    if (luxMaxInput.value !== '' && (isNaN(luxMax) || luxMax < 0)) {
+    if (luxMaxInput && luxMaxInput.value !== '' && (isNaN(luxMax) || luxMax < 0)) { // Aggiunto controllo luxMaxInput
         showFormValidationError(luxMaxInput.id, 'Lux Max deve essere un numero positivo.');
         isValid = false;
     }
     if (luxMin !== null && luxMax !== null && luxMin > luxMax) {
-        showFormValidationError(luxMaxInput.id, 'Lux Max non può essere inferiore a Lux Min.');
+        showFormValidationError(luxMaxInput ? luxMaxInput.id : null, 'Lux Max non può essere inferiore a Lux Min.'); // Aggiunto controllo null
         isValid = false;
     }
 
     // Validazione temperature min/max
     const tempMinInput = formElement.querySelector('[id$="TempMin"]');
     const tempMaxInput = formElement.querySelector('[id$="TempMax"]');
-    const tempMin = tempMinInput.value ? parseFloat(tempMinInput.value) : null;
-    const tempMax = tempMaxInput.value ? parseFloat(tempMaxInput.value) : null;
+    const tempMin = tempMinInput && tempMinInput.value ? parseFloat(tempMinInput.value) : null; // Aggiunto controllo !tempMinInput
+    const tempMax = tempMaxInput && tempMaxInput.value ? parseFloat(tempMaxInput.value) : null; // Aggiunto controllo !tempMaxInput
 
-    if (tempMinInput.value !== '' && isNaN(tempMin)) {
+    if (tempMinInput && tempMinInput.value !== '' && isNaN(tempMin)) { // Aggiunto controllo tempMinInput
         showFormValidationError(tempMinInput.id, 'Temperatura Min deve essere un numero.');
         isValid = false;
     }
-    if (tempMaxInput.value !== '' && isNaN(tempMax)) {
+    if (tempMaxInput && tempMaxInput.value !== '' && isNaN(tempMax)) { // Aggiunto controllo tempMaxInput
         showFormValidationError(tempMaxInput.id, 'Temperatura Max deve essere un numero.');
         isValid = false;
     }
     if (tempMin !== null && tempMax !== null && tempMin > tempMax) {
-        showFormValidationError(tempMaxInput.id, 'Temperatura Max non può essere inferiore a Temperatura Min.');
+        showFormValidationError(tempMaxInput ? tempMaxInput.id : null, 'Temperatura Max non può essere inferiore a Temperatura Min.'); // Aggiunto controllo null
         isValid = false;
     }
 
@@ -213,6 +214,7 @@ function validatePlantForm(formElement) {
 
 // Mostra un errore di validazione specifico per un campo del form
 function showFormValidationError(elementId, message) {
+    if (!elementId) return; // Aggiunto per evitare errori se elementId è null
     const element = document.getElementById(elementId);
     if (element) {
         element.classList.add('input-error');
@@ -418,12 +420,20 @@ async function savePlantToFirestore(e) {
     console.log('savePlantToFirestore: Funzione avviata.');
     showLoadingSpinner();
 
-    const form = e.target;
-    // Determina se è un nuovo form o un aggiornamento in base all'ID del form clonato
-    const isUpdateForm = form.id === 'updatePlantFormContent';
-    console.log(`savePlantToFirestore: È un form di aggiornamento? ${isUpdateForm}`);
+    // Get the actual form element from the event target (the button)
+    const form = e.target.closest('form'); // <--- CORREZIONE QUI
+    if (!form) {
+        console.error('savePlantToFirestore: Form non trovato. Uscita.');
+        hideLoadingSpinner();
+        showToast('Errore: Impossibile trovare il form.', 'error');
+        return;
+    }
 
-    if (!validatePlantForm(form)) {
+    // Determina se è un nuovo form o un aggiornamento in base all'ID del form
+    const isUpdateForm = form.id === 'updatePlantFormContent';
+    console.log(`savePlantToFirestore: È un form di aggiornamento? ${isUpdateForm}. ID form: ${form.id}`);
+
+    if (!validatePlantForm(form)) { // Pass the actual form element to validation
         hideLoadingSpinner(); // Spinner hidden here if validation fails
         showToast('Compila correttamente tutti i campi obbligatori.', 'error');
         console.log('savePlantToFirestore: Validazione form fallita. Uscita.');
