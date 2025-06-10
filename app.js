@@ -82,23 +82,23 @@ let currentLuxValueManualSpan;
 // Costante per l'immagine placeholder di default generica
 const DEFAULT_PLACEHOLDER_IMAGE = 'https://placehold.co/150x150/EEEEEE/333333?text=No+Image';
 
-// Nuova: Mappa delle immagini placeholder per categoria
+// Nuova: Mappa delle immagini placeholder per categoria (senza emoji)
 const CATEGORY_PLACEHOLDER_IMAGES = {
-    'Fiore': 'https://placehold.co/150x150/FFDDC1/FF5733?text=%E2%99%82%EF%B8%8FFiore', // Icona di un fiore
-    'Frutto': 'https://placehold.co/150x150/FFECB3/FFC300?text=%F0%9F%8D%8FFrutto', // Icona di un frutto
-    'Verdura': 'https://placehold.co/150x150/D4EDDA/28A745?text=%F0%9F%A5%95Verdura', // Icona di una verdura
-    'Erba Aromatica': 'https://placehold.co/150x150/C8F0C8/198754?text=%F0%9F%8C%B1Erba', // Icona di erba aromatica
-    'Albero': 'https://placehold.co/150x150/C6E0F5/007BFF?text=%F0%9F%8C%B3Albero', // Icona di un albero
-    'Arbusto': 'https://placehold.co/150x150/E9D7ED/6F42C1?text=%F0%9F%8C%B5Arbusto', // Icona di un arbusto
-    'Succulenta': 'https://placehold.co/150x150/F8D7DA/DC3545?text=%F0%9F%8C%B5Succulenta', // Icona di una succulenta
-    'Cactus': 'https://placehold.co/150x150/D1ECF1/00BCD4?text=%F0%9F%8C%B5Cactus', // Icona di un cactus
-    'Acquatica': 'https://placehold.co/150x150/CCE5FF/007BFF?text=%F0%9F%8C%B2Acquatica', // Icona di una pianta acquatica
-    'Rampicante': 'https://placehold.co/150x150/FFF3CD/FFC107?text=%F0%9F%8C%B5Rampicante', // Icona di una pianta rampicante
-    'Bulbo': 'https://placehold.co/150x150/F0FFF0/008000?text=%F0%9F%8C%B5Bulbo', // Icona di un bulbo
-    'Felce': 'https://placehold.co/150x150/E0F7FA/00838F?text=%F0%9F%8C%B5Felce', // Icona di una felce
-    'Orchidea': 'https://placehold.co/150x150/E6E6FA/800080?text=%F0%9F%8C%B5Orchidea', // Icona di un'orchidea
-    'Pianta': 'https://placehold.co/150x150/D3D3D3/6C757D?text=%F0%9F%8C%B1Pianta', // Icona generica pianta
-    'Altro': 'https://placehold.co/150x150/F5F5DC/604C3E?text=%E2%9C%A8Altro' // Icona generica per altro
+    'Fiore': 'https://placehold.co/150x150/FFDDC1/FF5733?text=Fiore',
+    'Frutto': 'https://placehold.co/150x150/FFECB3/FFC300?text=Frutto',
+    'Verdura': 'https://placehold.co/150x150/D4EDDA/28A745?text=Verdura',
+    'Erba Aromatica': 'https://placehold.co/150x150/C8F0C8/198754?text=Erba+Aromatica',
+    'Albero': 'https://placehold.co/150x150/C6E0F5/007BFF?text=Albero',
+    'Arbusto': 'https://placehold.co/150x150/E9D7ED/6F42C1?text=Arbusto',
+    'Succulenta': 'https://placehold.co/150x150/F8D7DA/DC3545?text=Succulenta',
+    'Cactus': 'https://placehold.co/150x150/D1ECF1/00BCD4?text=Cactus',
+    'Acquatica': 'https://placehold.co/150x150/CCE5FF/007BFF?text=Acquatica',
+    'Rampicante': 'https://placehold.co/150x150/FFF3CD/FFC107?text=Rampicante',
+    'Bulbo': 'https://placehold.co/150x150/F0FFF0/008000?text=Bulbo',
+    'Felce': 'https://placehold.co/150x150/E0F7FA/00838F?text=Felce',
+    'Orchidea': 'https://placehold.co/150x150/E6E6FA/800080?text=Orchidea',
+    'Pianta': 'https://placehold.co/150x150/D3D3D3/6C757D?text=Pianta',
+    'Altro': 'https://placehold.co/150x150/F5F5DC/604C3E?text=Altro'
 };
 
 
@@ -712,16 +712,7 @@ async function deletePlantFromDatabase(plantId) {
         const plantData = plantDoc.data();
         console.log('deletePlantFromDatabase: Dati pianta recuperati:', plantData);
 
-        // 1. Chiedi conferma all'utente tramite la modale personalizzata
-        const confirmed = await showConfirmationModal(
-            'Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.'
-        );
-        if (!confirmed) {
-            hideLoadingSpinner();
-            console.log('deletePlantFromDatabase: Eliminazione annullata dall\'utente.');
-            return;
-        }
-
+        // La conferma è già stata gestita dalla funzione chiamante showConfirmationModal()
 
         // 1. Elimina l'immagine associata da Storage
         // Questo elimina SOLO l'immagine 'generica' della pianta pubblica.
@@ -1123,7 +1114,6 @@ function displayPlants(plantsToShow) {
 
                 if (nextWateringDate <= today) {
                     // Se la prossima annaffiatura è oggi o in passato
-                    // Calcola quanti giorni fa era l'ultima annaffiatura per un messaggio più accurato
                     const diffTime = Math.abs(today.getTime() - nextWateringDate.getTime());
                     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // Giorni trascorsi da quando DOVEVA essere annaffiata
                     
