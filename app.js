@@ -1653,9 +1653,11 @@ async function openCardModal(formTemplateElement, plantData = null, isFromMyGard
     isUpdateFormCropping = false;
 
     // Elementi comuni per la gestione dell'immagine
-    const imageUploadInput = clonedForm.querySelector('[id$="ImageUpload"]');
-    const imagePreviewElement = clonedForm.querySelector('[id$="ImagePreview"]');
-    const imageURLHiddenInput = clonedForm.querySelector('[id$="ImageURL"]');
+    // Assicurati che gli ID siano corretti rispetto al template HTML (es. newPlantImageUpload, updatePlantImageUpload)
+    const imageUploadInput = clonedForm.querySelector('#newPlantImageUpload') || clonedForm.querySelector('#updatePlantImageUpload');
+    const imagePreviewElement = clonedForm.querySelector('#newPlantImagePreview') || clonedForm.querySelector('#updatePlantImagePreview');
+    const imageURLHiddenInput = clonedForm.querySelector('#updatePlantImageURL'); // Solo per il form di update
+
 
     // Nuovi campi per il promemoria annaffiatura nel form di update
     const wateringReminderFieldsDiv = clonedForm.querySelector('#wateringReminderFields');
@@ -1669,15 +1671,15 @@ async function openCardModal(formTemplateElement, plantData = null, isFromMyGard
         console.log('openCardModal: Popolamento form di aggiornamento per pianta ID:', currentPlantIdToUpdate);
 
         // Popola i campi testuali e select
-        clonedForm.querySelector('[id$="PlantName"]').value = plantData.name || '';
-        clonedForm.querySelector('[id$="PlantSunlight"]').value = plantData.sunlight || '';
-        clonedForm.querySelector('[id$="IdealLuxMin"]').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
-        clonedForm.querySelector('[id$="IdealLuxMax"]').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
-        clonedForm.querySelector('[id$="PlantWatering"]').value = plantData.watering || '';
-        clonedForm.querySelector('[id$="TempMin"]').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
-        clonedForm.querySelector('[id$="TempMax"]').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
-        clonedForm.querySelector('[id$="PotSize"]').value = plantData.potSize || '';
-        clonedForm.querySelector('[id$="PlantCategory"]').value = plantData.category || '';
+        clonedForm.querySelector('#updatePlantName').value = plantData.name || '';
+        clonedForm.querySelector('#updatePlantSunlight').value = plantData.sunlight || '';
+        clonedForm.querySelector('#updatePlantIdealLuxMin').value = plantData.idealLuxMin !== null ? plantData.idealLuxMin.toString() : '';
+        clonedForm.querySelector('#updatePlantIdealLuxMax').value = plantData.idealLuxMax !== null ? plantData.idealLuxMax.toString() : '';
+        clonedForm.querySelector('#updatePlantWatering').value = plantData.watering || '';
+        clonedForm.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
+        clonedForm.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
+        clonedForm.querySelector('#updatePlantPotSize').value = plantData.potSize || '';
+        clonedForm.querySelector('#updatePlantCategory').value = plantData.category || '';
 
         // Gestione dell'immagine per la preview e il campo nascosto
         let displayImage = DEFAULT_PLACEHOLDER_IMAGE;
@@ -1832,7 +1834,7 @@ async function updateLastWatered(plantId, lastWateredDisplayElement) {
 
             if (plantIndex !== -1) {
                 // Aggiorna solo il timestamp per questa pianta
-                currentGardenPlants[plantIndex].lastWateredTimestamp = new Date();
+                currentGardenPlants[plantIndex].lastWateredTimestamp = new Date(); // Corretto: usa new Date()
                 await gardenRef.set({ plants: currentGardenPlants }, { merge: true }); // Salva l'intero array aggiornato
                 myGarden = currentGardenPlants; // Aggiorna lo stato locale
 
@@ -1988,10 +1990,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     myGardenContainer = document.getElementById('my-garden');
     authContainerDiv = document.getElementById('auth-container');
     appContentDiv = document.getElementById('app-content');
-    loginButton = document.getElementById('loginButton'); // Corretto da login-button
-    registerButton = document.getElementById('registerButton'); // Corretto da register-button
-    showLoginLink = document.getElementById('showLogin'); // Corretto da showLogin
-    showRegisterLink = document.getElementById('showRegister'); // Corretto da showRegister
+    loginButton = document.getElementById('loginButton');
+    registerButton = document.getElementById('registerButton');
+    showLoginLink = document.getElementById('showLogin');
+    showRegisterLink = document.getElementById('showRegister');
     emailInput = document.getElementById('loginEmail');
     passwordInput = document.getElementById('loginPassword');
     loginError = document.getElementById('login-error');
@@ -1999,30 +2001,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     registerPasswordInput = document.getElementById('registerPassword');
     registerError = document.getElementById('register-error');
     authStatusSpan = document.getElementById('auth-status');
-    logoutButton = document.getElementById('logoutButton'); // Corretto da logout-button
-    searchInput = document.getElementById('searchInput'); // Corretto da search-input
-    categoryFilter = document.getElementById('categoryFilter'); // Corretto da category-filter
+    logoutButton = document.getElementById('logoutButton');
+    searchInput = document.getElementById('searchInput');
+    categoryFilter = document.getElementById('categoryFilter');
     tempMinFilter = document.getElementById('tempMinFilter');
     tempMaxFilter = document.getElementById('tempMaxFilter');
-    sortBySelect = document.getElementById('sortBy'); // Corretto da sortBySelect
+    sortBySelect = document.getElementById('sortBy');
 
-    addNewPlantButton = document.getElementById('addNewPlantButton'); // Corretto da add-new-plant-button
-    showAllPlantsButton = document.getElementById('showAllPlantsButton'); // Corretto da show-all-plants-button
-    showMyGardenButton = document.getElementById('showMyGardenButton'); // Corretto da show-my-garden-button
-    plantsSectionHeader = document.getElementById('plantsSectionHeader'); // Corretto da plants-section-header
-    lightSensorContainer = document.getElementById('lightSensorContainer'); // Corretto da light-sensor-container
-    startLightSensorButton = document.getElementById('startLightSensorButton'); // Corretto da start-light-sensor
-    stopLightSensorButton = document.getElementById('stopLightSensorButton'); // Corretto da stop-light-sensor
+    addNewPlantButton = document.getElementById('addNewPlantButton');
+    showAllPlantsButton = document.getElementById('showAllPlantsButton');
+    showMyGardenButton = document.getElementById('showMyGardenButton');
+    plantsSectionHeader = document.getElementById('plantsSectionHeader');
+    lightSensorContainer = document.getElementById('lightSensorContainer');
+    startLightSensorButton = document.getElementById('startLightSensorButton');
+    stopLightSensorButton = document.getElementById('stopLightSensorButton');
     currentLuxValueSpan = document.getElementById('currentLuxValue');
     lightFeedbackDiv = document.getElementById('lightFeedback');
     loadingSpinner = document.getElementById('loading-spinner');
-    toastContainer = document.getElementById('toast-container'); // Corretto da toast
+    toastContainer = document.getElementById('toast-container');
     googleLensButton = document.getElementById('googleLensButton');
 
     // Modali
     imageModal = document.getElementById('image-modal');
     zoomedImage = document.getElementById('zoomed-image');
-    closeImageModalButton = document.querySelector('#image-modal .close-button'); // Corretto da close-image-modal (è una classe, non un ID specifico)
+    closeImageModalButton = document.querySelector('#image-modal .close-button');
     cardModal = document.getElementById('card-modal');
     zoomedCardContent = document.getElementById('zoomed-card-content');
     closeCardModalButton = document.getElementById('close-card-modal');
@@ -2054,19 +2056,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Template dei form (li recuperiamo come nodi DOM da clonare)
-    // Usiamo .content per accedere al contenuto del template HTML
     const newPlantFormTemplateDiv = document.getElementById('newPlantFormTemplate');
     const updatePlantFormTemplateDiv = document.getElementById('updatePlantFormTemplate');
 
     if (newPlantFormTemplateDiv) {
-        // Se è un template element, usa .content
         newPlantFormTemplate = newPlantFormTemplateDiv.querySelector('form');
         console.log('DOMContentLoaded: newPlantFormTemplate caricato.');
     } else {
         console.error("DOMContentLoaded: newPlantFormTemplateDiv non trovato! Impossibile inizializzare il template.");
     }
     if (updatePlantFormTemplateDiv) {
-        // Se è un template element, usa .content
         updatePlantFormTemplate = updatePlantFormTemplateDiv.querySelector('form');
         console.log('DOMContentLoaded: updatePlantFormTemplate caricato.');
     } else {
@@ -2116,7 +2115,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Event Listeners per l'autenticazione
-    // Ho ripristinato gli ID dei bottoni di login/register a quelli che app.js si aspettava
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
     if (logoutButton) logoutButton.addEventListener('click', handleLogout);
@@ -2141,7 +2139,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Listeners per i bottoni di navigazione principale
     if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
-    // Ora passiamo direttamente la FORM del template, non il DIV contenitore, e il flag isFromMyGarden
     if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => openCardModal(newPlantFormTemplate, null, false));
     if (googleLensButton) {
         googleLensButton.addEventListener('click', () => {
@@ -2177,7 +2174,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (event.target.classList.contains('update-plant-button')) {
                 openCardModal(updatePlantFormTemplate, plant, false); // Viene dalla vista "Tutte le Piante" (publica)
             } else if (event.target.classList.contains('delete-plant-from-db-button')) {
-                // Sostituito alert con showConfirmationModal
                 const confirmed = await showConfirmationModal(
                     'Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.'
                 );
@@ -2222,7 +2218,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (event.target.classList.contains('plant-image')) {
                 openImageModal(event.target.src);
             } else if (event.target.classList.contains('remove-button')) {
-                // Sostituito alert con showConfirmationModal
                 const confirmed = await showConfirmationModal(
                     'Sei sicuro di voler rimuovere questa pianta dal tuo giardino? Questa azione non elimina la pianta dal database pubblico.'
                 );
@@ -2232,7 +2227,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (event.target.classList.contains('update-plant-button')) {
                 openCardModal(updatePlantFormTemplate, plant, true); // Viene dalla vista "Mio Giardino"
             } else if (event.target.classList.contains('delete-plant-from-db-button')) {
-                // Sostituito alert con showConfirmationModal
                 const confirmed = await showConfirmationModal(
                     'Sei sicuro di voler eliminare questa pianta dal database? Questa azione è irreversibile e la rimuoverà per tutti gli utenti.'
                 );
