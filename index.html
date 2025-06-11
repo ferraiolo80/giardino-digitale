@@ -18,7 +18,7 @@
 </head>
 <body>
     <div id="loading-spinner" class="loading-spinner" style="display: none;"></div>
-    <div id="toast-container" class="toast-container"></div>
+    <div id="toast-container" class="toast-container"></div> <!-- ID corretto per il toast -->
 
     <header class="main-header">
         <h1>🌸 Giardino Digitale 🌿</h1>
@@ -130,7 +130,7 @@
 
         <section id="lightSensorContainer" class="light-sensor-container">
             <h2>Sensore di Luce Ambientale</h2>
-            <div id="autoSensorControls" style="display: none;">
+            <div id="autoSensorControls" style="display: block;"> <!-- Mostra sempre autoSensorControls se supportato -->
                 <div class="sensor-info-row">
                     <div class="sensor-controls">
                         <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
@@ -139,7 +139,7 @@
                     <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
                 </div>
             </div>
-            <div id="manualLuxInputControls" style="display: none;">
+            <div id="manualLuxInputControls" style="display: none;"> <!-- Nascondi manualLuxInputControls di default -->
                 <div class="sensor-info-row">
                     <label for="manualLuxInput">Inserisci Lux manualmente:</label>
                     <input type="number" id="manualLuxInput" placeholder="Lux es. 500" min="0" step="1">
@@ -211,8 +211,8 @@
 
     <!-- Contenuti dei form (template nascosti per essere clonati nelle modali) -->
     <div id="newPlantFormTemplate" style="display: none;">
-        <h3 class="form-title">Aggiungi Nuova Pianta Pubblica</h3>
         <form id="newPlantFormContent">
+            <h3 class="form-title">Aggiungi Nuova Pianta Pubblica</h3>
             <label for="newPlantName">Nome:</label>
             <input type="text" id="newPlantName" required>
 
@@ -234,9 +234,9 @@
             <label for="newPlantWatering">Annaffiatura:</label>
             <select id="newPlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa</option>
-                <option value="Media">Media</option>
-                <option value="Alta">Alta</option>
+                <option value="Bassa">Bassa (dare acqua alle piante dal basso, riempiendo il sottovaso e lasciando che l'acqua venga assorbita gradualmente)</option>
+                <option value="Media">Media (terreno non deve essere nè troppo bagnato, causando ristagni, né troppo asciutto)</option>
+                <option value="Alta">Alta (versare l'acqua direttamente sul substrato della pianta, solitamente con un annaffiatoio o un nebulizzatore)</option>
             </select>
 
             <div class="temp-input-group">
@@ -280,17 +280,17 @@
     </div>
 
     <div id="updatePlantFormTemplate" style="display: none;">
-        <h3 class="form-title">Aggiorna Pianta</h3>
         <form id="updatePlantFormContent">
+            <h3 class="form-title">Aggiorna Pianta</h3>
             <label for="updatePlantName">Nome:</label>
             <input type="text" id="updatePlantName" required>
 
             <label for="updatePlantSunlight">Esposizione al Sole:</label>
             <select id="updatePlantSunlight" required>
                 <option value="">Seleziona</option>
-                <option value="Pieno Sole">Pieno Sole (≥ 6h diretta)</option>
-                <option value="Mezz'ombra">Mezz'ombra (2-5h diretta)</option>
-                <option value="Ombra">Ombra (indiretta/limitata)</option>
+                <option value="Pieno Sole">Pieno Sole (luce solare diretta per almeno 6 ore al giorno)</option>
+                <option value="Mezz'ombra">Mezz'ombra (luce solare diretta per un periodo compreso tra 2 e 5 ore al giorno)</option>
+                <option value="Ombra">Ombra (luce solare indiretta e in modo limitato)</option>
             </select>
 
             <div class="lux-input-group">
@@ -303,9 +303,9 @@
             <label for="updatePlantWatering">Annaffiatura:</label>
             <select id="updatePlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa</option>
-                <option value="Media">Media</option>
-                <option value="Alta">Alta</option>
+                <option value="Bassa">Bassa (dare acqua alle piante dal basso, riempiendo il sottovaso e lasciando che l'acqua venga assorbita gradualmente)</option>
+                <option value="Media">Media (terreno non deve essere nè troppo bagnato, causando ristagni, né troppo asciutto)</option>
+                <option value="Alta">Alta (versare l'acqua direttamente sul substrato della pianta, solitamente con un annaffiatoio o un nebulizzatore)</option>
             </select>
 
             <div class="temp-input-group">
@@ -362,11 +362,6 @@
         </form>
     </div>
 
-    <!-- Nuovo bottone "Torna su" -->
-    <button id="scrollToTopButton" class="scroll-to-top-button" style="display: none;">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
 
     <!-- Script Firebase e il tuo app.js -->
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -382,7 +377,7 @@
             apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
             authDomain: "giardinodigitale.firebaseapp.com",
             projectId: "giardinodigitale",
-            storageBucket: "giardinodigitale.firebasestorage.app", // <--- QUESTO È IL VALORE CORRETTO E UNICA MODIFICA A QUESTA SEZIONE
+            storageBucket: "giardinodigitale.firebasestorage.app", // VALORE CORRETTO E TESTATO CON GSUTIL
             messagingSenderId: "305018691515",
             appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
         };
