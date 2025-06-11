@@ -1832,7 +1832,7 @@ async function updateLastWatered(plantId, lastWateredDisplayElement) {
 
             if (plantIndex !== -1) {
                 // Aggiorna solo il timestamp per questa pianta
-                currentGardenPlants[plantIndex].lastWateredTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                currentGardenPlants[plantIndex].lastWateredTimestamp = new Date();
                 await gardenRef.set({ plants: currentGardenPlants }, { merge: true }); // Salva l'intero array aggiornato
                 myGarden = currentGardenPlants; // Aggiorna lo stato locale
 
