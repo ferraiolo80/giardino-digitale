@@ -918,6 +918,32 @@ button:disabled {
     cursor: pointer;
 }
 
+/* Stile per il bottone "Torna su" (se non presente) */
+.scroll-to-top-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Rendi il bottone circolare */
+    width: 50px;
+    height: 50px;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000; /* Assicurati che sia sopra gli altri elementi */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.scroll-to-top-button:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+}
+
 /* Media Queries for Responsiveness */
 
 /* Regole per schermi fino a 900px (tablet e schermi desktop più piccoli) */
