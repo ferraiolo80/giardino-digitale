@@ -858,6 +858,67 @@ button:disabled {
     transform: translateY(-2px);
 }
 
+/* Stile per la modale di conferma */
+.confirmation-modal-content {
+    background-color: #fefefe; /* Sfondo bianco solido */
+    margin: 15% auto; /* Centra verticalmente */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%; /* Larghezza della modale */
+    max-width: 500px; /* Larghezza massima */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 10px; /* Angoli arrotondati */
+    text-align: center;
+    color: #333; /* Colore del testo scuro */
+    font-family: 'Arial', sans-serif; /* Un font leggibile */
+    animation: fadeIn 0.3s ease-out; /* Animazione di apparizione */
+}
+
+.confirmation-modal-content h2 {
+    color: #0056b3; /* Colore per il titolo */
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.confirmation-modal-content p {
+    font-size: 1.1em;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Spazio tra i bottoni */
+}
+
+/* Animazione fadeIn (se non già presente in style.css) */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Rendi il bottone di chiusura della modal generica più leggibile */
+.modal .close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute; /* Posizionamento assoluto per la 'x' */
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal .close-button:hover,
+.modal .close-button:focus {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
 /* Media Queries for Responsiveness */
 
 /* Regole per schermi fino a 900px (tablet e schermi desktop più piccoli) */
