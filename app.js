@@ -583,14 +583,14 @@ async function savePlantToFirestore(e) {
                     const updateImageURLHiddenInput = form.querySelector('#updatePlantImageURL');
 
                     if (updateImageUploadInput && updateImageUploadInput.files[0]) { // Nuovo file caricato per userImage
-                        if (existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                        if (existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE && !existingGardenPlant.userImage.includes('placehold.co')) {
                             oldImageUrlToDelete = existingGardenPlant.userImage;
                             console.log('savePlantToFirestore: Vecchia userImage marcata per eliminazione:', oldImageUrlToDelete);
                         }
-                        plantData.userImage = await uploadImage(updateImageUploadInput.files[0], `user_plant_images/${user.uid}`);
+                        plantData.userImage = await uploadImage(currentCroppingFile || updateImageUploadInput.files[0], `user_plant_images/${user.uid}`);
                         console.log('savePlantToFirestore: Nuova userImage caricata:', plantData.userImage);
                         plantData.image = existingGardenPlant.image; // PRESERVA l'immagine pubblica originale
-                    } else if (updateImageURLHiddenInput && updateImageURLHiddenInput.value === '' && existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                    } else if (updateImageURLHiddenInput && updateImageURLHiddenInput.value === '' && existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE && !existingGardenPlant.userImage.includes('placehold.co')) {
                         // L'utente ha esplicitamente rimosso l'immagine user-specifica
                         oldImageUrlToDelete = existingGardenPlant.userImage;
                         plantData.userImage = firebase.firestore.FieldValue.delete(); // Rimuovi esplicitamente il campo
@@ -617,7 +617,7 @@ async function savePlantToFirestore(e) {
                     };
 
                     // Aggiorna l'intero array di piante nel documento del giardino
-                    await gardenRef.set({ plants: currentGardenPlants }, { merge: true });
+                    await gardenRef.set({ plants: currentGardenPlants }); // Usiamo set per sovrascrivere l'intero array in un colpo solo
                     myGarden = currentGardenPlants; // Aggiorna lo stato locale
                     showToast('Pianta nel tuo giardino aggiornata con successo!', 'success');
                     console.log('savePlantToFirestore: Pianta nel giardino aggiornata in Firestore.');
@@ -635,13 +635,13 @@ async function savePlantToFirestore(e) {
                 const updateImageURLHiddenInput = form.querySelector('#updatePlantImageURL');
 
                 if (updateImageUploadInput && updateImageUploadInput.files[0]) { // Nuova immagine per pianta pubblica
-                    if (existingPublicPlant.image && existingPublicPlant.image !== DEFAULT_PLACEHOLDER_IMAGE) {
+                    if (existingPublicPlant.image && existingPublicPlant.image !== DEFAULT_PLACEHOLDER_IMAGE && !existingPublicPlant.image.includes('placehold.co')) {
                         oldImageUrlToDelete = existingPublicPlant.image;
                         console.log('savePlantToFirestore: Vecchia immagine pubblica marcata per eliminazione:', oldImageUrlToDelete);
                     }
-                    plantData.image = await uploadImage(updateImageUploadInput.files[0], 'plant_images');
+                    plantData.image = await uploadImage(currentCroppingFile || updateImageUploadInput.files[0], 'plant_images');
                     console.log('savePlantToFirestore: Nuova immagine pubblica caricata:', plantData.image);
-                } else if (updateImageURLHiddenInput && updateImageURLHiddenInput.value === '' && existingPublicPlant.image && existingPublicPlant.image !== DEFAULT_PLACEHOLDER_IMAGE) {
+                } else if (updateImageURLHiddenInput && updateImageURLHiddenInput.value === '' && existingPublicPlant.image && existingPublicPlant.image !== DEFAULT_PLACEHOLDER_IMAGE && !existingPublicPlant.image.includes('placehold.co')) {
                     // L'utente ha esplicitamente rimosso l'immagine pubblica
                     oldImageUrlToDelete = existingPublicPlant.image;
                     plantData.image = firebase.firestore.FieldValue.delete();
@@ -667,8 +667,8 @@ async function savePlantToFirestore(e) {
         } else { // Stiamo aggiungendo una nuova pianta pubblica
             console.log('savePlantToFirestore: Aggiunta nuova pianta pubblica.');
             const newPlantImageUploadInput = form.querySelector('#newPlantImageUpload');
-            if (newPlantImageUploadInput && newPlantImageUploadInput.files[0]) {
-                plantData.image = await uploadImage(newPlantImageUploadInput.files[0], 'plant_images');
+            if (newPlantImageUploadInput && (currentCroppingFile || newPlantImageUploadInput.files[0])) {
+                plantData.image = await uploadImage(currentCroppingFile || newPlantImageUploadInput.files[0], 'plant_images');
             } else {
                 plantData.image = null;
             }
@@ -737,10 +737,8 @@ async function deletePlantFromDatabase(plantId) {
 
         // La conferma è già stata gestita dalla funzione chiamante showConfirmationModal()
 
-        // 1. Elimina l'immagine associata da Storage
-        // Questo elimina SOLO l'immagine 'generica' della pianta pubblica.
-        // Le userImage nei giardini degli utenti non vengono toccate da qui.
-        if (plantData.image && plantData.image !== DEFAULT_PLACEHOLDER_IMAGE) {
+        // 1. Elimina l'immagine associata da Storage (immagine pubblica)
+        if (plantData.image && plantData.image !== DEFAULT_PLACEHOLDER_IMAGE && !plantData.image.includes('placehold.co')) {
             console.log('deletePlantFromDatabase: Tentativo di eliminare immagine associata (pubblica).');
             await deleteImage(plantData.image);
             console.log('deletePlantFromDatabase: Immagine associata (pubblica) eliminata.');
@@ -752,7 +750,7 @@ async function deletePlantFromDatabase(plantId) {
         showToast('Pianta eliminata con successo dal database!', 'success');
         console.log('deletePlantFromDatabase: Pianta eliminata dal database.');
 
-        // 3. Rimuovi la pianta dal giardino di OGNI utente
+        // 3. Rimuovi la pianta dal giardino di OGNI utente e la loro userImage se presente
         console.log('deletePlantFromDatabase: Rimozione pianta dai giardini degli utenti.');
         const gardensSnapshot = await db.collection('gardens').get();
         const batch = db.batch();
@@ -767,7 +765,7 @@ async function deletePlantFromDatabase(plantId) {
                 console.log(`deletePlantFromDatabase: Marcato giardino di ${doc.id} per aggiornamento.`);
 
                 // Se la pianta aveva una userImage, elimina anche quella
-                if (plantInGarden && plantInGarden.userImage && plantInGarden.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                if (plantInGarden && plantInGarden.userImage && plantInGarden.userImage !== DEFAULT_PLACEHOLDER_IMAGE && !plantInGarden.userImage.includes('placehold.co')) {
                     console.log(`deletePlantFromDatabase: Eliminazione userImage da giardino di ${doc.id}: ${plantInGarden.userImage}`);
                     await deleteImage(plantInGarden.userImage);
                 }
@@ -899,7 +897,7 @@ async function removeFromMyGarden(plantId) {
 
             if (updatedGardenPlants.length !== currentGardenPlants.length) {
                 // Se la pianta aveva una userImage, eliminala dallo storage quando viene rimossa dal giardino
-                if (plantToRemove && plantToRemove.userImage && plantToRemove.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                if (plantToRemove && plantToRemove.userImage && plantToRemove.userImage !== DEFAULT_PLACEHOLDER_IMAGE && !plantToRemove.userImage.includes('placehold.co')) {
                     console.log(`removeFromMyGarden: Eliminazione userImage associata: ${plantToRemove.userImage}`);
                     await deleteImage(plantToRemove.userImage);
                 }
@@ -991,10 +989,10 @@ function calculateNextWateringDate(plant) {
     if (!plant || !plant.lastWateredTimestamp || !plant.wateringIntervalDays || isNaN(plant.wateringIntervalDays) || plant.wateringIntervalDays <= 0) {
         return null;
     }
-    const lastWateredDate = plant.lastWateredTimestamp.toDate(); // Converti Firestore Timestamp in Date
+    const lastWateredDate = plant.lastWateredTimestamp instanceof firebase.firestore.Timestamp ? plant.lastWateredTimestamp.toDate() : new Date(plant.lastWateredTimestamp); // Converti Firestore Timestamp o Data normale in Date
     const nextWateringDate = new Date(lastWateredDate);
     nextWateringDate.setDate(lastWateredDate.getDate() + plant.wateringIntervalDays);
-    return nextWateredDate;
+    return nextWateringDate;
 }
 
 
@@ -1709,11 +1707,13 @@ async function openCardModal(formTemplateElement, plantData = null, isFromMyGard
 
         // Gestione dell'immagine per la preview e il campo nascosto
         let displayImage = DEFAULT_PLACEHOLDER_IMAGE;
-        if (isFromMyGarden && plantData.userImage) { // Se editing from My Garden AND plant has a userImage
+
+        // PRIORITA: userImage (se presente e da myGarden) > image (da pubblica) > categoria placeholder > default placeholder
+        if (isFromMyGarden && plantData.userImage) {
             displayImage = plantData.userImage;
             if (imageURLHiddenInput) imageURLHiddenInput.value = plantData.userImage; // Salva la userImage esistente
             console.log('openCardModal: Visualizzazione userImage esistente in update form.');
-        } else if (plantData.image) { // Altrimenti, usa l'immagine generica (dalla pubblica)
+        } else if (plantData.image) {
             displayImage = plantData.image;
             if (imageURLHiddenInput) imageURLHiddenInput.value = plantData.image; // Salva l'immagine generica esistente
             console.log('openCardModal: Visualizzazione immagine generica esistente in update form.');
@@ -1760,8 +1760,9 @@ async function openCardModal(formTemplateElement, plantData = null, isFromMyGard
                     openCropModal(file);
                 } else {
                     // Se l'utente annulla la selezione del file, rimuovi l'anteprima e segna per potenziale eliminazione immagine
-                    imagePreviewElement.src = CATEGORY_PLACEHOLDER_IMAGES[plantData.category] || DEFAULT_PLACEHOLDER_IMAGE; // Torna al placeholder categoria
-                    if (imageURLHiddenInput) imageURLHiddenInput.value = ''; // Segna per rimozione dell'immagine esistente
+                    // Torna al placeholder categoria o all'immagine pubblica originale
+                    imagePreviewElement.src = plantData.image || CATEGORY_PLACEHOLDER_IMAGES[plantData.category] || DEFAULT_PLACEHOLDER_IMAGE;
+                    if (imageURLHiddenInput) imageURLHiddenInput.value = plantData.image || ''; // Ripristina l'URL pubblico originale
                     currentCroppingFile = null;
                     console.log('openCardModal: File input annullato per update form.');
                 }
@@ -1861,7 +1862,7 @@ async function updateLastWatered(plantId, lastWateredDisplayElement) {
             if (plantIndex !== -1) {
                 // Aggiorna solo il timestamp per questa pianta
                 currentGardenPlants[plantIndex].lastWateredTimestamp = new Date(); // Corretto: usa new Date()
-                await gardenRef.set({ plants: currentGardenPlants }, { merge: true }); // Salva l'intero array aggiornato
+                await gardenRef.set({ plants: currentGardenPlants }); // Salva l'intero array aggiornato
                 myGarden = currentGardenPlants; // Aggiorna lo stato locale
 
                 // Aggiorna l'elemento di visualizzazione nella modal
@@ -2107,31 +2108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     locationStatusDiv = document.getElementById('location-status');
     weatherForecastDiv = document.getElementById('weatherForecast');
     climateZoneFilter = document.getElementById('climateZoneFilter');
-
-    // Gestisci la visibilità della sezione del sensore di luce all'avvio
-    if (!('AmbientLightSensor' in window)) {
-        console.log('DOMContentLoaded: AmbientLightSensor NON supportato.');
-        if (lightSensorContainer) {
-            // Se il sensore non è supportato, nascondi i controlli automatici e mostra quelli manuali
-            if (autoSensorControls) autoSensorControls.style.display = 'none';
-            if (manualLuxInputControls) manualLuxInputControls.style.display = 'block';
-            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p style="color: blue;">Sensore di luce non supportato dal tuo dispositivo. Inserisci i Lux manualmente.</p>';
-            showToast("Sensore di luce ambientale non supportato. Inserisci Lux manualmente.", 'info', 5000);
-        }
-    } else {
-        console.log('DOMContentLoaded: AmbientLightSensor supportato.');
-        // Se il sensore è supportato, mostra i controlli automatici e nascondi quelli manuali
-        if (autoSensorControls) autoSensorControls.style.display = 'block';
-        if (manualLuxInputControls) manualLuxInputControls.style.display = 'none';
-        if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = '<p>Attiva il sensore o inserisci un valore per il feedback specifico sulle piante.</p>'; // Reset default message
-        // Add event listeners for the automatic sensor only if supported
-        if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
-        if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
-    }
-
-    // Always add event listener for manual input button, as it's an alternative
-    if (applyManualLuxButton) applyManualLuxButton.addEventListener('click', applyManualLux);
-
 
     // Inizializza Firebase all'inizio
     db = firebase.firestore();
