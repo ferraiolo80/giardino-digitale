@@ -18,7 +18,7 @@
 </head>
 <body>
     <div id="loading-spinner" class="loading-spinner" style="display: none;"></div>
-    <div id="toast-container" class="toast-container"></div> <!-- ID corretto per il toast -->
+    <div id="toast-container" class="toast-container"></div>
 
     <header class="main-header">
         <h1>🌸 Giardino Digitale 🌿</h1>
@@ -130,7 +130,7 @@
 
         <section id="lightSensorContainer" class="light-sensor-container">
             <h2>Sensore di Luce Ambientale</h2>
-            <div id="autoSensorControls" style="display: block;"> <!-- Mostra sempre autoSensorControls se supportato -->
+            <div id="autoSensorControls" style="display: block;">
                 <div class="sensor-info-row">
                     <div class="sensor-controls">
                         <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
@@ -139,7 +139,7 @@
                     <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
                 </div>
             </div>
-            <div id="manualLuxInputControls" style="display: none;"> <!-- Nascondi manualLuxInputControls di default -->
+            <div id="manualLuxInputControls" style="display: none;">
                 <div class="sensor-info-row">
                     <label for="manualLuxInput">Inserisci Lux manualmente:</label>
                     <input type="number" id="manualLuxInput" placeholder="Lux es. 500" min="0" step="1">
