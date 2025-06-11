@@ -547,123 +547,143 @@ async function savePlantToFirestore(e) {
         watering: form.querySelector('[id$="PlantWatering"]').value,
         tempMin: form.querySelector('[id$="TempMin"]').value.trim() !== '' ? parseFloat(form.querySelector('[id$="TempMin"]').value.trim()) : null,
         tempMax: form.querySelector('[id$="TempMax"]').value.trim() !== '' ? parseFloat(form.querySelector('[id$="TempMax"]').value.trim()) : null,
-        potSize: form.querySelector('[id$="PotSize"]').value.trim() || null,
+        potSize: form.querySelector('[id$="PotSize"]') ? form.querySelector('[id$="PotSize"]').value.trim() : null,
+        description: form.querySelector('[id$="Description"]') ? form.querySelector('[id$="Description"]').value.trim() : null,
         category: form.querySelector('[id$="PlantCategory"]').value,
     };
 
     let oldImageUrlToDelete = null; // To track image in storage that needs deletion
 
     try {
-        if (isEditingMyGardenPlant) { // Stiamo modificando una pianta nel "Mio Giardino"
-            console.log('savePlantToFirestore: Modifica di una pianta nel Mio Giardino.');
+        if (form.id === 'updatePlantFormContent') { // Stiamo modificando una pianta (sia nel giardino che pubblica)
+            console.log('savePlantToFirestore: Modifica di una pianta esistente.');
             const user = firebase.auth().currentUser;
-            if (!user) { throw new Error("Utente non autenticato per salvare il giardino."); }
+            if (!user) { throw new Error("Utente non autenticato per salvare."); }
 
-            const gardenRef = db.collection('gardens').doc(user.uid);
-            const gardenDoc = await gardenRef.get();
-            let currentGardenPlants = gardenDoc.exists ? (gardenDoc.data().plants || []) : [];
+            let isGardenPlantUpdate = false;
+            // Determina se la pianta in update è nel giardino personale dell'utente
+            if (myGarden.some(p => p.id === currentPlantIdToUpdate)) {
+                isGardenPlantUpdate = true;
+                console.log('savePlantToFirestore: Si tratta di una pianta nel Mio Giardino.');
+            } else {
+                console.log('savePlantToFirestore: Si tratta di una pianta pubblica.');
+            }
 
-            const plantIndex = currentGardenPlants.findIndex(p => p.id === currentPlantIdToUpdate);
+            if (isGardenPlantUpdate) {
+                const gardenRef = db.collection('gardens').doc(user.uid);
+                const gardenDoc = await gardenRef.get();
+                let currentGardenPlants = gardenDoc.exists ? (gardenDoc.data().plants || []) : [];
+                const plantIndex = currentGardenPlants.findIndex(p => p.id === currentPlantIdToUpdate);
 
-            if (plantIndex !== -1) {
-                const existingGardenPlant = currentGardenPlants[plantIndex];
-                console.log('savePlantToFirestore: Pianta esistente nel giardino trovata:', existingGardenPlant.name);
+                if (plantIndex !== -1) {
+                    const existingGardenPlant = currentGardenPlants[plantIndex];
 
-                // --- Gestione immagine utente-specifica (userImage) ---
-                if (currentCroppingFile) { // Se un nuovo file è stato caricato/ritagliato
-                    if (existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) { // Se c'era una vecchia immagine user-specifica
+                    // --- Gestione immagine utente-specifica (userImage) ---
+                    const updateImageUploadInput = form.querySelector('#updatePlantImageUpload');
+                    const updateImageURLHiddenInput = form.querySelector('#updatePlantImageURL');
+
+                    if (updateImageUploadInput && updateImageUploadInput.files[0]) { // Nuovo file caricato per userImage
+                        if (existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                            oldImageUrlToDelete = existingGardenPlant.userImage;
+                            console.log('savePlantToFirestore: Vecchia userImage marcata per eliminazione:', oldImageUrlToDelete);
+                        }
+                        plantData.userImage = await uploadImage(updateImageUploadInput.files[0], `user_plant_images/${user.uid}`);
+                        console.log('savePlantToFirestore: Nuova userImage caricata:', plantData.userImage);
+                        plantData.image = existingGardenPlant.image; // PRESERVA l'immagine pubblica originale
+                    } else if (updateImageURLHiddenInput && updateImageURLHiddenInput.value === '' && existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
+                        // L'utente ha esplicitamente rimosso l'immagine user-specifica
                         oldImageUrlToDelete = existingGardenPlant.userImage;
-                        console.log('savePlantToFirestore: Vecchia userImage marcata per eliminazione:', oldImageUrlToDelete);
+                        plantData.userImage = firebase.firestore.FieldValue.delete(); // Rimuovi esplicitamente il campo
+                        console.log('savePlantToFirestore: userImage rimossa esplicitamente. Vecchia userImage marcata per eliminazione:', oldImageUrlToDelete);
+                        plantData.image = existingGardenPlant.image; // PRESERVA l'immagine pubblica originale
+                    } else {
+                        // Nessun nuovo file e nessun campo cleared, mantieni la userImage esistente o la pubblica
+                        plantData.userImage = existingGardenPlant.userImage || null;
+                        plantData.image = existingGardenPlant.image || null; // Assicurati di mantenere l'immagine pubblica
+                        console.log('savePlantToFirestore: Nessun nuovo file, userImage mantenuta:', plantData.userImage);
                     }
-                    // Carica la nuova immagine user-specifica
-                    plantData.userImage = await uploadImage(currentCroppingFile, `user_plant_images/${user.uid}`);
-                    console.log('savePlantToFirestore: Nuova userImage caricata:', plantData.userImage);
 
-                } else if (form.querySelector('#updatePlantImageURL') && form.querySelector('#updatePlantImageURL').value === '' && existingGardenPlant.userImage && existingGardenPlant.userImage !== DEFAULT_PLACEHOLDER_IMAGE) {
-                    // L'utente ha svuotato l'input file E la pianta aveva una userImage, significa che vuole rimuoverla
-                    oldImageUrlToDelete = existingGardenPlant.userImage;
-                    plantData.userImage = firebase.firestore.FieldValue.delete(); // Rimuovi esplicitamente il campo
-                    console.log('savePlantToFirestore: userImage rimossa esplicitamente. Vecchia userImage marcata per eliminazione:', oldImageUrlToDelete);
+                    // --- Gestione Promemoria Annaffiatura (wateringIntervalDays, lastWateredTimestamp) ---
+                    const wateringIntervalDaysInput = form.querySelector('#updatePlantWateringIntervalDays');
+                    plantData.wateringIntervalDays = wateringIntervalDaysInput && wateringIntervalDaysInput.value.trim() !== '' ? parseInt(wateringIntervalDaysInput.value.trim(), 10) : null;
+                    plantData.lastWateredTimestamp = existingGardenPlant.lastWateredTimestamp || null; // Sarà aggiornato dal bottone dedicato
+
+
+                    // Unisci i campi aggiornati dalla form nell'oggetto pianta esistente del giardino
+                    currentGardenPlants[plantIndex] = {
+                        ...existingGardenPlant, // Mantieni tutti i campi originali
+                        ...plantData,         // Sovrascrivi con i nuovi dati della form
+                        // NON aggiungere 'updatedAt' qui!
+                    };
+
+                    // Aggiorna l'intero array di piante nel documento del giardino
+                    await gardenRef.set({ plants: currentGardenPlants }, { merge: true });
+                    myGarden = currentGardenPlants; // Aggiorna lo stato locale
+                    showToast('Pianta nel tuo giardino aggiornata con successo!', 'success');
+                    console.log('savePlantToFirestore: Pianta nel giardino aggiornata in Firestore.');
+
                 } else {
-                    // Nessun nuovo file e nessun campo cleared, mantieni la userImage esistente o lascia null se non c'era
-                    plantData.userImage = existingGardenPlant.userImage || null;
-                    console.log('savePlantToFirestore: Nessun nuovo file, userImage mantenuta:', plantData.userImage);
+                    throw new Error("Pianta non trovata nel tuo giardino per l'aggiornamento.");
+                }
+            } else { // Aggiornamento di una pianta pubblica
+                const publicPlantRef = db.collection('plants').doc(currentPlantIdToUpdate);
+                const publicPlantDoc = await publicPlantRef.get();
+                if (!publicPlantDoc.exists) throw new Error("Pianta pubblica non trovata per l'aggiornamento.");
+                const existingPublicPlant = publicPlantDoc.data();
+
+                const updateImageUploadInput = form.querySelector('#updatePlantImageUpload');
+                const updateImageURLHiddenInput = form.querySelector('#updatePlantImageURL');
+
+                if (updateImageUploadInput && updateImageUploadInput.files[0]) { // Nuova immagine per pianta pubblica
+                    if (existingPublicPlant.image && existingPublicPlant.image !== DEFAULT_PLACEHOLDER_IMAGE) {
+                        oldImageUrlToDelete = existingPublicPlant.image;
+                        console.log('savePlantToFirestore: Vecchia immagine pubblica marcata per eliminazione:', oldImageUrlToDelete);
+                    }
+                    plantData.image = await uploadImage(updateImageUploadInput.files[0], 'plant_images');
+                    console.log('savePlantToFirestore: Nuova immagine pubblica caricata:', plantData.image);
+                } else if (updateImageURLHiddenInput && updateImageURLHiddenInput.value === '' && existingPublicPlant.image && existingPublicPlant.image !== DEFAULT_PLACEHOLDER_IMAGE) {
+                    // L'utente ha esplicitamente rimosso l'immagine pubblica
+                    oldImageUrlToDelete = existingPublicPlant.image;
+                    plantData.image = firebase.firestore.FieldValue.delete();
+                    console.log('savePlantToFirestore: Immagine pubblica rimossa esplicitamente. Vecchia immagine marcata per eliminazione:', oldImageUrlToDelete);
+                } else {
+                    plantData.image = existingPublicPlant.image || null; // Mantieni l'immagine pubblica esistente
+                    console.log('savePlantToFirestore: Nessun nuovo file, immagine pubblica mantenuta:', plantData.image);
                 }
 
-                // --- Gestione Promemoria Annaffiatura (wateringIntervalDays, lastWateredTimestamp) ---
-                const wateringIntervalDaysInput = form.querySelector('#updatePlantWateringIntervalDays');
-                // const lastWateredDisplay = form.querySelector('#lastWateredDisplay'); // Non serve qui, il timestamp è gestito dal bottone
+                // Assicurati che i campi di promemoria annaffiatura e userImage non vengano settati per le piante pubbliche
+                delete plantData.wateringIntervalDays;
+                delete plantData.lastWateredTimestamp;
+                delete plantData.userImage;
 
-                plantData.wateringIntervalDays = wateringIntervalDaysInput.value.trim() !== '' ? parseInt(wateringIntervalDaysInput.value.trim(), 10) : null;
-                console.log('savePlantToFirestore: Watering Interval Days:', plantData.wateringIntervalDays);
-
-                // lastWateredTimestamp viene aggiornato solo dal button "Annaffiato Oggi!" o mantenuto dal valore esistente
-                plantData.lastWateredTimestamp = existingGardenPlant.lastWateredTimestamp || null;
-                console.log('savePlantToFirestore: Last Watered Timestamp:', plantData.lastWateredTimestamp);
-
-
-                // Unisci i campi aggiornati dalla form nell'oggetto pianta esistente del giardino
-                currentGardenPlants[plantIndex] = {
-                    ...existingGardenPlant, // Mantieni tutti i campi originali (es. 'image' dalla pianta pubblica)
-                    ...plantData,         // Sovrascrivi con i nuovi dati della form, inclusa la nuova/vecchia/null userImage e i dati annaffiatura
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                // Aggiorna l'intero array di piante nel documento del giardino
-                await gardenRef.set({ plants: currentGardenPlants }, { merge: true }); // Usiamo merge:true per non sovrascrivere l'intero documento se ci fossero altri campi
-                myGarden = currentGardenPlants; // Aggiorna lo stato locale per refresh immediato della UI
-                showToast('Pianta nel tuo giardino aggiornata con successo!', 'success');
-                console.log('savePlantToFirestore: Pianta nel giardino aggiornata in Firestore.');
-
-            } else {
-                throw new Error("Pianta non trovata nel tuo giardino per l'aggiornamento.");
-            }
-
-        } else { // Stiamo aggiungendo una nuova pianta pubblica O aggiornando una pianta pubblica esistente
-            console.log('savePlantToFirestore: Aggiunta/Modifica di una pianta pubblica.');
-            // Gestione caricamento immagine per pianta pubblica (campo 'image')
-            if (currentCroppingFile) { // Se un nuovo file è stato caricato/ritagliato
-                plantData.image = await uploadImage(currentCroppingFile, 'plant_images'); // Carica nell'album immagini generiche
-                console.log('savePlantToFirestore: Immagine pubblica caricata:', plantData.image);
-            } else {
-                // Se nessun file caricato, per nuove piante l'immagine è null, per aggiornamenti mantiene la precedente
-                if (!currentPlantIdToUpdate) { // Nuova pianta pubblica
-                    plantData.image = null; // Sarà il placeholder basato su categoria
-                    console.log('savePlantToFirestore: Nuova pianta pubblica senza immagine.');
-                } else { // Aggiornamento di pianta pubblica senza nuovo file
-                    // Recupera l'immagine esistente dal documento per non eliminarla
-                    const existingPlantDoc = await db.collection('plants').doc(currentPlantIdToUpdate).get();
-                    plantData.image = existingPlantDoc.exists ? (existingPlantDoc.data().image || null) : null;
-                    console.log('savePlantToFirestore: Nessun nuovo file per pianta pubblica, mantenimento immagine esistente:', plantData.image);
-                }
-            }
-
-
-            if (currentPlantIdToUpdate) { // Aggiornamento di una pianta pubblica esistente
-                console.log('savePlantToFirestore: Aggiornamento pianta pubblica. ID:', currentPlantIdToUpdate);
-                const existingPlantDoc = await db.collection('plants').doc(currentPlantIdToUpdate).get();
-                if (existingPlantDoc.exists && existingPlantDoc.data().image && existingPlantDoc.data().image !== DEFAULT_PLACEHOLDER_IMAGE && currentCroppingFile) {
-                    oldImageUrlToDelete = existingPlantDoc.data().image; // Marca la vecchia immagine pubblica per eliminazione SOLO se ce n'era una e stiamo caricando una nuova
-                    console.log('savePlantToFirestore: Vecchia immagine pubblica marcata per eliminazione:', oldImageUrlToDelete);
-                }
-                await db.collection('plants').doc(currentPlantIdToUpdate).update({
-                    ...plantData, // Usa il plantData preparato, incluso il campo 'image'
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                await publicPlantRef.update({
+                    ...plantData,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp() // OK qui perché è un campo diretto del documento
                 });
                 showToast('Pianta pubblica aggiornata con successo!', 'success');
                 console.log('savePlantToFirestore: Pianta pubblica aggiornata in Firestore.');
-            } else { // Aggiunta di una nuova pianta pubblica
-                console.log('savePlantToFirestore: Aggiunta nuova pianta pubblica.');
-                plantData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                plantData.ownerId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
-                // Assicurati che questi campi non vengano aggiunti alle piante pubbliche se non previsti
-                delete plantData.wateringIntervalDays;
-                delete plantData.lastWateredTimestamp;
-                delete plantData.userImage; // Le piante pubbliche non hanno una userImage
-                await db.collection('plants').add(plantData);
-                showToast('Nuova pianta pubblica aggiunta con successo!', 'success');
-                console.log('savePlantToFirestore: Nuova pianta pubblica aggiunta in Firestore.');
             }
+
+        } else { // Stiamo aggiungendo una nuova pianta pubblica
+            console.log('savePlantToFirestore: Aggiunta nuova pianta pubblica.');
+            const newPlantImageUploadInput = form.querySelector('#newPlantImageUpload');
+            if (newPlantImageUploadInput && newPlantImageUploadInput.files[0]) {
+                plantData.image = await uploadImage(newPlantImageUploadInput.files[0], 'plant_images');
+            } else {
+                plantData.image = null;
+            }
+
+            plantData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            plantData.ownerId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
+
+            // Assicurati che i campi di promemoria annaffiatura e userImage non vengano aggiunti a nuove piante pubbliche
+            delete plantData.wateringIntervalDays;
+            delete plantData.lastWateredTimestamp;
+            delete plantData.userImage;
+
+            await db.collection('plants').add(plantData);
+            showToast('Nuova pianta pubblica aggiunta con successo!', 'success');
+            console.log('savePlantToFirestore: Nuova pianta pubblica aggiunta in Firestore.');
         }
 
         // --- Pulizia comune dopo operazioni Firestore riuscite ---
@@ -697,7 +717,10 @@ async function savePlantToFirestore(e) {
 }
 
 
-// Elimina una pianta dal database Firestore e dal giardino di tutti gli utenti
+/**
+ * Elimina una pianta dal database Firestore e dal giardino di tutti gli utenti.
+ * @param {string} plantId - L'ID della pianta da eliminare.
+ */
 async function deletePlantFromDatabase(plantId) {
     showLoadingSpinner();
     console.log('deletePlantFromDatabase: Avviato per ID:', plantId);
@@ -815,6 +838,7 @@ async function addToMyGarden(plantId) {
                 tempMin: plantToAdd.tempMin,
                 tempMax: plantToAdd.tempMax,
                 potSize: plantToAdd.potSize || null,
+                description: plantToAdd.description || null,
                 createdAt: plantToAdd.createdAt || firebase.firestore.FieldValue.serverTimestamp(), // Keep original timestamp
                 // Nuovi campi per il promemoria annaffiatura, inizializzati a null o default
                 wateringIntervalDays: null,
@@ -970,7 +994,7 @@ function calculateNextWateringDate(plant) {
     const lastWateredDate = plant.lastWateredTimestamp.toDate(); // Converti Firestore Timestamp in Date
     const nextWateringDate = new Date(lastWateredDate);
     nextWateringDate.setDate(lastWateredDate.getDate() + plant.wateringIntervalDays);
-    return nextWateringDate;
+    return nextWateredDate;
 }
 
 
@@ -987,6 +1011,7 @@ function applyFiltersAndSort(plantsToFilter) {
         filteredPlants = filteredPlants.filter(plant =>
             (plant.name && plant.name.toLowerCase().includes(searchTerm)) ||
             (plant.potSize && plant.potSize.toLowerCase().includes(searchTerm)) || // Cerca anche nella dimensione vaso
+            (plant.description && plant.description.toLowerCase().includes(searchTerm)) || // Cerca anche nella descrizione
             (plant.category && plant.category.toLowerCase().includes(searchTerm))
         );
     }
@@ -1095,7 +1120,7 @@ function displayPlants(plantsToShow) {
             const deleteButtonHtml = user ? `<button class="action-button delete-plant-from-db-button" data-plant-id="${plant.id}"><i class="fas fa-trash"></i> Elimina</button>` : '';
 
             // Determina quale immagine visualizzare
-            let imageUrlToDisplay = DEFAULT_PLACEHOLDER_IMAGE; // Fallback generico
+            let imageUrlToDisplay = DEFAULT_PLACEHOLDER_IMAGE;
 
             if (isMyGardenCurrentlyVisible) {
                 // Se nella vista "Mio Giardino", prioritizza userImage, poi plant.image (dalla pubblica), poi category-based placeholder
@@ -1302,7 +1327,7 @@ async function startLightSensor() {
 
         ambientLightSensor.onerror = (event) => {
             console.error("startLightSensor: Errore sensore di luce:", event.error.name, event.error.message);
-            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}. Assicurati di essere su HTTPS e di aver concesso i permessi. </p>`;
+            if (lightFeedbackDiv) lightFeedbackDiv.innerHTML = `<p style="color: red;">Errore sensore: ${event.error.message}. Assicurati di essere su HTTPS e di aver concesso il permesso richiesto.</p>`;
             showToast(`Errore sensore luce: ${event.error.message}`, 'error');
             stopLightSensor(); // Stop sensor on error
             hideLoadingSpinner();
@@ -1370,7 +1395,7 @@ async function applyManualLux() {
     hideLoadingSpinner();
     console.log('applyManualLux: Re-fetch completato.');
 
-    if (currentLuxValueManualSpan) currentLuxValueManualSpan.textContent = `${manualLuxValue.toFixed(2)} `;
+    if (currentLuxValueManualSpan) currentLuxValueManualSpan.textContent = `${manualLuxValue.toFixed(2)} lx`;
     updateLightFeedback(manualLuxValue);
     showToast(`Valore Lux ${manualLuxValue.toFixed(2)} applicato.`, 'success');
     console.log('applyManualLux: Funzione completata.');
@@ -1679,6 +1704,7 @@ async function openCardModal(formTemplateElement, plantData = null, isFromMyGard
         clonedForm.querySelector('#updatePlantTempMin').value = plantData.tempMin !== null ? plantData.tempMin.toString() : '';
         clonedForm.querySelector('#updatePlantTempMax').value = plantData.tempMax !== null ? plantData.tempMax.toString() : '';
         clonedForm.querySelector('#updatePlantPotSize').value = plantData.potSize || '';
+        clonedForm.querySelector('#updatePlantDescription').value = plantData.description || '';
         clonedForm.querySelector('#updatePlantCategory').value = plantData.category || '';
 
         // Gestione dell'immagine per la preview e il campo nascosto
@@ -2188,6 +2214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h2>${plant.name}</h2>
                     </div>
                     <div class="plant-details-body">
+                        <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
                         <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
                         <p><strong>Esposizione al Sole:</strong> ${plant.sunlight || 'N/A'}</p>
                         <p><strong>Lux Ideali:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax}` : 'N/A'}</p>
@@ -2241,6 +2268,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h2>${plant.name}</h2>
                     </div>
                     <div class="plant-details-body">
+                        <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
                         <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
                         <p><strong>Esposizione al Sole:</strong> ${plant.sunlight || 'N/A'}</p>
                         <p><strong>Lux Ideali:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax}` : 'N/A'}</p>
