@@ -183,7 +183,7 @@ function showToast(message, type = 'info', duration = 3000) {
 function showConfirmationModal(message, title = 'Conferma Azione') {
     return new Promise(resolve => {
         if (!confirmationModal || !confirmationTitle || !confirmationMessage || !confirmYesButton || !confirmNoButton) {
-            console.error("Confirmation modal elements not found.");
+            console.error("Confirmation modal elements not found. Falling back to native confirm.");
             // Fallback to native confirm if elements are missing, but log error
             resolve(window.confirm(message));
             return;
@@ -1006,13 +1006,13 @@ function applyFiltersAndSort(plantsToFilter) {
                 // Considera le piante che rientrano nel range climatico o che non hanno dati di temperatura definiti.
                 // Se non ha dati di temp, non la escludo a priori, ma non la includo attivamente nel filtro per temp.
                 if (plantMin === null || plantMax === null || isNaN(plantMin) || isNaN(plantMax)) {
-                    return false; // Escludi se mancano dati essenziali per il filtro climatico
+                    return false; // Exclude if essential data for climate filter is missing
                 }
                 return plantMin >= climateRange.min && plantMax <= climateRange.max;
             });
         } else {
             console.warn(`Intervallo di temperatura non definito per il clima: ${selectedClimate}. Nessuna pianta sarà mostrata per questo filtro.`);
-            filteredPlants = []; // Nessun range, nessuna pianta
+            filteredPlants = []; // No range, no plants
         }
     }
 
@@ -1045,9 +1045,9 @@ function applyFiltersAndSort(plantsToFilter) {
             filteredPlants.sort((a, b) => (b.category || '').localeCompare(a.category || ''));
             break;
         default:
-            // Seleziona l'ordinamento di default se non valido
+            // Select default sort if invalid
             filteredPlants.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-            if (sortBySelect) sortBySelect.value = 'name_asc'; // Reimposta UI
+            if (sortBySelect) sortBySelect.value = 'name_asc'; // Reset UI
             break;
     }
     return filteredPlants;
@@ -1297,7 +1297,7 @@ async function startLightSensor() {
             const lux = ambientLightSensor.illuminance;
             if (currentLuxValueSpan) currentLuxValueSpan.textContent = `${lux ? lux.toFixed(2) : 'N/A'} `;
             updateLightFeedback(lux); // Call shared feedback function
-            // console.log('startLightSensor: Lettura Lux:', lux); // Commentato per evitare spamming in console
+            // console.log('startLightSensor: Lettura Lux:', lux); // Commented to avoid spamming in console
         };
 
         ambientLightSensor.onerror = (event) => {
@@ -1903,17 +1903,6 @@ function openCropModal(file) {
             viewMode: 1, // Definisce la modalità di visualizzazione del cropper
             autoCropArea: 0.8, // Area di ritaglio automatica (80% dell'immagine)
             background: false, // Nessuno sfondo a scacchi
-            // Altre opzioni di personalizzazione:
-            // minCropBoxWidth: 100,
-            // minCropBoxHeight: 100,
-            // movable: true,
-            // zoomable: true,
-            // rotatable: true,
-            // scalable: true,
-            // zoomOnTouch: true,
-            // zoomOnWheel: true,
-            // cropBoxMovable: true,
-            // cropBoxResizable: true,
         });
         console.log('openCropModal: Nuova istanza Cropper creata.');
     };
@@ -1994,15 +1983,15 @@ async function saveCroppedImage() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOMContentLoaded: Avviato.');
 
-    // Inizializza tutte le variabili DOM qui
+    // Inizializza tutte le variabili DOM qui (corrispondenti agli ID in index.html)
     gardenContainer = document.getElementById('garden-container');
     myGardenContainer = document.getElementById('my-garden');
     authContainerDiv = document.getElementById('auth-container');
     appContentDiv = document.getElementById('app-content');
-    loginButton = document.getElementById('loginButton');
-    registerButton = document.getElementById('registerButton');
-    showLoginLink = document.getElementById('showLogin');
-    showRegisterLink = document.getElementById('showRegister');
+    loginButton = document.getElementById('loginButton'); // Corretto da login-button
+    registerButton = document.getElementById('registerButton'); // Corretto da register-button
+    showLoginLink = document.getElementById('showLogin'); // Corretto da showLogin
+    showRegisterLink = document.getElementById('showRegister'); // Corretto da showRegister
     emailInput = document.getElementById('loginEmail');
     passwordInput = document.getElementById('loginPassword');
     loginError = document.getElementById('login-error');
@@ -2010,30 +1999,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     registerPasswordInput = document.getElementById('registerPassword');
     registerError = document.getElementById('register-error');
     authStatusSpan = document.getElementById('auth-status');
-    logoutButton = document.getElementById('logoutButton');
-    searchInput = document.getElementById('searchInput');
-    categoryFilter = document.getElementById('categoryFilter');
+    logoutButton = document.getElementById('logoutButton'); // Corretto da logout-button
+    searchInput = document.getElementById('searchInput'); // Corretto da search-input
+    categoryFilter = document.getElementById('categoryFilter'); // Corretto da category-filter
     tempMinFilter = document.getElementById('tempMinFilter');
     tempMaxFilter = document.getElementById('tempMaxFilter');
-    sortBySelect = document.getElementById('sortBy');
+    sortBySelect = document.getElementById('sortBy'); // Corretto da sortBySelect
 
-    addNewPlantButton = document.getElementById('addNewPlantButton');
-    showAllPlantsButton = document.getElementById('showAllPlantsButton');
-    showMyGardenButton = document.getElementById('showMyGardenButton');
-    plantsSectionHeader = document.getElementById('plantsSectionHeader');
-    lightSensorContainer = document.getElementById('lightSensorContainer');
-    startLightSensorButton = document.getElementById('startLightSensorButton');
-    stopLightSensorButton = document.getElementById('stopLightSensorButton');
+    addNewPlantButton = document.getElementById('addNewPlantButton'); // Corretto da add-new-plant-button
+    showAllPlantsButton = document.getElementById('showAllPlantsButton'); // Corretto da show-all-plants-button
+    showMyGardenButton = document.getElementById('showMyGardenButton'); // Corretto da show-my-garden-button
+    plantsSectionHeader = document.getElementById('plantsSectionHeader'); // Corretto da plants-section-header
+    lightSensorContainer = document.getElementById('lightSensorContainer'); // Corretto da light-sensor-container
+    startLightSensorButton = document.getElementById('startLightSensorButton'); // Corretto da start-light-sensor
+    stopLightSensorButton = document.getElementById('stopLightSensorButton'); // Corretto da stop-light-sensor
     currentLuxValueSpan = document.getElementById('currentLuxValue');
     lightFeedbackDiv = document.getElementById('lightFeedback');
     loadingSpinner = document.getElementById('loading-spinner');
-    toastContainer = document.getElementById('toast-container');
+    toastContainer = document.getElementById('toast-container'); // Corretto da toast
     googleLensButton = document.getElementById('googleLensButton');
 
     // Modali
     imageModal = document.getElementById('image-modal');
     zoomedImage = document.getElementById('zoomed-image');
-    closeImageModalButton = document.querySelector('#image-modal .close-button');
+    closeImageModalButton = document.querySelector('#image-modal .close-button'); // Corretto da close-image-modal (è una classe, non un ID specifico)
     cardModal = document.getElementById('card-modal');
     zoomedCardContent = document.getElementById('zoomed-card-content');
     closeCardModalButton = document.getElementById('close-card-modal');
@@ -2065,16 +2054,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Template dei form (li recuperiamo come nodi DOM da clonare)
+    // Usiamo .content per accedere al contenuto del template HTML
     const newPlantFormTemplateDiv = document.getElementById('newPlantFormTemplate');
     const updatePlantFormTemplateDiv = document.getElementById('updatePlantFormTemplate');
 
     if (newPlantFormTemplateDiv) {
+        // Se è un template element, usa .content
         newPlantFormTemplate = newPlantFormTemplateDiv.querySelector('form');
         console.log('DOMContentLoaded: newPlantFormTemplate caricato.');
     } else {
         console.error("DOMContentLoaded: newPlantFormTemplateDiv non trovato! Impossibile inizializzare il template.");
     }
     if (updatePlantFormTemplateDiv) {
+        // Se è un template element, usa .content
         updatePlantFormTemplate = updatePlantFormTemplateDiv.querySelector('form');
         console.log('DOMContentLoaded: updatePlantFormTemplate caricato.');
     } else {
@@ -2124,6 +2116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Event Listeners per l'autenticazione
+    // Ho ripristinato gli ID dei bottoni di login/register a quelli che app.js si aspettava
     if (loginButton) loginButton.addEventListener('click', handleLogin);
     if (registerButton) registerButton.addEventListener('click', handleRegister);
     if (logoutButton) logoutButton.addEventListener('click', handleLogout);
