@@ -130,14 +130,15 @@
 
         <section id="lightSensorContainer" class="light-sensor-container">
             <h2>Sensore di Luce Ambientale</h2>
-            <div id="autoSensorControls" class="sensor-info-row" style="display: block;">
+            <!-- I controlli automatici/manuali saranno gestiti da JavaScript -->
+            <div id="autoSensorControls" class="sensor-info-row" style="display: none;">
                 <div class="sensor-controls">
                     <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
                     <button id="stopLightSensorButton" class="secondary-button" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
                 </div>
                 <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
             </div>
-             <div id="manualLuxInputControls" class="sensor-info-row" style="display: none;">
+            <div id="manualLuxInputControls" class="sensor-info-row" style="display: block;">
                 <label for="manualLuxInput">Inserisci Lux manualmente:</label>
                 <input type="number" id="manualLuxInput" placeholder="Lux es. 500" min="0" step="1">
                 <button id="applyManualLuxButton" class="action-button"><i class="fas fa-check"></i> Applica Lux</button>
@@ -367,7 +368,7 @@
 
     <!-- Nuovo bottone "Torna su" -->
     <button id="scrollToTopButton" class="scroll-to-top-button" style="display: none;">
-        <i class="fas fa-arrow-up"></i> Torna su
+        <i class="fas fa-arrow-up"></i>
     </button>
 
 
@@ -382,7 +383,7 @@
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
-            apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+             apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
   authDomain: "giardinodigitale.firebaseapp.com",
   projectId: "giardinodigitale",
   storageBucket: "giardinodigitale.firebasestorage.app",
