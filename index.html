@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -130,15 +130,14 @@
 
         <section id="lightSensorContainer" class="light-sensor-container">
             <h2>Sensore di Luce Ambientale</h2>
-            <!-- I controlli automatici/manuali saranno gestiti da JavaScript -->
-            <div id="autoSensorControls" class="sensor-info-row" style="display: none;">
+            <div id="autoSensorControls" class="sensor-info-row">
                 <div class="sensor-controls">
                     <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
                     <button id="stopLightSensorButton" class="secondary-button" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
                 </div>
                 <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
             </div>
-            <div id="manualLuxInputControls" class="sensor-info-row" style="display: block;">
+             <div id="manualLuxInputControls" class="sensor-info-row" style="display: none;">
                 <label for="manualLuxInput">Inserisci Lux manualmente:</label>
                 <input type="number" id="manualLuxInput" placeholder="Lux es. 500" min="0" step="1">
                 <button id="applyManualLuxButton" class="action-button"><i class="fas fa-check"></i> Applica Lux</button>
@@ -368,7 +367,7 @@
 
     <!-- Nuovo bottone "Torna su" -->
     <button id="scrollToTopButton" class="scroll-to-top-button" style="display: none;">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fas fa-arrow-up"></i> Torna su
     </button>
 
 
@@ -383,12 +382,12 @@
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
-             apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-  authDomain: "giardinodigitale.firebaseapp.com",
-  projectId: "giardinodigitale",
-  storageBucket: "giardinodigitale.firebasestorage.app",
-  messagingSenderId: "96265504027",
-  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+            apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+            authDomain: "giardinodigitale.firebaseapp.com",
+            projectId: "giardinodigitale",
+            storageBucket: "giardinodigitale.appspot.com", // VALORE CORRETTO E TESTATO CON GSUTIL
+            messagingSenderId: "305018691515",
+            appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
         };
 
         // Inizializza Firebase
