@@ -361,7 +361,7 @@ async function updateUIforAuthState(user) {
         await fetchMyGardenFromFirebase(); // Popola myGarden
 
         // Visualizza le piante predefinita (Tutte le Piante)
-        displayAllPlants();
+        displayAllPlants(); // Chiamata corretta alla funzione wrapper
 
         // Tenta di ottenere il clima all'avvio se l'utente è loggato
         getLocation();
@@ -615,6 +615,7 @@ async function savePlantToFirestore(e) {
             }
 
             // Assicurati che il campo userImage non esista o venga rimosso per tutte le piante
+            // Questo campo non è più supportato nel nuovo modello unificato.
             delete plantData.userImage;
 
 
@@ -1023,6 +1024,18 @@ async function fetchMyGardenFromFirebase() {
 // =======================================================
 // 4. LOGICA DI VISUALIZZAZIONE E FILTRI
 // =======================================================
+
+/**
+ * Funzione wrapper per mostrare tutte le piante (galleria principale).
+ * Usata per il caricamento iniziale e il bottone "Piante di Tutti".
+ */
+function displayAllPlants() {
+    showAllPlantsButton.classList.add('active');
+    showMyGardenButton.classList.remove('active');
+    isMyGardenCurrentlyVisible = false; // Assicura che questo flag sia impostato correttamente
+    displayPlants(allPlants); // Chiama la logica di visualizzazione principale
+}
+
 
 // Mostra le piante nel DOM (sia allPlants che myGarden a seconda del flag)
 function displayPlants(plantsToDisplay) {
@@ -1594,13 +1607,13 @@ function stopLightSensor() {
         ambientLightSensor.stop();
         ambientLightSensor = null;
         currentLuxValueSpan.textContent = 'N/A';
-        lightFeedbackDiv.innerHTML = '<p>Attiva il sensore o inserisci un valore per il feedback specifico sulle piante.</p>';
+        lightFeedbackDiv.innerHTML = '<p>Inserisci un valore Lux o avvia il sensore per il feedback specifico sulle piante.</p>'; // Messaggio aggiornato
         showToast('Sensore di luce fermato.', 'info');
         console.log('Sensore di luce fermato.');
         startLightSensorButton.style.display = 'inline-block';
         stopLightSensorButton.style.display = 'none';
-        autoSensorControls.style.display = 'block'; // Torna alla visualizzazione sensore
-        manualLuxInputControls.style.display = 'none';
+        autoSensorControls.style.display = 'none'; // Sempre nascosto quando si ferma, si torna al manuale
+        manualLuxInputControls.style.display = 'block'; // Mostra il manuale per default
         manualLuxInput.value = ''; // Pulisci input manuale
         currentLuxValueManualSpan.textContent = 'N/A';
     }
@@ -1705,8 +1718,16 @@ async function fetchClimate(lat, lon) {
     showLoadingSpinner();
     console.log('fetchClimate: Avviato recupero clima per Lat:', lat, 'Lon:', lon);
     // API key per OpenWeatherMap (sostituisci con la tua chiave reale e sicura)
-    const OPENWEATHER_API_KEY = 'YOUR_OPENWEATHER_API_KEY'; // AGGIORNA CON LA TUA CHIAVE
-    // const CLIMATEMAP_API_KEY = 'YOUR_CLIMATEMAP_API_KEY'; // AGGIORNA CON LA TUA CHIAVE - non più usata direttamente
+    // TROVA LA TUA CHIAVE API QUI: https://openweathermap.org/api
+    const OPENWEATHER_API_KEY = 'YOUR_OPENWEATHER_API_KEY'; 
+
+    if (OPENWEATHER_API_KEY === 'YOUR_OPENWEATHER_API_KEY') {
+        console.error("ERRORE: Chiave API OpenWeatherMap non configurata. Aggiorna la variabile OPENWEATHER_API_KEY nel file app.js.");
+        weatherForecastDiv.innerHTML = '<p class="error-message">Errore: Chiave API OpenWeatherMap non configurata. Aggiorna il file app.js.</p>';
+        showToast('Errore: Chiave API OpenWeatherMap mancante!', 'error', 5000);
+        hideLoadingSpinner();
+        return;
+    }
 
     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=it`;
 
@@ -1716,11 +1737,12 @@ async function fetchClimate(lat, lon) {
         const weatherData = await weatherResponse.json();
         console.log('fetchClimate: Dati meteo:', weatherData);
 
-        let climateZone = 'Sconosciuto';
-        // let feedback = ''; // rimosso, non utilizzato
+        if (weatherData.cod && weatherData.cod !== 200) { // Gestisce errori dell'API OpenWeatherMap
+            throw new Error(`Errore OpenWeatherMap: ${weatherData.message || 'Sconosciuto'}`);
+        }
 
-        // Tenta di determinare la zona climatica con logica semplificata o API
-        // Esempio molto semplificato, basato sulla temperatura:
+        let climateZone = 'Sconosciuto';
+        // Tenta di determinare la zona climatica con logica semplificata basata sulla temperatura:
         const temp = weatherData.main ? weatherData.main.temp : null;
         if (temp !== null) {
             if (temp >= 25) climateZone = 'Tropicale';
@@ -1728,11 +1750,6 @@ async function fetchClimate(lat, lon) {
             else if (temp >= 5 && temp < 15) climateZone = 'Mediterraneo';
             else if (temp < 5) climateZone = 'Boreale/Artico';
         }
-
-        // Se hai una vera API per le zone climatiche, usala qui:
-        // const climateZoneResponse = await fetch(climateZoneUrl);
-        // const climateZoneData = await climateZoneResponse.json();
-        // climateZone = climateZoneData.zone || 'Sconosciuto';
 
 
         if (weatherData.main && weatherData.weather && weatherData.name) {
@@ -1766,7 +1783,7 @@ async function fetchClimate(lat, lon) {
 
     } catch (error) {
         console.error("Errore nel recupero dati climatici:", error);
-        weatherForecastDiv.innerHTML = '<p>Errore nel caricamento delle previsioni.</p>';
+        weatherForecastDiv.innerHTML = `<p class="error-message">Errore nel caricamento delle previsioni: ${error.message}.</p>`;
         showToast(`Errore nel caricamento clima: ${error.message}`, 'error');
     } finally {
         hideLoadingSpinner();
