@@ -206,7 +206,7 @@
     </div>
 
     <!-- Contenuti dei form (template nascosti per essere clonati nelle modali) -->
-    <div id="newPlantFormTemplate" style="display: none;">
+    <template id="newPlantFormTemplate">
         <form id="newPlantFormContent">
             <h3 class="form-title">Aggiungi Nuova Pianta Pubblica</h3>
             <label for="newPlantName">Nome:</label>
@@ -276,9 +276,9 @@
                 <button type="button" id="cancelNewPlantButton" class="cancel-button">Annulla</button>
             </div>
         </form>
-    </div>
+    </template>
 
-    <div id="updatePlantFormTemplate" style="display: none;">
+    <template id="updatePlantFormTemplate">
         <form id="updatePlantFormContent">
             <h3 class="form-title">Aggiorna Pianta</h3>
             <label for="updatePlantName">Nome:</label>
@@ -362,7 +362,7 @@
                 <button type="button" id="deletePlant" class="delete-button">Elimina Pianta dal Database</button>
             </div>
         </form>
-    </div>
+    </template>
 
 
     <!-- Nuovo bottone "Torna su" -->
