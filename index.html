@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -13,8 +13,6 @@
     <title>Giardino Digitale</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Cropper.js CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
 </head>
 <body>
     <div id="loading-spinner" class="loading-spinner" style="display: none;"></div>
@@ -130,21 +128,15 @@
 
         <section id="lightSensorContainer" class="light-sensor-container">
             <h2>Sensore di Luce Ambientale</h2>
-            <div id="autoSensorControls" class="sensor-info-row" style="display: none;">
+            <div class="sensor-info-row">
                 <div class="sensor-controls">
                     <button id="startLightSensorButton" class="action-button"><i class="fas fa-sun"></i> Avvia Sensore</button>
                     <button id="stopLightSensorButton" class="secondary-button" style="display: none;"><i class="fas fa-moon"></i> Ferma Sensore</button>
                 </div>
                 <p>Livello attuale di Lux: <span id="currentLuxValue">N/A</span> lx</p>
             </div>
-             <div id="manualLuxInputControls" class="sensor-info-row" style="display: block;">
-                <label for="manualLuxInput">Inserisci Lux manualmente:</label>
-                <input type="number" id="manualLuxInput" placeholder="Lux es. 500" min="0" step="1">
-                <button id="applyManualLuxButton" class="action-button"><i class="fas fa-check"></i> Applica Lux</button>
-                <p>Valore Lux applicato: <span id="currentLuxValueManual">N/A</span> lx</p>
-            </div>
             <div id="lightFeedback">
-                <p>Inserisci un valore Lux o avvia il sensore per il feedback specifico sulle piante.</p>
+                <p>Attiva il sensore per la misurazione e il feedback specifico sulle piante.</p>
             </div>
         </section>
 
@@ -173,51 +165,19 @@
         </div>
     </div>
 
-    <!-- NUOVA MODAL PER IL RITAGLIO DELL'IMMAGINE -->
-    <div id="crop-modal" class="modal" style="display: none;">
-        <div class="modal-content crop-modal-content">
-            <h2>Ritaglia Immagine</h2>
-            <div class="img-container">
-                <img id="image-to-crop" src="" alt="Immagine da ritagliare">
-            </div>
-            <div class="crop-controls">
-                <button id="rotate-left" class="action-button" title="Ruota a sinistra"><i class="fas fa-undo"></i></button>
-                <button id="rotate-right" class="action-button" title="Ruota a destra"><i class="fas fa-redo"></i></button>
-                <button id="zoom-in" class="action-button" title="Zoom In"><i class="fas fa-search-plus"></i></button>
-                <button id="zoom-out" class="action-button" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
-            </div>
-            <div class="form-actions">
-                <button id="save-cropped-image" class="action-button primary-button"><i class="fas fa-crop"></i> Salva Ritagliata</button>
-                <button id="cancel-cropping" class="secondary-button"><i class="fas fa-times-circle"></i> Annulla</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- NUOVA MODAL PER LA CONFERMA PERSONALIZZATA -->
-    <div id="confirmation-modal" class="modal" style="display: none;">
-        <div class="modal-content confirmation-modal-content">
-            <h2 id="confirmation-title">Conferma Azione</h2>
-            <p id="confirmation-message">Sei sicuro di voler procedere?</p>
-            <div class="modal-buttons">
-                <button id="confirm-yes" class="action-button primary-button">Sì</button>
-                <button id="confirm-no" class="secondary-button">No</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Contenuti dei form (template nascosti per essere clonati nelle modali) -->
-    <template id="newPlantFormTemplate">
+    <div id="newPlantFormTemplate" style="display: none;">
+        <h3 class="form-title">Aggiungi Nuova Pianta</h3>
         <form id="newPlantFormContent">
-            <h3 class="form-title">Aggiungi Nuova Pianta Pubblica</h3>
             <label for="newPlantName">Nome:</label>
             <input type="text" id="newPlantName" required>
 
             <label for="newPlantSunlight">Esposizione al Sole:</label>
             <select id="newPlantSunlight" required>
                 <option value="">Seleziona</option>
-                <option value="Pieno Sole">Pieno Sole (≥ 6h diretta)</option>
-                <option value="Mezz'ombra">Mezz'ombra (2-5h diretta)</option>
-                <option value="Ombra">Ombra (indiretta/limitata)</option>
+                <option value="Pieno Sole">Pieno Sole (luce solare diretta ≥ 6h)</option>
+                <option value="Mezz'ombra">Mezz'ombra (luce solare diretta 2-5h)</option>
+                <option value="Ombra">Ombra (luce solare indiretta/limitata)</option>
             </select>
 
             <div class="lux-input-group">
@@ -230,9 +190,9 @@
             <label for="newPlantWatering">Annaffiatura:</label>
             <select id="newPlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa (dare acqua alle piante dal basso, riempiendo il sottovaso e lasciando che l'acqua venga assorbita gradualmente)</option>
-                <option value="Media">Media (terreno non deve essere nè troppo bagnato, causando ristagni, né troppo asciutto)</option>
-                <option value="Alta">Alta (versare l'acqua direttamente sul substrato della pianta, solitamente con un annaffiatoio o un nebulizzatore)</option>
+                <option value="Bassa">Bassa (dal basso, sottovaso)</option>
+                <option value="Media">Media (terreno umido, non inzuppato)</option>
+                <option value="Alta">Alta (direttamente sul substrato)</option>
             </select>
 
             <div class="temp-input-group">
@@ -241,9 +201,6 @@
                 <label for="newPlantTempMax">Max (°C):</label>
                 <input type="number" id="newPlantTempMax" placeholder="Es. 25 (Opzionale)">
             </div>
-
-            <label for="newPlantPotSize">Dimensione Vaso:</label>
-            <input type="text" id="newPlantPotSize" placeholder="Es. Ø 12 cm, 2 Litri">
 
             <label for="newPlantDescription">Descrizione:</label>
             <textarea id="newPlantDescription" rows="3" placeholder="Breve descrizione della pianta..."></textarea>
@@ -268,7 +225,7 @@
             </select>
 
             <label for="newPlantImageUpload">Carica Immagine (Opzionale):</label>
-            <input type="file" id="newPlantImageUpload" accept="image/*" capture="camera">
+            <input type="file" id="newPlantImageUpload" accept="image/*">
             <img id="newPlantImagePreview" src="" alt="Anteprima Immagine" style="max-width: 150px; display: none; margin-top: 10px;">
 
             <div class="form-actions">
@@ -276,20 +233,20 @@
                 <button type="button" id="cancelNewPlantButton" class="cancel-button">Annulla</button>
             </div>
         </form>
-    </template>
+    </div>
 
-    <template id="updatePlantFormTemplate">
+    <div id="updatePlantFormTemplate" style="display: none;">
+        <h3 class="form-title">Aggiorna Pianta</h3>
         <form id="updatePlantFormContent">
-            <h3 class="form-title">Aggiorna Pianta</h3>
             <label for="updatePlantName">Nome:</label>
             <input type="text" id="updatePlantName" required>
 
             <label for="updatePlantSunlight">Esposizione al Sole:</label>
             <select id="updatePlantSunlight" required>
                 <option value="">Seleziona</option>
-                <option value="Pieno Sole">Pieno Sole (luce solare diretta per almeno 6 ore al giorno)</option>
-                <option value="Mezz'ombra">Mezz'ombra (luce solare diretta per un periodo compreso tra 2 e 5 ore al giorno)</option>
-                <option value="Ombra">Ombra (luce solare indiretta e in modo limitato)</option>
+                <option value="Pieno Sole">Pieno Sole (luce solare diretta ≥ 6h)</option>
+                <option value="Mezz'ombra">Mezz'ombra (luce solare diretta 2-5h)</option>
+                <option value="Ombra">Ombra (luce solare indiretta/limitata)</option>
             </select>
 
             <div class="lux-input-group">
@@ -302,9 +259,9 @@
             <label for="updatePlantWatering">Annaffiatura:</label>
             <select id="updatePlantWatering" required>
                 <option value="">Seleziona</option>
-                <option value="Bassa">Bassa (dare acqua alle piante dal basso, riempiendo il sottovaso e lasciando che l'acqua venga assorbita gradualmente)</option>
-                <option value="Media">Media (terreno non deve essere nè troppo bagnato, causando ristagni, né troppo asciutto)</option>
-                <option value="Alta">Alta (versare l'acqua direttamente sul substrato della pianta, solitamente con un annaffiatoio o un nebulizzatore)</option>
+                <option value="Bassa">Bassa (dal basso, sottovaso)</option>
+                <option value="Media">Media (terreno umido, non inzuppato)</option>
+                <option value="Alta">Alta (direttamente sul substrato)</option>
             </select>
 
             <div class="temp-input-group">
@@ -313,9 +270,6 @@
                 <label for="updatePlantTempMax">Max (°C):</label>
                 <input type="number" id="updatePlantTempMax" placeholder="Es. 25 (Opzionale)">
             </div>
-
-            <label for="updatePlantPotSize">Dimensione Vaso:</label>
-            <input type="text" id="updatePlantPotSize" placeholder="Es. Ø 12 cm, 2 Litri">
 
             <label for="updatePlantDescription">Descrizione:</label>
             <textarea id="updatePlantDescription" rows="3" placeholder="Breve descrizione della pianta..."></textarea>
@@ -339,20 +293,8 @@
                 <option value="Altro">Altro</option>
             </select>
 
-            <!-- NUOVI CAMPI PER PROMEMORIA ANNAFFIATURA -->
-            <div id="wateringReminderFields" style="display: none;">
-                <h4>Promemoria Annaffiatura</h4>
-                <label for="updatePlantWateringIntervalDays">Intervallo Annaffiatura (giorni):</label>
-                <input type="number" id="updatePlantWateringIntervalDays" min="1" placeholder="Es. 7 (ogni 7 giorni)">
-                
-                <label>Ultima Annaffiatura:</label>
-                <p id="lastWateredDisplay">N/A</p>
-                <button type="button" id="wateredTodayButton" class="action-button">Annaffiato Oggi!</button>
-            </div>
-            <!-- FINE NUOVI CAMPI -->
-
             <label for="updatePlantImageUpload">Carica Nuova Immagine (Opzionale):</label>
-            <input type="file" id="updatePlantImageUpload" accept="image/*" capture="camera">
+            <input type="file" id="updatePlantImageUpload" accept="image/*">
             <img id="updatePlantImagePreview" src="" alt="Anteprima Immagine" style="max-width: 150px; display: none; margin-top: 10px;">
             <input type="hidden" id="updatePlantImageURL" value=""> <!-- Campo nascosto per l'URL esistente -->
 
@@ -362,13 +304,7 @@
                 <button type="button" id="deletePlant" class="delete-button">Elimina Pianta dal Database</button>
             </div>
         </form>
-    </template>
-
-
-    <!-- Nuovo bottone "Torna su" -->
-    <button id="scrollToTopButton" class="scroll-to-top-button" style="display: none;">
-        <i class="fas fa-arrow-up"></i> Torna su
-    </button>
+    </div>
 
 
     <!-- Script Firebase e il tuo app.js -->
@@ -376,18 +312,16 @@
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
-    <!-- Cropper.js JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
-            apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-            authDomain: "giardinodigitale.firebaseapp.com",
-            projectId: "giardinodigitale",
-            storageBucket: "giardinodigitale.appspot.com", // VALORE CORRETTO E TESTATO CON GSUTIL
-            messagingSenderId: "305018691515",
-            appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+              apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+              authDomain: "giardinodigitale.firebaseapp.com",
+              projectId: "giardinodigitale",
+              storageBucket: "giardinodigitale.firebasestorage.app",
+              messagingSenderId: "96265504027",
+              appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
         };
 
         // Inizializza Firebase
