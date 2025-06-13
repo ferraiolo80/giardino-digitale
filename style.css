@@ -552,6 +552,8 @@ p a:hover {
     flex-grow: 1; /* Permette agli input di espandersi */
     width: auto; /* Resetta la width del 100% */
     margin-bottom: 0;
+    box-sizing: border-box; /* Important for padding */
+    min-width: 80px; /* Ensure they don't become too small */
 }
 
 .form-actions {
@@ -914,5 +916,17 @@ p a:hover {
 
     .modal-buttons button {
         max-width: 100%;
+    }
+
+    .lux-input-group label, .temp-input-group label {
+        flex-basis: 100%; /* Labels go on a new line on very small screens */
+        text-align: left;
+    }
+    .lux-input-group input, .temp-input-group input {
+        flex-basis: calc(50% - 5px); /* Two inputs per line, with gap */
+        max-width: calc(50% - 5px); /* Prevent them from growing too much if there's only one */
+    }
+    .search-filter-sort-container > div {
+        padding: 8px; /* Slightly reduce padding */
     }
 }
