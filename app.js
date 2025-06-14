@@ -1071,9 +1071,7 @@ async function getLocation() {
 }
 
 async function getWeather(latitude, longitude) {
-    // Assicurati che questa variabile si chiami 'apiKey'
     const apiKey = '0575afa377367478348aa48bfc9936ba'; // La tua API Key OpenWeatherMap
-
     const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=it`;
     const forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=it`;
 
@@ -1095,7 +1093,7 @@ async function getWeather(latitude, longitude) {
 
         displayWeather(weatherData);
         displayForecast(forecastData);
-        updateClimateZone(weatherData.main.temp); // Aggiorna la zona climatica basandosi sulla temperatura attuale
+        updateClimateZone(weatherData.main.temp); // Questa riga ora chiamerà la funzione definita
     } catch (error) {
         console.error('Errore nel recupero dati meteo:', error);
         showToast(`Errore nel recupero dati meteo: ${error.message}`, 'error');
@@ -1104,9 +1102,8 @@ async function getWeather(latitude, longitude) {
 
 function displayWeather(data) {
     const weatherForecastDiv = document.getElementById('weatherForecast');
-    if (!weatherForecastDiv) return; // Assicurati che l'elemento esista
+    if (!weatherForecastDiv) return;
 
-    // Se i dati non sono validi o manca la struttura necessaria per il meteo attuale
     if (!data || !data.main || !data.weather || data.weather.length === 0) {
         weatherForecastDiv.innerHTML = '<p>Dati meteo attuali non disponibili.</p>';
         return;
@@ -1115,7 +1112,7 @@ function displayWeather(data) {
     const temp = data.main.temp;
     const description = data.weather[0].description;
     const iconCode = data.weather[0].icon;
-    const iconUrl = `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
+    const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`; // Aggiornato a HTTPS
     const locationName = data.name;
 
     weatherForecastDiv.innerHTML = `
@@ -1125,15 +1122,13 @@ function displayWeather(data) {
             <p>${temp.toFixed(1)}°C</p>
             <p>${description.charAt(0).toUpperCase() + description.slice(1)}</p>
         </div>
-        <div id="hourlyForecast" class="hourly-forecast"></div> `;
-    // Nota: displayWeather si occupa del meteo attuale e crea un div per le previsioni orarie.
-    // displayForecast riempirà quel div.
+        <div id="hourlyForecast" class="hourly-forecast"></div>
+    `;
 }
 
 function displayForecast(data) {
-    const hourlyForecastDiv = document.getElementById('hourlyForecast'); // Questo div dovrebbe essere stato creato da displayWeather
+    const hourlyForecastDiv = document.getElementById('hourlyForecast');
     if (!hourlyForecastDiv) {
-        // Fallback nel caso in cui displayWeather non sia riuscito a creare il div
         const weatherForecastDiv = document.getElementById('weatherForecast');
         if (weatherForecastDiv) {
              weatherForecastDiv.innerHTML += '<p>Dati previsioni orarie non disponibili.</p>';
@@ -1141,24 +1136,21 @@ function displayForecast(data) {
         return;
     }
 
-    // Se i dati non sono validi o manca la lista delle previsioni
     if (!data || !data.list || data.list.length === 0) {
         hourlyForecastDiv.innerHTML = '<p>Dati previsioni orarie non disponibili.</p>';
         return;
     }
 
-    // Pulisci il contenuto precedente del div delle previsioni orarie
     hourlyForecastDiv.innerHTML = '<h4>Previsioni Orarie</h4>';
 
-    // Mostra le previsioni per le prossime 24 ore (8 voci, dato che sono intervalli di 3 ore)
     for (let i = 0; i < Math.min(8, data.list.length); i++) {
         const forecast = data.list[i];
-        const date = new Date(forecast.dt * 1000); // data.dt è in secondi UNIX
+        const date = new Date(forecast.dt * 1000);
         const time = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         const temp = forecast.main.temp;
         const description = forecast.weather[0].description;
         const iconCode = forecast.weather[0].icon;
-        const iconUrl = `http://openweathermap.org/img/wn/${iconCode}.png`;
+        const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`; // Aggiornato a HTTPS
 
         hourlyForecastDiv.innerHTML += `
             <div class="forecast-item">
@@ -1169,6 +1161,39 @@ function displayForecast(data) {
             </div>
         `;
     }
+}
+
+function updateClimateZone(temperature) {
+    const climateZoneFeedbackDiv = document.getElementById('climateZoneFeedback');
+    if (!climateZoneFeedbackDiv) {
+        console.warn("Elemento 'climateZoneFeedback' non trovato nel DOM. Il feedback sulla zona climatica non verrà visualizzato.");
+        return;
+    }
+
+    let climateZone = 'Sconosciuta';
+    let feedback = '';
+
+    if (temperature < 0) {
+        climateZone = 'Artico/Subartico';
+        feedback = 'Temperature molto basse. Richiede piante resistenti al freddo intenso.';
+    } else if (temperature >= 0 && temperature < 10) {
+        climateZone = 'Freddo/Temperato Freddo';
+        feedback = 'Clima fresco. Adatto a piante resistenti al gelo leggero.';
+    } else if (temperature >= 10 && temperature < 20) {
+        climateZone = 'Temperato';
+        feedback = 'Clima mite. Ideale per molte varietà di piante.';
+    } else if (temperature >= 20 && temperature < 30) {
+        climateZone = 'Subtropicale/Caldo';
+        feedback = 'Clima caldo. Ottimo per piante che amano il calore.';
+    } else { // temperature >= 30
+        climateZone = 'Tropicale/Arido';
+        feedback = 'Temperature molto alte. Richiede piante resistenti al calore e alla siccità o molta irrigazione.';
+    }
+
+    climateZoneFeedbackDiv.innerHTML = `
+        <h4>Zona Climatica Suggerita: ${climateZone}</h4>
+        <p>${feedback}</p>
+    `;
 }
 
 function determineClimateZone(temperature, humidity) {
