@@ -323,19 +323,30 @@ function showToast(message, type = 'info') {
 // --- Funzioni di Autenticazione ---
 
 async function loginUser(email, password) {
-    showSpinner();
+    // ... (il tuo codice esistente prima della chiamata di autenticazione)
+
     try {
-        await window.auth.signInWithEmailAndPassword(email, password);
+        // Usa await qui per attendere che la Promise si risolva
+        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+
+        // Se arrivi qui, il login è riuscito
+        const user = userCredential.user;
+        console.log("Utente loggato:", user);
         showToast('Accesso effettuato con successo!', 'success');
-        loginError.textContent = ''; // Pulisci errori precedenti
+        // Ad esempio, potresti chiudere il modale di login,
+        // reindirizzare l'utente o aggiornare l'interfaccia utente.
+
     } catch (error) {
-        loginError.textContent = `Errore login: ${error.message}`;
-        showToast(`Errore login: ${error.message}`, 'error');
-        console.error("Login error:", error);
+        // Se si verifica un errore durante il login
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error("Errore di login:", errorCode, errorMessage);
+        showToast(`Errore di accesso: ${errorMessage}`, 'error');
+    }
     } finally {
         hideSpinner();
     }
-}
+
 
 async function registerUser(email, password) {
     showSpinner();
