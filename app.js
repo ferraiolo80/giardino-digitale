@@ -1072,7 +1072,7 @@ async function getLocation() {
 
 async function getWeather(lat, lon) {
     showLoadingSpinner();
-    const apiKey = 'd82c2b77a7605e60803c02d6b38c237c'; // Sostituisci con la tua chiave API OpenWeatherMap
+    const OPEN_WEATHER_MAP_API_KEY = '0575afa377367478348aa48bfc9936ba'
     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=it`;
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=it`;
 
