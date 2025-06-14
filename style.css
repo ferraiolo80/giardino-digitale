@@ -262,4 +262,642 @@ button:disabled {
     border: 1px solid #d4edda;
     border-radius: 8px;
     padding: 15px 20px;
-    margin: 20px auto; /* Centra orizzontal
+    margin: 20px auto; /* Centra orizzontalmente e aggiunge margini sopra/sotto */
+    max-width: 400px; /* Limita la larghezza massima per una migliore leggibilità */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centra il testo all'interno del container */
+    color: #333;
+    /* AGGIUNTA CHIAVE: Forzare l'elemento a rimanere nel suo "blocco" */
+    clear: both; /* Se ci fossero float precedenti */
+    box-sizing: border-box; /* Assicura che padding e border siano inclusi nella larghezza */
+}
+
+.weather-forecast h4 {
+    font-size: 1.4em; /* Rendi il titolo più grande */
+    color: #2e7d32; /* Colore verde scuro per il titolo */
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #a5d6a7; /* Linea tratteggiata sotto il titolo */
+}
+
+.weather-forecast p {
+    margin: 8px 0;
+    font-size: 1.1em;
+    display: flex; /* Permette all'icona e al testo di stare sulla stessa riga */
+    align-items: center; /* Allinea verticalmente icona e testo */
+    justify-content: center; /* Centra l'icona e il testo */
+}
+
+.weather-forecast p i {
+    margin-right: 10px; /* Spazio tra icona e testo */
+    color: #4CAF50; /* Colore verde per le icone */
+    font-size: 1.2em; /* Rendi le icone leggermente più grandi */
+}
+
+.weather-forecast p strong {
+    color: #4CAF50;
+}
+
+.weather-forecast .error-message {
+    color: #D32F2F;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Plant Grid Layouts */
+#garden-container,
+#my-garden {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px;
+    justify-content: center;
+    align-items: start; /* Allinea gli elementi all'inizio della riga */
+    background-color: #f0fdf0;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    min-height: 200px; /* Assicura un'altezza minima anche senza piante */
+}
+
+/* Plant Card Styles */
+.plant-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer; /* Indica che la card è cliccabile per lo zoom */
+    border: 1px solid #e0e0e0;
+}
+
+.plant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.plant-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+    border-bottom: 1px solid #eee;
+    cursor: zoom-in; /* Cursore per zoom immagine */
+}
+
+.plant-card h3 {
+    font-size: 1.5em;
+    color: #2e7d32;
+    margin: 15px 15px 5px;
+    font-weight: 600;
+}
+
+.plant-card p {
+    font-size: 0.95em;
+    color: #555;
+    margin: 0 15px 8px;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-start; /* Allinea a sinistra */
+    gap: 8px;
+    padding: 15px;
+    border-top: 1px solid #eee;
+    margin-top: auto; /* Spinge i bottoni in fondo alla card */
+    flex-wrap: wrap;
+}
+
+.card-actions button {
+    padding: 8px 12px;
+    font-size: 0.9em;
+    border-radius: 6px;
+    white-space: nowrap; /* Evita che il testo vada a capo */
+}
+
+.add-to-garden-button {
+    background-color: #66bb6a;
+}
+.add-to-garden-button:hover {
+    background-color: #5cb85c;
+}
+.add-to-garden-button:disabled {
+    background-color: #aed581; /* Verde più chiaro quando disabilitato */
+}
+
+.update-plant-button {
+    background-color: #2196F3; /* Blu per aggiorna */
+}
+.update-plant-button:hover {
+    background-color: #1976D2;
+}
+
+.delete-plant-from-db-button {
+    background-color: #f44336; /* Rosso per eliminare dal DB */
+}
+.delete-plant-from-db-button:hover {
+    background-color: #d32f2f;
+}
+
+/* Empty garden message */
+#empty-garden-message {
+    text-align: center;
+    grid-column: 1 / -1; /* Centra il messaggio nella griglia */
+    padding: 50px 20px;
+    color: #777;
+    font-size: 1.2em;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    border: 1px dashed #ddd;
+    margin: 20px;
+}
+
+/* Plant Form Card (Add/Update) */
+.plant-form-card {
+    background-color: #ffffff;
+    padding: 30px;
+    margin: 20px auto 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    max-width: 600px;
+    border: 1px solid #e0e0e0;
+}
+
+.plant-form-card h2 {
+    color: #2e7d32;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.plant-form-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.plant-form-card label {
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.plant-form-card input,
+.plant-form-card select,
+.plant-form-card textarea {
+    padding: 12px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    font-size: 1em;
+    width: calc(100% - 24px); /* Padded width */
+    background-color: #f9f9f9;
+}
+
+.plant-form-card textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.plant-form-card .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.plant-form-card .input-error {
+    border-color: #e74c3c; /* Bordo rosso per input con errore */
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}
+
+.plant-form-card .error-message {
+    color: #e74c3c;
+    font-size: 0.85em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    display: none; /* Inizialmente nascosto, mostrato con JS */
+}
+
+/* Input groups for lux/temp to align labels/inputs */
+.lux-input-group, .temp-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+.lux-input-group label, .temp-input-group label {
+    flex-basis: auto; /* allow label to take only necessary width */
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+.lux-input-group input, .temp-input-group input {
+    flex-grow: 1; /* allow inputs to grow */
+    width: auto; /* override 100% width */
+    min-width: 80px; /* minimum width for inputs */
+}
+
+
+/* Modal (general for image and card zoom) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    backdrop-filter: blur(5px); /* Effetto sfocato */
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 80%; /* Max width for images */
+    max-height: 90vh; /* Max height for images */
+    animation-name: zoom;
+    animation-duration: 0.6s;
+    border-radius: 10px;
+}
+
+#card-modal .modal-content {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    max-width: 700px; /* Larger max-width for card content */
+    max-height: 95vh;
+    overflow-y: auto; /* Scroll if content is too long */
+}
+
+#card-modal .modal-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#card-modal .modal-content h3 {
+    font-size: 2em;
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+#card-modal .modal-content p {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+#card-modal .modal-content .card-actions {
+    justify-content: center; /* Centra i bottoni nella modal della card */
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+}
+
+
+/* Animazione per lo zoom */
+@keyframes zoom {
+    from {transform: scale(0.1)}
+    to {transform: scale(1)}
+}
+
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+    z-index: 1001; /* Ensure close button is above modal content */
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #bbb;
+    text-decoration: none;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1002; /* Above modals */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #4CAF50; /* Green */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast Notifications */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1003; /* Above everything else */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Allow clicks to pass through */
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transform: translateX(100%);
+    pointer-events: all; /* Make toast clickable for dismissal */
+    min-width: 250px;
+    max-width: 350px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.hide {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.toast-info {
+    background-color: #2196F3;
+}
+.toast-success {
+    background-color: #4CAF50;
+}
+.toast-error {
+    background-color: #f44336;
+}
+
+/* Light Sensor Section */
+.light-sensor-container {
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 20px auto 30px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.light-sensor-container h2 {
+    color: #2e7d32;
+    font-size: 1.6em;
+    margin-bottom: 15px;
+}
+
+.light-sensor-container p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.light-sensor-container button {
+    margin: 10px 5px;
+}
+.sensor-info-row {
+    display: flex; /* Rendi questo contenitore un flex container */
+    flex-wrap: wrap; /* Permetti agli elementi di andare a capo su schermi piccoli */
+    justify-content: center; /* Centra gli elementi orizzontalmente */
+    align-items: center; /* Allinea verticalmente gli elementi */
+    gap: 20px; /* Spazio tra i pulsanti e la riga Lux */
+    width: 100%; /* Occupa tutta la larghezza disponibile */
+}
+
+.sensor-controls {
+    display: flex;
+    gap: 10px; /* Spazio tra i pulsanti Avvia/Ferma */
+    flex-wrap: wrap; /* Permetti ai pulsanti di andare a capo se necessario */
+    justify-content: center; /* Centra i pulsanti se vanno a capo */
+}
+
+/* Stili per il testo del Lux e il feedback */
+#currentLuxValue {
+    font-weight: bold;
+    color: #4CAF50; /* Verde più vivace per il valore */
+    font-size: 1.1em;
+}
+
+#lightFeedback {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: #e8f5e9; /* Sfondo leggermente verde per il feedback */
+    border: 1px solid #a5d6a7;
+    color: #388e3c;
+    width: 100%;
+    box-sizing: border-box; /* Includi padding e border nella larghezza */
+}
+
+#lightFeedback p {
+    margin: 0;
+    font-size: 0.95em;
+}
+
+
+/* Media Queries for Responsiveness */
+
+/* Regole per schermi fino a 900px (tablet e schermi desktop più piccoli) */
+@media (max-width: 900px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+    header h1 {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+    }
+    #auth-status {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    nav {
+        width: 100%;
+        text-align: center;
+    }
+    .main-buttons-container {
+        flex-direction: column; /* I bottoni principali si impilano verticalmente */
+        align-items: center; /* Centra i bottoni impilati */
+        gap: 10px;
+        padding: 15px;
+        max-width: 90%; /* Limita la larghezza del contenitore su schermi medi */
+    }
+    .main-buttons-container button {
+        width: 90%; /* Su schermi <= 900px, i bottoni prendono una larghezza maggiore */
+        max-width: 300px; /* Limite massimo per evitare che siano troppo larghi su tablet */
+        margin: 0 auto; /* Centra i singoli bottoni impilati */
+    }
+    .search-filter-sort-container {
+        flex-direction: column; /* I filtri si impilano verticalmente */
+        align-items: stretch; /* Si estendono in larghezza */
+        padding: 15px;
+    }
+    .search-filter-sort-container > div {
+        width: 100%; /* Larghezza piena per i box dei filtri */
+    }
+    .temp-filter-container {
+        flex-direction: column; /* Stack temp inputs vertically */
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .temp-filter-container input {
+        width: calc(100% - 24px); /* Full width minus padding */
+    }
+    #garden-container, /* Corretto selettore per plant-grid */
+    #my-garden { /* Corretto selettore per plant-grid */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        padding: 15px;
+        gap: 20px;
+    }
+    .plant-card {
+        max-width: unset; /* Allow cards to fill available space */
+    }
+    .plant-form-card {
+        padding: 20px;
+        max-width: 90%;
+    }
+    .modal-content {
+        max-width: 90%;
+    }
+    #card-modal .modal-content {
+        max-width: 90%;
+        padding: 20px;
+    }
+    .sensor-info-row {
+        flex-direction: column; /* Impila verticalmente su schermi più piccoli */
+        align-items: center;
+        gap: 15px;
+    }
+    .toast {
+        min-width: unset;
+        width: calc(100% - 40px);
+        left: 20px;
+        right: 20px;
+    }
+    .weather-forecast {
+        margin: 15px auto; /* Riduci margini per schermi piccoli */
+        padding: 12px;
+        max-width: 90%; /* Occupare più larghezza su schermi piccoli */
+        width: auto; /* Lascia che la larghezza si adatti al contenitore padre */
+    }
+}
+
+/* Regole specifiche per schermi ancora più piccoli (fino a 600px - la maggior parte degli smartphone) */
+@media (max-width: 600px) {
+    header {
+        padding: 10px;
+    }
+    header h1 {
+        font-size: 1.5em;
+    }
+    .auth-container {
+        padding: 25px;
+        margin: 20px auto;
+    }
+    /* main-buttons-container button non ha bisogno di una regola specifica qui
+       perché è già gestito dalla media query a 900px che impila e dimensiona. */
+    .search-filter-sort-container {
+        padding: 15px;
+    }
+    #garden-container, /* Corretto selettore per plant-grid */
+    #my-garden { /* Corretto selettore per plant-grid */
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        padding: 10px;
+        gap: 15px;
+    }
+    .plant-card h3 {
+        font-size: 1.3em;
+    }
+    .plant-image {
+        height: 150px;
+    }
+    .plant-card p {
+        font-size: 0.85em;
+    }
+    .card-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    .card-actions button {
+        width: 100%;
+        font-size: 0.85em;
+    }
+    .plant-form-card {
+        padding: 15px;
+    }
+    .plant-form-card h2 {
+        font-size: 1.5em;
+    }
+    .plant-form-card input,
+    .plant-form-card select,
+    .plant-form-card textarea {
+        padding: 10px;
+    }
+    .lux-input-group, .temp-input-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .lux-input-group input, .temp-input-group input {
+        width: calc(100% - 20px); /* Full width minus padding */
+    }
+    /* Toast rules are already handled in the 900px media query and apply here too */
+    .close-button {
+        font-size: 30px;
+        right: 15px;
+    }
+    #card-modal .modal-content {
+        padding: 15px;
+    }
+    /* Regole specifiche per weather-forecast all'interno della media query 600px */
+    .weather-forecast {
+        margin: 15px auto;
+        padding: 12px;
+        max-width: 90%; /* Occupare più larghezza su schermi piccoli */
+    }
+    .weather-forecast h4 {
+        font-size: 1.2em;
+    }
+    .weather-forecast p {
+        font-size: 1em;
+    }
+}
