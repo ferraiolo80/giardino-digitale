@@ -1102,47 +1102,73 @@ async function getWeather(latitude, longitude) {
     }
 }
 
-function displayWeather(weather, forecast) {
-    if (!weatherForecastDiv) return;
+function displayWeather(data) {
+    const weatherForecastDiv = document.getElementById('weatherForecast');
+    if (!weatherForecastDiv) return; // Assicurati che l'elemento esista
 
-    const currentTemp = weather.main.temp;
-    const feelsLike = weather.main.feels_like;
-    const description = weather.weather[0].description;
-    const icon = weather.weather[0].icon;
-    const cityName = weather.name;
-    const humidity = weather.main.humidity;
-    const windSpeed = weather.wind.speed; // m/s
-    const pressure = weather.main.pressure; // hPa
+    // Se i dati non sono validi o manca la struttura necessaria per il meteo attuale
+    if (!data || !data.main || !data.weather || data.weather.length === 0) {
+        weatherForecastDiv.innerHTML = '<p>Dati meteo attuali non disponibili.</p>';
+        return;
+    }
 
-    let forecastHtml = `
-        <h3>Meteo a ${cityName}</h3>
+    const temp = data.main.temp;
+    const description = data.weather[0].description;
+    const iconCode = data.weather[0].icon;
+    const iconUrl = `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
+    const locationName = data.name;
+
+    weatherForecastDiv.innerHTML = `
+        <h3>Meteo Attuale a ${locationName}</h3>
         <div class="current-weather">
-            <img src="http://openweathermap.org/img/wn/${icon}@2x.png" alt="${description}">
-            <p><strong>Condizioni:</strong> ${description.charAt(0).toUpperCase() + description.slice(1)}</p>
-            <p><strong>Temperatura:</strong> ${currentTemp.toFixed(1)}°C (Percepita: ${feelsLike.toFixed(1)}°C)</p>
-            <p><strong>Umidità:</strong> ${humidity}%</p>
-            <p><strong>Vento:</strong> ${(windSpeed * 3.6).toFixed(1)} km/h</p>
-            <p><strong>Pressione:</strong> ${pressure} hPa</p>
+            <img src="${iconUrl}" alt="${description}">
+            <p>${temp.toFixed(1)}°C</p>
+            <p>${description.charAt(0).toUpperCase() + description.slice(1)}</p>
         </div>
-        <h4>Previsioni Prossime Ore:</h4>
-        <div class="forecast-hourly">
-    `;
+        <div id="hourlyForecast" class="hourly-forecast"></div> `;
+    // Nota: displayWeather si occupa del meteo attuale e crea un div per le previsioni orarie.
+    // displayForecast riempirà quel div.
+}
 
-    // Filtra per mostrare solo le previsioni delle prossime 24 ore (8 intervalli di 3 ore)
-    for (let i = 0; i < Math.min(8, forecast.list.length); i++) {
-        const item = forecast.list[i];
-        const date = new Date(item.dt * 1000);
-        forecastHtml += `
+function displayForecast(data) {
+    const hourlyForecastDiv = document.getElementById('hourlyForecast'); // Questo div dovrebbe essere stato creato da displayWeather
+    if (!hourlyForecastDiv) {
+        // Fallback nel caso in cui displayWeather non sia riuscito a creare il div
+        const weatherForecastDiv = document.getElementById('weatherForecast');
+        if (weatherForecastDiv) {
+             weatherForecastDiv.innerHTML += '<p>Dati previsioni orarie non disponibili.</p>';
+        }
+        return;
+    }
+
+    // Se i dati non sono validi o manca la lista delle previsioni
+    if (!data || !data.list || data.list.length === 0) {
+        hourlyForecastDiv.innerHTML = '<p>Dati previsioni orarie non disponibili.</p>';
+        return;
+    }
+
+    // Pulisci il contenuto precedente del div delle previsioni orarie
+    hourlyForecastDiv.innerHTML = '<h4>Previsioni Orarie</h4>';
+
+    // Mostra le previsioni per le prossime 24 ore (8 voci, dato che sono intervalli di 3 ore)
+    for (let i = 0; i < Math.min(8, data.list.length); i++) {
+        const forecast = data.list[i];
+        const date = new Date(forecast.dt * 1000); // data.dt è in secondi UNIX
+        const time = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+        const temp = forecast.main.temp;
+        const description = forecast.weather[0].description;
+        const iconCode = forecast.weather[0].icon;
+        const iconUrl = `http://openweathermap.org/img/wn/${iconCode}.png`;
+
+        hourlyForecastDiv.innerHTML += `
             <div class="forecast-item">
-                <p><strong>${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong></p>
-                <img src="http://openweathermap.org/img/wn/${item.weather[0].icon}.png" alt="${item.weather[0].description}">
-                <p>${item.main.temp.toFixed(0)}°C</p>
-                <p>${item.weather[0].description}</p>
+                <p class="time">${time}</p>
+                <img src="${iconUrl}" alt="${description}">
+                <p class="temp">${temp.toFixed(1)}°C</p>
+                <p class="desc">${description}</p>
             </div>
         `;
     }
-    forecastHtml += '</div>';
-    weatherForecastDiv.innerHTML = forecastHtml;
 }
 
 function determineClimateZone(temperature, humidity) {
