@@ -1024,48 +1024,42 @@ function closeCardModal() {
 // 6. GEOLOCALIZZAZIONE E METEO
 // =======================================================
 
-async function getLocation() {
+async function getLocation() { // <<< Metti 'async' qui
+    // Mostra lo spinner appena inizia l'operazione di geolocalizzazione
     showLoadingSpinner();
-    if (locationStatusDiv) locationStatusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rilevando la tua posizione...';
-    if (weatherForecastDiv) weatherForecastDiv.innerHTML = '';
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             async (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                if (locationStatusDiv) locationStatusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i> Lat: ${lat.toFixed(2)}, Lon: ${lon.toFixed(2)}`;
-                await getWeather(lat, lon);
+                // Questo blocco viene eseguito se la geolocalizzazione ha successo
+                console.log('Posizione ottenuta:', position.coords.latitude, position.coords.longitude);
+                try {
+                    // Tentiamo di ottenere il meteo
+                    await getWeather(position.coords.latitude, position.coords.longitude);
+                } catch (weatherError) {
+                    // Gestisce eventuali errori specifici di getWeather
+                    console.error('Errore durante il recupero del meteo:', weatherError);
+                    showToast(`Errore meteo: ${weatherError.message}`, 'error');
+                } finally {
+                    // Questo blocco viene SEMPRE eseguito, sia in caso di successo di getWeather che di errore.
+                    // Quindi, NASCONDI LO SPINNER QUI.
+                    hideLoadingSpinner();
+                }
             },
             (error) => {
-                let errorMessage = '<i class="fas fa-exclamation-triangle"></i> Errore di geolocalizzazione: ';
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage += 'Permesso negato. Abilita la geolocalizzazione.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage += 'Posizione non disponibile.';
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage += 'Timeout scaduto.';
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        errorMessage += 'Errore sconosciuto.';
-                        break;
-                }
-                if (locationStatusDiv) locationStatusDiv.innerHTML = errorMessage;
-                showToast(errorMessage, 'error');
+                // Questo blocco viene eseguito se la geolocalizzazione fallisce (es. utente nega il permesso, timeout)
+                console.error('Errore di geolocalizzazione:', error);
+                showToast(`Impossibile ottenere la posizione: ${error.message}`, 'error');
+                // NASCONDI LO SPINNER ANCHE IN CASO DI ERRORE DI GEOLOCALIZZAZIONE
                 hideLoadingSpinner();
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
+                // Puoi anche pulire o mostrare un feedback di errore per la zona climatica
+                updateClimateZone(null);
             }
         );
     } else {
-        if (locationStatusDiv) locationStatusDiv.innerHTML = '<i class="fas fa-times-circle"></i> La geolocalizzazione non è supportata dal tuo browser.';
-        showToast('Geolocalizzazione non supportata dal browser.', 'error');
+        // Questo blocco viene eseguito se il browser non supporta la geolocalizzazione
+        showToast('Geolocalizzazione non supportata dal tuo browser.', 'error');
+        // NASCONDI LO SPINNER ANCHE SE NON SUPPORTATA
         hideLoadingSpinner();
     }
 }
