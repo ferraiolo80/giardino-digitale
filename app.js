@@ -1071,9 +1071,11 @@ async function getLocation() {
 }
 
 async function getWeather(latitude, longitude) {
-    const OPEN_WEATHER_MAP_API_KEY = '0575afa377367478348aa48bfc9936ba'; // La tua nuova API Key
-    const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=it`;
-    const forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=it`;
+    // Assicurati che questa variabile si chiami 'apiKey'
+    const apiKey = '0575afa377367478348aa48bfc9936ba'; // La tua API Key OpenWeatherMap
+
+    const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=it`;
+    const forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=it`;
 
     try {
         const [weatherResponse, forecastResponse] = await Promise.all([
