@@ -342,10 +342,8 @@ async function loginUser(email, password) {
         const errorMessage = error.message;
         console.error("Errore di login:", errorCode, errorMessage);
         showToast(`Errore di accesso: ${errorMessage}`, 'error');
-    }
-    } finally {
-        hideSpinner();
-    }
+        }
+    } 
 
 
 async function registerUser(email, password) {
