@@ -2,143 +2,161 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Giardino">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512x512.png">
+    <link rel="manifest" href="manifest.json">
     <title>Giardino Digitale</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#4CAF50">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <div id="loadingSpinner" class="spinner-overlay">
-        <div class="spinner"></div>
-    </div>
+    <div id="loading-spinner" class="loading-spinner hidden"></div>
+    <div id="toast" class="toast"></div>
 
-    <header>
+    <header class="main-header">
         <h1>Giardino Digitale</h1>
-        <div class="auth-buttons">
-            <button id="loginButton" class="btn">Login</button>
-            <button id="registerButton" class="btn">Registrati</button>
+        <div class="header-auth-controls">
+            <span id="auth-status" class="auth-status hidden"></span>
             <button id="logoutButton" class="btn hidden">Logout</button>
         </div>
     </header>
 
-    <main>
-        <section id="authSection" class="auth-section">
-            <div class="auth-container">
+    <main class="main-content">
+        <section id="auth-section" class="auth-section">
+            <div class="auth-card" id="login-card">
                 <h2>Login</h2>
-                <input type="email" id="loginEmail" placeholder="Email">
-                <input type="password" id="loginPassword" placeholder="Password">
-                <button id="signInBtn" class="btn">Accedi</button>
-                <p>Non hai un account? <a href="#" id="showRegister">Registrati qui</a></p>
-                <div id="loginError" class="error-message hidden"></div>
+                <input type="email" id="login-email" placeholder="Email">
+                <input type="password" id="login-password" placeholder="Password">
+                <button id="sign-in-btn" class="btn">Accedi</button>
+                <p>Non hai un account? <a href="#" id="show-register-link">Registrati qui</a></p>
+                <div id="login-error" class="error-message hidden"></div>
             </div>
 
-            <div class="auth-container hidden" id="registerContainer">
+            <div class="auth-card hidden" id="register-card">
                 <h2>Registrazione</h2>
-                <input type="email" id="registerEmail" placeholder="Email">
-                <input type="password" id="registerPassword" placeholder="Password">
-                <input type="password" id="confirmPassword" placeholder="Conferma Password">
-                <button id="signUpBtn" class="btn">Registrati</button>
-                <p>Hai già un account? <a href="#" id="showLogin">Accedi qui</a></p>
-                <div id="registerError" class="error-message hidden"></div>
+                <input type="email" id="register-email" placeholder="Email">
+                <input type="password" id="register-password" placeholder="Password">
+                <input type="password" id="confirm-password" placeholder="Conferma Password">
+                <button id="sign-up-btn" class="btn">Registrati</button>
+                <p>Hai già un account? <a href="#" id="show-login-link">Accedi qui</a></p>
+                <div id="register-error" class="error-message hidden"></div>
             </div>
         </section>
 
-        <section id="appSection" class="app-section hidden">
-            <div class="controls">
-                <input type="text" id="searchInput" placeholder="Cerca piante...">
-                <select id="categoryFilter">
-                    <option value="">Tutte le Categorie</option>
-                    <option value="Fiore">Fiore</option>
-                    <option value="Frutto">Frutto</option>
-                    <option value="Verdura">Verdura</option>
-                    <option value="Erba">Erba</option>
-                    <option value="Altro">Altro</option>
-                </select>
-                <select id="sortOrder">
-                    <option value="nameAsc">Nome (A-Z)</option>
-                    <option value="nameDesc">Nome (Z-A)</option>
-                </select>
-            </div>
-
-            <div class="tabs">
-                <button id="myGardenTab" class="tab-button active">Mio Giardino</button>
-                <button id="allPlantsTab" class="tab-button">Tutte le Piante</button>
-            </div>
-
-            <div class="action-buttons">
-                <button id="addPlantBtn" class="btn add-plant-btn"><i class="fas fa-plus"></i> Aggiungi Pianta</button>
-                <button id="googleLensBtn" class="btn google-lens-btn"><i class="fas fa-camera"></i> Google Lens</button>
-                <button id="getWeatherBtn" class="btn weather-btn"><i class="fas fa-cloud-sun"></i> Ottieni Clima</button>
-            </div>
-
-            <div id="weatherInfo" class="weather-info hidden">
-                <h3>Clima Attuale a <span id="weatherCity"></span></h3>
-                <p>Temperatura: <span id="weatherTemp"></span>°C</p>
-                <p>Condizioni: <span id="weatherConditions"></span></p>
-                <p>Umidità: <span id="weatherHumidity"></span>%</p>
-            </div>
-
-            <div id="plantList" class="plant-grid">
+        <section id="app-section" class="app-section hidden">
+            <div class="controls-container">
+                <div class="search-filter-sort">
+                    <input type="text" id="search-input" placeholder="Cerca piante..." class="control-input">
+                    <select id="category-filter" class="control-select">
+                        <option value="">Tutte le Categorie</option>
+                        <option value="Fiore">Fiore</option>
+                        <option value="Frutto">Frutto</option>
+                        <option value="Verdura">Verdura</option>
+                        <option value="Erba">Erba</option>
+                        <option value="Altro">Altro</option>
+                    </select>
+                    <select id="sort-by-select" class="control-select">
+                        <option value="name_asc">Nome (A-Z)</option>
+                        <option value="name_desc">Nome (Z-A)</option>
+                        <option value="added_date_desc">Aggiunta più recente</option>
+                        <option value="added_date_asc">Aggiunta meno recente</option>
+                    </select>
                 </div>
+                <div class="action-buttons-top">
+                    <button id="add-plant-btn" class="btn add-plant-btn"><i class="fas fa-plus"></i> Aggiungi Pianta</button>
+                    <button id="google-lens-btn" class="btn google-lens-btn"><i class="fas fa-camera"></i> Google Lens</button>
+                    <button id="get-weather-btn" class="btn weather-btn"><i class="fas fa-cloud-sun"></i> Ottieni Clima</button>
+                </div>
+            </div>
+
+            <div class="tabs-container">
+                <button id="my-garden-tab" class="tab-button active">Mio Giardino</button>
+                <button id="all-plants-tab" class="tab-button">Tutte le Piante</button>
+            </div>
+
+            <div id="weather-info" class="weather-info hidden">
+                <h3>Clima Attuale a <span id="weather-city"></span></h3>
+                <p>Temperatura: <span id="weather-temp"></span>°C</p>
+                <p>Condizioni: <span id="weather-conditions"></span></p>
+                <p>Umidità: <span id="weather-humidity"></span>%</p>
+            </div>
+
+            <div class="light-sensor-container">
+                <h3>Sensore di Luce Ambientale</h3>
+                <p>Intensità Luminosa: <span id="current-lux-value">N/A</span> Lux</p>
+                <div id="light-feedback" class="feedback-message"></div>
+                <button id="start-light-sensor" class="btn">Avvia Sensore</button>
+                <button id="stop-light-sensor" class="btn">Ferma Sensore</button>
+            </div>
+
+            <div class="plant-list-section">
+                <h2 id="plants-section-header">Mio Giardino</h2>
+                <div id="plant-grid" class="plant-grid">
+                    </div>
+            </div>
         </section>
     </main>
 
-    <div id="plantDetailModal" class="modal">
+    <div id="plant-detail-modal" class="modal">
         <div class="modal-content detail-modal-content">
             <span class="close-button">&times;</span>
-            <h2 id="detailPlantName"></h2>
-            <img id="detailPlantImage" src="" alt="Immagine Pianta" class="modal-image">
-            <p><strong>Descrizione:</strong> <span id="detailPlantDescription"></span></p>
-            <p><strong>Esposizione al Sole:</strong> <span id="detailPlantSunlight"></span></p>
-            <p><strong>Frequenza Innaffiatura:</strong> <span id="detailPlantWatering"></span></p>
-            <p><strong>Categoria:</strong> <span id="detailPlantCategory"></span></p>
-            <p><strong>Lux Ideali:</strong> Min <span id="detailIdealLuxMin"></span> - Max <span id="detailIdealLuxMax"></span></p>
-            <p><strong>Temperatura Ideale:</strong> Min <span id="detailTempMin"></span>°C - Max <span id="detailTempMax"></span>°C</p>
-            <p><strong>Data Aggiunta:</strong> <span id="detailDateAdded"></span></p>
+            <h2 id="detail-plant-name"></h2>
+            <img id="detail-plant-image" src="" alt="Immagine Pianta" class="modal-image">
+            <p><strong>Descrizione:</strong> <span id="detail-plant-description"></span></p>
+            <p><strong>Esposizione al Sole:</strong> <span id="detail-plant-sunlight"></span></p>
+            <p><strong>Frequenza Innaffiatura:</strong> <span id="detail-plant-watering"></span></p>
+            <p><strong>Categoria:</strong> <span id="detail-plant-category"></span></p>
+            <p><strong>Lux Ideali:</strong> Min <span id="detail-ideal-lux-min"></span> - Max <span id="detail-ideal-lux-max"></span></p>
+            <p><strong>Temperatura Ideale:</strong> Min <span id="detail-temp-min"></span>°C - Max <span id="detail-temp-max"></span>°C</p>
+            <p><strong>Data Aggiunta:</strong> <span id="detail-date-added"></span></p>
             <div class="detail-actions">
-                <button id="editPlantBtn" class="btn edit-btn">Modifica</button>
-                <button id="deletePlantBtn" class="btn delete-btn">Elimina</button>
-                <button id="addToGardenBtn" class="btn add-to-garden-btn">Aggiungi al Mio Giardino</button>
-                <button id="removeFromGardenBtn" class="btn remove-from-garden-btn hidden">Rimuovi dal Mio Giardino</button>
+                <button id="edit-plant-detail-btn" class="btn edit-btn">Modifica</button>
+                <button id="delete-plant-detail-btn" class="btn delete-btn">Elimina</button>
+                <button id="add-to-garden-btn" class="btn add-to-garden-btn">Aggiungi al Mio Giardino</button>
+                <button id="remove-from-garden-btn" class="btn remove-from-garden-btn hidden">Rimuovi dal Mio Giardino</button>
             </div>
         </div>
     </div>
 
-    <div id="plantModal" class="modal">
+    <div id="addUpdatePlantModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2 id="plantModalTitle">Aggiungi Nuova Pianta</h2>
-            <form id="plantForm">
-                <input type="hidden" id="plantId">
-                <label for="plantFormPlantName">Nome Pianta:</label>
-                <input type="text" id="plantFormPlantName" placeholder="Nome della Pianta" required>
-                <div id="plantFormPlantNameError" class="error-message hidden"></div>
+            <h2 id="addUpdatePlantModalTitle">Aggiungi Nuova Pianta</h2>
+            <form id="addUpdatePlantForm">
+                <input type="hidden" id="addUpdatePlantId">
 
-                <label for="plantFormPlantDescription">Descrizione:</label>
-                <textarea id="plantFormPlantDescription" placeholder="Breve descrizione della pianta"></textarea>
+                <label for="addUpdatePlantName">Nome Pianta:</label>
+                <input type="text" id="addUpdatePlantName" placeholder="Nome della Pianta" required>
+                <div id="addUpdatePlantNameError" class="error-message hidden"></div>
 
-                <label for="plantFormPlantSunlight">Esposizione al Sole:</label>
-                <select id="plantFormPlantSunlight" required>
+                <label for="addUpdatePlantDescription">Descrizione:</label>
+                <textarea id="addUpdatePlantDescription" placeholder="Breve descrizione della pianta"></textarea>
+
+                <label for="addUpdatePlantSunlight">Esposizione al Sole:</label>
+                <select id="addUpdatePlantSunlight" required>
                     <option value="">Seleziona...</option>
                     <option value="Pieno Sole">Pieno Sole</option>
                     <option value="Mezz'ombra">Mezz'ombra</option>
                     <option value="Ombra">Ombra</option>
                 </select>
-                <div id="plantFormPlantSunlightError" class="error-message hidden"></div>
+                <div id="addUpdatePlantSunlightError" class="error-message hidden"></div>
 
-                <label for="plantFormPlantWatering">Frequenza Innaffiatura:</label>
-                <select id="plantFormPlantWatering" required>
+                <label for="addUpdatePlantWatering">Frequenza Innaffiatura:</label>
+                <select id="addUpdatePlantWatering" required>
                     <option value="">Seleziona...</option>
                     <option value="Bassa">Bassa</option>
                     <option value="Moderata">Moderata</option>
                     <option value="Alta">Alta</option>
                 </select>
-                <div id="plantFormPlantWateringError" class="error-message hidden"></div>
+                <div id="addUpdatePlantWateringError" class="error-message hidden"></div>
 
-                <label for="plantFormPlantCategory">Categoria:</label>
-                <select id="plantFormPlantCategory" required>
+                <label for="addUpdatePlantCategory">Categoria:</label>
+                <select id="addUpdatePlantCategory" required>
                     <option value="">Seleziona...</option>
                     <option value="Fiore">Fiore</option>
                     <option value="Frutto">Frutto</option>
@@ -146,47 +164,50 @@
                     <option value="Erba">Erba</option>
                     <option value="Altro">Altro</option>
                 </select>
-                <div id="plantFormPlantCategoryError" class="error-message hidden"></div>
+                <div id="addUpdatePlantCategoryError" class="error-message hidden"></div>
 
-                <label for="plantFormIdealLuxMin">Lux Ideali Min:</label>
-                <input type="number" id="plantFormIdealLuxMin" placeholder="Es. 1000">
-                <div id="plantFormIdealLuxMinError" class="error-message hidden"></div>
+                <label for="addUpdateIdealLuxMin">Lux Ideali Min:</label>
+                <input type="number" id="addUpdateIdealLuxMin" placeholder="Es. 1000">
+                <div id="addUpdateIdealLuxMinError" class="error-message hidden"></div>
 
-                <label for="plantFormIdealLuxMax">Lux Ideali Max:</label>
-                <input type="number" id="plantFormIdealLuxMax" placeholder="Es. 5000">
-                <div id="plantFormIdealLuxMaxError" class="error-message hidden"></div>
+                <label for="addUpdateIdealLuxMax">Lux Ideali Max:</label>
+                <input type="number" id="addUpdateIdealLuxMax" placeholder="Es. 5000">
+                <div id="addUpdateIdealLuxMaxError" class="error-message hidden"></div>
 
-                <label for="plantFormTempMin">Temperatura Ideale Min (°C):</label>
-                <input type="number" id="plantFormTempMin" placeholder="Es. 15">
-                <div id="plantFormTempMinError" class="error-message hidden"></div>
+                <label for="addUpdateTempMin">Temperatura Ideale Min (°C):</label>
+                <input type="number" id="addUpdateTempMin" placeholder="Es. 15">
+                <div id="addUpdateTempMinError" class="error-message hidden"></div>
 
-                <label for="plantFormTempMax">Temperatura Ideale Max (°C):</label>
-                <input type="number" id="plantFormTempMax" placeholder="Es. 25">
-                <div id="plantFormTempMaxError" class="error-message hidden"></div>
+                <label for="addUpdateTempMax">Temperatura Ideale Max (°C):</label>
+                <input type="number" id="addUpdateTempMax" placeholder="Es. 25">
+                <div id="addUpdateTempMaxError" class="error-message hidden"></div>
 
                 <label for="plantImageUpload">Carica Immagine:</label>
                 <input type="file" id="plantImageUpload" accept="image/*">
                 <div id="plantImageUploadError" class="error-message hidden"></div>
                 <img id="currentPlantImage" src="" alt="Immagine corrente" class="hidden current-image-preview">
 
-                <button type="submit" id="savePlantBtn" class="btn">Salva Pianta</button>
+                <div class="form-actions">
+                    <button type="submit" id="saveUpdatePlantButton">Salva Modifiche</button>
+                    <button type="button" id="cancelUpdatePlantButton" class="cancel-button">Annulla</button>
+                    <button type="button" id="deletePlant" class="delete-button">Elimina Pianta dal Database</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div id="imageZoomModal" class="modal">
+    <div id="image-zoom-modal" class="modal">
         <div class="modal-content image-zoom-content">
             <span class="close-button">&times;</span>
-            <img id="zoomedImage" src="" alt="Immagine Ingrandita">
+            <img id="zoomed-image" src="" alt="Immagine Ingrandita">
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
