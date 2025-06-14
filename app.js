@@ -1070,33 +1070,33 @@ async function getLocation() {
     }
 }
 
-async function getWeather(lat, lon) {
-    showLoadingSpinner();
-    const OPEN_WEATHER_MAP_API_KEY = '0575afa377367478348aa48bfc9936ba'
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=it`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=it`;
+async function getWeather(latitude, longitude) {
+    const OPEN_WEATHER_MAP_API_KEY = '0575afa377367478348aa48bfc9936ba'; // La tua nuova API Key
+    const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=it`;
+    const forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=it`;
 
     try {
         const [weatherResponse, forecastResponse] = await Promise.all([
-            fetch(weatherUrl),
-            fetch(forecastUrl)
+            fetch(weatherApiUrl),
+            fetch(forecastApiUrl)
         ]);
 
-        if (!weatherResponse.ok) throw new Error(`HTTP error! status: ${weatherResponse.status}`);
-        if (!forecastResponse.ok) throw new Error(`HTTP error! status: ${forecastResponse.status}`);
+        if (!weatherResponse.ok) {
+            throw new Error(`HTTP error! status: ${weatherResponse.status}`);
+        }
+        if (!forecastResponse.ok) {
+            throw new Error(`HTTP error! status: ${forecastResponse.status}`);
+        }
 
         const weatherData = await weatherResponse.json();
         const forecastData = await forecastResponse.json();
 
-        displayWeather(weatherData, forecastData);
-        determineClimateZone(weatherData.main.temp, weatherData.main.humidity);
-
+        displayWeather(weatherData);
+        displayForecast(forecastData);
+        updateClimateZone(weatherData.main.temp); // Aggiorna la zona climatica basandosi sulla temperatura attuale
     } catch (error) {
-        console.error("Errore nel recupero dati meteo:", error);
-        if (locationStatusDiv) locationStatusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Impossibile recuperare i dati meteo.';
-        showToast(`Errore meteo: ${error.message}`, 'error');
-    } finally {
-        hideLoadingSpinner();
+        console.error('Errore nel recupero dati meteo:', error);
+        showToast(`Errore nel recupero dati meteo: ${error.message}`, 'error');
     }
 }
 
