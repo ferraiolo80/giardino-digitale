@@ -242,20 +242,30 @@
   appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
         };
 
-          // Inizializza Firebase
-        firebase.initializeApp(firebaseConfig)
-        
-      
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+      // Inizializza Firebase
+    const app = initializeApp(firebaseConfig);
 
-        // Rendi le istanze Firebase disponibili globalmente per app.js
-        window.auth = auth;
-        window.db = db;
-        window.storage = storage;
-    </script>
+    // Ottieni le istanze dei servizi
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // RENDE LE ISTANZE DISPONIBILI GLOBALMENTE PER app.js
+    // QUESTO È IL PASSAGGIO CHIAVE PER RISOLVERE L'ERRORE "is not defined"
+    window.auth = auth;
+    window.db = db;
+    window.storage = storage;
+    // Inizializza anche storageRef qui, se app.js lo usa globalmente
+    window.storageRef = storage.ref ? storage.ref() : null; // Aggiungi una verifica per .ref() per sicurezza
+
+    // Aggiungi un controllo di debug:
+    console.log("Firebase initialized and exposed to window:", window.auth, window.db, window.storage, window.storageRef);
+
+    // Metti il caricamento di app.js qui dentro il modulo
+    // In alternativa, puoi lasciare <script src="app.js"></script> separato,
+    // ma DEVE ESSERE DOPO QUESTO BLOCCO.
+    // Se app.js non è un modulo, non importarlo qui. Lascialo come script separato.
+</script>
     <script src="app.js"></script>
 </body>
 </html>
