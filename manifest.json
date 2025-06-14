@@ -1,10 +1,10 @@
 {
   "name": "Giardino Digitale",
   "short_name": "Giardino",
-  "description": "La tua app per gestire le piante",
-  "start_url": "./index.html",
+  "description": "Un'applicazione per gestire le tue piante.",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#f5f5f5",
+  "background_color": "#e0ffe0",
   "theme_color": "#4CAF50",
   "icons": [
     {
