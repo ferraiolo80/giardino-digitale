@@ -12,258 +12,216 @@
     <link rel="manifest" href="manifest.json">
     <title>Giardino Digitale</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <div id="loading-spinner" class="loading-spinner">
-        <div class="spinner"></div>
-    </div>
+    <div id="loading-spinner" class="loading-spinner hidden"></div>
 
-    <header>
-        <div id="auth-status"></div>
+    <header class="main-header">
         <h1>Giardino Digitale</h1>
-        <div>
-            <button id="logoutButton" class="hidden">Logout</button>
+        <div class="header-controls">
+            <span id="auth-status" class="auth-status">Non loggato</span>
+            <div class="auth-buttons">
+                <button id="loginButton" class="btn">Login</button>
+                <button id="registerButton" class="btn">Registrati</button>
+                <button id="logoutButton" class="btn hidden">Logout</button>
+            </div>
         </div>
     </header>
 
-    <div id="app-content">
-        <div id="authContainer" class="auth-container">
-            <h2>Accedi o Registrati</h2>
-            <form id="loginForm">
-                <label for="emailInput">Email:</label>
-                <input type="email" id="emailInput" placeholder="Email" required>
-                <label for="passwordInput">Password:</label>
-                <input type="password" id="passwordInput" placeholder="Password" required>
-                <button type="submit" id="loginButton">Login</button>
-                <p class="error-message" id="loginError"></p>
-                <p>Non hai un account? <a href="#" id="showRegisterLink">Registrati qui</a></p>
-            </form>
+    <main class="main-content">
+        <section id="authContainer" class="auth-section">
+            <div class="auth-forms">
+                <div id="loginForm" class="auth-form-card">
+                    <h2>Login</h2>
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                    <button type="submit" class="btn" form="loginForm">Accedi</button>
+                    <p class="error-message" id="loginError"></p>
+                    <p>Non hai un account? <a href="#" id="showRegister">Registrati qui</a></p>
+                </div>
 
-            <form id="registerForm" class="hidden">
-                <h2>Registrati</h2>
-                <label for="registerEmailInput">Email:</label>
-                <input type="email" id="registerEmailInput" placeholder="Email" required>
-                <label for="registerPasswordInput">Password:</label>
-                <input type="password" id="registerPasswordInput" placeholder="Password" required>
-                <button type="submit" id="registerButton">Registrati</button>
-                <p class="error-message" id="registerError"></p>
-                <p>Hai già un account? <a href="#" id="showLoginLink">Accedi qui</a></p>
-            </form>
-        </div>
-
-        <div id="mainAppContent" class="hidden">
-
-            <div class="main-buttons-container">
-                <button id="addNewPlantButton"><i class="fas fa-plus-circle"></i> Aggiungi Nuova Pianta</button>
-                <button id="showAllPlantsButton"><i class="fas fa-leaf"></i> Tutte le Piante</button>
-                <button id="showMyGardenButton"><i class="fas fa-seedling"></i> Mio Giardino</button>
+                <div id="registerForm" class="auth-form-card hidden">
+                    <h2>Registrati</h2>
+                    <input type="email" id="registerEmail" placeholder="Email" required>
+                    <input type="password" id="registerPassword" placeholder="Password" required>
+                    <button type="submit" class="btn" form="registerForm">Registrati</button>
+                    <p class="error-message" id="registerError"></p>
+                    <p>Hai già un account? <a href="#" id="showLogin">Accedi qui</a></p>
+                </div>
             </div>
+        </section>
 
-            <div class="search-filter-sort-container">
-                <div>
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Cerca pianta...">
-                </div>
-                <div>
-                    <i class="fas fa-tag"></i>
-                    <select id="categoryFilter">
-                        <option value="">Tutte le Categorie</option>
-                        <option value="Frutta">Frutta</option>
-                        <option value="Verdura">Verdura</option>
-                        <option value="Erbe Aromatiche">Erbe Aromatiche</option>
-                        <option value="Fiori">Fiori</option>
-                        <option value="Arbusti">Arbusti</option>
-                        <option value="Alberi">Alberi</option>
-                        <option value="Succulente">Succulente</option>
-                        <option value="Altro">Altro</option>
-                    </select>
-                </div>
-                <div class="temp-filter-container">
-                    <i class="fas fa-temperature-three-quarters"></i>
-                    <input type="number" id="tempMinFilter" placeholder="Min Temp °C">
-                    <span> - </span>
-                    <input type="number" id="tempMaxFilter" placeholder="Max Temp °C">
-                </div>
-                <div>
-                    <i class="fas fa-sort"></i>
-                    <select id="sortBySelect">
+        <section id="appContent" class="app-content hidden">
+            <div class="controls-container">
+                <div class="filter-sort-group">
+                    <input type="text" id="searchInput" placeholder="Cerca piante..." class="control-input">
+                    <select id="categoryFilter" class="control-select">
+                        <option value="all">Tutte le Categorie</option>
+                        <option value="interna">Interna</option>
+                        <option value="esterna">Esterna</option>
+                        <option value="aromatica">Aromatica</option>
+                        <option value="fiore">Fiore</option>
+                        <option value="succulenta">Succulenta</option>
+                        </select>
+                    <div class="temp-filter-group">
+                        <input type="number" id="tempMinFilter" placeholder="Temp Min (°C)" class="control-input temp-input">
+                        <span>-</span>
+                        <input type="number" id="tempMaxFilter" placeholder="Temp Max (°C)" class="control-input temp-input">
+                    </div>
+                    <select id="sortBy" class="control-select">
                         <option value="name_asc">Nome (A-Z)</option>
                         <option value="name_desc">Nome (Z-A)</option>
-                        <option value="category_asc">Categoria (A-Z)</option>
-                        <option value="category_desc">Categoria (Z-A)</option>
+                        <option value="added_asc">Aggiunta (Asc)</option>
+                        <option value="added_desc">Aggiunta (Desc)</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="geolocation-section">
-                <h2><i class="fas fa-map-marker-alt"></i> La Tua Posizione</h2>
-                <button id="getLocationButton" class="action-button">Ottieni Posizione</button>
-                <div id="locationStatus" class="status-message hidden"><i class="fas fa-info-circle"></i> In attesa della posizione...</div>
-                <div id="locationDisplay" class="status-message hidden"></div>
-
-                <div id="weatherForecast" class="weather-forecast hidden">
-                    <h4><i class="fas fa-cloud-sun-rain"></i> Previsioni Meteo</h4>
-                    <p id="weatherLocation"></p>
-                    <p id="weatherDescription"></p>
-                    <p id="weatherTemperature"></p>
-                    <p id="weatherHumidity"></p>
-                    <p id="weatherWind"></p>
-                    <p class="error-message" id="weatherError"></p>
+                <div class="action-buttons-group">
+                    <button id="showAllPlantsButton" class="btn active">Tutte le Piante</button>
+                    <button id="showMyGardenButton" class="btn">Mio Giardino</button>
+                    <button id="addNewPlantButton" class="btn">Aggiungi Nuova Pianta</button>
+                </div>
+                <div id="lightSensorContainer" class="light-sensor-container">
+                    <p>Luce Ambientale: <span id="currentLuxValue">N/A</span></p>
+                    <button id="startLightSensorButton" class="btn">Avvia Sensore Luce</button>
+                    <button id="stopLightSensorButton" class="btn hidden">Ferma Sensore Luce</button>
+                    <p id="lightFeedback"></p>
+                    <button id="googleLensButton" class="btn">
+                        <i class="fas fa-camera"></i> Google Lens
+                    </button>
                 </div>
             </div>
 
-            <div class="light-sensor-container">
-                <h2><i class="fas fa-sun"></i> Sensore di Luce Ambientale</h2>
-                <div class="sensor-info-row">
-                    <div class="sensor-controls">
-                        <button id="startLightSensorButton"><i class="fas fa-play-circle"></i> Avvia Sensore</button>
-                        <button id="stopLightSensorButton" class="cancel-button"><i class="fas fa-stop-circle"></i> Ferma Sensore</button>
-                    </div>
-                    <div>
-                        <p>Lux Attuali: <span id="currentLuxValue">N/A</span></p>
-                    </div>
+            <h2 id="plantsSectionHeader">Tutte le Piante Disponibili</h2>
+            <div id="gardenContainer" class="garden-grid">
                 </div>
-                <div id="lightFeedback">
-                    <p>Avvia il sensore per ottenere la lettura della luce ambientale.</p>
+            <div id="myGardenContainer" class="garden-grid hidden">
                 </div>
-            </div>
+        </section>
+    </main>
 
-            <h2 id="plantsSectionHeader" style="text-align: center; margin-top: 30px; color: #2e7d32;">Tutte le Piante Disponibili</h2>
+    <footer class="main-footer">
+        <p>&copy; 2023 Giardino Digitale. Tutti i diritti riservati.</p>
+    </footer>
 
-            <div id="garden-container">
-                </div>
+    <button id="scrollToTopButton" class="scroll-to-top-button hidden" title="Torna su">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-            <div id="my-garden" class="hidden">
-                <div id="empty-garden-message" class="hidden">
-                    <p>Il tuo giardino è vuoto. Aggiungi alcune piante!</p>
-                </div>
-            </div>
-
-        </div> </div> <div id="plantFormModal" class="modal">
-        <div class="plant-form-card">
-            <span class="close-button" id="closePlantFormModalButton">&times;</span>
-            <h2 id="plantFormTitle">Aggiungi Nuova Pianta</h2>
+    <div id="addPlantModal" class="modal">
+        <div class="modal-content plant-form-card">
+            <span class="close-button" id="closeAddPlantModal">&times;</span>
+            <h2>Aggiungi/Modifica Pianta</h2>
             <form id="plantForm">
-                <label for="plantName">Nome Comune:</label>
-                <input type="text" id="plantName" placeholder="Es: Basilico" required>
-                <p class="error-message" id="nameError"></p>
-
-                <label for="scientificName">Nome Scientifico (Opzionale):</label>
-                <input type="text" id="scientificName" placeholder="Es: Ocimum basilicum">
-
-                <label for="plantCategory">Categoria:</label>
-                <select id="plantCategory" required>
-                    <option value="">Seleziona Categoria</option>
-                    <option value="Frutta">Frutta</option>
-                    <option value="Verdura">Verdura</option>
-                    <option value="Erbe Aromatiche">Erbe Aromatiche</option>
-                    <option value="Fiori">Fiori</option>
-                    <option value="Arbusti">Arbusti</option>
-                    <option value="Alberi">Alberi</option>
-                    <option value="Succulente">Succulente</option>
-                    <option value="Altro">Altro</option>
-                </select>
-                <p class="error-message" id="categoryError"></p>
-
-                <label for="wateringFrequency">Frequenza Irrigazione (giorni):</label>
-                <input type="number" id="wateringFrequency" placeholder="Es: 3" min="1">
-                <p class="error-message" id="wateringError"></p>
-
-                <label for="sunlightNeeds">Esigenze di Luce:</label>
-                <select id="sunlightNeeds">
-                    <option value="">Seleziona Esigenza</option>
-                    <option value="Pieno Sole">Pieno Sole</option>
-                    <option value="Mezz'ombra">Mezz'ombra</option>
-                    <option value="Ombra">Ombra</option>
-                </select>
-
-                <div class="lux-input-group">
-                    <label for="luxMin">Lux Minima:</label>
-                    <input type="number" id="luxMin" placeholder="Es: 1000">
-                    <label for="luxMax">Lux Massima:</label>
-                    <input type="number" id="luxMax" placeholder="Es: 5000">
+                <div class="form-group">
+                    <label for="plantImage">Immagine Pianta</label>
+                    <input type="file" id="plantImage" accept="image/*">
+                    <img id="imagePreview" src="#" alt="Anteprima Immagine" style="display:none; max-width:100px; max-height:100px; margin-top:10px;">
                 </div>
-
-                <div class="temp-input-group">
-                    <label for="tempMin">Temperatura Minima (°C):</label>
-                    <input type="number" id="tempMin" placeholder="Es: 15">
-                    <label for="tempMax">Temperatura Massima (°C):</label>
-                    <input type="number" id="tempMax" placeholder="Es: 30">
+                <div class="form-group">
+                    <label for="plantName">Nome Pianta</label>
+                    <input type="text" id="plantName" required>
                 </div>
-
-                <label for="plantDescription">Descrizione:</label>
-                <textarea id="plantDescription" placeholder="Breve descrizione della pianta..."></textarea>
-
-                <label for="plantImage">Immagine Pianta:</label>
-                <input type="file" id="plantImage" accept="image/*">
-                <p class="error-message" id="imageError"></p>
-
-                <img id="imagePreview" src="#" alt="Anteprima Immagine" style="max-width: 100%; height: auto; margin-top: 10px; display: none;">
+                <div class="form-group">
+                    <label for="plantCategory">Categoria</label>
+                    <select id="plantCategory" required>
+                        <option value="">Seleziona Categoria</option>
+                        <option value="interna">Interna</option>
+                        <option value="esterna">Esterna</option>
+                        <option value="aromatica">Aromatica</option>
+                        <option value="fiore">Fiore</option>
+                        <option value="succulenta">Succulenta</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="plantDescription">Descrizione</label>
+                    <textarea id="plantDescription" rows="4"></textarea>
+                </div>
+                <div class="form-group temp-input-group">
+                    <label>Temperatura Ideale (°C)</label>
+                    <input type="number" id="plantTempMin" placeholder="Min">
+                    <span>-</span>
+                    <input type="number" id="plantTempMax" placeholder="Max">
+                </div>
+                <div class="form-group lux-input-group">
+                    <label>Luce Ideale (Lux)</label>
+                    <input type="number" id="plantLightMin" placeholder="Min Lux">
+                    <span>-</span>
+                    <input type="number" id="plantLightMax" placeholder="Max Lux">
+                </div>
 
                 <div class="form-actions">
                     <button type="submit" id="saveUpdatePlantButton">Salva Modifiche</button>
                     <button type="button" id="cancelUpdatePlantButton" class="cancel-button">Annulla</button>
-                    <button type="button" id="deletePlant" class="delete-button hidden">Elimina Pianta dal Database</button>
+                    <button type="button" id="deletePlant" class="delete-button">Elimina Pianta dal Database</button>
                 </div>
             </form>
         </div>
     </div>
 
-
-    <div id="imageModal" class="modal">
-        <span class="close-button" id="closeImageModalButton">&times;</span>
-        <img class="modal-content" id="zoomedImage">
-    </div>
-
     <div id="cardModal" class="modal">
-        <span class="close-button" id="closeCardModalButton">&times;</span>
-        <div class="modal-content" id="zoomedCardContent">
-            </div>
+        <div class="modal-content card-details-modal-content">
+            <span class="close-button" id="closeCardModal">&times;</span>
+            <div id="zoomedCardContent">
+                </div>
+        </div>
     </div>
 
-    <div id="toastContainer" class="toast-container"></div>
+    <div id="imageZoomModal" class="modal">
+        <div class="modal-content image-zoom-content">
+            <span class="close-button" id="closeImageModalButton">&times;</span>
+            <img id="zoomedCardImage" src="" alt="Immagine Ingrandita">
+        </div>
+    </div>
 
+    <div id="toast" class="toast"></div>
 
     <script type="module">
-        // Importa le funzioni necessarie dagli SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-        import { getStorage } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+        // Importa le funzioni necessarie dai moduli Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+        import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, deleteDoc, query, where } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js';
 
-        // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
+
+        // Configura Firebase - SOSTITUISCI CON I TUOI DATI!
         const firebaseConfig = {
               apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-  authDomain: "giardinodigitale.firebaseapp.com",
-  projectId: "giardinodigitale",
-  storageBucket: "giardinodigitale.firebasestorage.app",
-  messagingSenderId: "96265504027",
-  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+              authDomain: "giardinodigitale.firebaseapp.com",
+              projectId: "giardinodigitale",
+              storageBucket: "giardinodigitale.appspot.com", // Assicurati che questo sia corretto per il tuo progetto
+              messagingSenderId: "96265504000",
+              appId: "1:96265504000:web:12b7a9f9c0c0c0c0c0c0c0"
         };
 
-      // Inizializza Firebase
-    const app = initializeApp(firebaseConfig);
+        // Inizializza Firebase
+        const app = initializeApp(firebaseConfig);
 
-    // Ottieni le istanze dei servizi
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+        // Espone i servizi Firebase al global scope (window) per app.js
+        window.auth = getAuth(app);
+        window.db = getFirestore(app);
+        window.storage = getStorage(app);
 
-    // RENDE LE ISTANZE DISPONIBILI GLOBALMENTE PER app.js
-    // QUESTO È IL PASSAGGIO CHIAVE PER RISOLVERE L'ERRORE "is not defined"
-    window.auth = auth;
-    window.db = db;
-    window.storage = storage;
-    // Inizializza anche storageRef qui, se app.js lo usa globalmente
-    window.getStorageRef = storageRef; // Per ref()
-    window.getDownloadURL = getDownloadURL;
-    window.uploadBytesResumable = uploadBytesResumable;
+        // Espone le funzioni modulari necessarie a app.js
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
 
-    // Aggiungi un controllo di debug:
-    console.log("Firebase inizializzato ed esposto a window:", window.auth, window.db, window.storage);
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.query = query;
+        window.where = where;
 
-</script>
+        window.getStorageRef = storageRef; // Rinomina 'ref' in 'storageRef' per evitare conflitti e chiarezza
+        window.uploadBytesResumable = uploadBytesResumable;
+        window.getDownloadURL = getDownloadURL;
+        window.deleteObject = deleteObject; // Per eliminare file da Storage
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
