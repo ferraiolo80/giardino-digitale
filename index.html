@@ -256,15 +256,13 @@
     window.db = db;
     window.storage = storage;
     // Inizializza anche storageRef qui, se app.js lo usa globalmente
-    window.storageRef = storage.ref ? storage.ref() : null; // Aggiungi una verifica per .ref() per sicurezza
+    window.getStorageRef = storageRef; // Per ref()
+    window.getDownloadURL = getDownloadURL;
+    window.uploadBytesResumable = uploadBytesResumable;
 
     // Aggiungi un controllo di debug:
-    console.log("Firebase initialized and exposed to window:", window.auth, window.db, window.storage, window.storageRef);
+    console.log("Firebase inizializzato ed esposto a window:", window.auth, window.db, window.storage);
 
-    // Metti il caricamento di app.js qui dentro il modulo
-    // In alternativa, puoi lasciare <script src="app.js"></script> separato,
-    // ma DEVE ESSERE DOPO QUESTO BLOCCO.
-    // Se app.js non è un modulo, non importarlo qui. Lascialo come script separato.
 </script>
     <script src="app.js"></script>
 </body>
