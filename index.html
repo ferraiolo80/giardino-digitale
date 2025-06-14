@@ -235,14 +235,17 @@
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI SE NECESSARIO!
         const firebaseConfig = {
               apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-              authDomain: "giardinodigitale.firebaseapp.com",
-              projectId: "giardinodigitale",
-              storageBucket: "giardinodigitale.firebasestorage.app",
-              messagingSenderId: "96265504027",
-              appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+  authDomain: "giardinodigitale.firebaseapp.com",
+  projectId: "giardinodigitale",
+  storageBucket: "giardinodigitale.firebasestorage.app",
+  messagingSenderId: "96265504027",
+  appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
         };
 
-        // Inizializza Firebase
+          // Inizializza Firebase
+        firebase.initializeApp(firebaseConfig)
+        
+      
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
