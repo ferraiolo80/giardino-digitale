@@ -308,7 +308,8 @@ button:disabled {
 /* Plant Grid Layouts */
 #garden-container,
 #my-garden {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
     padding: 20px;
@@ -324,7 +325,9 @@ button:disabled {
 .plant-card {
     background-color: #ffffff;
     border-radius: 12px;
+    border: 1px solid #ddd;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 20px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -375,6 +378,7 @@ button:disabled {
     font-size: 0.9em;
     border-radius: 6px;
     white-space: nowrap; /* Evita che il testo vada a capo */
+    flex-direction: column
 }
 
 .add-to-garden-button {
