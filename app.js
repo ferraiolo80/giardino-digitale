@@ -786,7 +786,7 @@ function applyManualLux() {
 
 async function getWeather(latitude, longitude) {
     showLoadingSpinner();
-    const apiKey = '0e921d1b32f94b8e210134442240902'; // Tua chiave API OpenWeatherMap
+    const apiKey = '0575afa377367478348aa48bfc9936ba'; // Tua chiave API OpenWeatherMap
     const lang = 'it'; // Lingua italiana
     const units = 'metric'; // Unità metriche (Celsius)
     const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&lang=${lang}&units=${units}`;
