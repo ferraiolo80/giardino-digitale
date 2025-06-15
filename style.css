@@ -305,6 +305,14 @@ button:disabled {
     text-align: center;
 }
 
+.plant-list-container { /* Un selettore generico se li applichi entrambi */
+    display: flex; /* Abilita Flexbox */
+    flex-wrap: wrap; /* Permette alle card di andare a capo su più righe se non c'è spazio */
+    justify-content: center; /* Centra le card orizzontalmente (puoi usare 'flex-start', 'flex-end', 'space-between', 'space-around' a seconda di come vuoi distribuire lo spazio) */
+    gap: 20px; /* Spazio tra le card, sia orizzontale che verticale */
+    padding: 20px; /* Padding interno del contenitore */
+}
+
 /* Plant Grid Layouts */
 #garden-container,
 #my-garden {
