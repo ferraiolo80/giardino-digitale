@@ -57,9 +57,44 @@
                 <div class="view-buttons">
                     <button id="showAllPlantsButton" class="btn active"><i class="fas fa-globe"></i> Tutte le Piante</button>
                     <button id="showMyGardenButton" class="btn"><i class="fas fa-seedling"></i> Mio Giardino</button>
+                    <button id="googleLensButton" class="btn btn-secondary"><i class="fas fa-camera"></i> Avvia Google Lens</button>
                 </div>
             </div>
+</section>
+        
+<section id="weatherSensorSection" class="info-section">
+    <h2><i class="fas fa-cloud-sun"></i> Meteo e Clima</h2>
+    <button id="getClimateButton" class="btn"><i class="fas fa-location-arrow"></i> Ottieni Clima Locale</button>
+    <div id="locationStatus" class="info-message">
+        <i class="fas fa-info-circle"></i> Clicca su "Ottieni Clima" per rilevare la tua zona climatica e le previsioni.
+    </div>
+    <div id="weatherForecast" class="weather-forecast">
+        </div>
+    <div id="climateZoneFeedback"></div>
+</section>
 
+            <section id="lightSensorContainer" class="info-section">
+                <h2><i class="fas fa-lightbulb"></i> Sensore di Luce Ambientale</h2>
+                <div class="sensor-controls">
+                    <button id="startLightSensorButton" class="btn"><i class="fas fa-play"></i> Avvia Sensore</button>
+                    <button id="stopLightSensorButton" class="btn hidden"><i class="fas fa-stop"></i> Ferma Sensore</button>
+                </div>
+                <p>Valore Lux Corrente: <span id="currentLuxValue">N/A</span></p>
+                <div id="lightFeedback" class="info-message"></div>
+
+                <div id="manualLuxInputControls" style="display: none;">
+                <div class="sensor-info-row">
+                    <label for="manualLuxInput">Inserisci Lux manualmente:</label>
+                    <input type="number" id="manualLuxInput" placeholder="Lux es. 500" min="0" step="1">
+                    <button id="applyManualLuxButton" class="action-button"><i class="fas fa-check"></i> Applica Lux</button>
+                    <p>Valore Lux applicato: <span id="currentLuxValueManual">N/A</span> lx</p>
+                </div>
+            <div id="lightFeedback">
+                <p>Attiva il sensore o inserisci un valore per il feedback specifico sulle piante.</p>
+            </div>
+             
+            </section>
+                  
             <div class="filters">
                 <input type="text" id="searchInput" placeholder="Cerca piante...">
                 <select id="categoryFilter">
@@ -122,28 +157,7 @@
             <div id="gardenContainer" class="plant-grid">
                 </div>
 
-            <section id="weatherSensorSection" class="info-section">
-    <h2><i class="fas fa-cloud-sun"></i> Meteo e Clima</h2>
-    <button id="getClimateButton" class="btn"><i class="fas fa-location-arrow"></i> Ottieni Clima Locale</button>
-    <div id="locationStatus" class="info-message">
-        <i class="fas fa-info-circle"></i> Clicca su "Ottieni Clima" per rilevare la tua zona climatica e le previsioni.
-    </div>
-    <div id="weatherForecast" class="weather-forecast">
-        </div>
-    <div id="climateZoneFeedback"></div>
-</section>
-
-            <section id="lightSensorContainer" class="info-section">
-                <h2><i class="fas fa-lightbulb"></i> Sensore di Luce Ambientale</h2>
-                <div class="sensor-controls">
-                    <button id="startLightSensorButton" class="btn"><i class="fas fa-play"></i> Avvia Sensore</button>
-                    <button id="stopLightSensorButton" class="btn hidden"><i class="fas fa-stop"></i> Ferma Sensore</button>
-                </div>
-                <p>Valore Lux Corrente: <span id="currentLuxValue">N/A</span></p>
-                <div id="lightFeedback" class="info-message"></div>
-                <button id="googleLensButton" class="btn btn-secondary"><i class="fas fa-camera"></i> Avvia Google Lens</button>
-            </section>
-        </section>
+            
     </main>
 
     <button class="scroll-to-top-button" onclick="window.scrollTo({top: 0, behavior: 'smooth'});"><i class="fas fa-arrow-up"></i></button>
@@ -162,6 +176,53 @@
 
     <div id="toast" class="toast"></div>
 
+<!-- Modal per l'immagine zoomata -->
+    <div id="image-modal" class="modal">
+        <span class="close-button">&times;</span>
+        <img class="modal-content" id="zoomed-image" alt="Immagine Pianta">
+    </div>
+
+    <!-- Modal generica per Dettagli Pianta e Form (Aggiungi/Aggiorna) -->
+    <div id="card-modal" class="modal">
+        <span class="close-button" id="close-card-modal">&times;</span>
+        <div class="modal-content" id="zoomed-card-content">
+            <!-- Questo div sarà riempito dinamicamente da JavaScript con i dettagli o i form -->
+        </div>
+    </div>
+
+    <!-- NUOVA MODAL PER IL RITAGLIO DELL'IMMAGINE -->
+    <div id="crop-modal" class="modal" style="display: none;">
+        <div class="modal-content crop-modal-content">
+            <h2>Ritaglia Immagine</h2>
+            <div class="img-container">
+                <img id="image-to-crop" src="" alt="Immagine da ritagliare">
+            </div>
+            <div class="crop-controls">
+                <button id="rotate-left" class="action-button" title="Ruota a sinistra"><i class="fas fa-undo"></i></button>
+                <button id="rotate-right" class="action-button" title="Ruota a destra"><i class="fas fa-redo"></i></button>
+                <button id="zoom-in" class="action-button" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                <button id="zoom-out" class="action-button" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+            </div>
+            <div class="form-actions">
+                <button id="save-cropped-image" class="action-button primary-button"><i class="fas fa-crop"></i> Salva Ritagliata</button>
+                <button id="cancel-cropping" class="secondary-button"><i class="fas fa-times-circle"></i> Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUOVA MODAL PER LA CONFERMA PERSONALIZZATA -->
+    <div id="confirmation-modal" class="modal" style="display: none;">
+        <div class="modal-content confirmation-modal-content">
+            <h2 id="confirmation-title">Conferma Azione</h2>
+            <p id="confirmation-message">Sei sicuro di voler procedere?</p>
+            <div class="modal-buttons">
+                <button id="confirm-yes" class="action-button primary-button">Sì</button>
+                <button id="confirm-no" class="secondary-button">No</button>
+            </div>
+        </div>
+    </div>
+
+    
     <template id="newPlantFormTemplate">
         <form id="newPlantFormContent" class="plant-form-card">
             <h2>Aggiungi Nuova Pianta</h2>
@@ -340,6 +401,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
     <script>
         // Configura Firebase - SOSTITUISCI CON I TUOI DATI REALI!
