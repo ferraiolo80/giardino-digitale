@@ -477,10 +477,10 @@ async function loadMyGarden() {
     }
 
     try {
-        const myGardenSnapshot = await db.collection('users').doc(user.uid).collection('myGarden').get();
+        const myGardenSnapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
         const plantIdsInMyGarden = myGardenSnapshot.docs.map(doc => doc.data().plantId);
 
-        // Filtra `allPlants` per ottenere solo quelle presenti in `myGarden` dell'utente
+        // Filtra `allPlants` per ottenere solo quelle presenti in `gardens` dell'utente
         myGarden = allPlants.filter(plant => plantIdsInMyGarden.includes(plant.id));
         applyFiltersAndSort(); // Applica i filtri e l'ordinamento
     } catch (error) {
