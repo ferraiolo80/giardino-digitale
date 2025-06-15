@@ -209,7 +209,7 @@ function setupAuthListeners() {
             loginButton.style.display = 'none';
             registerButton.style.display = 'none';
             logoutButton.style.display = 'inline-block';
-            authSection.style.display = 'none';
+            authContainerDiv.style.display = 'none';
             appContentDiv.style.display = 'block';
             // Carica i dati una volta autenticato
             loadAllPlants();
@@ -219,7 +219,7 @@ function setupAuthListeners() {
             loginButton.style.display = 'inline-block';
             registerButton.style.display = 'inline-block';
             logoutButton.style.display = 'none';
-            authSection.style.display = 'block';
+            authContainerDiv.style.display = 'block';
             appContentDiv.style.display = 'none';
             // Pulisci le liste se l'utente non è autenticato
             allPlants = [];
