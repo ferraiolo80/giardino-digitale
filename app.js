@@ -373,8 +373,8 @@ async function editPlant(plantId) {
         plantTempMinInput.value = plantToEdit.tempMin || '';
         plantTempMaxInput.value = plantToEdit.tempMax || '';
         plantWateringInput.value = plantToEdit.watering || '';
-        plantLightInput.value = plantToEdit.light || '';
-
+        plantIdealLuxMinInput.value = plantToEdit.idealLuxMin || '';
+        plantIdealLuxMaxInput.value = plantToEdit.idealLuxMax || '';
         // Mostra l'anteprima dell'immagine esistente
         if (plantToEdit.imageUrl) {
             plantImagePreview.src = plantToEdit.imageUrl;
