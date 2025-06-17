@@ -117,8 +117,7 @@ function showToast(message, type = 'info', duration = 3000) {
 function closeCardModal() {
     cardModal.style.display = 'none';
     zoomedCardContent.innerHTML = ''; // Pulisci il contenuto
-    zoomedPlantImage.src = ''; // Pulisci l'immagine
-    zoomedPlantImage.style.display = 'none'; // Nascondi l'immagine
+    
 }
 
 
