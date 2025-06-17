@@ -471,6 +471,7 @@ async function loadAllPlants() {
 async function loadMyGarden() {
     showLoadingSpinner();
     const user = auth.currentUser;
+
     if (!user) {
         myGarden = [];
         applyFiltersAndSort();
@@ -479,15 +480,23 @@ async function loadMyGarden() {
     }
 
     try {
-        querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
-        console.log('Contenuto grezzo dello snapshot della collezione gardens:',
-        myGardenSnapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
+        // 1. Ottieni lo snapshot della collezione 'gardens' dell'utente
+        const myGardenSnapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
+
+        // 2. Log del contenuto grezzo dello snapshot
+        console.log('Contenuto grezzo dello snapshot della collezione gardens:', myGardenSnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
+
+        // 3. Estrai gli ID delle piante dal giardino dell'utente
         const plantIdsInMyGarden = myGardenSnapshot.docs.map(doc => doc.data().plantId);
         console.log('ID delle piante estratte dal mio giardino (plantIdsInMyGarden):', plantIdsInMyGarden);
+
+        // 4. Log di tutti gli ID delle piante disponibili
         console.log('ID di tutte le piante disponibili (allPlants):', allPlants.map(plant => plant.id));
-        // Filtra `allPlants` per ottenere solo quelle presenti in `gardens` dell'utente
+
+        // 5. Filtra `allPlants` per ottenere solo quelle presenti in `gardens` dell'utente
         myGarden = allPlants.filter(plant => plantIdsInMyGarden.includes(plant.id));
         console.log('Piante nel mio giardino dopo il filtraggio (myGarden):', myGarden);
+
         applyFiltersAndSort(); // Applica i filtri e l'ordinamento
     } catch (error) {
         console.error("Errore nel caricamento del mio giardino:", error);
