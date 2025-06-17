@@ -264,7 +264,8 @@ async function savePlantToFirestore(e) {
     const tempMin = plantTempMinInput.value ? parseFloat(plantTempMinInput.value) : null;
     const tempMax = plantTempMaxInput.value ? parseFloat(plantTempMaxInput.value) : null;
     const watering = plantWateringInput.value;
-    const light = plantLightInput.value ? parseFloat(plantLightInput.value) : null;
+    const idealLuxMin = plantIdealLuxMinInput.value ? parseFloat(plantIdealLuxMinInput.value) : null;
+    const idealLuxMax = plantIdealLuxMaxInput.value ? parseFloat(plantIdealLuxMaxInput.value) : null;
     const user = auth.currentUser;
 
     if (!user) {
