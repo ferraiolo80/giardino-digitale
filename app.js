@@ -595,7 +595,12 @@ function displayPlants(plantsToDisplay) {
         if (!isMyGardenCurrentlyVisible) { // Se è la vista "Tutte le Piante"
             emptyMessageClone.querySelector('p').textContent = 'Nessuna pianta trovata con i filtri applicati.';
             emptyMessageClone.querySelector('p:nth-child(2)').textContent = 'Prova a modificare i criteri di ricerca.';
-            emptyMessageClone.querySelector('i').className = 'fas fa-search-minus';
+            const iconElement = emptyMessageClone.querySelector('i');
+if (iconElement) { // Controlla se l'elemento <i> è stato trovato
+    iconElement.className = 'fas fa-search-minus';
+} else {
+    console.warn("Elemento icona <i> non trovato nel template 'emptyGardenMessage'. Impossibile impostare la classe.");
+}
         }
         container.appendChild(emptyMessageClone);
         return;
