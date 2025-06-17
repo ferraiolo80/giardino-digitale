@@ -479,7 +479,7 @@ async function loadMyGarden() {
     }
 
     try {
-        querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
+        querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
         console.log('Contenuto grezzo dello snapshot della collezione gardens:',
         const myGardenSnapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
         const plantIdsInMyGarden = myGardenSnapshot.docs.map(doc => doc.data().plantId);
