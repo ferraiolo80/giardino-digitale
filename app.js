@@ -872,17 +872,12 @@ async function getLocation() {
 
 // --- Funzione Google Lens (Placeholder) ---
 function launchGoogleLens() {
-    // Implementazione molto limitata. Google Lens non ha una API diretta per essere lanciata.
-    // L'uso ideale sarebbe tramite un'applicazione mobile nativa, o una web API specifica per l'identificazione di immagini.
-    // Questo è un placeholder e potrebbe non funzionare come ci si aspetta su tutti i dispositivi/browser.
-    showToast("Google Lens richiede un'integrazione complessa o l'uso tramite l'app nativa.", "info", 5000);
-    console.warn("La funzionalità Google Lens non è implementata direttamente via API web. Questo è un placeholder.");
-
-    // Un'alternativa rudimentale potrebbe essere reindirizzare a Google Immagini con un'immagine pre-caricata,
-    // ma questo richiede l'upload dell'immagine prima del redirect.
-    // Esempio (non provato e richiede un URL immagine valido):
-    // const imageUrlForLens = "URL_DELL_IMMAGINE_CARICATA_SU_STORAGE";
-    // window.open(`https://lens.google.com/uploadbyurl?url=${encodeURIComponent(imageUrlForLens)}`, '_blank');
+    console.log('Tentativo di aprire Google Lens...');
+    // Questo aprirà una nuova finestra/scheda al sito di Google Lens
+    // L'utente dovrà poi caricare l'immagine manualmente o usare la fotocamera web se disponibile sul sito di Lens.
+    window.open('https://lens.google.com/', '_blank');
+    // Oppure, per una ricerca inversa di immagini su Google:
+    // window.open('https://www.google.com/searchbyimage/upload', '_blank');
 }
 
 
