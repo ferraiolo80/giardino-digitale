@@ -301,7 +301,8 @@ async function savePlantToFirestore(e) {
         tempMin,
         tempMax,
         watering,
-        light,
+        idealLuxMin,
+        idealLuxMax,
         imageUrl, // URL dell'immagine caricata
         createdAt: currentPlantIdToUpdate ? allPlants.find(p => p.id === currentPlantIdToUpdate).createdAt : firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
