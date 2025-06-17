@@ -688,9 +688,7 @@ function showPlantDetailsModal(plantId) {
             // Altrimenti, usa l'icona generica della categoria
             detailsImageUrl = categoryIcons[plant.category] || categoryIcons['Altro'];
         }
-        zoomedPlantImage.src = detailsImageUrl;
-        zoomedPlantImage.alt = `Immagine di ${plant.name}`;
-        zoomedPlantImage.style.display = 'block'; // Assicurati che l'immagine sia visibile
+       
 
         const detailsHtml = `
             <h2>${plant.name}</h2>
