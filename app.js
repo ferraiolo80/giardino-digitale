@@ -699,7 +699,7 @@ function showPlantDetailsModal(plantId) {
             <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
             <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
             <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
-            <p><strong>Luce (Lux):</strong> ${plant.light !== null ? plant.light : 'N/A'}</p>
+            <p><strong>Luce (Lux):</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
             <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
             <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
             ${plant.updatedAt ? `<p><strong>Ultimo aggiornamento:</strong> ${new Date(plant.updatedAt.toDate()).toLocaleDateString()}</p>` : ''}
