@@ -401,14 +401,14 @@ async function addPlantToMyGarden(plantId) {
     }
 
     try {
-        // Verifica se la pianta è già nel giardino dell'utente
-        const docRef = db.collection('users').doc(user.uid).collection('myGarden').doc(plantId);
+        // CORREZIONE QUI: Cambiato 'myGarden' in 'gardens'
+        const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
         const doc = await docRef.get();
 
         if (doc.exists) {
             showToast('Questa pianta è già nel tuo giardino!', 'info');
         } else {
-            // Aggiungi solo l'ID della pianta e il riferimento alla collezione "myGarden" dell'utente
+            // Aggiungi solo l'ID della pianta e il riferimento alla collezione "gardens" dell'utente
             await docRef.set({
                 plantId: plantId,
                 addedAt: firebase.firestore.FieldValue.serverTimestamp()
