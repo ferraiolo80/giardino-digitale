@@ -66,7 +66,7 @@ let cropButton;
 let cardModal;
 let closeCardModalButton;
 let zoomedCardContent;
-
+let imageZoomDisplay;
 let getClimateButton;
 let locationNameSpan;
 let currentTempSpan;
@@ -949,7 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tempMinFilter = document.getElementById('tempMinFilter');
     tempMaxFilter = document.getElementById('tempMaxFilter');
     sortBySelect = document.getElementById('sortBySelect');
-
+    imageZoomDisplay = document.getElementById('imageZoomDisplay');
     plantModal = document.getElementById('plantModal');
     plantForm = document.getElementById('plantForm');
     closePlantModalButton = document.getElementById('closePlantModalButton');
