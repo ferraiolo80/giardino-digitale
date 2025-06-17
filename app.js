@@ -978,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cardModal = document.getElementById('cardModal');
     closeCardModalButton = document.getElementById('closeCardModalButton');
     zoomedCardContent = document.getElementById('zoomed-card-content');
-    zoomedPlantImage = document.getElementById('zoomed-plant-image-display'); // Assicurati che l'ID sia corretto nell'HTML per l'immagine zoomata
+    
 
     getClimateButton = document.getElementById('getClimateButton');
     locationNameSpan = document.getElementById('location-name');
