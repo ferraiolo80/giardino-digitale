@@ -772,21 +772,47 @@ function stopLightSensor() {
 }
 
 function updateLightFeedback(lux) {
-    let feedback = '';
+    let generalFeedback = ''; // Feedback generale sull'ambiente
     if (lux < 50) {
-        feedback = 'Luce molto bassa - ambiente buio.';
+        generalFeedback = 'Luce ambientale: molto bassa - ambiente buio.';
     } else if (lux < 200) {
-        feedback = 'Luce bassa - adatto a piante d\'ombra profonda.';
+        generalFeedback = 'Luce ambientale: bassa - adatto a piante d\'ombra profonda.';
     } else if (lux < 1000) {
-        feedback = 'Luce media - ideale per piante d\'ombra o mezz\'ombra.';
+        generalFeedback = 'Luce ambientale: media - ideale per piante d\'ombra o mezz\'ombra.';
     } else if (lux < 5000) {
-        feedback = 'Luce buona - adatto a piante che amano la luce indiretta.';
+        generalFeedback = 'Luce ambientale: buona - adatto a piante che amano la luce indiretta.';
     } else if (lux < 10000) {
-        feedback = 'Luce alta - ideale per piante da pieno sole.';
+        generalFeedback = 'Luce ambientale: alta - ideale per piante da pieno sole.';
     } else {
-        feedback = 'Luce molto alta - ottimo per piante che amano il sole intenso.';
+        generalFeedback = 'Luce ambientale: molto alta - ottimo per piante che amano il sole intenso.';
     }
-    lightFeedbackDiv.textContent = feedback;
+
+    // Inizializza il contenuto del div feedback con il feedback generale
+    lightFeedbackDiv.innerHTML = `<p>${generalFeedback}</p><hr>`; // Aggiunge una riga di separazione
+
+    // Se ci sono piante nel mio giardino, fornisci feedback specifico per ciascuna
+    if (myGarden && myGarden.length > 0) {
+        lightFeedbackDiv.innerHTML += `<h4>Feedback per le piante nel tuo giardino:</h4>`;
+        myGarden.forEach(plant => {
+            const minLux = plant.idealLuxMin;
+            const maxLux = plant.idealLuxMax;
+            let plantSpecificFeedback = `<p><strong>${plant.name}:</strong> `;
+
+            if (minLux === undefined || maxLux === undefined || minLux === null || maxLux === null) {
+                plantSpecificFeedback += `Dati Lux ideali non disponibili.`;
+            } else if (lux >= minLux && lux <= maxLux) {
+                plantSpecificFeedback += `Condizioni di luce **Ideali** (${minLux}-${maxLux} Lux). &#10003;`; // Checkmark Unicode
+            } else if (lux < minLux) {
+                plantSpecificFeedback += `Luce **troppo bassa** (${lux.toFixed(0)} Lux), richiede almeno ${minLux} Lux. &#10060;`; // Cross mark Unicode
+            } else { // lux > maxLux
+                plantSpecificFeedback += `Luce **troppo alta** (${lux.toFixed(0)} Lux), richiede al massimo ${maxLux} Lux. &#10060;`; // Cross mark Unicode
+            }
+            plantSpecificFeedback += `</p>`;
+            lightFeedbackDiv.innerHTML += plantSpecificFeedback;
+        });
+    } else {
+        lightFeedbackDiv.innerHTML += `<p>Nessuna pianta nel tuo giardino per un feedback specifico.</p>`;
+    }
 }
 
 // Funzione per applicare i lux inseriti manualmente
