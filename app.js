@@ -66,7 +66,7 @@ let cropButton;
 let cardModal;
 let closeCardModalButton;
 let zoomedCardContent;
-let zoomedPlantImage;
+
 let getClimateButton;
 let locationNameSpan;
 let currentTempSpan;
