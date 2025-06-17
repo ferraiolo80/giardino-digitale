@@ -180,8 +180,10 @@
                 <input type="text" id="plantWatering" placeholder="es. Ogni 3 giorni">
             </div>
             <div class="form-group">
-                <label for="plantLight">Esigenze di Luce (Lux):</label>
-                <input type="number" id="plantLight" placeholder="es. 5000">
+                <label>Esigenze di Luce (Lux Min - Max):</label>
+                    <div class="input-group lux-input-group"> <input type="number" id="plantIdealLuxMin" placeholder="Min Lux">
+                    <span class="input-separator">-</span> <input type="number" id="plantIdealLuxMax" placeholder="Max Lux">
+                    </div>
             </div>
             <div class="form-group">
                 <label for="plantImageInput">Immagine Pianta:</label>
