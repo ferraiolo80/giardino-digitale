@@ -655,6 +655,7 @@ function displayPlants(plantsToDisplay) {
         plantCard.innerHTML += `
             <h3>${plant.name}</h3>
             <p><strong>Categoria:</strong> ${plant.category}</p>
+            <p><strong>Esposizione Solare:</strong> ${plant.sunLight || 'N/A'}</p>
             <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
             <p><strong>Luce:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
             <div class="card-actions">
