@@ -380,6 +380,7 @@ async function editPlant(plantId) {
     if (plantToEdit) {
         plantNameInput.value = plantToEdit.name || '';
         plantCategorySelect.value = plantToEdit.category || '';
+        plantFormElement.querySelector('#plantSunExposure').value = plant.sunExposure || '';
         plantDescriptionTextarea.value = plantToEdit.description || '';
         plantTempMinInput.value = plantToEdit.tempMin || '';
         plantTempMaxInput.value = plantToEdit.tempMax || '';
