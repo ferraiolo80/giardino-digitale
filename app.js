@@ -968,6 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutButton = document.getElementById('logoutButton');
     searchInput = document.getElementById('searchInput');
     categoryFilter = document.getElementById('categoryFilter');
+    sunLightFilter = document.getElementById('sunLightFilter');
     addNewPlantButton = document.getElementById('addNewPlantButton');
     showAllPlantsButton = document.getElementById('showAllPlantsButton');
     showMyGardenButton = document.getElementById('showMyGardenButton');
