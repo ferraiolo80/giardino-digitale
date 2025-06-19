@@ -601,16 +601,15 @@ function displayPlants(plantsToDisplay) {
     if (plantsToDisplay.length === 0) {
         const messageTemplate = document.getElementById('emptyGardenMessage');
         const emptyMessageClone = messageTemplate.content.cloneNode(true);
-        // Modifica il messaggio in base alla vista corrente
         if (!isMyGardenCurrentlyVisible) { // Se è la vista "Tutte le Piante"
             emptyMessageClone.querySelector('p').textContent = 'Nessuna pianta trovata con i filtri applicati.';
             emptyMessageClone.querySelector('p:nth-child(2)').textContent = 'Prova a modificare i criteri di ricerca.';
             const iconElement = emptyMessageClone.querySelector('i');
-if (iconElement) { // Controlla se l'elemento <i> è stato trovato
-    iconElement.className = 'fas fa-search-minus';
-} else {
-    console.warn("Elemento icona <i> non trovato nel template 'emptyGardenMessage'. Impossibile impostare la classe.");
-}
+            if (iconElement) {
+                iconElement.className = 'fas fa-search-minus';
+            } else {
+                console.warn("Elemento icona <i> non trovato nel template 'emptyGardenMessage'. Impossibile impostare la classe.");
+            }
         }
         container.appendChild(emptyMessageClone);
         return;
@@ -620,11 +619,8 @@ if (iconElement) { // Controlla se l'elemento <i> è stato trovato
         let imageUrlToDisplay;
 
         if (isMyGardenCurrentlyVisible) {
-            // Se siamo in "Mio Giardino", usa l'immagine caricata dall'utente se esiste
-            // Altrimenti, usa l'icona generica della categoria
             imageUrlToDisplay = plant.imageUrl || categoryIcons[plant.category] || categoryIcons['Altro'];
         } else {
-            // Se siamo in "Tutte le Piante", usa sempre l'icona generica in base alla categoria
             imageUrlToDisplay = categoryIcons[plant.category] || categoryIcons['Altro'];
         }
 
@@ -632,28 +628,45 @@ if (iconElement) { // Controlla se l'elemento <i> è stato trovato
         plantCard.className = 'plant-card';
         plantCard.dataset.id = plant.id;
 
-        // Listener per la modale di dettaglio della card
-        plantCard.addEventListener('click', (e) => {
-            // Assicurati che il click non sia su un bottone di azione
-            if (!e.target.closest('.card-actions button')) {
-                showPlantDetailsModal(plant.id);
-            }
+        // Crea l'elemento immagine separatamente per attaccare l'event listener
+        const plantImageElement = document.createElement('img');
+        plantImageElement.src = imageUrlToDisplay;
+        plantImageElement.alt = plant.name;
+        plantImageElement.classList.add('plant-image'); // Applica la classe CSS
+
+        // Aggiungi l'event listener per lo zoom dell'immagine
+        plantImageElement.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evita che il click sull'immagine attivi anche il click sulla card intera
+            openImageZoomModal(plantImageElement.src); // Passa l'URL dell'immagine alla funzione di zoom
         });
 
-        plantCard.innerHTML = `
-            <img src="${imageUrlToDisplay}" alt="${plant.name}" class="plant-image">
+        // Aggiungi l'immagine alla card
+        plantCard.appendChild(plantImageElement);
+
+        // Aggiungi il resto del contenuto della card come HTML interno
+        // Ho corretto qui la riga della "Luce"
+        plantCard.innerHTML += `
             <h3>${plant.name}</h3>
             <p><strong>Categoria:</strong> ${plant.category}</p>
             <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
-            <p><strong>Luce:</strong> ${plant.light !== null ? `${plant.light} Lux` : 'N/A'}</p>
+            <p><strong>Luce:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
             <div class="card-actions">
                 ${isMyGardenCurrentlyVisible ? `<button class="btn btn-edit" data-id="${plant.id}"><i class="fas fa-edit"></i> Modifica</button>` : ''}
                 ${isMyGardenCurrentlyVisible ? `<button class="btn btn-remove" data-id="${plant.id}"><i class="fas fa-minus-circle"></i> Rimuovi dal Giardino</button>` : `<button class="btn btn-add" data-id="${plant.id}"><i class="fas fa-plus-circle"></i> Aggiungi al Giardino</button>`}
             </div>
         `;
+
+        // Listener per la modale di dettaglio della card (click sulla card, ma non sull'immagine o sui bottoni)
+        plantCard.addEventListener('click', (e) => {
+            // Assicurati che il click non sia sull'immagine (gestita da plantImageElement) o su un bottone di azione
+            if (!e.target.closest('.plant-image') && !e.target.closest('.card-actions button')) {
+                showPlantDetailsModal(plant.id);
+            }
+        });
+
         container.appendChild(plantCard);
 
-        // Aggiungi listener per i bottoni "Modifica", "Rimuovi" e "Aggiungi"
+        // Aggiungi listener per i bottoni "Modifica", "Rimuovi" e "Aggiungi" (dopo che innerHTML è stato impostato)
         if (isMyGardenCurrentlyVisible) {
             const editButton = plantCard.querySelector('.btn-edit');
             if (editButton) {
