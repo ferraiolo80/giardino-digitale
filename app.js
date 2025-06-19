@@ -91,6 +91,7 @@ const categoryIcons = {
     'Ombra': 'assets/category_icons/shade_icon.png',
     'Pianta Grassa': 'assets/category_icons/succulent_icon.png',
     'Fiore': 'assets/category_icons/flower_icon.png',
+    'Arbusto': 'assets/category_icons/shrub_icon.png',
     // Aggiungi qui tutte le tue categorie e i percorsi delle icone
     'Altro': 'assets/category_icons/default_icon.png' // Icona di default per categorie non mappate
 };
