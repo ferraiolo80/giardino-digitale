@@ -75,6 +75,14 @@ let humiditySpan;
 let windSpeedSpan;
 let lastUpdatedSpan;
 let googleLensButton; // variabile...
+let cropImageModal; // Per il ritaglio
+let closeCropImageModalButton; // Per il bottone di chiusura del ritaglio
+let imageToCrop; // L'immagine dentro la modale di ritaglio
+let cropButton; // Il bottone di ritaglio
+let imageZoomModal; // Per lo zoom dell'immagine
+let closeImageZoomModalButton; // Per il bottone di chiusura dello zoom
+let imageZoomDisplay; // L'immagine dentro la modale di zoom
+
 
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
