@@ -520,7 +520,7 @@ async function loadMyGarden() {
 
 function applyFiltersAndSort() {
     let filteredPlants = isMyGardenCurrentlyVisible ? [...myGarden] : [...allPlants];
-
+    
     // Filtra per ricerca
     const searchTerm = searchInput.value.toLowerCase();
     if (searchTerm) {
@@ -537,6 +537,10 @@ function applyFiltersAndSort() {
         filteredPlants = filteredPlants.filter(plant => plant.category === selectedCategory);
     }
 
+    // Filtra per esposizione solare
+    const selectedSunExposure = sunExposureFilter ? sunExposureFilter.value : ''; 
+    if ( selextedSunLight = selectedSunLight ? plant.sunExposure === selectedSunLight : true;
+    
     // Filtra per temperatura minima
     const minTemp = parseFloat(tempMinFilter.value);
     if (!isNaN(minTemp)) {
