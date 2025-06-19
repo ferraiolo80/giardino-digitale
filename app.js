@@ -62,7 +62,7 @@ let deletePlantButton;
 let imageModal;
 let closeImageModalButton;
 
-let cropButton;
+
 let cardModal;
 let closeCardModalButton;
 let zoomedCardContent;
