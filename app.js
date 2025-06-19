@@ -993,7 +993,16 @@ document.addEventListener('DOMContentLoaded', () => {
     cardModal = document.getElementById('cardModal');
     closeCardModalButton = document.getElementById('closeCardModalButton');
     zoomedCardContent = document.getElementById('zoomed-card-content');
-    
+    // Inizializzazioni per la modale di RITAGLIO Immagine
+    cropImageModal = document.getElementById('cropImageModal');
+    closeCropImageModalButton = document.getElementById('closeCropImageModalButton');
+    imageToCrop = document.getElementById('imageToCrop');
+    cropButton = document.getElementById('cropButton');
+
+    // Inizializzazioni per la modale di ZOOM Immagine
+    imageZoomModal = document.getElementById('imageZoomModal');
+    closeImageZoomModalButton = document.getElementById('closeImageZoomModalButton');
+    imageZoomDisplay = document.getElementById('imageZoomDisplay');
 
     getClimateButton = document.getElementById('getClimateButton');
     locationNameSpan = document.getElementById('location-name');
@@ -1017,6 +1026,13 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSortBy = e.target.value;
         applyFiltersAndSort();
     });
+
+    // Event listener per la chiusura delle modali di ritaglio e zoom
+    if (closeCropImageModalButton) closeCropImageModalButton.addEventListener('click', () => { cropImageModal.style.display = 'none'; });
+    if (cropImageModal) cropImageModal.addEventListener('click', (e) => { if (e.target === cropImageModal) cropImageModal.style.display = 'none'; });
+
+    if (closeImageZoomModalButton) closeImageZoomModalButton.addEventListener('click', () => { imageZoomModal.style.display = 'none'; });
+    if (imageZoomModal) imageZoomModal.addEventListener('click', (e) => { if (e.target === imageZoomModal) imageZoomModal.style.display = 'none'; });
 
     // Event listener per il pulsante "Aggiungi Nuova Pianta"
     addNewPlantButton.addEventListener('click', () => {
