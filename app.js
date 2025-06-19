@@ -718,7 +718,7 @@ function showPlantDetailsModal(plantId) {
 function openImageZoomModal(imageUrl) {
     if (imageZoomDisplay) { // Controlla se l'elemento immagine della modale di zoom esiste
         imageZoomDisplay.src = imageUrl; // Imposta l'URL dell'immagine da visualizzare
-        imageModal.style.display = 'flex'; // Mostra la modale (usa 'flex' per centrare l'immagine)
+        imageZoomModal.style.display = 'flex'; // Mostra la modale di zoom (usa 'flex' per centrare l'immagine)
     } else {
         console.error("Elemento 'imageZoomDisplay' non trovato. Assicurati che l'ID sia corretto nell'HTML.");
         showToast("Impossibile caricare l'immagine zoom.", 'error');
