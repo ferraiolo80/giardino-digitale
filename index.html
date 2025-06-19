@@ -200,31 +200,32 @@
         </form>
     </div>
 
-    <div id="imageModal" class="modal">
-        <div class="image-modal-content">
-            <span class="close-button" id="closeImageModalButton">&times;</span>
-            <h2>Ritaglia Immagine</h2>
-            <div class="img-container">
-                <img id="imageToCrop" src="#" alt="Immagine da ritagliare">
-            </div>
-            <div class="cropper-buttons">
-                <button id="cropButton">Ritaglia</button>
-            </div>
+    <div id="cropImageModal" class="modal">
+    <div class="image-modal-content">
+        <span class="close-button" id="closeCropImageModalButton">&times;</span>
+        <h2>Ritaglia Immagine</h2>
+        <div class="img-container">
+            <img id="imageToCrop" src="#" alt="Immagine da ritagliare">
+        </div>
+        <div class="cropper-buttons">
+            <button id="cropButton">Ritaglia</button>
         </div>
     </div>
+</div>
 
-    <div id="cardModal" class="modal">
-        <div class="modal-content-card">
-            <span class="close-button" id="closeCardModalButton">&times;</span>
-            <div id="zoomed-card-content">
-                </div>
+<div id="cardModal" class="modal">
+    <div class="modal-content-card">
+        <span class="close-button" id="closeCardModalButton">&times;</span>
+        <div id="zoomed-card-content">
         </div>
     </div>
+</div>
 
-    <div id="imageModal" class="modal">
-    <span class="close-button" id="closeImageModalButton">&times;</span>
-    <img id="imageZoomDisplay" src="#" alt="Immagine ingrandita" style="max-width: 90%; max-height: 90vh; display: block; margin: auto;">
+<div id="imageZoomModal" class="modal">
+    <div class="modal-content"> <span class="close-button" id="closeImageZoomModalButton">&times;</span>
+        <img id="imageZoomDisplay" src="#" alt="Immagine ingrandita" style="max-width: 90%; max-height: 90vh; display: block; margin: auto;">
     </div>
+</div>
 
     <template id="emptyGardenMessage">
         <div class="empty-message">
