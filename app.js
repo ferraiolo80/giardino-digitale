@@ -989,6 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
     plantForm = document.getElementById('plantForm');
     closePlantModalButton = document.getElementById('closePlantModalButton');
     plantNameInput = document.getElementById('plantName');
+    plantSunExposure = document.getElementById('plantSunExposure');
     plantCategorySelect = document.getElementById('plantCategory');
     plantDescriptionTextarea = document.getElementById('plantDescription');
     plantTempMinInput = document.getElementById('plantTempMin');
@@ -1171,6 +1172,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Esegui il controllo del sensore all'avvio
     checkLightSensorAvailability();
+
+    // Event listener per il nuovo filtro di esposizione solare
+    if (sunExposureFilter) {
+        sunExposureFilter.addEventListener('change', filterPlants);
+    }
 
     // Event Listener per Google Lens (placeholder)
     if (googleLensButton) googleLensButton.addEventListener('click', launchGoogleLens);
