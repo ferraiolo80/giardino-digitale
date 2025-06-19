@@ -61,7 +61,7 @@ let cancelUpdatePlantButton;
 let deletePlantButton;
 let imageModal;
 let closeImageModalButton;
-let imageToCrop;
+
 let cropButton;
 let cardModal;
 let closeCardModalButton;
