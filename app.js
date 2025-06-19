@@ -48,6 +48,7 @@ let plantForm;
 let closePlantModalButton;
 let plantNameInput;
 let plantCategorySelect;
+let plantSunLight
 let plantDescriptionTextarea;
 let plantTempMinInput;
 let plantTempMaxInput;
@@ -61,7 +62,7 @@ let cancelUpdatePlantButton;
 let deletePlantButton;
 let imageModal;
 let closeImageModalButton;
-
+let sunLightFilter
 
 let cardModal;
 let closeCardModalButton;
