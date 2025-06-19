@@ -638,6 +638,7 @@ function displayPlants(plantsToDisplay) {
         // Aggiungi l'event listener per lo zoom dell'immagine
         plantImageElement.addEventListener('click', (e) => {
             e.stopPropagation(); // Evita che il click sull'immagine attivi anche il click sulla card intera
+            console.log("Tentativo di aprire zoom immagine. URL:", plantImageElement.src); 
             openImageZoomModal(plantImageElement.src); // Passa l'URL dell'immagine alla funzione di zoom
         });
 
