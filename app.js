@@ -380,7 +380,7 @@ async function editPlant(plantId) {
     if (plantToEdit) {
         plantNameInput.value = plantToEdit.name || '';
         plantCategorySelect.value = plantToEdit.category || '';
-        plantFormElement.querySelector('#plantSunExposure').value = plant.sunExposure || '';
+        plantFormElement.querySelector('#plantSunLight').value = plant.sunLight || '';
         plantDescriptionTextarea.value = plantToEdit.description || '';
         plantTempMinInput.value = plantToEdit.tempMin || '';
         plantTempMaxInput.value = plantToEdit.tempMax || '';
@@ -541,7 +541,7 @@ function applyFiltersAndSort() {
     }
 
     // Filtra per esposizione solare
-    const selectedSunExposure = sunExposureFilter ? sunExposureFilter.value : ''; 
+    const selectedSunExposure = sunLightFilter ? sunLightFilter.value : ''; 
     if ( selextedSunLight = selectedSunLight ? plant.sunExposure === selectedSunLight : true
     
     // Filtra per temperatura minima
