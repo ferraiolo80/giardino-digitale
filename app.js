@@ -1002,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeImageModalButton = document.getElementById('closeImageModalButton');
     
     cardModal = document.getElementById('cardModal');
-    
+    closeCardModalButton = document.getElementById('closeCardModalButton');
     zoomedCardContent = document.getElementById('zoomed-card-content');
     // Inizializzazioni per la modale di RITAGLIO Immagine
     cropImageModal = document.getElementById('cropImageModal');
