@@ -1038,13 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFiltersAndSort();
     });
 
-    // Event listener per la chiusura delle modali di ritaglio e zoom
-    if (closeCropImageModalButton) closeCropImageModalButton.addEventListener('click', () => { cropImageModal.style.display = 'none'; });
-    if (cropImageModal) cropImageModal.addEventListener('click', (e) => { if (e.target === cropImageModal) cropImageModal.style.display = 'none'; });
-
-    if (closeImageZoomModalButton) closeImageZoomModalButton.addEventListener('click', () => { imageZoomModal.style.display = 'none'; });
-    if (imageZoomModal) imageZoomModal.addEventListener('click', (e) => { if (e.target === imageZoomModal) imageZoomModal.style.display = 'none'; });
-
+   
     // Event listener per il pulsante "Aggiungi Nuova Pianta"
     addNewPlantButton.addEventListener('click', () => {
         plantForm.reset(); // Resetta il form
@@ -1124,9 +1118,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
 
-    // Chiusura modali (listener per il click sul bottone 'x' e sullo sfondo della modale)
-    if (closeImageModalButton) closeImageModalButton.addEventListener('click', () => { imageModal.style.display = 'none'; });
-    if (imageModal) imageModal.addEventListener('click', (e) => { if (e.target === imageModal) imageModal.style.display = 'none'; });
+    // Listener per la chiusura delle modali tramite bottone 'x'
+    
+    if (closeCardModalButton) {
+        closeCardModalButton.addEventListener('click', () => {
+            closeCardModal(); // Chiama la tua funzione di chiusura specifica per la card
+        });
+    }
+
+    if (closeCropImageModalButton) {
+        closeCropImageModalButton.addEventListener('click', () => {
+            cropImageModal.style.display = 'none'; // Nasconde la modale di ritaglio
+        });
+    }
+
+    if (closeImageZoomModalButton) {
+        closeImageZoomModalButton.addEventListener('click', () => {
+            imageZoomModal.style.display = 'none'; // Nasconde la modale di zoom
+        });
+    }
+
 
     // La chiusura della cardModal è gestita dalla funzione closeCardModal()
     // e gli event listener sono attaccati dinamicamente o alla modale stessa
@@ -1137,6 +1148,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    if (cropImageModal) cropImageModal.addEventListener('click', (e) => {
+        if (e.target === cropImageModal && !e.target.closest('.image-modal-content')) {
+            cropImageModal.style.display = 'none';
+        }
+    });
+
+    if (imageZoomModal) imageZoomModal.addEventListener('click', (e) => {
+        if (e.target === imageZoomModal && !e.target.closest('.modal-content')) { // Controlla la classe del tuo div interno
+            imageZoomModal.style.display = 'none';
+        }
+    });
+    
     // Event Listeners per il sensore di luce
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
