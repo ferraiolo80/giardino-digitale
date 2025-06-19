@@ -706,6 +706,16 @@ function showPlantDetailsModal(plantId) {
     }
 }
 
+// Funzione per aprire la modale di zoom immagine
+function openImageZoomModal(imageUrl) {
+    if (imageZoomDisplay) { // Controlla se l'elemento immagine della modale di zoom esiste
+        imageZoomDisplay.src = imageUrl; // Imposta l'URL dell'immagine da visualizzare
+        imageModal.style.display = 'flex'; // Mostra la modale (usa 'flex' per centrare l'immagine)
+    } else {
+        console.error("Elemento 'imageZoomDisplay' non trovato. Assicurati che l'ID sia corretto nell'HTML.");
+        showToast("Impossibile caricare l'immagine zoom.", 'error');
+    }
+}
 
 // --- Funzioni Sensore Luce ---
 
