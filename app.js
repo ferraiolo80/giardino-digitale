@@ -66,7 +66,7 @@ let closeImageModalButton;
 let cardModal;
 let closeCardModalButton;
 let zoomedCardContent;
-let imageZoomDisplay;
+
 let getClimateButton;
 let locationNameSpan;
 let currentTempSpan;
