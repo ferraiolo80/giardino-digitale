@@ -1001,8 +1001,6 @@ document.addEventListener('DOMContentLoaded', () => {
     imageModal = document.getElementById('imageModal');
     closeImageModalButton = document.getElementById('closeImageModalButton');
     
-    cropButton = document.getElementById('cropButton');
-
     cardModal = document.getElementById('cardModal');
     
     zoomedCardContent = document.getElementById('zoomed-card-content');
