@@ -48,6 +48,7 @@ let plantForm;
 let closePlantModalButton;
 let plantNameInput;
 let plantCategorySelect;
+let plantsunLightSelect;
 let plantSunLight
 let plantDescriptionTextarea;
 let plantTempMinInput;
