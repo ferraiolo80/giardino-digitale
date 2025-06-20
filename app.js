@@ -49,7 +49,7 @@ let closePlantModalButton;
 let plantNameInput;
 let plantCategorySelect;
 let plantsunLightSelect;
-let plantSunLight
+let plantsunLight
 let plantDescriptionTextarea;
 let plantTempMinInput;
 let plantTempMaxInput;
