@@ -611,12 +611,14 @@ function displayAllPlants() {
     applyFiltersAndSort(); // Applica filtri e ordinamento
 }
 
-function displayMyGarden() {
+async function displayMyGarden() {
     isMyGardenCurrentlyVisible = true;
     plantsSectionHeader.textContent = 'Le Tue Piante in Giardino';
     gardenContainer.style.display = 'none'; // Nasconde il contenitore delle piante globali
     myGardenContainer.style.display = 'flex'; // Mostra il contenitore del giardino
-    applyFiltersAndSort(); // Applica filtri e ordinamento
+
+    await loadMyGarden(); // Prima carica i dati aggiornati
+    applyFiltersAndSort(); // Poi visualizza i dati caricati (con filtri e ordinamento)
 }
 
 function displayPlants(plantsToDisplay) {
