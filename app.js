@@ -542,7 +542,7 @@ function applyFiltersAndSort() {
 
     // Filtra per esposizione solare
     const selectedSunLight = sunLightFilter ? sunLightFilter.value : ''; 
-    if ( selextedSunLight = selectedSunLight ? plant.sunExposure === selectedSunLight : true
+    if ( selectedSunLight = selectedSunLight ? plant.sunExposure === selectedSunLight : true
     
     // Filtra per temperatura minima
     const minTemp = parseFloat(tempMinFilter.value);
