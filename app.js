@@ -48,7 +48,7 @@ let plantForm;
 let closePlantModalButton;
 let plantNameInput;
 let plantCategorySelect;
-let plantsunLightSelect;
+let sunLightSelect;
 let plantsunLight
 let plantDescriptionTextarea;
 let plantTempMinInput;
@@ -1035,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
     plantNameInput = document.getElementById('plantName');
     plantSunLight = document.getElementById('plantSunLight');
     plantCategorySelect = document.getElementById('plantCategory');
-    plantsunLightSelect = document.getElementById('plantsunLight');
+    sunLightSelect = document.getElementById('sunLight');;
     plantDescriptionTextarea = document.getElementById('plantDescription');
     plantTempMinInput = document.getElementById('plantTempMin');
     plantTempMaxInput = document.getElementById('plantTempMax');
