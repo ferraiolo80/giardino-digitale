@@ -494,11 +494,13 @@ async function loadAllPlants() {
 
 async function loadMyGarden() {
     showLoadingSpinner();
-    const user = 'auth.currentUser' // Usa firebase.auth().currentUser, non solo 'auth.currentUser' se 'auth' non è globale
+    const user = firebase.auth().currentUser; // Usa firebase.auth().currentUser, non solo 'auth.currentUser' se 'auth' non è globale
 
     if (!user) {
         myGarden = []; // Pulisci il giardino se non c'è utente
         hideLoadingSpinner();
+        console.warn("Impossibile caricare il giardino: Nessun utente autenticato."); // Aggiungi un log più specifico
+        showToast("Devi essere loggato per vedere il tuo giardino.", 'error'); // Informa l'utente
         return;
     }
 
