@@ -530,7 +530,8 @@ function applyFiltersAndSort() {
         filteredPlants = filteredPlants.filter(plant =>
             plant.name.toLowerCase().includes(searchTerm) ||
             plant.category.toLowerCase().includes(searchTerm) ||
-            (plant.description && plant.description.toLowerCase().includes(searchTerm))
+            (plant.description && plant.description.toLowerCase().includes(searchTerm)) || // Ho aggiunto anche descrizione se c'è
+            (plant.notes && plant.notes.toLowerCase().includes(searchTerm)) // E le note, se pertinenti alla ricerca
         );
     }
 
@@ -541,8 +542,12 @@ function applyFiltersAndSort() {
     }
 
     // Filtra per esposizione solare
-    const selectedSunLight = sunLightFilter ? sunLightFilter.value : ''; 
-    if ( selectedSunLight = selectedSunLight ? plant.sunExposure === selectedSunLight : true
+    // Assicurati che 'sunExposureFilter' sia la variabile corretta per il tuo filtro esposizione solare
+    // (Nel tuo codice HTML avevi 'sunExposureFilter', qui hai 'sunLightFilter'. Usiamo 'sunExposureFilter' per consistenza).
+    const selectedSunExposure = sunExposureFilter ? sunExposureFilter.value : ''; // Ho corretto qui la variabile
+    if (selectedSunExposure) { // Applica il filtro solo se una selezione è stata fatta
+        filteredPlants = filteredPlants.filter(plant => plant.sunExposure === selectedSunExposure);
+    }
     
     // Filtra per temperatura minima
     const minTemp = parseFloat(tempMinFilter.value);
@@ -575,6 +580,13 @@ function applyFiltersAndSort() {
             break;
         case 'temp_desc':
             filteredPlants.sort((a, b) => (b.tempMin === null ? -Infinity : b.tempMin) - (a.tempMin === null ? -Infinity : a.tempMin));
+            break;
+        // Potresti voler aggiungere anche ordinamento per esposizione solare
+        case 'sun_exposure_asc':
+            filteredPlants.sort((a, b) => (a.sunExposure || '').localeCompare(b.sunExposure || ''));
+            break;
+        case 'sun_exposure_desc':
+            filteredPlants.sort((a, b) => (b.sunExposure || '').localeCompare(a.sunExposure || ''));
             break;
     }
 
