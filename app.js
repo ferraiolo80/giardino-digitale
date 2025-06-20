@@ -1050,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     imageModal = document.getElementById('imageModal');
     closeImageModalButton = document.getElementById('closeImageModalButton');
-    
+    plantModalTitle = document.getElementById('plantModalTitle');
     cardModal = document.getElementById('cardModal');
     closeCardModalButton = document.getElementById('closeCardModalButton');
     zoomedCardContent = document.getElementById('zoomed-card-content');
