@@ -648,7 +648,7 @@ function displayPlants(plantsToDisplay) {
         if (!isMyGardenCurrentlyVisible) { // Se è la vista "Tutte le Piante"
             emptyMessageClone.querySelector('p').textContent = 'Nessuna pianta trovata con i filtri applicati.';
             emptyMessageClone.querySelector('p:nth-child(2)').textContent = 'Prova a modificare i criteri di ricerca.';
-            const iconElement = emptyMessageClone.querySelector('i');
+            const iconElement = emptyMessageClone.querySelector('.empty-message p:first-child i'); 
             if (iconElement) {
                 iconElement.className = 'fas fa-search-minus';
             } else {
