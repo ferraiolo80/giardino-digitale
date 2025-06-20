@@ -1094,7 +1094,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!plantModal) {
         console.error("Errore: Elemento HTML con ID 'plantModal' non trovato nel DOM!");
     }
-});
    
     // Event listener per il pulsante "Aggiungi Nuova Pianta"
     addNewPlantButton.addEventListener('click', () => {
