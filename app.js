@@ -1035,6 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
     plantNameInput = document.getElementById('plantName');
     plantSunLight = document.getElementById('plantSunLight');
     plantCategorySelect = document.getElementById('plantCategory');
+    plantsunLightSelect = document.getElementById('plantsunLight');
     plantDescriptionTextarea = document.getElementById('plantDescription');
     plantTempMinInput = document.getElementById('plantTempMin');
     plantTempMaxInput = document.getElementById('plantTempMax');
