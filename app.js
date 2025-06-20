@@ -396,7 +396,10 @@ async function editPlant(plantId) {
             plantImagePreview.style.display = 'none';
             plantImagePreview.src = '#';
         }
-
+        if (plantModalTitle) {
+            plantModalTitle.textContent = 'Modifica Pianta'; // Cambia il titolo
+        }
+        
         saveUpdatePlantButton.textContent = 'Aggiorna Pianta';
         deletePlantButton.style.display = 'inline-block'; // Mostra il bottone elimina
         plantModal.style.display = 'flex';
