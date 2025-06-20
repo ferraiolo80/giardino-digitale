@@ -1088,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFiltersAndSort();
     });
 
-    if (!plantsunLightSelect) {
+    if (!sunLightSelect) {
         console.error("Errore: Elemento HTML con ID 'plantsunLight' non trovato nel DOM!");
     }
     if (!plantModal) {
