@@ -1199,11 +1199,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (closeCropImageModalButton) {
-        closeCropImageModalButton.addEventListener('click', () => {
-            cropImageModal.style.display = 'none'; // Nasconde la modale di ritaglio
-        });
-    }
+   if (closeCropImageModalButton) {
+    closeCropImageModalButton.addEventListener('click', () => {
+        if (cropImageModal) {
+            cropImageModal.style.display = 'none';
+            if (currentCropper) {
+                currentCropper.destroy(); // Distruggi l'istanza del cropper quando si chiude
+                currentCropper = null;
+            }
+        }
+    });
+}
 
     if (closeImageZoomModalButton) {
         closeImageZoomModalButton.addEventListener('click', () => {
