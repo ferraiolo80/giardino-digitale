@@ -1088,6 +1088,13 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFiltersAndSort();
     });
 
+    if (!plantsunlightSelect) {
+        console.error("Errore: Elemento HTML con ID 'plantsunLight' non trovato nel DOM!");
+    }
+    if (!plantModal) {
+        console.error("Errore: Elemento HTML con ID 'plantModal' non trovato nel DOM!");
+    }
+});
    
     // Event listener per il pulsante "Aggiungi Nuova Pianta"
     addNewPlantButton.addEventListener('click', () => {
