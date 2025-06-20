@@ -279,6 +279,15 @@ async function savePlantToFirestore(e) {
     const idealLuxMax = plantIdealLuxMaxInput.value ? parseFloat(plantIdealLuxMaxInput.value) : null;
     const user = auth.currentUser;
 
+    // --- DEBUGGING AGGIUNTIVO QUI ---
+    console.log("DEBUG: Stato autenticazione prima del salvataggio:", user);
+    if (user) {
+        console.log("DEBUG: UID utente corrente:", user.uid);
+    } else {
+        console.warn("DEBUG: Utente non autenticato! La richiesta a Firestore fallirà per permessi.");
+    }
+    // --- FINE DEBUGGING ---
+
     if (!user) {
         showToast('Devi essere autenticato per salvare una pianta.', 'error');
         hideLoadingSpinner();
