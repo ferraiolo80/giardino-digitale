@@ -270,7 +270,7 @@ async function savePlantToFirestore(e) {
 
     const name = plantNameInput.value;
     const category = plantCategorySelect.value;
-    const sunLight = plantSunLight.value;
+    const sunLight = plantsunLightSelect.value;
     const description = plantDescriptionTextarea.value;
     const tempMin = plantTempMinInput.value ? parseFloat(plantTempMinInput.value) : null;
     const tempMax = plantTempMaxInput.value ? parseFloat(plantTempMaxInput.value) : null;
