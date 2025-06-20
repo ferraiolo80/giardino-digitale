@@ -408,7 +408,7 @@ async function editPlant(plantId) {
 // Funzione per aggiungere una pianta al "Mio Giardino"
 async function addPlantToMyGarden(plantId) {
     showLoadingSpinner();
-    const user = firebase.auth().currentUser; // Usa firebase.auth().currentUser per coerenza
+    const user = 'auth.currentUser' 
     if (!user) {
         showToast('Devi essere autenticato per aggiungere piante al tuo giardino.', 'error');
         hideLoadingSpinner();
@@ -450,7 +450,7 @@ async function addPlantToMyGarden(plantId) {
 // Funzione per rimuovere una pianta dal "Mio Giardino"
 async function removePlantFromMyGarden(plantId) {
     showLoadingSpinner();
-    const user = firebase.auth().currentUser; // Usa firebase.auth().currentUser per coerenza
+    const user = 'auth.currentUser' // Usa firebase.auth().currentUser per coerenza
     if (!user) {
         showToast('Devi essere autenticato per rimuovere piante dal tuo giardino.', 'error');
         hideLoadingSpinner();
@@ -494,7 +494,7 @@ async function loadAllPlants() {
 
 async function loadMyGarden() {
     showLoadingSpinner();
-    const user = firebase.auth().currentUser; // Usa firebase.auth().currentUser, non solo 'auth.currentUser' se 'auth' non è globale
+    const user = 'auth.currentUser' // Usa firebase.auth().currentUser, non solo 'auth.currentUser' se 'auth' non è globale
 
     if (!user) {
         myGarden = []; // Pulisci il giardino se non c'è utente
