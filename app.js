@@ -565,7 +565,7 @@ function applyFiltersAndSort() {
     // (Nel tuo codice HTML avevi 'sunExposureFilter', qui hai 'sunLightFilter'. Usiamo 'sunExposureFilter' per consistenza).
     const selectedSunLight = sunLightFilter ? sunLightFilter.value : ''; // Ho corretto qui la variabile
     if (selectedSunLight) { // Applica il filtro solo se una selezione è stata fatta
-        filteredPlants = filteredPlants.filter(plant => plant.sunLight === selectedSunLight);
+        filteredPlants = filteredPlants.filter(plant => plant.sunlight === selectedSunLight);
     }
     
     // Filtra per temperatura minima
@@ -601,11 +601,11 @@ function applyFiltersAndSort() {
             filteredPlants.sort((a, b) => (b.tempMin === null ? -Infinity : b.tempMin) - (a.tempMin === null ? -Infinity : a.tempMin));
             break;
         // Potresti voler aggiungere anche ordinamento per esposizione solare
-        case 'sun_exposure_asc':
-            filteredPlants.sort((a, b) => (a.sunExposure || '').localeCompare(b.sunExposure || ''));
+        case 'sun_sunlight_asc':
+            filteredPlants.sort((a, b) => (a.sunlight || '').localeCompare(b.sunlight || ''));
             break;
-        case 'sun_exposure_desc':
-            filteredPlants.sort((a, b) => (b.sunExposure || '').localeCompare(a.sunExposure || ''));
+        case 'sun_sunlight_desc':
+            filteredPlants.sort((a, b) => (b.sunlight || '').localeCompare(a.sunlight || ''));
             break;
     }
 
