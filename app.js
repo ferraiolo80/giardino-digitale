@@ -544,7 +544,7 @@ function applyFiltersAndSort() {
     // Filtra per esposizione solare
     // Assicurati che 'sunExposureFilter' sia la variabile corretta per il tuo filtro esposizione solare
     // (Nel tuo codice HTML avevi 'sunExposureFilter', qui hai 'sunLightFilter'. Usiamo 'sunExposureFilter' per consistenza).
-    const selectedSunLight = sunlightFilter ? sunlightFilter.value : ''; // Ho corretto qui la variabile
+    const selectedSunLight = sunLightFilter ? sunLightFilter.value : ''; // Ho corretto qui la variabile
     if (selectedSunLight) { // Applica il filtro solo se una selezione è stata fatta
         filteredPlants = filteredPlants.filter(plant => plant.sunLight === selectedSunLight);
     }
