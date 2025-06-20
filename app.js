@@ -1050,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveUpdatePlantButton = document.getElementById('saveUpdatePlantButton');
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlantButton');
     deletePlantButton = document.getElementById('deletePlant');
-
+    plantImagePreview = document.getElementById('plantImagePreview');
     imageModal = document.getElementById('imageModal');
     closeImageModalButton = document.getElementById('closeImageModalButton');
     plantModalTitle = document.getElementById('plantModalTitle');
