@@ -408,28 +408,36 @@ async function editPlant(plantId) {
 // Funzione per aggiungere una pianta al "Mio Giardino"
 async function addPlantToMyGarden(plantId) {
     showLoadingSpinner();
-    const user = auth.currentUser;
+    const user = firebase.auth().currentUser; // Usa firebase.auth().currentUser per coerenza
     if (!user) {
         showToast('Devi essere autenticato per aggiungere piante al tuo giardino.', 'error');
         hideLoadingSpinner();
         return;
     }
 
+    // Trova la pianta completa dalla collezione 'allPlants' per salvarla nel giardino dell'utente
+    // Questo è più efficiente che salvare solo l'ID e poi doverla ri-fetchare
+    const plantToAdd = allPlants.find(plant => plant.id === plantId);
+    if (!plantToAdd) {
+        showToast('Pianta non trovata nel catalogo generale.', 'error');
+        hideLoadingSpinner();
+        return;
+    }
+
     try {
-        // CORREZIONE QUI: Cambiato 'myGarden' in 'gardens'
+        // CORREZIONE QUI: Cambiato 'myGarden' in 'gardens' e salveremo l'intero oggetto pianta.
         const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
         const doc = await docRef.get();
 
         if (doc.exists) {
             showToast('Questa pianta è già nel tuo giardino!', 'info');
         } else {
-            // Aggiungi solo l'ID della pianta e il riferimento alla collezione "gardens" dell'utente
-            await docRef.set({
-                plantId: plantId,
-                addedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // Salva l'intero oggetto pianta nella sottocollezione 'gardens' dell'utente
+            // L'ID del documento nella sottocollezione sarà l'ID originale della pianta.
+            await docRef.set(plantToAdd); // Salva l'oggetto completo
+            
             showToast('Pianta aggiunta al tuo giardino!', 'success');
-            loadMyGarden(); // Ricarica il mio giardino
+            loadMyGarden(); // Ricarica il mio giardino (che ora è più semplice perché l'oggetto completo è già lì)
         }
     } catch (error) {
         console.error("Errore nell'aggiunta al giardino:", error);
@@ -442,7 +450,7 @@ async function addPlantToMyGarden(plantId) {
 // Funzione per rimuovere una pianta dal "Mio Giardino"
 async function removePlantFromMyGarden(plantId) {
     showLoadingSpinner();
-    const user = auth.currentUser;
+    const user = firebase.auth().currentUser; // Usa firebase.auth().currentUser per coerenza
     if (!user) {
         showToast('Devi essere autenticato per rimuovere piante dal tuo giardino.', 'error');
         hideLoadingSpinner();
@@ -455,7 +463,9 @@ async function removePlantFromMyGarden(plantId) {
     }
 
     try {
-        await db.collection('users').doc(user.uid).collection('myGarden').doc(plantId).delete();
+        // CORREZIONE QUI: Cambiato 'myGarden' in 'gardens' nel percorso della collezione.
+        await db.collection('users').doc(user.uid).collection('gardens').doc(plantId).delete();
+        
         showToast('Pianta rimossa dal tuo giardino!', 'info');
         loadMyGarden(); // Ricarica il mio giardino
     } catch (error) {
@@ -465,7 +475,6 @@ async function removePlantFromMyGarden(plantId) {
         hideLoadingSpinner();
     }
 }
-
 
 // --- Funzioni di Caricamento e Visualizzazione Piante ---
 
