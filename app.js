@@ -1106,7 +1106,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!plantModal) {
         console.error("Errore: Elemento HTML con ID 'plantModal' non trovato nel DOM!");
     }
-   
+
+// --- Controlli di Debugging (MOLTO UTILI!) ---
+    if (!cropImageModal) { console.error("Errore: Elemento HTML con ID 'cropImageModal' non trovato!"); }
+    if (!imageToCrop) { console.error("Errore: Elemento HTML con ID 'imageToCrop' non trovato!"); }
+    if (!closeCropImageModalButton) { console.error("Errore: Elemento HTML con ID 'closeCropImageModalButton' non trovato!"); }
+    if (!cropButton) { console.error("Errore: Elemento HTML con ID 'cropButton' non trovato!"); }
+    // --- Fine Controlli ---
+
+    
     // Event listener per il pulsante "Aggiungi Nuova Pianta"
     addNewPlantButton.addEventListener('click', () => {
         plantForm.reset(); // Resetta il form
