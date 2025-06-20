@@ -546,7 +546,7 @@ function applyFiltersAndSort() {
     // (Nel tuo codice HTML avevi 'sunExposureFilter', qui hai 'sunLightFilter'. Usiamo 'sunExposureFilter' per consistenza).
     const selectedSunLight = sunlightFilter ? sunlightFilter.value : ''; // Ho corretto qui la variabile
     if (selectedSunLight) { // Applica il filtro solo se una selezione è stata fatta
-        filteredPlants = filteredPlants.filter(plant => plant.sunExposure === selectedSunLight);
+        filteredPlants = filteredPlants.filter(plant => plant.sunLight === selectedSunLight);
     }
     
     // Filtra per temperatura minima
