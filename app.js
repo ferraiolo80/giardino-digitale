@@ -486,8 +486,9 @@ async function loadAllPlants() {
 async function loadMyGarden() {
     showLoadingSpinner();
     const user = auth.currentUser;
-
+    console.log("Stato utente all'inizio di loadMyGarden:", user ? user.uid : "Nessun utente loggato");
     if (!user) {
+        console.warn("Impossibile caricare il giardino: Utente non autenticato.");
         myGarden = [];
         applyFiltersAndSort();
         hideLoadingSpinner();
