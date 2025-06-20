@@ -64,7 +64,7 @@ let deletePlantButton;
 let imageModal;
 let closeImageModalButton;
 let sunLightFilter
-
+let plantModalTitle;
 let cardModal;
 let closeCardModalButton;
 let zoomedCardContent;
