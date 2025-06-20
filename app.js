@@ -1141,23 +1141,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Gestione dell'input immagine e Cropper.js
     plantImageInput.addEventListener('change', (e) => {
-        currentFile = e.target.files[0];
-        if (currentFile) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
+    currentFile = e.target.files[0];
+    if (currentFile) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            // Aggiungi un controllo di sicurezza per 'imageToCrop' e 'cropImageModal'
+            if (imageToCrop && cropImageModal) { // <-- USA cropImageModal QUI!
                 imageToCrop.src = event.target.result;
-                imageModal.style.display = 'flex';
+                cropImageModal.style.display = 'flex'; // <-- QUESTA RIGA ORA FUNZIONERÀ!
                 if (currentCropper) {
                     currentCropper.destroy();
                 }
                 currentCropper = new Cropper(imageToCrop, {
                     aspectRatio: 1, // Immagine quadrata
-                    viewMode: 1, // Restringe l'area di ritaglio alle dimensioni del canvas
+                    viewMode: 1,    // Restringe l'area di ritaglio alle dimensioni del canvas
                 });
-            };
-            reader.readAsDataURL(currentFile);
-        }
-    });
+            } else {
+                console.error("Errore: imageToCrop o cropImageModal sono null all'interno di reader.onload!");
+            }
+        };
+        reader.readAsDataURL(currentFile);
+    }
+});
 
     cropButton.addEventListener('click', () => {
         if (currentCropper) {
