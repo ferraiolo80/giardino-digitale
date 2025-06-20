@@ -1195,7 +1195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener per il nuovo filtro di esposizione solare
     if (sunLightFilter) {
-        sunLightFilter.addEventListener('change', filterPlants);
+        sunLightFilter.addEventListener('change', applyFiltersAndSort);
     }
 
     // Event Listener per Google Lens (placeholder)
