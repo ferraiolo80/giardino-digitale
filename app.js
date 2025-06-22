@@ -1277,7 +1277,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners per la navigazione tra le viste
     if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
+            if (gardenContainer) {
+                    gardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
+            if (myGardenContainer) {
+                    myGardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
 
     // Listener per la chiusura delle modali tramite bottone 'x'
     if (closeCardModalButton) {
