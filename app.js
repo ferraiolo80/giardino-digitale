@@ -429,7 +429,7 @@ async function editPlant(plantId) {
 // Funzione per aggiungere una pianta al "Mio Giardino"
 async function addPlantToMyGarden(plantId) {
     showLoadingSpinner();
-    const user = 'auth.currentUser' 
+    const user = currentUser;
     if (!user) {
         showToast('Devi essere autenticato per aggiungere piante al tuo giardino.', 'error');
         hideLoadingSpinner();
