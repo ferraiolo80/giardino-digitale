@@ -547,53 +547,41 @@ async function loadAllPlants() {
 
 async function loadMyGarden() {
     showLoadingSpinner();
-    const user = firebase.auth().currentUser; // Usa firebase.auth().currentUser, non solo 'auth.currentUser' se 'auth' non è globale
+    
+    // ********* CORREZIONE QUI *********
+    // Usa la variabile globale 'currentUser' per coerenza e robustezza
+    const user = currentUser; 
+    // **********************************
 
     if (!user) {
-        myGarden = []; // Pulisci il giardino se non c'è utente
+        // Se l'utente non è autenticato, non c'è un giardino da caricare.
+        // Potresti voler mostrare un messaggio diverso o reindirizzare.
+        showToast('Devi essere autenticato per vedere il tuo giardino.', 'error');
+        displayPlants([]); // Mostra un giardino vuoto o un messaggio
         hideLoadingSpinner();
-        console.warn("Impossibile caricare il giardino: Nessun utente autenticato."); // Aggiungi un log più specifico
-        showToast("Devi essere loggato per vedere il tuo giardino.", 'error'); // Informa l'utente
         return;
     }
 
     try {
-        // 1. Recupera i riferimenti alle piante salvate nella sottocollezione 'gardens' dell'utente
-        const gardenRefsSnapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
-        const plantIdsInGarden = gardenRefsSnapshot.docs.map(doc => doc.id); // Gli ID dei documenti qui sono gli ID delle piante
-
-        // Se non ci sono piante nel giardino dell'utente, svuota l'array e esci
-        if (plantIdsInGarden.length === 0) {
-            myGarden = [];
-            console.log("Nessuna pianta nel giardino dell'utente.");
-            return; // Esci prima di tentare di caricare piante inesistenti
-        }
-
-        // 2. Recupera i dettagli completi di ciascuna pianta dalla collezione 'plants' principale
-        // Se 'allPlants' è già caricato, puoi filtrare da lì per evitare chiamate multiple al DB.
-        // Altrimenti, devi fare query individuali o una query 'in' se supportata e con limiti (max 10 'in' queries).
-        const fetchedGardenPlants = [];
-        for (const plantId of plantIdsInGarden) {
-            const plantDoc = await db.collection('plants').doc(plantId).get();
-            if (plantDoc.exists) {
-                fetchedGardenPlants.push({ id: plantDoc.id, ...plantDoc.data() });
-            } else {
-                console.warn(`Pianta con ID ${plantId} non trovata nella collezione 'plants'.`);
-            }
-        }
-        myGarden = fetchedGardenPlants;
+        const gardenSnapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
+        myGarden = []; // Pulisci l'array myGarden prima di riempirlo
+        gardenSnapshot.forEach(doc => {
+            // Qui riceverai l'intero oggetto pianta dal tuo giardino (con imageUrl se presente)
+            myGarden.push({ id: doc.id, ...doc.data() });
+        });
         
-        console.log("Piante nel mio giardino caricate:", myGarden);
+        // Non visualizzare qui, la visualizzazione avverrà dopo applyFiltersAndSort()
+        // che viene chiamata in displayMyGarden()
+        // console.log("Mio Giardino Caricato:", myGarden); 
 
     } catch (error) {
-        console.error("Errore nel caricamento del mio giardino:", error);
-        showToast(`Errore nel caricamento del giardino: ${error.message}`, 'error');
-        myGarden = []; // In caso di errore, svuota il giardino
+        console.error("Errore nel caricare il giardino:", error);
+        showToast(`Errore nel caricare il giardino: ${error.message}`, 'error');
+        myGarden = []; // Assicurati che l'array sia vuoto in caso di errore
     } finally {
         hideLoadingSpinner();
     }
 }
-
 
 function applyFiltersAndSort() {
     let filteredPlants = isMyGardenCurrentlyVisible ? [...myGarden] : [...allPlants];
