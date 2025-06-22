@@ -216,6 +216,7 @@ function setupAuthListeners() {
     // Gestore dello stato di autenticazione
     auth.onAuthStateChanged(user => {
         if (user) {
+            currentUser = user;
             console.log('Utente loggato con UID:', user.uid);
             authStatusSpan.textContent = `Autenticato come: ${user.email}`;
             loginButton.style.display = 'none';
@@ -223,10 +224,12 @@ function setupAuthListeners() {
             logoutButton.style.display = 'inline-block';
             authContainerDiv.style.display = 'none';
             appContentDiv.style.display = 'block';
+            
             // Carica i dati una volta autenticato
             loadAllPlants();
             loadMyGarden();
         } else {
+            currentUser = null;
             console.log('Nessun utente loggato.');
             authStatusSpan.textContent = 'Non Autenticato';
             loginButton.style.display = 'inline-block';
