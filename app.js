@@ -1040,15 +1040,6 @@ function launchGoogleLens() {
     // window.open('https://www.google.com/searchbyimage/upload', '_blank');
 }
 
-function scrollFunction() {
-    if (scrollToTopBtn) { // Assicurati che il bottone esista
-        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-            scrollToTopBtn.style.display = 'block'; // Mostra il pulsante
-        } else {
-            scrollToTopBtn.style.display = 'none'; // Nascondi il pulsante
-        }
-    }
-}
 
 // --- Inizializzazione DOM e Event Listeners ---
 
@@ -1143,6 +1134,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.onscroll = function() {
         scrollFunction();
     };
+    function scrollFunction() {
+    if (scrollToTopBtn) { // Assicurati che il bottone esista
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            scrollToTopBtn.style.display = 'block'; // Mostra il pulsante
+        } else {
+            scrollToTopBtn.style.display = 'none'; // Nascondi il pulsante
+        }
+    }
+}
 
 
     // Setup Event Listeners
