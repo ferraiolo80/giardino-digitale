@@ -1256,9 +1256,9 @@ cropButton.addEventListener('click', () => {
         });
     }
 
-   if (closeCropImageModalButton) {
+  if (closeCropImageModalButton) {
     closeCropImageModalButton.addEventListener('click', () => {
-        if (cropImageModal) {
+        if (cropImageModal) { // <-- Inizio blocco if (cropImageModal)
             cropImageModal.style.display = 'none';
             if (currentCropper) {
                 currentCropper.destroy(); // Distruggi l'istanza del cropper quando si chiude
@@ -1266,9 +1266,9 @@ cropButton.addEventListener('click', () => {
             }
             croppedImageBlob = null; // Resetta anche il blob ritagliato se non salvato
             plantImageInput.value = ''; // Resetta l'input file per poter ricaricare la stessa immagine
-        }
-        });
-       
+        } // <-- MANCAVA QUESTA PARENTESI GRAFFA!
+    }); // <-- Questa chiude la funzione freccia () => { ... }
+    // Non aggiungere qui nulla, la parentesi tonda di chiusura del listener è corretta.
 }
 
     if (closeImageZoomModalButton) {
