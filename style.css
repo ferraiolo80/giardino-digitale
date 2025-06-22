@@ -271,6 +271,51 @@ header h1 {
 .scroll-to-top-btn:hover {
     background-color: #5cb85c; /* Colore più chiaro al passaggio del mouse */
 }
+/* Stile per il pulsante "Azzera Feedback Lux" */
+.btn-secondary {
+    background-color: #6c757d; /* Grigio */
+    color: white;
+    margin-top: 10px; /* Spazio dal resto dei pulsanti */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Stile per il container del feedback lux (se non lo hai già) */
+.lux-feedback-container {
+    background-color: #f8f9fa;
+    border: 1px solid #e2e6ea;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* Inizialmente display: none; sarà mostrato tramite JS */
+}
+
+.lux-feedback-container h3 {
+    color: #343a40;
+    margin-bottom: 15px;
+}
+
+.lux-feedback-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.lux-feedback-container li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.lux-feedback-container li:last-child {
+    border-bottom: none;
+}
+
+/* Colori per i feedback */
+.lux-feedback-optimal { color: #28a745; font-weight: bold; } /* Verde */
+.lux-feedback-low { color: #ffc107; font-weight: bold; }    /* Giallo */
+.lux-feedback-high { color: #dc3545; font-weight: bold; }   /* Rosso */
 
 @media (min-width: 768px) {
     .top-controls-and-info {
