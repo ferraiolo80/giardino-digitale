@@ -1266,7 +1266,9 @@ cropButton.addEventListener('click', () => {
             }
             croppedImageBlob = null; // Resetta anche il blob ritagliato se non salvato
             plantImageInput.value = ''; // Resetta l'input file per poter ricaricare la stessa immagine
+        }
         });
+       
 }
 
     if (closeImageZoomModalButton) {
