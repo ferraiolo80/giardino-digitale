@@ -429,36 +429,67 @@ async function editPlant(plantId) {
 // Funzione per aggiungere una pianta al "Mio Giardino"
 async function addPlantToMyGarden(plantId) {
     showLoadingSpinner();
-    const user = currentUser;
+    
+    // Assicurati che currentUser sia correttamente definita e aggiornata dal listener onAuthStateChanged
+    const user = currentUser; 
+
     if (!user) {
         showToast('Devi essere autenticato per aggiungere piante al tuo giardino.', 'error');
         hideLoadingSpinner();
         return;
     }
 
-    // Trova la pianta completa dalla collezione 'allPlants' per salvarla nel giardino dell'utente
-    // Questo è più efficiente che salvare solo l'ID e poi doverla ri-fetchare
-    const plantToAdd = allPlants.find(plant => plant.id === plantId);
-    if (!plantToAdd) {
+    // Trova la pianta completa dalla collezione 'allPlants'
+    const plantToAddOriginal = allPlants.find(plant => plant.id === plantId);
+    if (!plantToAddOriginal) {
         showToast('Pianta non trovata nel catalogo generale.', 'error');
         hideLoadingSpinner();
         return;
     }
 
+    // Crea un nuovo oggetto per la pianta del giardino, copiando i dati originali
+    const plantDataForGarden = { ...plantToAddOriginal }; // Copia tutti i dati dalla pianta del catalogo
+
+    // Ora, gestisci l'immagine specifica dell'utente per il giardino
+    let imageUrlForGarden = '';
+    if (croppedImageBlob) { // Se l'utente ha ritagliato una nuova immagine
+        try {
+            imageUrlForGarden = await uploadImageToFirebaseStorage(croppedImageBlob, plantToAddOriginal.name);
+            plantDataForGarden.imageUrl = imageUrlForGarden; // Aggiungi l'URL al tuo oggetto pianta del giardino
+            showToast('Immagine caricata con successo su Firebase Storage.', 'success');
+        } catch (imageError) {
+            console.error("Errore nel caricare l'immagine della pianta per il giardino:", imageError);
+            showToast(`Errore nel caricare l'immagine: ${imageError.message}`, 'error');
+            // Continua comunque a salvare la pianta, anche senza immagine se fallisce
+        }
+    } else {
+        // Se non c'è un'immagine ritagliata, potresti voler aggiungere un URL per un'icona generica di fallback specifica per il giardino,
+        // o semplicemente lasciare che la logica di createPlantCard gestisca l'assenza di imageUrl.
+        // Ad esempio: plantDataForGarden.imageUrl = '/path/to/default_garden_icon.png';
+        // Per ora, lo lasciamo come è, se non c'è un croppedImageBlob, non aggiungiamo imageUrl.
+    }
+
+
     try {
-        // CORREZIONE QUI: Cambiato 'myGarden' in 'gardens' e salveremo l'intero oggetto pianta.
         const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
         const doc = await docRef.get();
 
         if (doc.exists) {
             showToast('Questa pianta è già nel tuo giardino!', 'info');
         } else {
-            // Salva l'intero oggetto pianta nella sottocollezione 'gardens' dell'utente
-            // L'ID del documento nella sottocollezione sarà l'ID originale della pianta.
-            await docRef.set(plantToAdd); // Salva l'oggetto completo
+            // Salva l'oggetto pianta del giardino (che ora potrebbe avere imageUrl)
+            await docRef.set(plantDataForGarden); 
             
             showToast('Pianta aggiunta al tuo giardino!', 'success');
-            loadMyGarden(); // Ricarica il mio giardino (che ora è più semplice perché l'oggetto completo è già lì)
+            
+            // Pulisci lo stato dell'immagine dopo aver salvato
+            croppedImageBlob = null; 
+            currentFile = null;
+            plantImageInput.value = ''; // Resetta l'input file
+            plantImagePreview.style.display = 'none'; // Nascondi anteprima
+            plantImagePreview.src = '#'; // Pulisci la sorgente
+            
+            loadMyGarden(); // Ricarica il mio giardino
         }
     } catch (error) {
         console.error("Errore nell'aggiunta al giardino:", error);
