@@ -1140,6 +1140,10 @@ document.addEventListener('DOMContentLoaded', () => {
     zoomOutButton = document.getElementById('zoomOutButton');
 
     const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+    window.onscroll = function() {
+        scrollFunction();
+    };
+
 
     // Setup Event Listeners
     setupAuthListeners();
