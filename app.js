@@ -95,6 +95,7 @@ let manualLuxInput; // Assicurati che questo sia già qui se usi l'input manuale
 let currentLuxDisplay; // Per visualizzare il lux attuale
 let luxFeedbackPlantsContainer; // Il nuovo contenitore per il feedback specifico
 let clearLuxFeedbackButton; // Il nuovo bottone per azzerare il feedback
+let clearLightFeedbackButton;
 
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
