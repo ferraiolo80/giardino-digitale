@@ -1135,14 +1135,24 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollFunction();
     };
     function scrollFunction() {
-    if (scrollToTopBtn) { // Assicurati che il bottone esista
-        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-            scrollToTopBtn.style.display = 'block'; // Mostra il pulsante
-        } else {
-            scrollToTopBtn.style.display = 'none'; // Nascondi il pulsante
+        if (scrollToTopBtn) { // Controlla che il bottone esista
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollToTopBtn.style.display = 'block';
+            } else {
+                scrollToTopBtn.style.display = 'none';
+            }
         }
     }
-}
+
+    // Questo gestisce il click del bottone per scorrere in alto
+    if (scrollToTopBtn) { // Controlla che il bottone esista prima di aggiungere il listener
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
 
 
     // Setup Event Listeners
