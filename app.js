@@ -1073,6 +1073,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentLuxDisplay = document.getElementById('currentLuxDisplay');
     luxFeedbackPlantsContainer = document.getElementById('luxFeedbackPlantsContainer'); // Inizializza il nuovo container
     clearLuxFeedbackButton = document.getElementById('clearLuxFeedbackButton'); // Inizializza il nuovo bottone
+    clearLightFeedbackButton = document.getElementById('clearLightFeedbackButton');
     applyManualLuxButton = document.getElementById('applyManualLuxButton'); // Nuovo
     tempMinFilter = document.getElementById('tempMinFilter');
     tempMaxFilter = document.getElementById('tempMaxFilter');
