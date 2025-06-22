@@ -502,26 +502,27 @@ async function addPlantToMyGarden(plantId) {
 // Funzione per rimuovere una pianta dal "Mio Giardino"
 async function removePlantFromMyGarden(plantId) {
     showLoadingSpinner();
-    const user = 'auth.currentUser' // Usa firebase.auth().currentUser per coerenza
+
+    // ********* CORREZIONE QUI *********
+    // Assicurati che 'currentUser' sia la variabile globale correttamente aggiornata
+    const user = currentUser; 
+    // **********************************
+
     if (!user) {
         showToast('Devi essere autenticato per rimuovere piante dal tuo giardino.', 'error');
         hideLoadingSpinner();
         return;
     }
 
-    if (!confirm('Sei sicuro di voler rimuovere questa pianta dal tuo giardino?')) {
-        hideLoadingSpinner();
-        return;
-    }
-
     try {
-        // CORREZIONE QUI: Cambiato 'myGarden' in 'gardens' nel percorso della collezione.
-        await db.collection('users').doc(user.uid).collection('gardens').doc(plantId).delete();
-        
-        showToast('Pianta rimossa dal tuo giardino!', 'info');
-        loadMyGarden(); // Ricarica il mio giardino
+        // Il percorso deve usare user.uid correttamente
+        const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
+        await docRef.delete(); // <-- Questa è la riga che dà errore (app.js:524)
+
+        showToast('Pianta rimossa dal tuo giardino!', 'success');
+        loadMyGarden(); // Ricarica il giardino dopo la rimozione
     } catch (error) {
-        console.error("Errore nella rimozione dal giardino:", error);
+        console.error("Errore nella rimozione dal giardino:", error); // Qui è la riga 524
         showToast(`Errore nella rimozione dal giardino: ${error.message}`, 'error');
     } finally {
         hideLoadingSpinner();
