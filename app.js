@@ -866,12 +866,16 @@ function startLightSensor() {
             const lux = ambientLightSensor.illuminance;
             currentLuxValueSpan.textContent = lux.toFixed(2);
             updateLightFeedback(lux);
+            // Mostra il pulsante "Azzera Feedback Lux" quando il sensore è attivo
+            if (clearLightFeedbackButton) {
+                clearLightFeedbackButton.style.display = 'inline-block'; 
+            }
         };
         ambientLightSensor.onerror = (event) => {
             console.error("Errore sensore luce:", event.error.name, event.error.message);
             showToast(`Errore sensore luce: ${event.error.message}`, 'error', 5000);
             stopLightSensor(); // Ferma il sensore in caso di errore
-            checkLightSensorAvailability(); // Forse passa a manuale se l'errore è persistente
+            checkLightSensorAvailability();
         };
         ambientLightSensor.start();
         showToast('Sensore luce avviato!', 'success');
@@ -879,7 +883,7 @@ function startLightSensor() {
     } catch (error) {
         console.error("Errore nell'avvio del sensore luce:", error);
         showToast(`Errore nell'avvio del sensore luce: ${error.message}`, 'error', 5000);
-        checkLightSensorAvailability(); // Passa a manuale se l'avvio fallisce
+        checkLightSensorAvailability();
     }
 }
 
@@ -889,63 +893,46 @@ function stopLightSensor() {
         showToast('Sensore luce fermato.', 'info');
         console.log('Sensore luce fermato.');
         currentLuxValueSpan.textContent = 'N/A';
-        lightFeedbackDiv.textContent = '';
+        // Chiama la nuova funzione per pulire il feedback
+        clearLightFeedbackDisplay(); 
     } else {
         showToast('Sensore non attivo.', 'info');
     }
 }
 
 function updateLightFeedback(lux) {
-    let generalFeedback = ''; // Feedback generale sull'ambiente
-    if (lux < 50) {
-        generalFeedback = 'Luce ambientale: molto bassa - ambiente buio.';
-    } else if (lux < 200) {
-        generalFeedback = 'Luce ambientale: bassa - adatto a piante d\'ombra profonda.';
-    } else if (lux < 1000) {
-        generalFeedback = 'Luce ambientale: media - ideale per piante d\'ombra o mezz\'ombra.';
-    } else if (lux < 5000) {
-        generalFeedback = 'Luce ambientale: buona - adatto a piante che amano la luce indiretta.';
-    } else if (lux < 10000) {
-        generalFeedback = 'Luce ambientale: alta - ideale per piante da pieno sole.';
-    } else {
-        generalFeedback = 'Luce ambientale: molto alta - ottimo per piante che amano il sole intenso.';
-    }
-
+    let generalFeedback = '';
+    // ... (la tua logica esistente per generalFeedback) ...
+    
     // Inizializza il contenuto del div feedback con il feedback generale
-    lightFeedbackDiv.innerHTML = `<p>${generalFeedback}</p><hr>`; // Aggiunge una riga di separazione
+    // lightFeedbackDiv è l'elemento <p id="lightFeedback">
+    lightFeedbackDiv.innerHTML = `<p>${generalFeedback}</p><hr>`;
 
-    // Se ci sono piante nel mio giardino, fornisci feedback specifico per ciascuna
     if (myGarden && myGarden.length > 0) {
         lightFeedbackDiv.innerHTML += `<h4>Feedback per le piante nel tuo giardino:</h4>`;
         myGarden.forEach(plant => {
-            const minLux = plant.idealLuxMin;
-            const maxLux = plant.idealLuxMax;
-            let plantSpecificFeedback = `<p><strong>${plant.name}:</strong> `;
-
-            if (minLux === undefined || maxLux === undefined || minLux === null || maxLux === null) {
-                plantSpecificFeedback += `Dati Lux ideali non disponibili.`;
-            } else if (lux >= minLux && lux <= maxLux) {
-                plantSpecificFeedback += `Condizioni di luce **Ideali** (${minLux}-${maxLux} Lux). &#10003;`; // Checkmark Unicode
-            } else if (lux < minLux) {
-                plantSpecificFeedback += `Luce **troppo bassa** (${lux.toFixed(0)} Lux), richiede almeno ${minLux} Lux. &#10060;`; // Cross mark Unicode
-            } else { // lux > maxLux
-                plantSpecificFeedback += `Luce **troppo alta** (${lux.toFixed(0)} Lux), richiede al massimo ${maxLux} Lux. &#10060;`; // Cross mark Unicode
-            }
-            plantSpecificFeedback += `</p>`;
+            // ... (la tua logica esistente per plantSpecificFeedback) ...
             lightFeedbackDiv.innerHTML += plantSpecificFeedback;
         });
     } else {
         lightFeedbackDiv.innerHTML += `<p>Nessuna pianta nel tuo giardino per un feedback specifico.</p>`;
     }
+    // Mostra il pulsante "Azzera Feedback Lux" quando il feedback viene aggiornato
+    if (clearLightFeedbackButton) {
+        clearLightFeedbackButton.style.display = 'inline-block';
+    }
 }
 
-// Funzione per applicare i lux inseriti manualmente
 function applyManualLux() {
     const manualLux = parseFloat(manualLuxInput.value);
     if (!isNaN(manualLux) && manualLux >= 0) {
         currentLuxValueSpan.textContent = manualLux.toFixed(2);
-        updateLightFeedback(manualLux);
+        updateLightFeedback(manualLux); // Questa chiamerà anche clearLightFeedbackButton.style.display = 'inline-block';
         showToast(`Lux manuali (${manualLux}) applicati.`, 'success');
+        // Mostra il pulsante "Azzera Feedback Lux" quando i lux manuali sono applicati
+        if (clearLightFeedbackButton) {
+            clearLightFeedbackButton.style.display = 'inline-block'; 
+        }
     } else {
         showToast('Per favore, inserisci un valore Lux valido.', 'error');
     }
