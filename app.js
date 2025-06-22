@@ -1129,6 +1129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Listener per i controlli Cropper
     
+    // Listener per i controlli Cropper
     if (rotateLeftButton) {
         rotateLeftButton.addEventListener('click', () => {
             if (currentCropper) currentCropper.rotate(-90); // Ruota di 90 gradi in senso antiorario
@@ -1149,8 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentCropper) currentCropper.zoom(-0.1); // Zoom out
         });
     }
-});
-    
+
     // Event listener per il pulsante "Aggiungi Nuova Pianta"
     addNewPlantButton.addEventListener('click', () => {
         plantForm.reset(); // Resetta il form
@@ -1184,62 +1184,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Gestione dell'input immagine e Cropper.js
-   plantImageInput.addEventListener('change', (e) => {
-    currentFile = e.target.files[0];
-    if (currentFile) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            // Aggiungi un controllo di sicurezza per 'imageToCrop' e 'cropImageModal'
-            if (imageToCrop && cropImageModal) { // <-- OK qui
-                imageToCrop.src = event.target.result;
-                cropImageModal.style.display = 'flex'; // <-- OK qui
-                if (currentCropper) {
-                    currentCropper.destroy();
+    plantImageInput.addEventListener('change', (e) => {
+        currentFile = e.target.files[0];
+        if (currentFile) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                // Aggiungi un controllo di sicurezza per 'imageToCrop' e 'cropImageModal'
+                if (imageToCrop && cropImageModal) { // <-- OK qui
+                    imageToCrop.src = event.target.result;
+                    cropImageModal.style.display = 'flex'; // <-- OK qui
+                    if (currentCropper) {
+                        currentCropper.destroy();
+                    }
+                    currentCropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1, // Immagine quadrata
+                        viewMode: 1,    // Restringe l'area di ritaglio alle dimensioni del canvas
+                    });
+                } else {
+                    console.error("Errore: imageToCrop o cropImageModal sono null all'interno di reader.onload!");
                 }
-                currentCropper = new Cropper(imageToCrop, {
-                    aspectRatio: 1, // Immagine quadrata
-                    viewMode: 1,    // Restringe l'area di ritaglio alle dimensioni del canvas
-                });
-            } else {
-                console.error("Errore: imageToCrop o cropImageModal sono null all'interno di reader.onload!");
-            }
-        };
-        reader.readAsDataURL(currentFile);
-    }
-});
+            };
+            reader.readAsDataURL(currentFile);
+        }
+    });
 
-cropButton.addEventListener('click', () => {
-    if (currentCropper) {
-        currentCropper.getCroppedCanvas({
-            width: 400, // Risoluzione desiderata
-            height: 400,
-        }).toBlob((blob) => {
-            croppedImageBlob = blob;
-            // Mostra l'immagine ritagliata nell'anteprima del form
-            // Assicurati che plantImagePreview sia inizializzata correttamente
-            if (plantImagePreview) { // Aggiungi un controllo per plantImagePreview per sicurezza
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    plantImagePreview.src = event.target.result;
-                    plantImagePreview.style.display = 'block';
-                    document.querySelector('.image-upload-status').textContent = 'Immagine ritagliata e pronta.';
-                };
-                reader.readAsDataURL(blob);
-            } else {
-                console.error("Errore: plantImagePreview non è inizializzata correttamente.");
-            }
+    cropButton.addEventListener('click', () => {
+        if (currentCropper) {
+            currentCropper.getCroppedCanvas({
+                width: 400, // Risoluzione desiderata
+                height: 400,
+            }).toBlob((blob) => {
+                croppedImageBlob = blob;
+                // Mostra l'immagine ritagliata nell'anteprima del form
+                // Assicurati che plantImagePreview sia inizializzata correttamente
+                if (plantImagePreview) { // Aggiungi un controllo per plantImagePreview per sicurezza
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        plantImagePreview.src = event.target.result;
+                        plantImagePreview.style.display = 'block';
+                        document.querySelector('.image-upload-status').textContent = 'Immagine ritagliata e pronta.';
+                    };
+                    reader.readAsDataURL(blob);
+                } else {
+                    console.error("Errore: plantImagePreview non è inizializzata correttamente.");
+                }
 
-            // --- CORREZIONE QUI ---
-            if (cropImageModal) { // Aggiungi un controllo per cropImageModal
-                cropImageModal.style.display = 'none'; // <--- CAMBIA DA imageModal A cropImageModal
-            } else {
-                console.error("Errore: cropImageModal non è inizializzata correttamente.");
-            }
-            // --- FINE CORREZIONE ---
+                // --- CORREZIONE QUI (già fatta) ---
+                if (cropImageModal) {
+                    cropImageModal.style.display = 'none';
+                } else {
+                    console.error("Errore: cropImageModal non è inizializzata correttamente.");
+                }
+                // --- FINE CORREZIONE ---
 
-        }, 'image/jpeg'); // Formato dell'immagine finale
-    }
-});
+            }, 'image/jpeg'); // Formato dell'immagine finale
+        }
+    });
 
     // Event listener per il form di salvataggio/aggiornamento della pianta
     plantForm.addEventListener('submit', savePlantToFirestore);
@@ -1249,34 +1249,31 @@ cropButton.addEventListener('click', () => {
     if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
 
     // Listener per la chiusura delle modali tramite bottone 'x'
-    
     if (closeCardModalButton) {
         closeCardModalButton.addEventListener('click', () => {
             closeCardModal(); // Chiama la tua funzione di chiusura specifica per la card
         });
     }
 
-  if (closeCropImageModalButton) {
-    closeCropImageModalButton.addEventListener('click', () => {
-        if (cropImageModal) { // <-- Inizio blocco if (cropImageModal)
-            cropImageModal.style.display = 'none';
-            if (currentCropper) {
-                currentCropper.destroy(); // Distruggi l'istanza del cropper quando si chiude
-                currentCropper = null;
+    if (closeCropImageModalButton) {
+        closeCropImageModalButton.addEventListener('click', () => {
+            if (cropImageModal) {
+                cropImageModal.style.display = 'none';
+                if (currentCropper) {
+                    currentCropper.destroy(); // Distruggi l'istanza del cropper quando si chiude
+                    currentCropper = null;
+                }
+                croppedImageBlob = null; // Resetta anche il blob ritagliato se non salvato
+                plantImageInput.value = ''; // Resetta l'input file per poter ricaricare la stessa immagine
             }
-            croppedImageBlob = null; // Resetta anche il blob ritagliato se non salvato
-            plantImageInput.value = ''; // Resetta l'input file per poter ricaricare la stessa immagine
-        } // <-- MANCAVA QUESTA PARENTESI GRAFFA!
-    }); // <-- Questa chiude la funzione freccia () => { ... }
-    // Non aggiungere qui nulla, la parentesi tonda di chiusura del listener è corretta.
-}
+        });
+    }
 
     if (closeImageZoomModalButton) {
         closeImageZoomModalButton.addEventListener('click', () => {
             imageZoomModal.style.display = 'none'; // Nasconde la modale di zoom
         });
     }
-
 
     // La chiusura della cardModal è gestita dalla funzione closeCardModal()
     // e gli event listener sono attaccati dinamicamente o alla modale stessa
@@ -1298,7 +1295,7 @@ cropButton.addEventListener('click', () => {
             imageZoomModal.style.display = 'none';
         }
     });
-    
+
     // Event Listeners per il sensore di luce
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
@@ -1318,3 +1315,4 @@ cropButton.addEventListener('click', () => {
     // Event Listener per il Clima
     if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
 
+})
