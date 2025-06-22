@@ -1069,6 +1069,9 @@ document.addEventListener('DOMContentLoaded', () => {
     lightFeedbackDiv = document.getElementById('lightFeedback');
     manualLuxInputDiv = document.getElementById('manual-lux-input'); // Nuovo
     manualLuxInput = document.getElementById('manualLuxInput'); // Nuovo
+    currentLuxDisplay = document.getElementById('currentLuxDisplay');
+    luxFeedbackPlantsContainer = document.getElementById('luxFeedbackPlantsContainer'); // Inizializza il nuovo container
+    clearLuxFeedbackButton = document.getElementById('clearLuxFeedbackButton'); // Inizializza il nuovo bottone
     applyManualLuxButton = document.getElementById('applyManualLuxButton'); // Nuovo
     tempMinFilter = document.getElementById('tempMinFilter');
     tempMaxFilter = document.getElementById('tempMaxFilter');
@@ -1176,7 +1179,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!cropButton) { console.error("Errore: Elemento HTML con ID 'cropButton' non trovato!"); }
     // --- Fine Controlli ---
 
-// Listener per i controlli Cropper
+    // NUOVI Event Listener per il feedback Lux
+if (clearLuxFeedbackButton) {
+        clearLuxFeedbackButton.addEventListener('click', clearLuxFeedback);
+    }
+    // Assicurati che stopLightSensorButton chiami anche clearLuxFeedback
+    if (stopLightSensorButton) {
+        stopLightSensorButton.addEventListener('click', () => {
+            stopLightSensor();
+            clearLuxFeedback(); // Azzera il feedback quando si ferma il sensore
+        });
+    }
     
     // Listener per i controlli Cropper
     if (rotateLeftButton) {
