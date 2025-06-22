@@ -38,7 +38,7 @@ let stopLightSensorButton;
 let currentLuxValueSpan;
 let lightFeedbackDiv;
 let manualLuxInputDiv; // Nuovo: div per input manuale lux
-let manualLuxInput; // Nuovo: input per lux manuale
+
 let applyManualLuxButton; // Nuovo: bottone per applicare lux manuale
 let tempMinFilter;
 let tempMaxFilter;
