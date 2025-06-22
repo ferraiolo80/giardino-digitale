@@ -1290,19 +1290,24 @@ document.addEventListener('DOMContentLoaded', () => {
     plantForm.addEventListener('submit', savePlantToFirestore);
 
     // Event Listeners per la navigazione tra le viste
-    if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
-            if (gardenContainer) {
-                    gardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
+    if (showAllPlantsButton) { // <-- L'if ha le sue graffe corrette
+    showAllPlantsButton.addEventListener('click', () => { // <-- QUI C'È LA FUNZIONE ANONIMA: () => { ... }
+        displayAllPlants(); // <-- Prima azione
+        if (gardenContainer) {
+            gardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); // <-- Seconda azione
         }
-    if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
-            if (myGardenContainer) {
-                    myGardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        }
+    }); // <-- Qui finisce la funzione anonima e l'addEventListener
+} // <-- Qui finisce il blocco dell'if
 
+// E lo stesso per MyGarden:
+if (showMyGardenButton) {
+    showMyGardenButton.addEventListener('click', async () => { // <-- QUI C'È LA FUNZIONE ANONIMA (e async perché displayMyGarden lo è)
+        await displayMyGarden();
+        if (myGardenContainer) {
+            myGardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+}
     // Listener per la chiusura delle modali tramite bottone 'x'
     if (closeCardModalButton) {
         closeCardModalButton.addEventListener('click', () => {
