@@ -280,7 +280,7 @@ async function savePlantToFirestore(e) {
     const watering = plantWateringInput.value;
     const idealLuxMin = plantIdealLuxMinInput.value ? parseFloat(plantIdealLuxMinInput.value) : null;
     const idealLuxMax = plantIdealLuxMaxInput.value ? parseFloat(plantIdealLuxMaxInput.value) : null;
-    const user = auth.currentUser;
+    const user = currentUser;
 
     // --- DEBUGGING AGGIUNTIVO QUI ---
     console.log("DEBUG: Stato autenticazione prima del salvataggio:", user);
