@@ -229,6 +229,7 @@ header h1 {
     align-items: center;
     text-align: center;
     font-size: 0.95em;
+    flex: 1;
 }
 
 #climate-data-container h3 {
