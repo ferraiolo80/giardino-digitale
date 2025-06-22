@@ -1317,4 +1317,4 @@ cropButton.addEventListener('click', () => {
 
     // Event Listener per il Clima
     if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
-});
+
