@@ -951,6 +951,14 @@ function applyManualLux() {
     }
 }
 
+function clearLightFeedbackDisplay() {
+    if (lightFeedbackDiv) {
+        lightFeedbackDiv.innerHTML = ''; // Pulisce il contenuto HTML del div feedback
+    }
+    if (clearLightFeedbackButton) {
+        clearLightFeedbackButton.style.display = 'none'; // Nasconde il pulsante "Azzera" stesso
+    }
+}
 
 // --- Funzioni API Clima ---
 
