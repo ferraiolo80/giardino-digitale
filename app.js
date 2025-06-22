@@ -1218,8 +1218,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentCropper.destroy(); // Distruggi l'istanza del cropper quando si chiude
                 currentCropper = null;
             }
-        }
-    });
+            croppedImageBlob = null; // Resetta anche il blob ritagliato se non salvato
+            plantImageInput.value = ''; // Resetta l'input file per poter ricaricare la stessa immagine
+        });
 }
 
     if (closeImageZoomModalButton) {
