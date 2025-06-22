@@ -1184,15 +1184,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Gestione dell'input immagine e Cropper.js
-    plantImageInput.addEventListener('change', (e) => {
+   plantImageInput.addEventListener('change', (e) => {
     currentFile = e.target.files[0];
     if (currentFile) {
         const reader = new FileReader();
         reader.onload = (event) => {
             // Aggiungi un controllo di sicurezza per 'imageToCrop' e 'cropImageModal'
-            if (imageToCrop && cropImageModal) { // <-- USA cropImageModal QUI!
+            if (imageToCrop && cropImageModal) { // <-- OK qui
                 imageToCrop.src = event.target.result;
-                cropImageModal.style.display = 'flex'; // <-- QUESTA RIGA ORA FUNZIONERÀ!
+                cropImageModal.style.display = 'flex'; // <-- OK qui
                 if (currentCropper) {
                     currentCropper.destroy();
                 }
@@ -1208,14 +1208,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-    cropButton.addEventListener('click', () => {
-        if (currentCropper) {
-            currentCropper.getCroppedCanvas({
-                width: 400, // Risoluzione desiderata
-                height: 400,
-            }).toBlob((blob) => {
-                croppedImageBlob = blob;
-                // Mostra l'immagine ritagliata nell'anteprima del form
+cropButton.addEventListener('click', () => {
+    if (currentCropper) {
+        currentCropper.getCroppedCanvas({
+            width: 400, // Risoluzione desiderata
+            height: 400,
+        }).toBlob((blob) => {
+            croppedImageBlob = blob;
+            // Mostra l'immagine ritagliata nell'anteprima del form
+            // Assicurati che plantImagePreview sia inizializzata correttamente
+            if (plantImagePreview) { // Aggiungi un controllo per plantImagePreview per sicurezza
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     plantImagePreview.src = event.target.result;
@@ -1223,10 +1225,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.querySelector('.image-upload-status').textContent = 'Immagine ritagliata e pronta.';
                 };
                 reader.readAsDataURL(blob);
-                imageModal.style.display = 'none'; // Chiudi la modale di ritaglio
-            }, 'image/jpeg'); // Formato dell'immagine finale
-        }
-    });
+            } else {
+                console.error("Errore: plantImagePreview non è inizializzata correttamente.");
+            }
+
+            // --- CORREZIONE QUI ---
+            if (cropImageModal) { // Aggiungi un controllo per cropImageModal
+                cropImageModal.style.display = 'none'; // <--- CAMBIA DA imageModal A cropImageModal
+            } else {
+                console.error("Errore: cropImageModal non è inizializzata correttamente.");
+            }
+            // --- FINE CORREZIONE ---
+
+        }, 'image/jpeg'); // Formato dell'immagine finale
+    }
+});
 
     // Event listener per il form di salvataggio/aggiornamento della pianta
     plantForm.addEventListener('submit', savePlantToFirestore);
