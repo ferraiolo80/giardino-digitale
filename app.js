@@ -84,7 +84,7 @@ let cropButton; // Il bottone di ritaglio
 let imageZoomModal; // Per lo zoom dell'immagine
 let closeImageZoomModalButton; // Per il bottone di chiusura dello zoom
 let imageZoomDisplay; // L'immagine dentro la modale di zoom
-
+let currentUser = null;
 
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
