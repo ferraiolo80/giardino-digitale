@@ -244,10 +244,12 @@ header h1 {
 /* 3. Blocco sensore luce: #light-sensor-container */
 /* Spostiamo il sensore luce e il blocco meteo sotto il pannello di controllo */
 .top-controls-and-info {
-    display: flex;
-    flex-direction: column; /* Imposta in colonna di default per piccoli schermi */
-    gap: 20px;
-    margin-bottom: 20px;
+    display: flex; /* Abilita Flexbox */
+    flex-wrap: wrap; /* Permette ai container di andare a capo su schermi più piccoli */
+    justify-content: space-around; /* Distribuisce lo spazio tra e intorno ai container */
+    align-items: flex-start; /* Allinea gli elementi all'inizio (alto), utile se hanno altezze diverse */
+    gap: 20px; /* Aggiunge spazio tra i container (alternativa a margin) */
+    margin-bottom: 20px; /* Spazio sotto questi container */
 }
 
 .scroll-to-top-btn {
@@ -319,17 +321,17 @@ header h1 {
 
 @media (min-width: 768px) {
     .top-controls-and-info {
-        flex-direction: row; /* Su schermi più grandi, mettili in riga */
-        justify-content: space-between;
-        align-items: flex-start; /* Allinea in alto se hanno altezze diverse */
+        flex-direction: column; /* Impila i container verticalmente su schermi piccoli */
+        align-items: center; /* Centra gli elementi impilati */
     }
     #light-sensor-container {
         flex: 1; /* Occupa lo spazio disponibile */
         margin-right: 10px; /* Spazio tra sensore e meteo */
-    }
+        }
     #climate-data-container {
         flex: 2; /* Occupa più spazio del sensore luce */
         margin-left: 10px; /* Spazio tra sensore e meteo */
+        max-width: 95%;
     }
 }
 
