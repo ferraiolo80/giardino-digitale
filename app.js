@@ -91,6 +91,11 @@ let rotateRightButton;
 let zoomInButton;
 let zoomOutButton;
 
+let manualLuxInput; // Assicurati che questo sia già qui se usi l'input manuale
+let currentLuxDisplay; // Per visualizzare il lux attuale
+let luxFeedbackPlantsContainer; // Il nuovo contenitore per il feedback specifico
+let clearLuxFeedbackButton; // Il nuovo bottone per azzerare il feedback
+
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
     'Sole Pieno': 'assets/category_icons/sun_icon.png', // Devi creare queste immagini!
