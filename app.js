@@ -430,6 +430,7 @@ async function editPlant(plantId) {
 async function addPlantToMyGarden(plantId) {
     showLoadingSpinner();
     
+    // CORREZIONE FONDAMENTALE 1: Usa la variabile globale 'currentUser'
     // Assicurati che currentUser sia correttamente definita e aggiornata dal listener onAuthStateChanged
     const user = currentUser; 
 
@@ -439,7 +440,6 @@ async function addPlantToMyGarden(plantId) {
         return;
     }
 
-    // Trova la pianta completa dalla collezione 'allPlants'
     const plantToAddOriginal = allPlants.find(plant => plant.id === plantId);
     if (!plantToAddOriginal) {
         showToast('Pianta non trovata nel catalogo generale.', 'error');
@@ -450,27 +450,28 @@ async function addPlantToMyGarden(plantId) {
     // Crea un nuovo oggetto per la pianta del giardino, copiando i dati originali
     const plantDataForGarden = { ...plantToAddOriginal }; // Copia tutti i dati dalla pianta del catalogo
 
-    // Ora, gestisci l'immagine specifica dell'utente per il giardino
+    // --- CORREZIONE FONDAMENTALE 2: Logica per caricare e salvare l'immagine utente specifica ---
     let imageUrlForGarden = '';
-    if (croppedImageBlob) { // Se l'utente ha ritagliato una nuova immagine
+    if (croppedImageBlob) { // Se l'utente ha ritagliato una nuova immagine (il blob dell'immagine reale)
         try {
+            // Questa funzione carica l'immagine su Firebase Storage e restituisce il suo URL
             imageUrlForGarden = await uploadImageToFirebaseStorage(croppedImageBlob, plantToAddOriginal.name);
             plantDataForGarden.imageUrl = imageUrlForGarden; // Aggiungi l'URL al tuo oggetto pianta del giardino
             showToast('Immagine caricata con successo su Firebase Storage.', 'success');
         } catch (imageError) {
             console.error("Errore nel caricare l'immagine della pianta per il giardino:", imageError);
             showToast(`Errore nel caricare l'immagine: ${imageError.message}`, 'error');
-            // Continua comunque a salvare la pianta, anche senza immagine se fallisce
+            // Continua comunque a salvare la pianta, anche senza immagine se il caricamento fallisce
         }
     } else {
-        // Se non c'è un'immagine ritagliata, potresti voler aggiungere un URL per un'icona generica di fallback specifica per il giardino,
-        // o semplicemente lasciare che la logica di createPlantCard gestisca l'assenza di imageUrl.
-        // Ad esempio: plantDataForGarden.imageUrl = '/path/to/default_garden_icon.png';
-        // Per ora, lo lasciamo come è, se non c'è un croppedImageBlob, non aggiungiamo imageUrl.
+        // Se non c'è un'immagine ritagliata (l'utente non ne ha scattata una),
+        // la pianta nel giardino non avrà un 'imageUrl' personalizzato.
+        // La funzione displayPlants userà l'icona generica in questo caso.
     }
-
+    // --- FINE LOGICA PER IMMAGINE UTENTE SPECIFICA ---
 
     try {
+        // Il percorso Firestore ora usa correttamente user.uid
         const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
         const doc = await docRef.get();
 
@@ -498,7 +499,6 @@ async function addPlantToMyGarden(plantId) {
         hideLoadingSpinner();
     }
 }
-
 // Funzione per rimuovere una pianta dal "Mio Giardino"
 async function removePlantFromMyGarden(plantId) {
     showLoadingSpinner();
