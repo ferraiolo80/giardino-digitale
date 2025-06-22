@@ -250,6 +250,28 @@ header h1 {
     margin-bottom: 20px;
 }
 
+.scroll-to-top-btn {
+    display: none; /* Nascosto di default */
+    position: fixed; /* Fisso sullo schermo */
+    bottom: 20px; /* Distanza dal fondo */
+    right: 20px; /* Distanza da destra */
+    z-index: 1000; /* Assicura che sia sopra altri elementi */
+    border: none; /* Rimuove il bordo */
+    outline: none; /* Rimuove l'outline al focus */
+    background-color: #4CAF50; /* Colore di sfondo (verde di esempio) */
+    color: white; /* Colore del testo/icona */
+    cursor: pointer; /* Cambia il cursore */
+    padding: 15px; /* Spaziatura interna */
+    border-radius: 50%; /* Rende il pulsante circolare */
+    font-size: 18px; /* Dimensione dell'icona */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Ombra per profondità */
+    transition: background-color 0.3s, opacity 0.3s; /* Transizione fluida */
+}
+
+.scroll-to-top-btn:hover {
+    background-color: #5cb85c; /* Colore più chiaro al passaggio del mouse */
+}
+
 @media (min-width: 768px) {
     .top-controls-and-info {
         flex-direction: row; /* Su schermi più grandi, mettili in riga */
