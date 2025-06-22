@@ -86,6 +86,11 @@ let closeImageZoomModalButton; // Per il bottone di chiusura dello zoom
 let imageZoomDisplay; // L'immagine dentro la modale di zoom
 let currentUser = null;
 
+let rotateLeftButton;
+let rotateRightButton;
+let zoomInButton;
+let zoomOutButton;
+
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
     'Sole Pieno': 'assets/category_icons/sun_icon.png', // Devi creare queste immagini!
@@ -1089,6 +1094,11 @@ document.addEventListener('DOMContentLoaded', () => {
     lastUpdatedSpan = document.getElementById('last-updated');
     googleLensButton = document.getElementById('googleLensButton');
 
+    rotateLeftButton = document.getElementById('rotateLeftButton');
+    rotateRightButton = document.getElementById('rotateRightButton');
+    zoomInButton = document.getElementById('zoomInButton');
+    zoomOutButton = document.getElementById('zoomOutButton');
+
 
     // Setup Event Listeners
     setupAuthListeners();
@@ -1117,6 +1127,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!cropButton) { console.error("Errore: Elemento HTML con ID 'cropButton' non trovato!"); }
     // --- Fine Controlli ---
 
+// Listener per i controlli Cropper
+    
+    if (rotateLeftButton) {
+        rotateLeftButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.rotate(-90); // Ruota di 90 gradi in senso antiorario
+        });
+    }
+    if (rotateRightButton) {
+        rotateRightButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.rotate(90); // Ruota di 90 gradi in senso orario
+        });
+    }
+    if (zoomInButton) {
+        zoomInButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.zoom(0.1); // Zoom in
+        });
+    }
+    if (zoomOutButton) {
+        zoomOutButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.zoom(-0.1); // Zoom out
+        });
+    }
+});
     
     // Event listener per il pulsante "Aggiungi Nuova Pianta"
     addNewPlantButton.addEventListener('click', () => {
