@@ -1379,6 +1379,9 @@ if (showMyGardenButton) {
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
     if (applyManualLuxButton) applyManualLuxButton.addEventListener('click', applyManualLux); // Nuovo listener
+    if (clearLightFeedbackButton) {
+        clearLightFeedbackButton.addEventListener('click', clearLightFeedbackDisplay);
+    }
 
     // Esegui il controllo del sensore all'avvio
     checkLightSensorAvailability();
