@@ -33,87 +33,617 @@ header h1 {
 }
 
 #auth-status {
-    font-weight: bold;
-    color: #4a6a5a;
     font-size: 0.9em;
-    margin-right: 10px;
-    white-space: nowrap; /* Evita che il testo vada a capo */
+    color: #4CAF50;
+    margin-right: 20px;
+    white-space: nowrap; /* Evita che il testo si spezzi */
 }
 
-/* Auth Section */
-#auth-section {
+/* Navigazione Principale */
+nav.main-nav {
+    background-color: #a5d6a7; /* Verde più scuro per la nav bar */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+nav.main-nav button {
+    background-color: #66bb6a; /* Bottone verde */
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+nav.main-nav button:hover {
+    background-color: #4CAF50;
+    transform: translateY(-2px);
+}
+
+/* Pannello di Controllo (Filtri e Ricerca) */
+.control-panel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
     padding: 20px;
-    text-align: center;
-    background-color: #f0fdf0;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    max-width: 400px;
-    margin: 40px auto;
+    background-color: #e8f5e9; /* Sfondo leggero per il pannello */
+    border-bottom: 1px solid #c8e6c9;
+    box-shadow: inset 0 -2px 3px rgba(0,0,0,0.02);
 }
 
-#auth-section h2 {
+.filter-sort-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-sort-controls input,
+.filter-sort-controls select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.9em;
+    width: 180px; /* Larghezza fissa per gli input/select */
+}
+
+.lux-input-group, .temp-input-group {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.lux-input-group input, .temp-input-group input {
+    width: 100px; /* Larghezza ridotta per min/max temp/lux */
+}
+
+/* Container principale del contenuto dell'app */
+#app-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Stile per i titoli delle sezioni */
+.section-header {
+    text-align: center;
+    margin: 20px 0;
     color: #2e7d32;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+/* --- NUOVE REGOLE PER IL LAYOUT DEI CONTAINER LUX E CLIMA --- */
+main {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap; /* Permette agli elementi di avvolgersi su più righe */
+    gap: 20px; /* Spazio tra i container */
+    justify-content: center; /* Centra gli elementi orizzontalmente */
+    align-items: flex-start; /* Allinea gli elementi in alto verticalmente */
+}
+
+/* Stilizzazione generale per le sezioni informative (sensore, clima) */
+.info-section.card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    /* Regole per il layout a due colonne */
+    flex: 1 1 calc(50% - 10px); /* 50% meno metà del gap per due colonne */
+    max-width: calc(50% - 10px); /* Assicura che non superino il 50% */
+    min-width: 300px; /* Larghezza minima per non stringersi troppo */
+}
+
+/* Media query per schermi più piccoli (stack verticale) */
+@media (max-width: 768px) {
+    main {
+        flex-direction: column; /* Impila verticalmente su schermi piccoli */
+        align-items: center;
+    }
+    .info-section.card {
+        flex: 1 1 100%; /* Occupa tutta la larghezza disponibile */
+        max-width: 100%; /* Nessun limite massimo di larghezza */
+    }
+}
+/* --- FINE NUOVE REGOLE --- */
+
+.info-section h2 {
+    color: #388e3c;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.6em;
+}
+
+.info-section p {
+    font-size: 1em;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.sensor-container, #climate-data {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.sensor-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.feedback-area {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f0f4c3; /* Giallo chiaro */
+    border-left: 5px solid #cddc39;
+    border-radius: 5px;
+    text-align: left;
+    width: calc(100% - 30px); /* Larghezza completa con padding */
+    box-sizing: border-box; /* Include padding e border nella larghezza */
+    color: #333;
+}
+.feedback-area h4 {
+    margin-top: 0;
+    color: #555;
+}
+.feedback-area p {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+
+/* Stili per i bottoni generici */
+.btn {
+    background-color: #66bb6a;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    white-space: nowrap; /* Previene il wrap del testo sul bottone */
+}
+
+.btn-primary { background-color: #4CAF50; }
+.btn-primary:hover { background-color: #43A047; }
+
+.btn-secondary { background-color: #81c784; }
+.btn-secondary:hover { background-color: #66bb6a; }
+
+.btn-tertiary { background-color: #9e9e9e; } /* Grigio per "Azzera" */
+.btn-tertiary:hover { background-color: #757575; }
+
+.btn:hover {
+    background-color: #5cb85c;
+    transform: translateY(-1px);
+}
+
+/* Stile per il bottone "Già nel tuo giardino" */
+.btn-added {
+    background-color: #cccccc; /* Grigio */
+    color: #666666;
+    cursor: not-allowed;
+    border: 1px solid #bbbbbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px; /* Spazio tra icona e testo */
+    font-size: 0.9em;
+    padding: 8px 12px;
+}
+
+.btn-added:hover {
+    background-color: #cccccc; /* Non cambiare al passaggio del mouse */
+    color: #666666;
+}
+
+/* --- NUOVO STILE PER IL BOTTONE "ELIMINA DAL DATABASE" --- */
+.btn-delete-db {
+    background-color: #dc3545; /* Rosso per eliminazione */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+    display: flex; /* Per allineamento icona e testo */
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 5px; /* Aggiungi un po' di spazio se è sotto un altro bottone */
+}
+
+.btn-delete-db:hover {
+    background-color: #c82333; /* Rosso più scuro al hover */
+}
+/* --- FINE NUOVO STILE --- */
+
+
+/* Autenticazione */
+#auth-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 100px); /* Adatta altezza allo schermo */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.auth-form-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
     margin-bottom: 20px;
 }
 
-#auth-section form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-#auth-section input[type="email"],
-#auth-section input[type="password"] {
-    padding: 12px;
-    border: 1px solid #a5d6a7;
-    border-radius: 5px;
-    font-size: 1em;
-}
-
-#auth-section button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #4CAF50;
-    color: white;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#auth-section button:hover {
-    background-color: #45a049;
-}
-
-#auth-section .toggle-link {
-    margin-top: 15px;
+.auth-form-container h2 {
     color: #2e7d32;
-    cursor: pointer;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.auth-form-container input[type="email"],
+.auth-form-container input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 12px 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.auth-form-container button {
+    width: 100%;
+    padding: 12px 0;
+    margin-top: 10px;
+    font-size: 1.1em;
+}
+
+.auth-links {
+    margin-top: 20px;
+}
+
+.auth-links a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.auth-links a:hover {
     text-decoration: underline;
 }
 
-#auth-error {
-    color: #e53935;
+.error-message {
+    color: #dc3545;
     margin-top: 10px;
-    font-weight: bold;
+    font-size: 0.9em;
 }
 
-/* App Content Section */
-#app-content {
+/* Contenitori delle piante */
+#garden-container, #my-garden-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
     padding: 20px;
-    flex-grow: 1; /* Permette al contenuto dell'app di occupare lo spazio disponibile */
+    justify-content: center; /* Centra le card */
+    min-height: 200px; /* Altezza minima per visualizzazione */
 }
+
+.plant-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    width: 280px; /* Larghezza fissa per le card */
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer; /* Indica che la card è cliccabile per i dettagli */
+    position: relative; /* Per posizionare elementi interni se necessario */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Spinge i bottoni in basso */
+}
+
+.plant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.plant-card img.plant-image { /* Stile specifico per l'immagine della card */
+    max-width: 100%;
+    height: 180px; /* Altezza fissa per le immagini */
+    object-fit: cover; /* Assicura che l'immagine copra l'area senza distorcersi */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: zoom-in; /* Indica che l'immagine è cliccabile per lo zoom */
+}
+
+.plant-card h3 {
+    color: #2e7d32;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+}
+
+.plant-card p {
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically within the card */
+    gap: 8px; /* Spazio tra i bottoni */
+    width: 100%; /* Assicura che il contenitore occupi tutta la larghezza */
+    align-items: center; /* Centra i bottoni */
+}
+
+
+.card-actions button {
+    width: 80%; /* I bottoni occupano più spazio */
+    padding: 10px 15px;
+    font-size: 0.9em;
+}
+
+/* Modale generale */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    padding: 20px; /* Padding per evitare che la modale tocchi i bordi */
+    box-sizing: border-box; /* Include padding nella dimensione */
+}
+
+.modal-content-form, .modal-content-card, .image-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    animation: fadeIn 0.3s ease-out;
+    box-sizing: border-box;
+    max-height: 90vh; /* Limita l'altezza della modale */
+    overflow-y: auto; /* Aggiungi scroll se il contenuto è troppo lungo */
+}
+
+/* Per la modale di zoom immagine */
+#imageZoomModal .modal-content {
+    max-width: 90%; /* Larghezza massima per l'immagine */
+    max-height: 90vh;
+    padding: 0; /* Nessun padding per l'immagine */
+    background-color: transparent; /* Sfondo trasparente per l'immagine */
+    box-shadow: none; /* Nessuna ombra per l'immagine */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#imageZoomModal img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Stili specifici per il form della pianta nella modale */
+#plantForm h2 {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 25px;
+}
+
+#plantForm label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+}
+
+#plantForm input[type="text"],
+#plantForm input[type="number"],
+#plantForm textarea,
+#plantForm select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+#plantForm textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#plantImagePreview {
+    max-width: 150px;
+    max-height: 150px;
+    margin: 10px auto 20px auto;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.form-actions button {
+    padding: 12px 20px;
+    font-size: 1.1em;
+    flex-grow: 1; /* Permette ai bottoni di crescere e riempire lo spazio */
+    max-width: 200px;
+}
+
+/* Stili per la modale di crop (ritaglio) dell'immagine */
+#cropImageModal .image-modal-content {
+    max-width: 700px;
+    max-height: 90vh;
+    padding: 20px;
+    text-align: center;
+}
+
+#imageToCrop {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.cropper-controls {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cropper-controls button {
+    padding: 8px 12px;
+    font-size: 0.9em;
+}
+
+/* Messaggio "Giardino Vuoto" */
+.empty-message {
+    text-align: center;
+    padding: 50px 20px;
+    color: #666;
+    font-size: 1.2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px; /* Assicurati che il messaggio non sia schiacciato */
+}
+
+.empty-message i {
+    font-size: 3em;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.empty-message p:first-child {
+    font-weight: bold;
+    color: #888;
+}
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050; /* Superiore a tutte le modali */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    min-width: 250px;
+    max-width: 350px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.info { background-color: #2196F3; }
+.toast.success { background-color: #4CAF50; }
+.toast.error { background-color: #f44336; }
 
 /* Spinner di caricamento */
 #loading-spinner {
-    display: none; /* Inizialmente nascosto */
+    display: none; /* Hidden by default */
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    z-index: 1000;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 2000;
     justify-content: center;
     align-items: center;
 }
@@ -132,630 +662,30 @@ header h1 {
     100% { transform: rotate(360deg); }
 }
 
-/* Toast Notification */
-#toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1001;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.toast {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    min-width: 250px;
-    max-width: 350px;
-    text-align: center;
-}
-
-.toast.show {
-    opacity: 1;
-}
-
-.toast.error {
-    background-color: #d32f2f; /* Rosso per errori */
-}
-
-.toast.success {
-    background-color: #388e3c; /* Verde per successo */
-}
-
-.toast.info {
-    background-color: #1976d2; /* Blu per informazioni */
-}
-
-/* Main Content Layout */
-.main-content {
-    display: flex;
-    flex-direction: column; /* Colonna per i blocchi principali */
-    gap: 20px; /* Spazio tra i blocchi */
-}
-
-/* === Sezione Nuove Modifiche === */
-
-/* 1. Bottoni sulla stessa linea: control-panel */
-.control-panel {
-    display: flex;
-    flex-wrap: wrap; /* Permette ai bottoni di andare a capo su schermi piccoli */
-    justify-content: center; /* Centra i bottoni orizzontalmente */
-    gap: 15px; /* Spazio tra i bottoni */
-    margin-bottom: 20px; /* Spazio sotto il pannello di controllo */
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.control-panel button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    background-color: #66bb6a; /* Un verde leggermente diverso per i controlli */
-    color: white;
-    font-size: 0.95em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    white-space: nowrap; /* Evita che il testo del bottone vada a capo */
-}
-
-.control-panel button:hover {
-    background-color: #4caf50;
-}
-
-
-/* 2. Container previsioni meteo: #climate-data-container */
-#climate-data-container {
-    background-color: #e8f5e9; /* Verde chiaro per il meteo */
-    border: 1px solid #c8e6c9;
-    border-radius: 8px;
-    padding: 15px;
-    margin: 0 auto 20px auto; /* Centra e aggiunge margine sotto */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    width: calc(100% - 40px); /* Larga quasi quanto la pagina (sottrai padding) */
-    max-width: 1200px; /* Limite massimo per schermi molto grandi */
-    height: auto; /* Altezza automatica, sarà piccola */
-    min-height: 80px; /* Altezza minima per contenere il testo */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    font-size: 0.95em;
-    flex: 1;
-}
-
-#climate-data-container h3 {
-    color: #2e7d32;
-    margin-top: 0;
-    margin-bottom: 10px;
-}
-
-#climate-data-container p {
-    margin: 5px 0;
-}
-
-/* 3. Blocco sensore luce: #light-sensor-container */
-/* Spostiamo il sensore luce e il blocco meteo sotto il pannello di controllo */
-.top-controls-and-info {
-    display: flex; /* Abilita Flexbox */
-    flex-wrap: wrap; /* Permette ai container di andare a capo su schermi più piccoli */
-    justify-content: space-around; /* Distribuisce lo spazio tra e intorno ai container */
-    align-items: flex-start; /* Allinea gli elementi all'inizio (alto), utile se hanno altezze diverse */
-    gap: 20px; /* Aggiunge spazio tra i container (alternativa a margin) */
-    margin-bottom: 20px; /* Spazio sotto questi container */
-}
-
-.scroll-to-top-btn {
-    display: none; /* Nascosto di default */
-    position: fixed; /* Fisso sullo schermo */
-    bottom: 20px; /* Distanza dal fondo */
-    right: 20px; /* Distanza da destra */
-    z-index: 1000; /* Assicura che sia sopra altri elementi */
-    border: none; /* Rimuove il bordo */
-    outline: none; /* Rimuove l'outline al focus */
-    background-color: #4CAF50; /* Colore di sfondo (verde di esempio) */
-    color: white; /* Colore del testo/icona */
-    cursor: pointer; /* Cambia il cursore */
-    padding: 15px; /* Spaziatura interna */
-    border-radius: 50%; /* Rende il pulsante circolare */
-    font-size: 18px; /* Dimensione dell'icona */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Ombra per profondità */
-    transition: background-color 0.3s, opacity 0.3s; /* Transizione fluida */
-}
-
-.scroll-to-top-btn:hover {
-    background-color: #5cb85c; /* Colore più chiaro al passaggio del mouse */
-}
-/* Stile per il pulsante "Azzera Feedback Lux" */
-.btn-secondary {
-    background-color: #6c757d; /* Grigio */
-    color: white;
-    margin-top: 10px; /* Spazio dal resto dei pulsanti */
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-}
-
-/* Stile per il container del feedback lux (se non lo hai già) */
-.lux-feedback-container {
-    background-color: #f8f9fa;
-    border: 1px solid #e2e6ea;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /* Inizialmente display: none; sarà mostrato tramite JS */
-}
-
-.lux-feedback-container h3 {
-    color: #343a40;
-    margin-bottom: 15px;
-}
-
-.lux-feedback-container ul {
-    list-style: none;
-    padding: 0;
-}
-
-.lux-feedback-container li {
-    padding: 8px 0;
-    border-bottom: 1px dashed #e9ecef;
-}
-
-.lux-feedback-container li:last-child {
-    border-bottom: none;
-}
-
-/* Stile per il bottone "Già nel tuo giardino" */
-.btn-added {
-    background-color: #cccccc; /* Grigio */
-    color: #666666;
-    cursor: not-allowed;
-    border: 1px solid #bbbbbb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px; /* Spazio tra icona e testo */
-}
-
-.btn-added:hover {
-    background-color: #cccccc; /* Non cambiare al passaggio del mouse */
-    color: #666666;
-}
-
-/* Colori per i feedback */
-.lux-feedback-optimal { color: #28a745; font-weight: bold; } /* Verde */
-.lux-feedback-low { color: #ffc107; font-weight: bold; }    /* Giallo */
-.lux-feedback-high { color: #dc3545; font-weight: bold; }   /* Rosso */
-
-@media (min-width: 768px) {
-    .top-controls-and-info {
-        flex-direction: column; /* Impila i container verticalmente su schermi piccoli */
-        align-items: center; /* Centra gli elementi impilati */
-    }
-    #light-sensor-container {
-        flex: 1; /* Occupa lo spazio disponibile */
-        margin-right: 10px; /* Spazio tra sensore e meteo */
-        }
-    #climate-data-container {
-        flex: 2; /* Occupa più spazio del sensore luce */
-        margin-left: 10px; /* Spazio tra sensore e meteo */
-        max-width: 95%;
-    }
-}
-
-#light-sensor-container {
-    background-color: #e3f2fd; /* Blu chiaro per il sensore luce */
-    border: 1px solid #bbdefb;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    text-align: center;
-    width: 100%; /* Larghezza massima per default */
-    box-sizing: border-box; /* Include padding nel calcolo della larghezza */
-}
-
-#light-sensor-container h3 {
-    color: #1565c0; /* Blu scuro */
-    margin-top: 0;
-    margin-bottom: 10px;
-}
-
-#light-sensor-container .sensor-buttons button {
-    padding: 8px 12px;
-    margin: 5px;
-    border: none;
-    border-radius: 5px;
-    background-color: #2196f3; /* Blu per i bottoni del sensore */
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#light-sensor-container .sensor-buttons button:hover {
-    background-color: #1976d2;
-}
-
-#manual-lux-input {
-    margin-top: 10px;
-    display: none; /* Nascosto di default, mostrato via JS */
-}
-
-#manual-lux-input input {
-    padding: 8px;
-    border: 1px solid #90caf9;
-    border-radius: 5px;
-    width: 80px; /* Larghezza fissa per l'input lux */
-    text-align: center;
-}
-
-#manual-lux-input button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* 4. Card delle piante: #garden-container, #my-garden-container, .plant-card */
-.plants-section-header {
-    text-align: center;
-    color: #2e7d32;
-    margin-top: 20px;
-    margin-bottom: 15px;
-    font-size: 1.8em;
-}
-
-#garden-container,
-#my-garden-container {
-    display: flex; /* Abilita Flexbox */
-    flex-wrap: wrap; /* Permette alle card di andare a capo su più righe */
-    justify-content: center; /* Centra le card orizzontalmente */
-    gap: 25px; /* Spazio maggiore tra le card, sia orizzontale che verticale */
-    padding: 20px 0; /* Padding sopra e sotto il contenitore delle card */
-    max-width: 1200px; /* Limite massimo di larghezza */
-    margin: 0 auto; /* Centra il blocco di card */
-}
-
-.plant-card {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 12px; /* Angoli più arrotondati */
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Ombra più pronunciata */
-    padding: 20px;
-    text-align: center;
-    width: 260px; /* Larghezza fissa leggermente ridotta per più card per riga */
-    box-sizing: border-box; /* Importante per includere padding e border nella larghezza */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Animazione al passaggio del mouse */
-    cursor: pointer; /* Indica che la card è cliccabile */
-}
-
-.plant-card:hover {
-    transform: translateY(-5px); /* Leggero sollevamento */
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Ombra più intensa */
-}
-
-.plant-card .plant-image {
-    max-width: 100%;
-    height: 180px; /* Altezza fissa per le immagini */
-    object-fit: cover; /* Assicura che l'immagine copra l'area senza distorcersi */
-    border-radius: 8px; /* Angoli arrotondati per l'immagine */
-    margin-bottom: 15px;
-    /* Aggiunto per le immagini placeholder */
-    background-color: #f0f0f0; /* Sfondo grigio per le icone */
-    display: block; /* Assicura che l'immagine sia un blocco */
-}
-
-.plant-card h3 {
-    font-size: 1.4em;
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 10px;
-    min-height: 2.8em; /* Per allineare se i titoli hanno lunghezze diverse */
-}
-
-.plant-card p {
-    font-size: 0.9em;
-    color: #555;
-    margin-bottom: 5px;
-}
-
-.plant-card .card-actions {
-    display: flex;
-    flex-direction: column; /* Bottoni uno sotto l'altro all'interno della card */
-    gap: 10px; /* Spazio tra i bottoni */
-    margin-top: auto; /* Spinge i bottoni in basso se la card ha più contenuto */
-}
-
-/* Modale */
-.modal {
+/* Bottone Scroll to Top */
+#scrollToTopBtn {
     display: none;
     position: fixed;
-    z-index: 100;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    justify-content: center;
-    align-items: center;
-    padding: 20px; /* Padding per la modale */
-    box-sizing: border-box;
-}
-
-.modal-content-form, .modal-content-image, .modal-content-card {
-    background-color: #fefefe;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    max-width: 600px; /* Larghezza massima modale form */
-    width: 90%; /* Adattamento per dispositivi mobili */
-    position: relative;
-    box-sizing: border-box;
-}
-
-.modal-content-image {
-    max-width: 90vw; /* Larghezza massima per l'immagine modale */
-    max-height: 90vh; /* Altezza massima per l'immagine modale */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content-image img {
-    max-width: 100%;
-    max-height: 100%;
-    display: block;
-    border-radius: 8px;
-}
-
-.modal-content-card {
-    max-width: 600px; /* Larghezza massima per la card di dettaglio */
-    text-align: left;
-}
-
-.close-button {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: #333;
-}
-
-.plant-form-card h2 {
-    color: #2e7d32;
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 1.8em;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #4a6a5a;
-}
-
-.plant-form-card input[type="text"],
-.plant-form-card input[type="file"],
-.plant-form-card input[type="number"],
-.plant-form-card select,
-.plant-form-card textarea {
-    width: calc(100% - 22px); /* Larghezza piena meno padding e bordo */
-    padding: 10px;
-    border: 1px solid #a5d6a7;
-    border-radius: 5px;
-    font-size: 1em;
-    box-sizing: border-box; /* Include padding e border nel width */
-}
-
-.plant-form-card textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 20px;
-    flex-wrap: wrap; /* Permette ai bottoni di andare a capo */
-}
-
-.form-actions button {
-    flex-grow: 1; /* Permette ai bottoni di espandersi */
-    padding: 12px 20px;
+    bottom: 30px;
+    right: 30px;
+    z-index: 99;
     border: none;
-    border-radius: 5px;
+    outline: none;
     background-color: #4CAF50;
     color: white;
-    font-size: 1em;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    min-width: 120px; /* Larghezza minima per bottoni */
-}
-
-.form-actions button:hover {
-    background-color: #45a049;
-}
-
-.form-actions .cancel-button {
-    background-color: #f44336;
-}
-
-.form-actions .cancel-button:hover {
-    background-color: #d32f2f;
-}
-
-.form-actions .delete-button {
-    background-color: #f44336; /* Rosso per il tasto elimina */
-}
-
-.form-actions .delete-button:hover {
-    background-color: #d32f2f;
-}
-
-/* Plant Detail Card (Modal) */
-#card-modal h2 {
-    color: #2e7d32;
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-#zoomed-card-content p {
-    margin-bottom: 8px;
-}
-
-#zoomed-card-content p strong {
-    color: #333;
-}
-
-#zoomed-plant-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Empty message style */
-.empty-message {
-    text-align: center;
-    padding: 40px;
-    color: #777;
-    font-size: 1.1em;
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    margin-top: 30px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.empty-message i {
-    font-size: 2em;
-    color: #999;
-    margin-bottom: 15px;
-    display: block;
-}
-
-/* Filtering & Sorting */
-.filter-sort-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.filter-sort-controls input[type="search"],
-.filter-sort-controls select {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 0.9em;
-    min-width: 150px;
-}
-
-.lux-input-group, .temp-input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.lux-input-group label, .temp-input-group label {
-    white-space: nowrap;
-}
-
-
-/* Footer */
-footer {
-    text-align: center;
     padding: 15px;
-    background-color: #c8e6c9;
-    color: #2e7d32;
-    border-top: 1px solid #a5d6a7;
-    margin-top: 40px; /* Margine superiore per separare dal contenuto */
+    border-radius: 50%;
+    font-size: 1.5em;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-/* Cropper.js Modal Styles */
-.image-modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    position: relative;
-    max-width: 800px;
-    width: 90%;
-    text-align: center;
+#scrollToTopBtn:hover {
+    background-color: #43A047;
+    transform: translateY(-2px);
 }
 
-.img-container {
-    max-height: 400px; /* Limita l'altezza del contenitore dell'immagine */
-    width: 100%;
-    overflow: hidden; /* Nasconde ciò che esce dai bordi */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.img-container img {
-    max-width: 100%;
-    display: block;
-}
-
-.cropper-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.cropper-buttons button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.cropper-buttons button:hover {
-    background-color: #45a049;
-}
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
@@ -797,7 +727,9 @@ footer {
     .plant-card {
         width: calc(100% - 40px); /* Pieno larghezza meno il padding del contenitore */
     }
-    .modal-content-form, .modal-content-card {
+    .modal-content-form, .modal-content-card, .image-modal-content {
+        width: calc(100% - 40px);
+        margin: 20px;
         padding: 20px;
     }
     .form-actions {
@@ -806,13 +738,16 @@ footer {
     }
     .form-actions button {
         width: 100%;
+        max-width: none;
     }
-    .top-controls-and-info {
-        flex-direction: column; /* Ritorna in colonna su schermi piccoli */
-        gap: 20px;
+    .auth-form-container {
+        padding: 20px;
     }
-    #light-sensor-container, #climate-data-container {
-        margin: 0; /* Rimuove margini extra in modalità colonna */
-        width: 100%;
+    .card-actions {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+        align-items: center;
+    }
+    .card-actions button {
+        width: 90%; /* Wider buttons on mobile */
     }
 }
