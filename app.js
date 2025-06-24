@@ -1,3 +1,4 @@
+// Variabili globali per lo stato dell'applicazione
 let allPlants = [];
 let myGarden = [];
 let currentPlantIdToUpdate = null; // Tiene traccia dell'ID della pianta da aggiornare (per modifica/eliminazione)
@@ -745,12 +746,11 @@ function displayPlants(plantsToDisplay) {
         plantCard.appendChild(plantImageElement);
 
         // Aggiungi il resto del contenuto della card come HTML interno
-        // Ho corretto qui la riga della "Luce"
         plantCard.innerHTML += `
-            <h3>${plant.name || 'Nome Pianta Sconosciuto'}</h3> <p><strong>Categoria:</strong> ${plant.category || 'Non Specificata'}</p> <p><strong>Esposizione Solare:</strong> ${plant.sunlight || 'N/A'}</p>
-            <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
-            <p><strong>Luce:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
-            <div class="card-actions">
+            <h3>${plant.name || 'Nome Pianta Sconosciuto'}</h3>
+            <p><strong>Categoria:</strong> ${plant.category || 'Non Specificata'}</p>
+            <p><strong>Esposizione Solare:</strong> ${plant.sunlight || 'N/A'}</p>
+            <p><strong>Temperatura:</strong> ${plant.tempMin != null && plant.tempMax != null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p> <p><strong>Luce:</strong> ${plant.idealLuxMin != null && plant.idealLuxMax != null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p> <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p> <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p> <div class="card-actions">
                 ${isMyGardenCurrentlyVisible ? `<button class="btn btn-edit" data-id="${plant.id}"><i class="fas fa-edit"></i> Modifica</button>` : ''}
                 ${isMyGardenCurrentlyVisible ? `<button class="btn btn-remove" data-id="${plant.id}"><i class="fas fa-minus-circle"></i> Rimuovi dal Giardino</button>` : `<button class="btn btn-add" data-id="${plant.id}"><i class="fas fa-plus-circle"></i> Aggiungi al Giardino</button>`}
             </div>
@@ -812,12 +812,12 @@ function showPlantDetailsModal(plantId) {
             detailsImageUrl = categoryIcons[plant.category] || categoryIcons['Altro'];
         }
        
-
         const detailsHtml = `
-            <h2>${plant.name || 'Nome Pianta Sconosciuto'}</h2> <img id="zoomed-plant-image-display" src="${detailsImageUrl}" alt="Immagine di ${plant.name || 'Pianta'}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
-            <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p> <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p> <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
-            <p><strong>Luce (Lux):</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
-            <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p> <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+            <h2>${plant.name || 'Nome Pianta Sconosciuto'}</h2>
+            <img id="zoomed-plant-image-display" src="${detailsImageUrl}" alt="Immagine di ${plant.name || 'Pianta'}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
+            <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
+            <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p> <p><strong>Temperatura:</strong> ${plant.tempMin != null && plant.tempMax != null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p> <p><strong>Luce (Lux):</strong> ${plant.idealLuxMin != null && plant.idealLuxMax != null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p> <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
+            <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
             ${plant.updatedAt ? `<p><strong>Ultimo aggiornamento:</strong> ${new Date(plant.updatedAt.toDate()).toLocaleDateString()}</p>` : ''}
         `;
         zoomedCardContent.innerHTML = detailsHtml;
@@ -835,6 +835,7 @@ function openImageZoomModal(imageUrl) {
         showToast("Impossibile caricare l'immagine zoom.", 'error');
     }
 }
+
 
 // --- Funzioni Sensore Luce ---
 
@@ -928,11 +929,12 @@ function updateLightFeedback(lux) {
     if (myGarden && myGarden.length > 0) {
         lightFeedbackDiv.innerHTML += `<h4>Feedback per le piante nel tuo giardino:</h4>`;
         myGarden.forEach(plant => {
-            const minLux = plant.idealLuxMin;
-            const maxLux = plant.idealLuxMax;
+            // Utilizzo != null per catturare sia undefined che null
+            const minLux = plant.idealLuxMin != null ? plant.idealLuxMin : null;
+            const maxLux = plant.idealLuxMax != null ? plant.idealLuxMax : null;
             let plantSpecificHtml = `<p><strong>${plant.name || 'Pianta Sconosciuta'}:</strong> `; // AGGIUNTO FALLBACK
 
-            if (minLux === undefined || maxLux === undefined || minLux === null || maxLux === null) {
+            if (minLux == null || maxLux == null) { // Utilizzo == null per catturare sia undefined che null
                 plantSpecificHtml += `Dati Lux ideali non disponibili.`;
             } else if (lux >= minLux && lux <= maxLux) {
                 plantSpecificHtml += `Condizioni di luce **Ideali** (${minLux}-${maxLux} Lux). <span style="color: #28a745;">&#10003;</span>`; // Checkmark verde
@@ -976,6 +978,7 @@ function clearLightFeedbackDisplay() {
         clearLightFeedbackButton.style.display = 'none'; // Nasconde il pulsante "Azzera" stesso
     }
 }
+
 
 // --- Funzioni API Clima ---
 
