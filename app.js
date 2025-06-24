@@ -670,9 +670,6 @@ function applyFiltersAndSort() {
     displayPlants(plantsToDisplay);
 }
 
-    displayPlants(filteredPlants);
-}
-
 function displayAllPlants() {
     isMyGardenCurrentlyVisible = false;
     plantsSectionHeader.textContent = 'Tutte le Piante Disponibili';
