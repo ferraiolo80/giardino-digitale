@@ -590,73 +590,85 @@ async function loadMyGarden() {
 }
 
 function applyFiltersAndSort() {
-    let filteredPlants = isMyGardenCurrentlyVisible ? [...myGarden] : [...allPlants];
-    
-    // Filtra per ricerca
+    let plantsToDisplay = [];
+
+    // Determina se visualizzare il giardino o tutte le piante
+    if (isMyGardenCurrentlyVisible) {
+        plantsToDisplay = [...myGarden]; // Lavora su una copia del mio giardino
+    } else {
+        plantsToDisplay = [...allPlants]; // Lavora su una copia di tutte le piante
+    }
+
+    // --- Applicazione Filtri ---
+
+    // Filtro per categoria
+    const selectedCategory = categoryFilter.value;
+    if (selectedCategory && selectedCategory !== 'all') {
+        plantsToDisplay = plantsToDisplay.filter(plant => plant.category === selectedCategory);
+    }
+
+    // Filtro per esposizione solare (se il filtro è attivo)
+    const selectedSunLight = sunLightFilter.value;
+    if (selectedSunLight && selectedSunLight !== 'all') {
+        plantsToDisplay = plantsToDisplay.filter(plant => plant.sunExposure === selectedSunLight);
+    }
+
+    // Filtro di ricerca
     const searchTerm = searchInput.value.toLowerCase();
     if (searchTerm) {
-        filteredPlants = filteredPlants.filter(plant =>
+        plantsToDisplay = plantsToDisplay.filter(plant =>
             plant.name.toLowerCase().includes(searchTerm) ||
-            plant.category.toLowerCase().includes(searchTerm) ||
-            (plant.description && plant.description.toLowerCase().includes(searchTerm)) || // Ho aggiunto anche descrizione se c'è
-            (plant.notes && plant.notes.toLowerCase().includes(searchTerm)) // E le note, se pertinenti alla ricerca
+            (plant.description && plant.description.toLowerCase().includes(searchTerm))
         );
     }
 
-    // Filtra per categoria
-    const selectedCategory = categoryFilter.value;
-    if (selectedCategory) {
-        filteredPlants = filteredPlants.filter(plant => plant.category === selectedCategory);
-    }
-
-    // Filtra per esposizione solare
-    // Assicurati che 'sunExposureFilter' sia la variabile corretta per il tuo filtro esposizione solare
-    // (Nel tuo codice HTML avevi 'sunExposureFilter', qui hai 'sunLightFilter'. Usiamo 'sunExposureFilter' per consistenza).
-    const selectedSunLight = sunLightFilter ? sunLightFilter.value : ''; // Ho corretto qui la variabile
-    if (selectedSunLight) { // Applica il filtro solo se una selezione è stata fatta
-        filteredPlants = filteredPlants.filter(plant => plant.sunlight === selectedSunLight);
-    }
+    // --- Applicazione Ordinamento ---
     
-    // Filtra per temperatura minima
-    const minTemp = parseFloat(tempMinFilter.value);
-    if (!isNaN(minTemp)) {
-        filteredPlants = filteredPlants.filter(plant => plant.tempMin !== null && plant.tempMin >= minTemp);
-    }
+    // Assicurati che currentSortBy sia correttamente aggiornato dalla tua UI (se hai un select/radio button)
+    // Se non hai un'interfaccia per scegliere l'ordinamento, currentSortBy rimane 'name_asc' di default
 
-    // Filtra per temperatura massima
-    const maxTemp = parseFloat(tempMaxFilter.value);
-    if (!isNaN(maxTemp)) {
-        filteredPlants = filteredPlants.filter(plant => plant.tempMax !== null && plant.tempMax <= maxTemp);
-    }
+    plantsToDisplay.sort((a, b) => {
+        switch (currentSortBy) {
+            case 'name_asc':
+                // *** CORREZIONE PER L'ERRORE 'localeCompare' ***
+                // Assicurati che i nomi siano stringhe valide (anche vuote) prima del confronto
+                const nameA = a.name ? a.name.toLowerCase() : '';
+                const nameB = b.name ? b.name.toLowerCase() : '';
+                return nameA.localeCompare(nameB);
+            case 'name_desc':
+                // *** CORREZIONE PER L'ERRORE 'localeCompare' ***
+                const nameADesc = a.name ? a.name.toLowerCase() : '';
+                const nameBDesc = b.name ? b.name.toLowerCase() : '';
+                return nameBDesc.localeCompare(nameADesc);
+            case 'category_asc':
+                // *** CORREZIONE SIMILE SE ORDINI PER CATEGORIA ***
+                const categoryA = a.category ? a.category.toLowerCase() : '';
+                const categoryB = b.category ? b.category.toLowerCase() : '';
+                return categoryA.localeCompare(categoryB);
+            case 'category_desc':
+                 const categoryADesc = a.category ? a.category.toLowerCase() : '';
+                 const categoryBDesc = b.category ? b.category.toLowerCase() : '';
+                 return categoryBDesc.localeCompare(categoryADesc);
+            case 'date_added_asc':
+                // Assumi che 'addedAt' sia un Timestamp di Firebase o un Date object
+                const dateA = a.addedAt ? (a.addedAt.toDate ? a.addedAt.toDate() : a.addedAt) : new Date(0); // Gestisce Firebase Timestamp
+                const dateB = b.addedAt ? (b.addedAt.toDate ? b.addedAt.toDate() : b.addedAt) : new Date(0);
+                return dateA.getTime() - dateB.getTime();
+            case 'date_added_desc':
+                const dateADesc = a.addedAt ? (a.addedAt.toDate ? a.addedAt.toDate() : a.addedAt) : new Date(0);
+                const dateBDesc = b.addedAt ? (b.addedAt.toDate ? b.addedAt.toDate() : b.addedAt) : new Date(0);
+                return dateBDesc.getTime() - dateADesc.getTime();
+            default:
+                // Ordinamento predefinito se nessuna opzione corrisponde
+                const defaultNameA = a.name ? a.name.toLowerCase() : '';
+                const defaultNameB = b.name ? b.name.toLowerCase() : '';
+                return defaultNameA.localeCompare(defaultNameB);
+        }
+    });
 
-    // Applica ordinamento
-    switch (currentSortBy) {
-        case 'name_asc':
-            filteredPlants.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-        case 'name_desc':
-            filteredPlants.sort((a, b) => b.name.localeCompare(a.name));
-            break;
-        case 'category_asc':
-            filteredPlants.sort((a, b) => a.category.localeCompare(b.category));
-            break;
-        case 'category_desc':
-            filteredPlants.sort((a, b) => b.category.localeCompare(a.category));
-            break;
-        case 'temp_asc':
-            filteredPlants.sort((a, b) => (a.tempMin === null ? Infinity : a.tempMin) - (b.tempMin === null ? Infinity : b.tempMin));
-            break;
-        case 'temp_desc':
-            filteredPlants.sort((a, b) => (b.tempMin === null ? -Infinity : b.tempMin) - (a.tempMin === null ? -Infinity : a.tempMin));
-            break;
-        // Potresti voler aggiungere anche ordinamento per esposizione solare
-        case 'sun_sunlight_asc':
-            filteredPlants.sort((a, b) => (a.sunlight || '').localeCompare(b.sunlight || ''));
-            break;
-        case 'sun_sunlight_desc':
-            filteredPlants.sort((a, b) => (b.sunlight || '').localeCompare(a.sunlight || ''));
-            break;
-    }
+    // Infine, visualizza le piante filtrate e ordinate
+    displayPlants(plantsToDisplay);
+}
 
     displayPlants(filteredPlants);
 }
