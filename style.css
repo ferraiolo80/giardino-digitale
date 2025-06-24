@@ -146,9 +146,10 @@ main {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     /* Regole per il layout a due colonne */
-    flex: 1 1 calc(50% - 10px); /* 50% meno metà del gap per due colonne */
-    max-width: calc(50% - 10px); /* Assicura che non superino il 50% */
+    flex: 1 1 calc(45% - 10px); /* 50% meno metà del gap per due colonne */
+    max-width: calc(45% - 10px); /* Assicura che non superino il 50% */
     min-width: 300px; /* Larghezza minima per non stringersi troppo */
+    box-sizing: border-box;
 }
 
 /* Media query per schermi più piccoli (stack verticale) */
