@@ -146,6 +146,11 @@ function closeCardModal() {
 // --- Funzioni di Autenticazione ---
 // ... (il tuo codice di autenticazione rimane invariato)
 function setupAuthListeners() {
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    loginError.textContent = '';
+    registerError.textContent = '';
+
     loginButton.addEventListener('click', () => {
         loginForm.style.display = 'block';
         registerForm.style.display = 'none';
@@ -746,8 +751,10 @@ function displayPlants(plantsToDisplay) {
         // Aggiungi l'immagine alla card
         plantCard.appendChild(plantImageElement);
 
-        // --- Logica per i bottoni "Aggiungi" / "Già nel tuo giardino" ---
+        // --- Logica per i bottoni "Aggiungi" / "Già nel tuo giardino" e "Elimina dal Database" ---
         let actionButtonHtml = '';
+        let deleteButtonHtml = ''; // Bottone per eliminazione dal database
+
         if (isMyGardenCurrentlyVisible) {
             // Se sono nella vista "Mio Giardino", mostro Modifica e Rimuovi
             actionButtonHtml = `
@@ -761,6 +768,12 @@ function displayPlants(plantsToDisplay) {
                 actionButtonHtml = `<button class="btn btn-added" disabled><i class="fas fa-check-circle"></i> Già nel tuo giardino</button>`;
             } else {
                 actionButtonHtml = `<button class="btn btn-add" data-id="${plant.id}"><i class="fas fa-plus-circle"></i> Aggiungi al Giardino</button>`;
+            }
+
+            // Aggiungi il bottone "Elimina dal Database" qui
+            // Lo mostriamo solo se l'utente è autenticato. Le regole di sicurezza di Firestore gestiranno i permessi reali.
+            if (currentUser) { 
+                deleteButtonHtml = `<button class="btn btn-delete-db" data-id="${plant.id}"><i class="fas fa-trash-alt"></i> Elimina dal Database</button>`;
             }
         }
 
@@ -776,7 +789,7 @@ function displayPlants(plantsToDisplay) {
             <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
             <div class="card-actions">
                 ${actionButtonHtml}
-            </div>
+                ${deleteButtonHtml} </div>
         `;
 
         // Listener per la modale di dettaglio della card (click sulla card, ma non sull'immagine o sui bottoni)
@@ -812,6 +825,14 @@ function displayPlants(plantsToDisplay) {
                 addButton.addEventListener('click', (e) => {
                     e.stopPropagation();
                     addPlantToMyGarden(e.target.dataset.id);
+                });
+            }
+            // Aggiungi event listener per il bottone "Elimina dal Database"
+            const deleteDbButton = plantCard.querySelector('.btn-delete-db');
+            if (deleteDbButton) {
+                deleteDbButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deletePlantFromFirestore(e.target.dataset.id);
                 });
             }
         }
@@ -964,7 +985,7 @@ function updateLightFeedback(lux) {
             if (minLux == null || maxLux == null) { // Utilizzo == null per catturare sia undefined che null
                 plantSpecificHtml += `Dati Lux ideali non disponibili.`;
             } else if (lux >= minLux && lux <= maxLux) {
-                plantSpecificHtml += `Condizioni di luce **Ideali** (${minLux}-${maxLux} Lux). <span style="color: #28a745;">&#10003;</span>`; // Checkmark verde
+                plantSpecificHtml += `Condizioni di luce **Ideali** (${lux.toFixed(0)} Lux, range ${minLux}-${maxLux} Lux). <span style="color: #28a745;">&#10003;</span>`; // Checkmark verde
             } else if (lux < minLux) {
                 plantSpecificHtml += `Luce **troppo bassa** (${lux.toFixed(0)} Lux), richiede almeno ${minLux} Lux. <span style="color: #dc3545;">&#10060;</span>`; // Cross mark rosso
             } else { // lux > maxLux
