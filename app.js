@@ -247,10 +247,16 @@ function setupAuthListeners() {
             logoutButton.style.display = 'inline-block';
             authContainerDiv.style.display = 'none';
             appContentDiv.style.display = 'block';
-            
-            // Carica i dati una volta autenticato
-            loadAllPlants();
-            loadMyGarden();
+            showAuthContent();
+            loadMyGarden().then(() => { // Carica il giardino all'avvio
+                // Dopo aver caricato il giardino, mostra le piante
+                // Se vuoi mostrare "Tutte le Piante" all'avvio:
+                loadAllPlants();
+                isMyGardenCurrentlyVisible = false; // Flag a false
+                plantsSectionHeader.textContent = "Tutte le Piante Disponibili";
+                gardenContainer.style.display = 'flex'; // Rendi visibile il contenitore delle piante
+                myGardenContainer.style.display = 'none'; // Assicurati che l'altro sia nascosto
+            });
         } else {
             currentUser = null;
             console.log('Nessun utente loggato.');
@@ -260,11 +266,14 @@ function setupAuthListeners() {
             logoutButton.style.display = 'none';
             authContainerDiv.style.display = 'block';
             appContentDiv.style.display = 'none';
+            gardenContainer.style.display = 'none'; // Nasconde i container delle piante
+            myGardenContainer.style.display = 'none';
             // Pulisci le liste se l'utente non è autenticato
             allPlants = [];
             myGarden = [];
             displayPlants([]); // Pulisce le card visualizzate
         }
+        hideSpinner();
     });
 }
 
