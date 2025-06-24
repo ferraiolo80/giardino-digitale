@@ -315,6 +315,23 @@ header h1 {
     border-bottom: none;
 }
 
+/* Stile per il bottone "Già nel tuo giardino" */
+.btn-added {
+    background-color: #cccccc; /* Grigio */
+    color: #666666;
+    cursor: not-allowed;
+    border: 1px solid #bbbbbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px; /* Spazio tra icona e testo */
+}
+
+.btn-added:hover {
+    background-color: #cccccc; /* Non cambiare al passaggio del mouse */
+    color: #666666;
+}
+
 /* Colori per i feedback */
 .lux-feedback-optimal { color: #28a745; font-weight: bold; } /* Verde */
 .lux-feedback-low { color: #ffc107; font-weight: bold; }    /* Giallo */
