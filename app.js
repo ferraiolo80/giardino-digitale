@@ -97,6 +97,9 @@ let luxFeedbackPlantsContainer; // Il nuovo contenitore per il feedback specific
 let clearLuxFeedbackButton; // Il nuovo bottone per azzerare il feedback
 let clearLightFeedbackButton;
 
+let loginForm; // Assicurati che anche loginForm e registerForm siano qui!
+let registerForm;
+
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
     'Sole Pieno': 'assets/category_icons/sun_icon.png', // Devi creare queste immagini!
@@ -1129,6 +1132,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loginError = document.getElementById('loginError');
     registerEmailInput = document.getElementById('registerEmailInput');
     registerPasswordInput = document.getElementById('registerPasswordInput');
+    loginForm = document.getElementById('login-form');
+    registerForm = document.getElementById('register-form');
     registerError = document.getElementById('registerError');
     authStatusSpan = document.getElementById('auth-status');
     logoutButton = document.getElementById('logoutButton');
