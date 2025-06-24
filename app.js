@@ -113,6 +113,10 @@ const categoryIcons = {
 };
 
 // Funzioni di utilità per spinner e toast
+function isPlantInMyGarden(plantId) {
+    return myGarden.some(plant => plant.id === plantId);
+}
+
 function showLoadingSpinner() {
     document.getElementById('loading-spinner').style.display = 'flex';
 }
