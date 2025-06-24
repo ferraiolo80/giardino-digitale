@@ -508,13 +508,12 @@ async function addPlantToMyGarden(plantId) {
 }
 // Funzione per rimuovere una pianta dal "Mio Giardino"
 async function removePlantFromMyGarden(plantId) {
+    if (!confirm('Sei sicuro di voler rimuovere questa pianta dal tuo giardino?')) {
+        return;
+    }
     showLoadingSpinner();
 
-    // ********* CORREZIONE QUI *********
-    // Assicurati che 'currentUser' sia la variabile globale correttamente aggiornata
     const user = currentUser; 
-    // **********************************
-
     if (!user) {
         showToast('Devi essere autenticato per rimuovere piante dal tuo giardino.', 'error');
         hideLoadingSpinner();
@@ -522,14 +521,16 @@ async function removePlantFromMyGarden(plantId) {
     }
 
     try {
-        // Il percorso deve usare user.uid correttamente
         const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
-        await docRef.delete(); // <-- Questa è la riga che dà errore (app.js:524)
+        await docRef.delete(); 
 
         showToast('Pianta rimossa dal tuo giardino!', 'success');
-        loadMyGarden(); // Ricarica il giardino dopo la rimozione
+        
+        // CHIAMATA CORRETTA PER AGGIORNARE LA UI IMMEDIATAMENTE
+        await displayMyGarden(); // <-- CAMBIATO DA loadMyGarden() A displayMyGarden()
+
     } catch (error) {
-        console.error("Errore nella rimozione dal giardino:", error); // Qui è la riga 524
+        console.error("Errore nella rimozione dal giardino:", error); 
         showToast(`Errore nella rimozione dal giardino: ${error.message}`, 'error');
     } finally {
         hideLoadingSpinner();
@@ -1124,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     plantImagePreview = document.getElementById('plantImagePreview');
     saveUpdatePlantButton = document.getElementById('saveUpdatePlantButton');
     cancelUpdatePlantButton = document.getElementById('cancelUpdatePlantButton');
-    deletePlantButton = document.getElementById('deletePlant');
+    deletePlantButton = document.getElementById('plantDeleteButton'); // Corretto: Assicurati che l'ID del bottone sia 'plantDeleteButton'
     plantImagePreview = document.getElementById('plantImagePreview');
     imageModal = document.getElementById('imageModal');
     closeImageModalButton = document.getElementById('closeImageModalButton');
@@ -1211,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // NUOVI Event Listener per il feedback Lux
 if (clearLuxFeedbackButton) {
-        clearLuxFeedbackButton.addEventListener('click', clearLuxFeedbackDisplay); // Corretto per chiamare clearLightFeedbackDisplay
+        clearLuxFeedbackButton.addEventListener('click', clearLightFeedbackDisplay); // Corretto per chiamare clearLightFeedbackDisplay
     }
     // Assicurati che stopLightSensorButton chiami anche clearLuxFeedback
     if (stopLightSensorButton) {
