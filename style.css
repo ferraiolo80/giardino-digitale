@@ -383,7 +383,7 @@ main {
 .plant-card img.plant-image { /* Stile specifico per l'immagine della card */
     max-width: 100%;
     height: 180px; /* Altezza fissa per le immagini */
-    object-fit: cover; /* Assicura che l'immagine copra l'area senza distorcersi */
+    object-fit: contain; 
     border-radius: 8px;
     margin-bottom: 15px;
     cursor: zoom-in; /* Indica che l'immagine è cliccabile per lo zoom */
