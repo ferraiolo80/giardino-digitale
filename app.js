@@ -1,4 +1,3 @@
-// Variabili globali per lo stato dell'applicazione
 let allPlants = [];
 let myGarden = [];
 let currentPlantIdToUpdate = null; // Tiene traccia dell'ID della pianta da aggiornare (per modifica/eliminazione)
@@ -356,6 +355,7 @@ async function savePlantToFirestore(e) {
         plantModal.style.display = 'none'; // Chiudi la modale
         plantForm.reset(); // Resetta il form
         plantImagePreview.style.display = 'none'; // Nascondi l'anteprima
+        plantImagePreview.src = '#'; // Pulisci la sorgente
         croppedImageBlob = null; // Resetta il blob dell'immagine ritagliata
         currentFile = null; // Resetta il file originale
         loadAllPlants(); // Ricarica tutte le piante per aggiornare la vista
@@ -456,12 +456,12 @@ async function addPlantToMyGarden(plantId) {
     // Crea un nuovo oggetto per la pianta del giardino, copiando i dati originali
     const plantDataForGarden = { ...plantToAddOriginal }; // Copia tutti i dati dalla pianta del catalogo
 
-    // --- CORREZIONE FONDAMENTALE 2: Logica per caricare e salvare l'immagine utente specifica ---
+    // --- CORREZIONE DEL BUG: Utilizza la funzione 'uploadImage' che è definita ---
     let imageUrlForGarden = '';
     if (croppedImageBlob) { // Se l'utente ha ritagliato una nuova immagine (il blob dell'immagine reale)
         try {
             // Questa funzione carica l'immagine su Firebase Storage e restituisce il suo URL
-            imageUrlForGarden = await uploadImageToFirebaseStorage(croppedImageBlob, plantToAddOriginal.name);
+            imageUrlForGarden = await uploadImage(croppedImageBlob); // <-- CORREZIONE QUI
             plantDataForGarden.imageUrl = imageUrlForGarden; // Aggiungi l'URL al tuo oggetto pianta del giardino
             showToast('Immagine caricata con successo su Firebase Storage.', 'success');
         } catch (imageError) {
@@ -731,7 +731,7 @@ function displayPlants(plantsToDisplay) {
         // Crea l'elemento immagine separatamente per attaccare l'event listener
         const plantImageElement = document.createElement('img');
         plantImageElement.src = imageUrlToDisplay;
-        plantImageElement.alt = plant.name;
+        plantImageElement.alt = plant.name || 'Immagine pianta'; // AGGIUNTO FALLBACK
         plantImageElement.classList.add('plant-image'); // Applica la classe CSS
 
         // Aggiungi l'event listener per lo zoom dell'immagine
@@ -747,9 +747,7 @@ function displayPlants(plantsToDisplay) {
         // Aggiungi il resto del contenuto della card come HTML interno
         // Ho corretto qui la riga della "Luce"
         plantCard.innerHTML += `
-            <h3>${plant.name}</h3>
-            <p><strong>Categoria:</strong> ${plant.category}</p>
-            <p><strong>Esposizione Solare:</strong> ${plant.sunlight || 'N/A'}</p>
+            <h3>${plant.name || 'Nome Pianta Sconosciuto'}</h3> <p><strong>Categoria:</strong> ${plant.category || 'Non Specificata'}</p> <p><strong>Esposizione Solare:</strong> ${plant.sunlight || 'N/A'}</p>
             <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
             <p><strong>Luce:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
             <div class="card-actions">
@@ -798,7 +796,9 @@ function displayPlants(plantsToDisplay) {
 
 // Funzione per mostrare i dettagli della pianta nella modale di zoom
 function showPlantDetailsModal(plantId) {
-    const plant = allPlants.find(p => p.id === plantId);
+    // AGGIUNTO: Ricerca della pianta dall'array corretto (myGarden o allPlants)
+    const plant = isMyGardenCurrentlyVisible ? myGarden.find(p => p.id === plantId) : allPlants.find(p => p.id === plantId);
+    
     if (plant) {
         zoomedCardContent.innerHTML = ''; // Pulisci il contenuto precedente
 
@@ -814,14 +814,10 @@ function showPlantDetailsModal(plantId) {
        
 
         const detailsHtml = `
-            <h2>${plant.name}</h2>
-            <img id="zoomed-plant-image-display" src="${detailsImageUrl}" alt="Immagine di ${plant.name}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
-            <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
-            <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
-            <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
+            <h2>${plant.name || 'Nome Pianta Sconosciuto'}</h2> <img id="zoomed-plant-image-display" src="${detailsImageUrl}" alt="Immagine di ${plant.name || 'Pianta'}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
+            <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p> <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p> <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
             <p><strong>Luce (Lux):</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
-            <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
-            <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+            <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p> <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
             ${plant.updatedAt ? `<p><strong>Ultimo aggiornamento:</strong> ${new Date(plant.updatedAt.toDate()).toLocaleDateString()}</p>` : ''}
         `;
         zoomedCardContent.innerHTML = detailsHtml;
@@ -934,7 +930,7 @@ function updateLightFeedback(lux) {
         myGarden.forEach(plant => {
             const minLux = plant.idealLuxMin;
             const maxLux = plant.idealLuxMax;
-            let plantSpecificHtml = `<p><strong>${plant.name}:</strong> `; // Definizione chiara di plantSpecificHtml
+            let plantSpecificHtml = `<p><strong>${plant.name || 'Pianta Sconosciuta'}:</strong> `; // AGGIUNTO FALLBACK
 
             if (minLux === undefined || maxLux === undefined || minLux === null || maxLux === null) {
                 plantSpecificHtml += `Dati Lux ideali non disponibili.`;
@@ -1212,13 +1208,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // NUOVI Event Listener per il feedback Lux
 if (clearLuxFeedbackButton) {
-        clearLuxFeedbackButton.addEventListener('click', clearLuxFeedback);
+        clearLuxFeedbackButton.addEventListener('click', clearLuxFeedbackDisplay); // Corretto per chiamare clearLightFeedbackDisplay
     }
     // Assicurati che stopLightSensorButton chiami anche clearLuxFeedback
     if (stopLightSensorButton) {
         stopLightSensorButton.addEventListener('click', () => {
             stopLightSensor();
-            clearLuxFeedback(); // Azzera il feedback quando si ferma il sensore
+            // clearLuxFeedback(); // Azzera il feedback quando si ferma il sensore - Già gestito da stopLightSensor
         });
     }
     
