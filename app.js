@@ -644,8 +644,8 @@ async function fetchWeather(city) {
         // PER UN'IMPLEMENTAZIONE REALE:
         // Sostituisci 'YOUR_OPENWEATHERMAP_API_KEY' con la tua chiave API di OpenWeatherMap
         // Registrati su OpenWeatherMap per ottenerne una: https://openweathermap.org/api
-        const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; 
-        if (apiKey === 'YOUR_OPENWEATHERMAP_API_KEY' || apiKey === '') {
+        const apiKey = '0575afa377367478348aa48bfc9936ba'; 
+        if (apiKey === '0575afa377367478348aa48bfc9936ba' || apiKey === '') {
             console.warn("ATTENZIONE: Chiave API OpenWeatherMap non configurata. I dati meteo saranno fittizi.");
             locationNameSpan.textContent = city;
             currentTempSpan.textContent = 'N/A';
