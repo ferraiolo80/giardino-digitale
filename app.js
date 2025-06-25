@@ -644,8 +644,8 @@ async function fetchWeather(city) {
         // PER UN'IMPLEMENTAZIONE REALE:
         // Sostituisci 'YOUR_OPENWEATHERMAP_API_KEY' con la tua chiave API di OpenWeatherMap
         // Registrati su OpenWeatherMap per ottenerne una: https://openweathermap.org/api
-        const apiKey = '0575afa377367478348aa48bfc9936ba'; 
-        if (apiKey === '0575afa377367478348aa48bfc9936ba' || apiKey === '') {
+        const apiKey = '0575afa377367478348aa48bfc9936ba'; // <<< INSERISCI LA TUA CHIAVE API QUI!
+        if (apiKey === 'YOUR_OPENWEATHERMAP_API_KEY' || apiKey === '') {
             console.warn("ATTENZIONE: Chiave API OpenWeatherMap non configurata. I dati meteo saranno fittizi.");
             locationNameSpan.textContent = city;
             currentTempSpan.textContent = 'N/A';
@@ -968,7 +968,7 @@ function applyFiltersAndSort(sourceArray) {
     let plantsToDisplay = sourceArray || allPlants; // Usa sourceArray se fornito, altrimenti allPlants
 
     // Logica di ricerca
-    const searchTerm = searchInput.value.toLowerCase();
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : ''; // Aggiunto controllo null
     if (searchTerm) {
         plantsToDisplay = plantsToDisplay.filter(plant => 
             plant.name.toLowerCase().includes(searchTerm) || 
@@ -977,29 +977,30 @@ function applyFiltersAndSort(sourceArray) {
     }
 
     // Logica di filtro per categoria
-    const selectedCategory = categoryFilter.value;
+    const selectedCategory = categoryFilter ? categoryFilter.value : ''; // Aggiunto controllo null
     if (selectedCategory && selectedCategory !== 'Tutte') {
         plantsToDisplay = plantsToDisplay.filter(plant => plant.category === selectedCategory);
     }
 
     // Logica di filtro per temperatura
-    const minTemp = parseFloat(tempMinFilter.value);
-    const maxTemp = parseFloat(tempMaxFilter.value);
-    if (!isNaN(minTemp)) {
+    const minTemp = tempMinFilter && !isNaN(parseFloat(tempMinFilter.value)) ? parseFloat(tempMinFilter.value) : null; // Aggiunto controllo null e isNaN
+    const maxTemp = tempMaxFilter && !isNaN(parseFloat(tempMaxFilter.value)) ? parseFloat(tempMaxFilter.value) : null; // Aggiunto controllo null e isNaN
+    
+    if (minTemp !== null) {
         plantsToDisplay = plantsToDisplay.filter(plant => plant.tempMin && plant.tempMin >= minTemp);
     }
-    if (!isNaN(maxTemp)) {
+    if (maxTemp !== null) {
         plantsToDisplay = plantsToDisplay.filter(plant => plant.tempMax && plant.tempMax <= maxTemp);
     }
 
     // Logica di filtro per esposizione solare (sunLightFilter)
-    const selectedSunLight = sunLightFilter.value;
+    const selectedSunLight = sunLightFilter ? sunLightFilter.value : ''; // Aggiunto controllo null
     if (selectedSunLight && selectedSunLight !== 'Tutte') {
         plantsToDisplay = plantsToDisplay.filter(plant => plant.sunlight === selectedSunLight);
     }
 
     // Logica di ordinamento
-    const sortBy = sortBySelect.value;
+    const sortBy = sortBySelect ? sortBySelect.value : 'name_asc'; // Aggiunto controllo null con default
     plantsToDisplay.sort((a, b) => {
         if (sortBy === 'name_asc') {
             return a.name.localeCompare(b.name);
@@ -1020,6 +1021,10 @@ function applyFiltersAndSort(sourceArray) {
 // Funzione placeholder: la tua implementazione di displayPlants dovrebbe essere qui
 function displayPlants(plants) {
     const container = isMyGardenCurrentlyVisible ? myGardenContainer : gardenContainer;
+    if (!container) { // Aggiungi un controllo per assicurarti che il contenitore esista
+        console.error("Errore: Contenitore delle piante non trovato nel DOM.");
+        return;
+    }
     container.innerHTML = ''; // Pulisci il contenitore attuale
     if (plants.length === 0) {
         container.innerHTML = '<p class="no-plants-message">Nessuna pianta trovata con i criteri selezionati.</p>';
