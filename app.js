@@ -37,7 +37,7 @@ let startLightSensorButton;
 let stopLightSensorButton;
 let currentLuxValueSpan;
 let lightFeedbackDiv;
-let manualLuxInputDiv; // Nuovo: div per input manuale lux
+let manualLuxInputDiv; // Nuovo: div per input manuale lux (corretto per ID in index.html)
 
 let applyManualLuxButton; // Nuovo: bottone per applicare lux manuale
 let tempMinFilter;
@@ -49,7 +49,6 @@ let closePlantModalButton;
 let plantNameInput;
 let plantCategorySelect;
 let sunLightSelect;
-let plantsunLight
 let plantDescriptionTextarea;
 let plantTempMinInput;
 let plantTempMaxInput;
@@ -63,7 +62,7 @@ let cancelUpdatePlantButton;
 let deletePlantButton;
 let imageModal;
 let closeImageModalButton;
-let sunLightFilter
+let sunLightFilter; // Variabile per il filtro esposizione solare (corretto per ID in index.html)
 let plantModalTitle;
 let cardModal;
 let closeCardModalButton;
@@ -99,6 +98,7 @@ let clearLightFeedbackButton;
 
 let loginForm; // Assicurati che anche loginForm e registerForm siano qui!
 let registerForm;
+let loadingSpinner; // Dichiarazione per lo spinner
 
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
@@ -128,11 +128,15 @@ function isPlantInMyGarden(plantId) {
 }
 
 function showLoadingSpinner() {
-    document.getElementById('loading-spinner').style.display = 'flex';
+    if (loadingSpinner) { // Aggiunto controllo per assicurarsi che l'elemento esista
+        loadingSpinner.style.display = 'flex';
+    }
 }
 
 function hideLoadingSpinner() {
-    document.getElementById('loading-spinner').style.display = 'none';
+    if (loadingSpinner) { // Aggiunto controllo per assicurarsi che l'elemento esista
+        loadingSpinner.style.display = 'none';
+    }
 }
 
 function showToast(message, type = 'info', duration = 3000) {
@@ -283,7 +287,7 @@ function setupAuthListeners() {
             myGarden = [];
             displayPlants([]); // Pulisce le card visualizzate
         }
-        hideSpinner();
+        hideLoadingSpinner(); // CORREZIONE: Usa hideLoadingSpinner
     });
 }
 
@@ -643,7 +647,7 @@ function applyFiltersAndSort() {
     // Filtro per esposizione solare (se il filtro è attivo)
     const selectedSunLight = sunLightFilter.value;
     if (selectedSunLight && selectedSunLight !== 'all') {
-        plantsToDisplay = plantsToDisplay.filter(plant => plant.sunExposure === selectedSunLight);
+        plantsToDisplay = plantsToDisplay.filter(plant => plant.sunlight === selectedSunLight); // CORREZIONE: usa plant.sunlight
     }
 
     // Filtro di ricerca
@@ -654,6 +658,23 @@ function applyFiltersAndSort() {
             (plant.description && plant.description.toLowerCase().includes(searchTerm))
         );
     }
+    
+    // Filtro per temperatura minima
+    const minTemp = tempMinFilter.value ? parseFloat(tempMinFilter.value) : null;
+    if (minTemp !== null && !isNaN(minTemp)) {
+        plantsToDisplay = plantsToDisplay.filter(plant => 
+            plant.tempMin !== null && plant.tempMin >= minTemp
+        );
+    }
+
+    // Filtro per temperatura massima
+    const maxTemp = tempMaxFilter.value ? parseFloat(tempMaxFilter.value) : null;
+    if (maxTemp !== null && !isNaN(maxTemp)) {
+        plantsToDisplay = plantsToDisplay.filter(plant => 
+            plant.tempMax !== null && plant.tempMax <= maxTemp
+        );
+    }
+
 
     // --- Applicazione Ordinamento ---
     
@@ -683,13 +704,13 @@ function applyFiltersAndSort() {
                  const categoryBDesc = b.category ? b.category.toLowerCase() : '';
                  return categoryBDesc.localeCompare(categoryADesc);
             case 'date_added_asc':
-                // Assumi che 'addedAt' sia un Timestamp di Firebase o un Date object
-                const dateA = a.addedAt ? (a.addedAt.toDate ? a.addedAt.toDate() : a.addedAt) : new Date(0); // Gestisce Firebase Timestamp
-                const dateB = b.addedAt ? (b.addedAt.toDate ? b.addedAt.toDate() : b.addedAt) : new Date(0);
+                // Assumi che 'createdAt' sia un Timestamp di Firebase o un Date object
+                const dateA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt) : new Date(0); // Gestisce Firebase Timestamp
+                const dateB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt) : new Date(0);
                 return dateA.getTime() - dateB.getTime();
             case 'date_added_desc':
-                const dateADesc = a.addedAt ? (a.addedAt.toDate ? a.addedAt.toDate() : a.addedAt) : new Date(0);
-                const dateBDesc = b.addedAt ? (b.addedAt.toDate ? b.addedAt.toDate() : b.addedAt) : new Date(0);
+                const dateADesc = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt) : new Date(0);
+                const dateBDesc = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt) : new Date(0);
                 return dateBDesc.getTime() - dateADesc.getTime();
             default:
                 // Ordinamento predefinito se nessuna opzione corrisponde
@@ -919,13 +940,17 @@ function checkLightSensorAvailability() {
         console.log('Sensore di luce ambientale disponibile.');
         startLightSensorButton.style.display = 'inline-block';
         stopLightSensorButton.style.display = 'inline-block';
-        manualLuxInputDiv.style.display = 'none'; // Nasconde l'input manuale se il sensore è disponibile
+        if (manualLuxInputDiv) { // Aggiunto controllo
+            manualLuxInputDiv.style.display = 'none'; // Nasconde l'input manuale se il sensore è disponibile
+        }
     } else {
         console.log('Sensore di luce ambientale NON disponibile. Passaggio a input manuale.');
         showToast('Sensore luce non disponibile. Inserisci i valori manualmente.', 'info', 5000);
         startLightSensorButton.style.display = 'none';
         stopLightSensorButton.style.display = 'none';
-        manualLuxInputDiv.style.display = 'block'; // Mostra l'input manuale
+        if (manualLuxInputDiv) { // Aggiunto controllo
+            manualLuxInputDiv.style.display = 'block'; // Mostra l'input manuale
+        }
     }
 }
 
@@ -1162,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutButton = document.getElementById('logoutButton');
     searchInput = document.getElementById('searchInput');
     categoryFilter = document.getElementById('categoryFilter');
-    sunLightFilter = document.getElementById('sunLightFilter');
+    sunLightFilter = document.getElementById('plantsunLight'); // CORREZIONE ID: in index.html è 'plantsunLight'
     addNewPlantButton = document.getElementById('addNewPlantButton');
     showAllPlantsButton = document.getElementById('showAllPlantsButton');
     showMyGardenButton = document.getElementById('showMyGardenButton');
@@ -1172,296 +1197,193 @@ document.addEventListener('DOMContentLoaded', () => {
     stopLightSensorButton = document.getElementById('stopLightSensorButton');
     currentLuxValueSpan = document.getElementById('currentLuxValue');
     lightFeedbackDiv = document.getElementById('lightFeedback');
-    manualLuxInputDiv = document.getElementById('manual-lux-input'); // Nuovo
-    manualLuxInput = document.getElementById('manualLuxInput'); // Nuovo
+    manualLuxInputDiv = document.getElementById('manual-lux-input-group'); // CORREZIONE ID: in index.html è 'manual-lux-input-group'
+    manualLuxInput = document.getElementById('manualLuxInput');
     currentLuxDisplay = document.getElementById('currentLuxDisplay');
-    luxFeedbackPlantsContainer = document.getElementById('luxFeedbackPlantsContainer'); // Inizializza il nuovo container
-    clearLuxFeedbackButton = document.getElementById('clearLuxFeedbackButton'); // Inizializza il nuovo bottone
+    luxFeedbackPlantsContainer = document.getElementById('luxFeedbackPlantsContainer');
+    clearLuxFeedbackButton = document.getElementById('clearLuxFeedbackButton');
     clearLightFeedbackButton = document.getElementById('clearLightFeedbackButton');
-    applyManualLuxButton = document.getElementById('applyManualLuxButton'); // Nuovo
-    tempMinFilter = document.getElementById('tempMinFilter');
-    tempMaxFilter = document.getElementById('tempMaxFilter');
-    sortBySelect = document.getElementById('sortBySelect');
-    imageZoomDisplay = document.getElementById('imageZoomDisplay');
+    applyManualLuxButton = document.getElementById('applyManualLuxButton');
+    tempMinFilter = document.getElementById('tempMinFilter'); // INIZIALIZZAZIONE AGGIUNTA
+    tempMaxFilter = document.getElementById('tempMaxFilter'); // INIZIALIZZAZIONE AGGIUNTA
+    sortBySelect = document.getElementById('sortBySelect'); // INIZIALIZZAZIONE AGGIUNTA
     plantModal = document.getElementById('plantModal');
     plantForm = document.getElementById('plantForm');
-    closePlantModalButton = document.getElementById('closePlantModalButton');
+    closePlantModalButton = document.getElementById('closePlantModal');
     plantNameInput = document.getElementById('plantName');
-    plantSunLight = document.getElementById('plantSunLight');
     plantCategorySelect = document.getElementById('plantCategory');
-    sunLightSelect = document.getElementById('sunLight');;
+    sunLightSelect = document.getElementById('plantSunLight'); // ID del selettore per il form di aggiunta/modifica
     plantDescriptionTextarea = document.getElementById('plantDescription');
     plantTempMinInput = document.getElementById('plantTempMin');
     plantTempMaxInput = document.getElementById('plantTempMax');
     plantWateringInput = document.getElementById('plantWatering');
-    plantIdealLuxMinInput = document.getElementById('idealLuxMin'); 
-    plantIdealLuxMaxInput = document.getElementById('idealLuxMax'); 
-    plantImageInput = document.getElementById('plantImageInput');
+    plantIdealLuxMinInput = document.getElementById('plantIdealLuxMin');
+    plantIdealLuxMaxInput = document.getElementById('plantIdealLuxMax');
+    plantImageInput = document.getElementById('plantImage');
     plantImagePreview = document.getElementById('plantImagePreview');
-    saveUpdatePlantButton = document.getElementById('saveUpdatePlantButton');
-    cancelUpdatePlantButton = document.getElementById('cancelUpdatePlantButton');
-    deletePlantButton = document.getElementById('plantDeleteButton'); // Corretto: Assicurati che l'ID del bottone sia 'plantDeleteButton'
-    plantImagePreview = document.getElementById('plantImagePreview');
-    imageModal = document.getElementById('imageModal');
-    closeImageModalButton = document.getElementById('closeImageModalButton');
+    saveUpdatePlantButton = document.getElementById('saveUpdatePlant');
+    cancelUpdatePlantButton = document.getElementById('cancelUpdatePlant');
+    deletePlantButton = document.getElementById('deletePlant');
     plantModalTitle = document.getElementById('plantModalTitle');
+    
     cardModal = document.getElementById('cardModal');
-    closeCardModalButton = document.getElementById('closeCardModalButton');
-    zoomedCardContent = document.getElementById('zoomed-card-content');
-    // Inizializzazioni per la modale di RITAGLIO Immagine
+    closeCardModalButton = document.getElementById('closeCardModal');
+    zoomedCardContent = document.getElementById('zoomedCardContent');
+
+    getClimateButton = document.getElementById('getClimateButton');
+    locationNameSpan = document.getElementById('locationName');
+    currentTempSpan = document.getElementById('currentTemp');
+    weatherDescriptionSpan = document.getElementById('weatherDescription');
+    humiditySpan = document.getElementById('humidity');
+    windSpeedSpan = document.getElementById('windSpeed');
+    lastUpdatedSpan = document.getElementById('lastUpdated');
+    googleLensButton = document.getElementById('googleLensButton');
+    
     cropImageModal = document.getElementById('cropImageModal');
-    closeCropImageModalButton = document.getElementById('closeCropImageModalButton');
+    closeCropImageModalButton = document.getElementById('closeCropImageModal');
     imageToCrop = document.getElementById('imageToCrop');
     cropButton = document.getElementById('cropButton');
 
-    // Inizializzazioni per la modale di ZOOM Immagine
     imageZoomModal = document.getElementById('imageZoomModal');
-    closeImageZoomModalButton = document.getElementById('closeImageZoomModalButton');
+    closeImageZoomModalButton = document.getElementById('closeImageZoomModal');
     imageZoomDisplay = document.getElementById('imageZoomDisplay');
 
-    getClimateButton = document.getElementById('getClimateButton');
-    locationNameSpan = document.getElementById('location-name');
-    currentTempSpan = document.getElementById('current-temp');
-    weatherDescriptionSpan = document.getElementById('weather-description');
-    humiditySpan = document.getElementById('humidity');
-    windSpeedSpan = document.getElementById('wind-speed');
-    lastUpdatedSpan = document.getElementById('last-updated');
-    googleLensButton = document.getElementById('googleLensButton');
+    rotateLeftButton = document.getElementById('rotateLeft');
+    rotateRightButton = document.getElementById('rotateRight');
+    zoomInButton = document.getElementById('zoomIn');
+    zoomOutButton = document.getElementById('zoomOut');
 
-    rotateLeftButton = document.getElementById('rotateLeftButton');
-    rotateRightButton = document.getElementById('rotateRightButton');
-    zoomInButton = document.getElementById('zoomInButton');
-    zoomOutButton = document.getElementById('zoomOutButton');
-
-    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-    window.onscroll = function() {
-        scrollFunction();
-    };
-    function scrollFunction() {
-        if (scrollToTopBtn) { // Controlla che il bottone esista
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                scrollToTopBtn.style.display = 'block';
-            } else {
-                scrollToTopBtn.style.display = 'none';
-            }
-        }
-    }
-
-    // Questo gestisce il click del bottone per scorrere in alto
-    if (scrollToTopBtn) { // Controlla che il bottone esista prima di aggiungere il listener
-        scrollToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    }
+    loadingSpinner = document.getElementById('loading-spinner'); // INIZIALIZZAZIONE DELLO SPINNER
 
 
-    // Setup Event Listeners
+    // Inizializza i listener di autenticazione e le altre funzioni
     setupAuthListeners();
 
-    // Filtri e ordinamento
-    searchInput.addEventListener('input', applyFiltersAndSort);
-    categoryFilter.addEventListener('change', applyFiltersAndSort);
-    tempMinFilter.addEventListener('input', applyFiltersAndSort);
-    tempMaxFilter.addEventListener('input', applyFiltersAndSort);
-    sortBySelect.addEventListener('change', (e) => {
-        currentSortBy = e.target.value;
-        applyFiltersAndSort();
-    });
-
-    if (!sunLightSelect) {
-        console.error("Errore: Elemento HTML con ID 'plantsunLight' non trovato nel DOM!");
-    }
-    if (!plantModal) {
-        console.error("Errore: Elemento HTML con ID 'plantModal' non trovato nel DOM!");
-    }
-
-// --- Controlli di Debugging (MOLTO UTILI!) ---
-    if (!cropImageModal) { console.error("Errore: Elemento HTML con ID 'cropImageModal' non trovato!"); }
-    if (!imageToCrop) { console.error("Errore: Elemento HTML con ID 'imageToCrop' non trovato!"); }
-    if (!closeCropImageModalButton) { console.error("Errore: Elemento HTML con ID 'closeCropImageModalButton' non trovato!"); }
-    if (!cropButton) { console.error("Errore: Elemento HTML con ID 'cropButton' non trovato!"); }
-    // --- Fine Controlli ---
-
-    // NUOVI Event Listener per il feedback Lux
-if (clearLuxFeedbackButton) {
-        clearLuxFeedbackButton.addEventListener('click', clearLightFeedbackDisplay); // Corretto per chiamare clearLightFeedbackDisplay
-    }
-    // Assicurati che stopLightSensorButton chiami anche clearLuxFeedback
-    if (stopLightSensorButton) {
-        stopLightSensorButton.addEventListener('click', () => {
-            stopLightSensor();
-            // clearLuxFeedback(); // Azzera il feedback quando si ferma il sensore - Già gestito da stopLightSensor
-        });
-    }
-    
-    // Listener per i controlli Cropper
-    if (rotateLeftButton) {
-        rotateLeftButton.addEventListener('click', () => {
-            if (currentCropper) currentCropper.rotate(-90); // Ruota di 90 gradi in senso antiorario
-        });
-    }
-    if (rotateRightButton) {
-        rotateRightButton.addEventListener('click', () => {
-            if (currentCropper) currentCropper.rotate(90); // Ruota di 90 gradi in senso orario
-        });
-    }
-    if (zoomInButton) {
-        zoomInButton.addEventListener('click', () => {
-            if (currentCropper) currentCropper.zoom(0.1); // Zoom in
-        });
-    }
-    if (zoomOutButton) {
-        zoomOutButton.addEventListener('click', () => {
-            if (currentCropper) currentCropper.zoom(-0.1); // Zoom out
-        });
-    }
-
-    // Event listener per il pulsante "Aggiungi Nuova Pianta"
-    addNewPlantButton.addEventListener('click', () => {
-        plantForm.reset(); // Resetta il form
-        plantImagePreview.style.display = 'none'; // Nascondi anteprima
-        plantImagePreview.src = '#'; // Pulisci la sorgente
-        saveUpdatePlantButton.textContent = 'Salva Nuova Pianta';
-        deletePlantButton.style.display = 'none'; // Nasconde il bottone elimina per nuova pianta
-        currentPlantIdToUpdate = null; // Resetta ID per nuova pianta
-        croppedImageBlob = null; // Resetta il blob
-        currentFile = null; // Resetta il file
-        plantModal.style.display = 'flex'; // Mostra la modale
-    });
-
-    // Event listener per il pulsante "Annulla" nel form
-    cancelUpdatePlantButton.addEventListener('click', () => {
-        plantModal.style.display = 'none';
+    // Event Listeners per i bottoni principali della navigazione
+    if (addNewPlantButton) addNewPlantButton.addEventListener('click', () => {
+        plantModal.style.display = 'flex';
         plantForm.reset();
         plantImagePreview.style.display = 'none';
         plantImagePreview.src = '#';
-        croppedImageBlob = null;
-        currentFile = null;
+        currentPlantIdToUpdate = null; // Resetta l'ID per l'aggiunta
+        croppedImageBlob = null; // Resetta il blob
+        currentFile = null; // Resetta il file
+        plantModalTitle.textContent = 'Aggiungi Nuova Pianta';
+        saveUpdatePlantButton.textContent = 'Salva Pianta';
+        deletePlantButton.style.display = 'none'; // Nascondi il bottone elimina
     });
 
-    // Event listener per il pulsante "Elimina Pianta dal Database"
-    if (deletePlantButton) {
-        deletePlantButton.addEventListener('click', (e) => {
-            if (currentPlantIdToUpdate) {
-                deletePlantFromFirestore(currentPlantIdToUpdate);
-            }
-        });
-    }
+    if (closePlantModalButton) closePlantModalButton.addEventListener('click', () => {
+        plantModal.style.display = 'none';
+        // Non resettare il form qui, il reset avviene al salvataggio o cancellazione
+    });
 
-    // Gestione dell'input immagine e Cropper.js
-    plantImageInput.addEventListener('change', (e) => {
-        currentFile = e.target.files[0];
+    if (cancelUpdatePlantButton) cancelUpdatePlantButton.addEventListener('click', () => {
+        plantModal.style.display = 'none';
+    });
+
+    // Event Listener per il form di aggiunta/modifica pianta
+    if (plantForm) plantForm.addEventListener('submit', savePlantToFirestore);
+
+    if (deletePlantButton) deletePlantButton.addEventListener('click', () => {
+        if (currentPlantIdToUpdate) {
+            deletePlantFromFirestore(currentPlantIdToUpdate);
+        }
+    });
+
+    if (showAllPlantsButton) showAllPlantsButton.addEventListener('click', displayAllPlants);
+    if (showMyGardenButton) showMyGardenButton.addEventListener('click', displayMyGarden);
+
+    // Event Listeners per i filtri e l'ordinamento
+    if (searchInput) searchInput.addEventListener('input', applyFiltersAndSort);
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSort);
+    // sunLightFilter listener già presente più in basso
+    if (tempMinFilter) tempMinFilter.addEventListener('input', applyFiltersAndSort); // Listener per filtro temp min
+    if (tempMaxFilter) tempMaxFilter.addEventListener('input', applyFiltersAndSort); // Listener per filtro temp max
+    if (sortBySelect) sortBySelect.addEventListener('change', (e) => {
+        currentSortBy = e.target.value; // Aggiorna il criterio di ordinamento
+        applyFiltersAndSort();
+    });
+
+
+    // Event Listeners per la modale dell'immagine (ritaglio)
+    if (plantImageInput) plantImageInput.addEventListener('change', (event) => {
+        currentFile = event.target.files[0];
         if (currentFile) {
             const reader = new FileReader();
-            reader.onload = (event) => {
-                // Aggiungi un controllo di sicurezza per 'imageToCrop' e 'cropImageModal'
-                if (imageToCrop && cropImageModal) { // <-- OK qui
-                    imageToCrop.src = event.target.result;
-                    cropImageModal.style.display = 'flex'; // <-- OK qui
-                    if (currentCropper) {
-                        currentCropper.destroy();
-                    }
-                    currentCropper = new Cropper(imageToCrop, {
-                        aspectRatio: 1, // Immagine quadrata
-                        viewMode: 1,    // Restringe l'area di ritaglio alle dimensioni del canvas
-                    });
-                } else {
-                    console.error("Errore: imageToCrop o cropImageModal sono null all'interno di reader.onload!");
+            reader.onload = (e) => {
+                imageToCrop.src = e.target.result;
+                cropImageModal.style.display = 'flex';
+                // Inizializza Cropper.js dopo che l'immagine è caricata
+                if (currentCropper) {
+                    currentCropper.destroy();
                 }
+                currentCropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1, // Imposta un rapporto di aspetto quadrato
+                    viewMode: 1, // Non permette al crop box di uscire dall'area dell'immagine
+                });
             };
             reader.readAsDataURL(currentFile);
         }
     });
 
-    cropButton.addEventListener('click', () => {
+    if (closeCropImageModalButton) closeCropImageModalButton.addEventListener('click', () => {
+        cropImageModal.style.display = 'none';
+        if (currentCropper) {
+            currentCropper.destroy(); // Distruggi l'istanza di Cropper
+            currentCropper = null;
+        }
+        // Resetta l'input file per permettere la selezione della stessa immagine
+        plantImageInput.value = '';
+        currentFile = null;
+    });
+
+    if (cropButton) cropButton.addEventListener('click', () => {
         if (currentCropper) {
             currentCropper.getCroppedCanvas({
-                width: 400, // Risoluzione desiderata
-                height: 400,
+                width: 400, // Larghezza desiderata per l'immagine ritagliata
+                height: 400 // Altezza desiderata per l'immagine ritagliata
             }).toBlob((blob) => {
-                croppedImageBlob = blob;
-                // Mostra l'immagine ritagliata nell'anteprima del form
-                // Assicurati che plantImagePreview sia inizializzata correttamente
-                if (plantImagePreview) { // Aggiungi un controllo per plantImagePreview per sicurezza
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        plantImagePreview.src = event.target.result;
-                        plantImagePreview.style.display = 'block';
-                        document.querySelector('.image-upload-status').textContent = 'Immagine ritagliata e pronta.';
-                    };
-                    reader.readAsDataURL(blob);
-                } else {
-                    console.error("Errore: plantImagePreview non è inizializzata correttamente.");
-                }
-
-                // --- CORREZIONE QUI (già fatta) ---
-                if (cropImageModal) {
-                    cropImageModal.style.display = 'none';
-                } else {
-                    console.error("Errore: cropImageModal non è inizializzata correttamente.");
-                }
-                // --- FINE CORREZIONE ---
-
-            }, 'image/jpeg'); // Formato dell'immagine finale
-        }
-    });
-
-    // Event listener per il form di salvataggio/aggiornamento della pianta
-    plantForm.addEventListener('submit', savePlantToFirestore);
-
-    // Event Listeners per la navigazione tra le viste
-    if (showAllPlantsButton) { // <-- L'if ha le sue graffe corrette
-    showAllPlantsButton.addEventListener('click', () => { // <-- QUI C'È LA FUNZIONE ANONIMA: () => { ... }
-        displayAllPlants(); // <-- Prima azione
-        if (gardenContainer) {
-            gardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); // <-- Seconda azione
-        }
-    }); // <-- Qui finisce la funzione anonima e l'addEventListener
-} // <-- Qui finisce il blocco dell'if
-
-// E lo stesso per MyGarden:
-if (showMyGardenButton) {
-    showMyGardenButton.addEventListener('click', async () => { // <-- QUI C'È LA FUNZIONE ANONIMA (e async perché displayMyGarden lo è)
-        await displayMyGarden();
-        if (myGardenContainer) {
-            myGardenContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-}
-    // Listener per la chiusura delle modali tramite bottone 'x'
-    if (closeCardModalButton) {
-        closeCardModalButton.addEventListener('click', () => {
-            closeCardModal(); // Chiama la tua funzione di chiusura specifica per la card
-        });
-    }
-
-    if (closeCropImageModalButton) {
-        closeCropImageModalButton.addEventListener('click', () => {
-            if (cropImageModal) {
+                croppedImageBlob = blob; // Memorizza il blob ritagliato
+                plantImagePreview.src = URL.createObjectURL(blob);
+                plantImagePreview.style.display = 'block';
                 cropImageModal.style.display = 'none';
                 if (currentCropper) {
-                    currentCropper.destroy(); // Distruggi l'istanza del cropper quando si chiude
+                    currentCropper.destroy();
                     currentCropper = null;
                 }
-                croppedImageBlob = null; // Resetta anche il blob ritagliato se non salvato
-                plantImageInput.value = ''; // Resetta l'input file per poter ricaricare la stessa immagine
-            }
-        });
-    }
+            }, 'image/jpeg', 0.9); // Formato e qualità dell'immagine
+        }
+    });
 
-    if (closeImageZoomModalButton) {
-        closeImageZoomModalButton.addEventListener('click', () => {
-            imageZoomModal.style.display = 'none'; // Nasconde la modale di zoom
-        });
-    }
+    // Controlli per la rotazione e lo zoom del cropper
+    if (rotateLeftButton) rotateLeftButton.addEventListener('click', () => {
+        if (currentCropper) currentCropper.rotate(-90);
+    });
+    if (rotateRightButton) rotateRightButton.addEventListener('click', () => {
+        if (currentCropper) currentCropper.rotate(90);
+    });
+    if (zoomInButton) zoomInButton.addEventListener('click', () => {
+        if (currentCropper) currentCropper.zoom(0.1);
+    });
+    if (zoomOutButton) zoomOutButton.addEventListener('click', () => {
+        if (currentCropper) currentCropper.zoom(-0.1);
+    });
 
-    // La chiusura della cardModal è gestita dalla funzione closeCardModal()
-    // e gli event listener sono attaccati dinamicamente o alla modale stessa
+
+    // Event Listeners per la modale di zoom immagine (generale, da card)
+    if (closeImageZoomModalButton) closeImageZoomModalButton.addEventListener('click', () => {
+        imageZoomModal.style.display = 'none';
+    });
+
+    // Gestione della chiusura della modale cliccando fuori dal contenuto
+    if (plantModal) plantModal.addEventListener('click', (e) => {
+        if (e.target === plantModal) {
+            plantModal.style.display = 'none';
+        }
+    });
+
     if (cardModal) cardModal.addEventListener('click', (e) => {
-        // Chiudi se cliccato sullo sfondo e non su un elemento interno alla form
         if (e.target === cardModal && !e.target.closest('.modal-content-card')) {
             closeCardModal();
         }
@@ -1478,7 +1400,7 @@ if (showMyGardenButton) {
             imageZoomModal.style.display = 'none';
         }
     });
-
+    
     // Event Listeners per il sensore di luce
     if (startLightSensorButton) startLightSensorButton.addEventListener('click', startLightSensor);
     if (stopLightSensorButton) stopLightSensorButton.addEventListener('click', stopLightSensor);
@@ -1500,5 +1422,4 @@ if (showMyGardenButton) {
 
     // Event Listener per il Clima
     if (getClimateButton) getClimateButton.addEventListener('click', getLocation);
-
-})
+});
