@@ -112,6 +112,16 @@ const categoryIcons = {
     'Altro': 'assets/category_icons/default_icon.png' // Icona di default per categorie non mappate
 };
 
+function showAuthContent() {
+    if (auth.currentUser) { // Utente loggato
+        authContainerDiv.style.display = 'none'; // Nasconde il login/registrazione
+        appContentDiv.style.display = 'block'; // Mostra il contenuto principale dell'app
+    } else { // Utente non loggato
+        authContainerDiv.style.display = 'block'; // Mostra il login/registrazione
+        appContentDiv.style.display = 'none'; // Nasconde il contenuto principale dell'app
+    }
+}
+
 // Funzioni di utilità per spinner e toast
 function isPlantInMyGarden(plantId) {
     return myGarden.some(plant => plant.id === plantId);
