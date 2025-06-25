@@ -469,13 +469,23 @@ main {
     object-fit: contain;
 }
 
+/* Stile per l'immagine nella modale di dettaglio (card modal) */
+.card-modal-image {
+    max-width: 100%; /* Assicura che l'immagine non superi la larghezza del suo contenitore */
+    max-height: 300px; /* Limita l'altezza massima dell'immagine */
+    object-fit: contain; /* Assicurati che l'intera immagine sia visibile, ridimensionandola */
+    display: block; /* Rimuove lo spazio extra sotto l'immagine */
+    margin: 0 auto 20px auto; /* Centra l'immagine e aggiunge spazio sotto */
+    border-radius: 8px; /* Bordi arrotondati */
+}
+
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.close-button {
+.modal-close-button { /* Ho rinominato da .close-button per specificità */
     color: #aaa;
     position: absolute;
     top: 10px;
@@ -486,8 +496,8 @@ main {
     transition: color 0.3s ease;
 }
 
-.close-button:hover,
-.close-button:focus {
+.modal-close-button:hover,
+.modal-close-button:focus {
     color: #333;
     text-decoration: none;
     cursor: pointer;
