@@ -224,39 +224,7 @@ function setupAuthListeners() {
         }
     });
 
-    // Gestore dello stato di autenticazione
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUser = user;
-            console.log('Utente loggato con UID:', user.uid);
-            authStatusSpan.textContent = `Autenticato come: ${user.email}`;
-            loginButton.style.display = 'none';
-            registerButton.style.display = 'none';
-            logoutButton.style.display = 'inline-block';
-            authContainerDiv.style.display = 'none';
-            appContentDiv.style.display = 'block';
-            
-            // Carica i dati una volta autenticato
-            loadAllPlants();
-            loadMyGarden();
-        } else {
-            currentUser = null;
-            console.log('Nessun utente loggato.');
-            authStatusSpan.textContent = 'Non Autenticato';
-            loginButton.style.display = 'inline-block';
-            registerButton.style.display = 'inline-block';
-            logoutButton.style.display = 'none';
-            authContainerDiv.style.display = 'block';
-            appContentDiv.style.display = 'none';
-            // Pulisci le liste se l'utente non è autenticato
-            allPlants = [];
-            myGarden = [];
-            displayPlants([]); // Pulisce le card visualizzate
-        }
-    });
-}
-
-
+   
 // --- Funzioni di Interazione con Firestore e Storage ---
 
 async function uploadImage(file) {
@@ -1301,6 +1269,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listener per il Clima
     if (getClimateButton) getClimateButton.addEventListener('click', getClimateData);
+
+     // Gestore dello stato di autenticazione
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            console.log('Utente loggato con UID:', user.uid);
+            authStatusSpan.textContent = `Autenticato come: ${user.email}`;
+            loginButton.style.display = 'none';
+            registerButton.style.display = 'none';
+            logoutButton.style.display = 'inline-block';
+            authContainerDiv.style.display = 'none';
+            appContentDiv.style.display = 'block';
+            
+            // Carica i dati una volta autenticato
+            loadAllPlants();
+            loadMyGarden();
+        } else {
+            currentUser = null;
+            console.log('Nessun utente loggato.');
+            authStatusSpan.textContent = 'Non Autenticato';
+            loginButton.style.display = 'inline-block';
+            registerButton.style.display = 'inline-block';
+            logoutButton.style.display = 'none';
+            authContainerDiv.style.display = 'block';
+            appContentDiv.style.display = 'none';
+            // Pulisci le liste se l'utente non è autenticato
+            allPlants = [];
+            myGarden = [];
+            displayPlants([]); // Pulisce le card visualizzate
+        }
+    });
+}
 
     // **********************************
     // CHIAMATA ALLA FUNZIONE DI INIZIALIZZAZIONE AUTENTICAZIONE
