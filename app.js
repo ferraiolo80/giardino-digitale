@@ -1164,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    closeCardModalButton.addEventListener('click', closeCardModalButton);
+    closeCardModalButton.addEventListener('click', closeCardModal);
 
 
     // Listener per il form di aggiunta/modifica pianta
