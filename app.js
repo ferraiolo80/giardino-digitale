@@ -1041,6 +1041,8 @@ async function getClimateData() {
 // --- Inizializzazione quando il DOM è completamente caricato ---
 document.addEventListener('DOMContentLoaded', () => {
     // Inizializzazione variabili DOM
+    loginForm = document.getElementById('login-form'); // Aggiungi questa riga
+    registerForm = document.getElementById('register-form'); // Aggiungi questa riga
     gardenContainer = document.getElementById('garden-plants-container');
     myGardenContainer = document.getElementById('my-garden-plants-container');
     authContainerDiv = document.getElementById('auth-container');
