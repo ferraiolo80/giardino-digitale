@@ -1067,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startLightSensorButton = document.getElementById('start-light-sensor');
     stopLightSensorButton = document.getElementById('stop-light-sensor');
     currentLuxValueSpan = document.getElementById('current-lux-value');
-    lightFeedbackDiv = document.getElementById('light-feedback');
+    lightFeedbackDiv = document.getElementById('lightfeedback');
     manualLuxInputDiv = document.getElementById('manual-lux-input-group'); // Inizializza il nuovo div
     applyManualLuxButton = document.getElementById('apply-manual-lux'); // Inizializza il nuovo bottone
     tempMinFilter = document.getElementById('temp-min-filter');
@@ -1119,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     manualLuxInput = document.getElementById('manual-lux-input');
     currentLuxDisplay = document.getElementById('current-lux-value');
     luxFeedbackPlantsContainer = document.getElementById('lux-feedback-plants-container');
-    clearLightFeedbackButton = document.getElementById('clear-light-feedback-button'); // Inizializza il nuovo bottone
+    clearLightFeedbackButton = document.getElementById('clearlightfeedbackbutton'); // Inizializza il nuovo bottone
     sunLightFilter = document.getElementById('sun-light-filter');
 
 
