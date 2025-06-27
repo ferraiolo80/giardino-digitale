@@ -1094,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeImageModalButton = document.getElementById('close-image-modal');
     plantModalTitle = document.getElementById('plant-modal-title');
     cardModal = document.getElementById('card-modal');
-    closeCardModalButton = document.getElementById('close-card-modal');
+    closeCardModalButton = document.getElementById('closeCardModalButton');
     zoomedCardContent = document.getElementById('zoomed-card-content');
     getClimateButton = document.getElementById('fetch-weather-button');
     locationNameSpan = document.getElementById('location-name');
@@ -1195,7 +1195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    closeCardModalButton.addEventListener('click', closeCardModal);
+    closeCardModalButton.addEventListener('click', closeCardModalButton);
 
 
     // Listener per il form di aggiunta/modifica pianta
