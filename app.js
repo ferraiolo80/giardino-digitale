@@ -1092,12 +1092,11 @@ document.addEventListener('DOMContentLoaded', () => {
     clearLightFeedbackButton = document.getElementById('clearlightfeedbackbutton'); // Inizializza il nuovo bottone
     sunLightFilter = document.getElementById('sun-light-filter');
 
-
-    // Inizializzazione Firebase (assicurati che sia configurato nell'HTML prima di app.js)
-    // Non è necessario inizializzare Firebase qui se lo fai già in index.html.
-    // Basta fare riferimento alle variabili globali `auth`, `db`, `storage`.
-
-    // Chiudi le modali cliccando fuori (migliorato)
+    // **********************************
+    // CHIAMATA ALLA FUNZIONE DI INIZIALIZZAZIONE AUTENTICAZIONE
+    setupAuthListeners(); 
+    // **********************************
+   
     window.addEventListener('click', (e) => {
         if (e.target === plantModal) {
             plantModal.style.display = 'none';
@@ -1300,10 +1299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             displayPlants([]); // Pulisce le card visualizzate
         }
     });
-}
 
-    // **********************************
-    // CHIAMATA ALLA FUNZIONE DI INIZIALIZZAZIONE AUTENTICAZIONE
-    setupAuthListeners(); 
-    // **********************************
+
+    
 });
