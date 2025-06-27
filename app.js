@@ -1299,7 +1299,4 @@ document.addEventListener('DOMContentLoaded', () => {
             displayPlants([]); // Pulisce le card visualizzate
         }
     });
-
-
-    
 });
