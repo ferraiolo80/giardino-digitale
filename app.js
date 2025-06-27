@@ -49,13 +49,13 @@ let closePlantModalButton;
 let plantNameInput;
 let plantCategorySelect;
 let sunLightSelect;
-let plantsunLight
+// let plantsunLight; // Rimosso: variabile non utilizzata
 let plantDescriptionTextarea;
 let plantTempMinInput;
 let plantTempMaxInput;
 let plantWateringInput;
-let plantIdealLuxMinInput; 
-let plantIdealLuxMaxInput; 
+let plantIdealLuxMinInput;
+let plantIdealLuxMaxInput;
 let plantImageInput;
 let plantImagePreview;
 let saveUpdatePlantButton;
@@ -63,7 +63,7 @@ let cancelUpdatePlantButton;
 let deletePlantButton;
 let imageModal;
 let closeImageModalButton;
-let sunLightFilter
+let sunLightFilter;
 let plantModalTitle;
 let cardModal;
 let closeCardModalButton;
@@ -96,6 +96,14 @@ let currentLuxDisplay; // Per visualizzare il lux attuale
 let luxFeedbackPlantsContainer; // Il nuovo contenitore per il feedback specifico
 let clearLuxFeedbackButton; // Il nuovo bottone per azzerare il feedback
 let clearLightFeedbackButton;
+
+// Inizializzazione di Firebase
+let db;
+let auth;
+let storage;
+let loginForm; // Assicurati di inizializzare anche queste
+let registerForm; // Assicurati di inizializzare anche queste
+
 
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 const categoryIcons = {
@@ -139,12 +147,10 @@ function showToast(message, type = 'info', duration = 3000) {
 function closeCardModal() {
     cardModal.style.display = 'none';
     zoomedCardContent.innerHTML = ''; // Pulisci il contenuto
-    
 }
 
 
 // --- Funzioni di Autenticazione ---
-// ... (il tuo codice di autenticazione rimane invariato)
 function setupAuthListeners() {
     loginButton.addEventListener('click', () => {
         loginForm.style.display = 'block';
@@ -223,15 +229,17 @@ function setupAuthListeners() {
             hideLoadingSpinner();
         }
     });
+}
 
-   
 // --- Funzioni di Interazione con Firestore e Storage ---
 
-async function uploadImage(file) {
+// Modificata per accettare un nome per l'immagine
+async function uploadImage(file, imageName = '') {
     if (!file) return null;
 
     const storageRef = storage.ref();
-    const fileName = `plant_images/${Date.now()}_${file.name}`; // Nome unico per l'immagine
+    // Usa imageName se fornito, altrimenti fallback al nome originale o a un timestamp
+    const fileName = `plant_images/${imageName ? imageName + '_' : ''}${Date.now()}_${file.name.split('.').pop()}`; 
     const imageRef = storageRef.child(fileName);
 
     try {
@@ -252,7 +260,7 @@ async function savePlantToFirestore(e) {
 
     const name = plantNameInput.value;
     const category = plantCategorySelect.value;
-    const sunLight = sunLightSelect.value; 
+    const sunLight = sunLightSelect.value;
     const description = plantDescriptionTextarea.value;
     const tempMin = plantTempMinInput.value ? parseFloat(plantTempMinInput.value) : null;
     const tempMax = plantTempMaxInput.value ? parseFloat(plantTempMaxInput.value) : null;
@@ -280,7 +288,7 @@ async function savePlantToFirestore(e) {
     // Se c'è un'immagine ritagliata, caricala. Altrimenti, se si sta modificando e non c'è una nuova immagine, mantieni quella esistente.
     if (croppedImageBlob) {
         try {
-            imageUrl = await uploadImage(croppedImageBlob);
+            imageUrl = await uploadImage(croppedImageBlob, name); // Passa il nome della pianta per il filename
         } catch (error) {
             // L'errore è già gestito da uploadImage, qui possiamo semplicemente uscire
             hideLoadingSpinner();
@@ -423,10 +431,11 @@ async function addPlantToMyGarden(plantId) {
 
     // Crea un nuovo oggetto per la pianta del giardino, copiando i dati originali
     const plantDataForGarden = { ...plantToAddOriginal }; // Copia tutti i dati dalla pianta del catalogo
-
+    
     // --- CORREZIONE FONDAMENTALE 2: Logica per caricare e salvare l'immagine utente specifica ---
     let imageUrlForGarden = '';
-    if (croppedImageBlob) { // Se l'utente ha ritagliato una nuova immagine (il blob dell'immagine reale)
+    if (croppedImageBlob) {
+        // Se l'utente ha ritagliato una nuova immagine (il blob dell'immagine reale)
         try {
             // Questa funzione carica l'immagine su Firebase Storage e restituisce il suo URL
             imageUrlForGarden = await uploadImage(croppedImageBlob, plantToAddOriginal.name); // Ho corretto qui uploadImage
@@ -448,22 +457,18 @@ async function addPlantToMyGarden(plantId) {
         // Il percorso Firestore ora usa correttamente user.uid
         const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
         const doc = await docRef.get();
-
         if (doc.exists) {
             showToast('Questa pianta è già nel tuo giardino!', 'info');
         } else {
             // Salva l'oggetto pianta del giardino (che ora potrebbe avere imageUrl)
-            await docRef.set(plantDataForGarden); 
-            
+            await docRef.set(plantDataForGarden);
             showToast('Pianta aggiunta al tuo giardino!', 'success');
-            
             // Pulisci lo stato dell'immagine dopo aver salvato
-            croppedImageBlob = null; 
+            croppedImageBlob = null;
             currentFile = null;
             plantImageInput.value = ''; // Resetta l'input file
             plantImagePreview.style.display = 'none'; // Nascondi anteprima
             plantImagePreview.src = '#'; // Pulisci la sorgente
-            
             loadMyGarden(); // Ricarica il mio giardino
         }
     } catch (error) {
@@ -473,30 +478,27 @@ async function addPlantToMyGarden(plantId) {
         hideLoadingSpinner();
     }
 }
+
 // Funzione per rimuovere una pianta dal "Mio Giardino"
 async function removePlantFromMyGarden(plantId) {
     showLoadingSpinner();
-
     // ********* CORREZIONE QUI *********
     // Assicurati che 'currentUser' sia la variabile globale correttamente aggiornata
-    const user = currentUser; 
+    const user = currentUser;
     // **********************************
-
     if (!user) {
         showToast('Devi essere autenticato per rimuovere piante dal tuo giardino.', 'error');
         hideLoadingSpinner();
         return;
     }
-
     try {
         // Il percorso deve usare user.uid correttamente
         const docRef = db.collection('users').doc(user.uid).collection('gardens').doc(plantId);
-        await docRef.delete(); // <-- Questa è la riga che dà errore (app.js:524)
-
+        await docRef.delete();
         showToast('Pianta rimossa dal tuo giardino!', 'success');
         loadMyGarden(); // Ricarica il giardino dopo la rimozione
     } catch (error) {
-        console.error("Errore nella rimozione dal giardino:", error); // Qui è la riga 524
+        console.error("Errore nella rimozione dal giardino:", error);
         showToast(`Errore nella rimozione dal giardino: ${error.message}`, 'error');
     } finally {
         hideLoadingSpinner();
@@ -504,7 +506,6 @@ async function removePlantFromMyGarden(plantId) {
 }
 
 // --- Funzioni di Caricamento e Visualizzazione Piante ---
-
 async function loadAllPlants() {
     showLoadingSpinner();
     try {
@@ -521,53 +522,207 @@ async function loadAllPlants() {
 
 async function loadMyGarden() {
     showLoadingSpinner();
-    
     // ********* CORREZIONE QUI *********
     // Usa la variabile globale 'currentUser' per coerenza e robustezza
-    const user = currentUser; 
+    const user = currentUser;
     // **********************************
-
     if (!user) {
         // Se l'utente non è autenticato, non c'è un giardino da caricare.
         // Potresti voler mostrare un messaggio diverso o reindirizzare.
         showToast('Devi essere autenticato per vedere il tuo giardino.', 'error');
-        displayPlants([]); // Mostra un giardino vuoto o un messaggio
+        displayPlants([]); // Mostra un giardino vuoto
         hideLoadingSpinner();
         return;
     }
 
     try {
-        const gardenSnapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
-        myGarden = []; // Pulisci l'array myGarden prima di riempirlo
-        gardenSnapshot.forEach(doc => {
-            // Qui riceverai l'intero oggetto pianta dal tuo giardino (con imageUrl se presente)
-            myGarden.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Non visualizzare qui, la visualizzazione avverrà dopo applyFiltersAndSort()
-        // che viene chiamata in displayMyGarden()
-        // console.log("Mio Giardino Caricato:", myGarden); 
-
+        // Filtra per le piante dell'utente corrente nel loro sottocollezione 'gardens'
+        const snapshot = await db.collection('users').doc(user.uid).collection('gardens').get();
+        myGarden = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (isMyGardenCurrentlyVisible) {
+            applyFiltersAndSort(); // Applica i filtri e l'ordinamento solo se il mio giardino è visibile
+        }
     } catch (error) {
-        console.error("Errore nel caricare il giardino:", error);
-        showToast(`Errore nel caricare il giardino: ${error.message}`, 'error');
-        myGarden = []; // Assicurati che l'array sia vuoto in caso di errore
+        console.error("Errore nel caricamento del mio giardino:", error);
+        showToast(`Errore nel caricamento del tuo giardino: ${error.message}`, 'error');
     } finally {
         hideLoadingSpinner();
     }
 }
 
-function applyFiltersAndSort() {
-    let plantsToDisplay = [];
+function displayPlants(plantsToShow) {
+    gardenContainer.innerHTML = ''; // Pulisci il contenitore prima di aggiungere
+    myGardenContainer.innerHTML = ''; // Pulisci anche questo
 
-    // Determina se visualizzare il giardino o tutte le piante
-    if (isMyGardenCurrentlyVisible) {
-        plantsToDisplay = [...myGarden]; // Lavora su una copia del mio giardino
-    } else {
-        plantsToDisplay = [...allPlants]; // Lavora su una copia di tutte le piante
+    if (plantsToShow.length === 0) {
+        const message = document.createElement('p');
+        message.textContent = isMyGardenCurrentlyVisible ?
+            'Non hai ancora piante nel tuo giardino. Aggiungine alcune dalla sezione "Tutte le Piante Disponibili"!' :
+            'Nessuna pianta trovata con i filtri e l\'ordinamento attuali.';
+        message.className = 'no-plants-message';
+        (isMyGardenCurrentlyVisible ? myGardenContainer : gardenContainer).appendChild(message);
+        return;
     }
 
-    // --- Applicazione Filtri ---
+    plantsToShow.forEach(plant => {
+        const plantCard = document.createElement('div');
+        plantCard.className = 'plant-card';
+        plantCard.dataset.id = plant.id;
+
+        // Determina l'URL dell'immagine da visualizzare
+        // Se la pianta è nel Mio Giardino e ha un imageUrl personalizzato, usalo.
+        // Altrimenti, usa l'icona di categoria predefinita.
+        let displayImageUrl = plant.imageUrl || categoryIcons[plant.category] || categoryIcons['Altro'];
+
+        // Card Content
+        plantCard.innerHTML = `
+            <img src="${displayImageUrl}" alt="${plant.name}" class="plant-card-image" onerror="this.onerror=null;this.src='${categoryIcons['Altro']}'">
+            <h3 class="plant-card-name">${plant.name}</h3>
+            <p class="plant-card-category">Categoria: ${plant.category}</p>
+            <div class="card-buttons">
+                ${isMyGardenCurrentlyVisible ?
+                    `<button class="remove-from-garden-button" data-id="${plant.id}"><i class="fas fa-minus-circle"></i> Rimuovi</button>` :
+                    `<button class="add-to-garden-button" data-id="${plant.id}"><i class="fas fa-plus-circle"></i> Aggiungi al mio giardino</button>`
+                }
+                <button class="view-details-button" data-id="${plant.id}"><i class="fas fa-info-circle"></i> Dettagli</button>
+            </div>
+        `;
+
+        (isMyGardenCurrentlyVisible ? myGardenContainer : gardenContainer).appendChild(plantCard);
+    });
+
+    // Aggiungi event listener ai nuovi bottoni
+    document.querySelectorAll('.add-to-garden-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const plantId = e.currentTarget.dataset.id;
+            addPlantToMyGarden(plantId);
+        });
+    });
+
+    document.querySelectorAll('.remove-from-garden-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const plantId = e.currentTarget.dataset.id;
+            removePlantFromMyGarden(plantId);
+        });
+    });
+
+    document.querySelectorAll('.view-details-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const plantId = e.currentTarget.dataset.id;
+            displayPlantCardModal(plantId);
+        });
+    });
+
+    // Aggiungi listener per l'immagine all'interno della card per lo zoom
+    document.querySelectorAll('.plant-card-image').forEach(image => {
+        image.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evita che l'evento si propaghi alla card o al bottone dettagli
+            openImageZoomModal(e.target.src);
+        });
+    });
+}
+
+function displayPlantCardModal(plantId) {
+    const plant = allPlants.find(p => p.id === plantId) || myGarden.find(p => p.id === plantId);
+    if (!plant) {
+        showToast('Dettagli pianta non trovati.', 'error');
+        return;
+    }
+
+    let displayImageUrl = plant.imageUrl || categoryIcons[plant.category] || categoryIcons['Altro'];
+
+    zoomedCardContent.innerHTML = `
+        <img src="${displayImageUrl}" alt="${plant.name}" class="modal-plant-image" onerror="this.onerror=null;this.src='${categoryIcons['Altro']}'">
+        <h2>${plant.name}</h2>
+        <p><strong>Categoria:</strong> ${plant.category}</p>
+        <p><strong>Esposizione solare:</strong> ${plant.sunlight}</p>
+        <p><strong>Descrizione:</strong> ${plant.description || 'Nessuna descrizione.'}</p>
+        <p><strong>Temperatura ideale:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'Non specificata'}</p>
+        <p><strong>Frequenza di innaffiatura:</strong> ${plant.watering || 'Non specificata'}</p>
+        <p><strong>Lux ideale:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} lux` : 'Non specificato'}</p>
+        <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+        ${plant.updatedAt ? `<p><strong>Ultimo aggiornamento:</strong> ${new Date(plant.updatedAt.toDate()).toLocaleDateString()}</p>` : ''}
+        <div class="modal-actions">
+            ${isMyGardenCurrentlyVisible ?
+                `<button class="remove-from-garden-button" data-id="${plant.id}"><i class="fas fa-minus-circle"></i> Rimuovi dal Giardino</button>` :
+                `<button class="add-to-garden-button" data-id="${plant.id}"><i class="fas fa-plus-circle"></i> Aggiungi al mio giardino</button>`
+            }
+            <button class="edit-plant-button" data-id="${plant.id}"><i class="fas fa-edit"></i> Modifica</button>
+            <button class="delete-plant-button" data-id="${plant.id}"><i class="fas fa-trash"></i> Elimina dal database</button>
+        </div>
+    `;
+
+    cardModal.style.display = 'flex';
+
+    // Rimuovi vecchi listener e aggiungi nuovi per evitare duplicazioni
+    const oldEditButton = cardModal.querySelector('.edit-plant-button');
+    if (oldEditButton) oldEditButton.removeEventListener('click', handleEditButtonClick);
+    const oldDeleteButton = cardModal.querySelector('.delete-plant-button');
+    if (oldDeleteButton) oldDeleteButton.removeEventListener('click', handleDeleteButtonClick);
+
+    cardModal.querySelector('.edit-plant-button').addEventListener('click', handleEditButtonClick);
+    cardModal.querySelector('.delete-plant-button').addEventListener('click', handleDeleteButtonClick);
+
+    // Gestione bottoni Aggiungi/Rimuovi all'interno della modale card
+    const addToGardenBtn = cardModal.querySelector('.add-to-garden-button');
+    const removeFromGardenBtn = cardModal.querySelector('.remove-from-garden-button');
+
+    if (addToGardenBtn) {
+        addToGardenBtn.removeEventListener('click', handleAddToGardenClick); // Rimuovi per evitare duplicati
+        addToGardenBtn.addEventListener('click', handleAddToGardenClick);
+    }
+    if (removeFromGardenBtn) {
+        removeFromGardenBtn.removeEventListener('click', handleRemoveFromGardenClick); // Rimuovi per evitare duplicati
+        removeFromGardenBtn.addEventListener('click', handleRemoveFromGardenClick);
+    }
+
+    // Listener per l'immagine all'interno della modale per lo zoom
+    const modalImage = cardModal.querySelector('.modal-plant-image');
+    if (modalImage) {
+        modalImage.removeEventListener('click', handleModalImageClick); // Rimuovi per evitare duplicati
+        modalImage.addEventListener('click', handleModalImageClick);
+    }
+}
+
+function handleEditButtonClick(e) {
+    const plantId = e.currentTarget.dataset.id;
+    editPlant(plantId);
+}
+
+function handleDeleteButtonClick(e) {
+    const plantId = e.currentTarget.dataset.id;
+    deletePlantFromFirestore(plantId);
+}
+
+function handleAddToGardenClick(e) {
+    const plantId = e.currentTarget.dataset.id;
+    addPlantToMyGarden(plantId);
+    closeCardModal(); // Chiudi la modale dopo l'aggiunta
+}
+
+function handleRemoveFromGardenClick(e) {
+    const plantId = e.currentTarget.dataset.id;
+    removePlantFromMyGarden(plantId);
+    closeCardModal(); // Chiudi la modale dopo la rimozione
+}
+
+function handleModalImageClick(e) {
+    openImageZoomModal(e.target.src);
+}
+
+
+function applyFiltersAndSort() {
+    showLoadingSpinner();
+    let plantsToDisplay = isMyGardenCurrentlyVisible ? [...myGarden] : [...allPlants];
+
+    // Filtro per ricerca
+    const searchTerm = searchInput.value.toLowerCase();
+    if (searchTerm) {
+        plantsToDisplay = plantsToDisplay.filter(plant =>
+            plant.name.toLowerCase().includes(searchTerm) ||
+            plant.description.toLowerCase().includes(searchTerm)
+        );
+    }
 
     // Filtro per categoria
     const selectedCategory = categoryFilter.value;
@@ -575,477 +730,372 @@ function applyFiltersAndSort() {
         plantsToDisplay = plantsToDisplay.filter(plant => plant.category === selectedCategory);
     }
 
-    // Filtro per esposizione solare (se il filtro è attivo)
+    // Filtro per temperatura (min e max)
+    const minTemp = tempMinFilter.value ? parseFloat(tempMinFilter.value) : -Infinity;
+    const maxTemp = tempMaxFilter.value ? parseFloat(tempMaxFilter.value) : Infinity;
+
+    plantsToDisplay = plantsToDisplay.filter(plant => {
+        const plantTempMin = plant.tempMin !== null ? plant.tempMin : -Infinity;
+        const plantTempMax = plant.tempMax !== null ? plant.tempMax : Infinity;
+
+        // Se la pianta ha un range, deve intersecare il range del filtro
+        // Se il filtro non ha min/max, non applica il filtro su quella specifica boundary
+        const overlapsMin = (plantTempMax >= minTemp);
+        const overlapsMax = (plantTempMin <= maxTemp);
+
+        return overlapsMin && overlapsMax;
+    });
+
+    // Nuovo filtro per esposizione solare
     const selectedSunLight = sunLightFilter.value;
     if (selectedSunLight && selectedSunLight !== 'all') {
-        plantsToDisplay = plantsToDisplay.filter(plant => plant.sunlight === selectedSunLight); // Corretto da sunExposure a sunlight
+        plantsToDisplay = plantsToDisplay.filter(plant => plant.sunlight === selectedSunLight);
     }
 
-    // Filtro di ricerca
-    const searchTerm = searchInput.value.toLowerCase();
-    if (searchTerm) {
-        plantsToDisplay = plantsToDisplay.filter(plant =>
-            plant.name.toLowerCase().includes(searchTerm) ||
-            (plant.description && plant.description.toLowerCase().includes(searchTerm))
-        );
+
+    // Ordinamento
+    switch (currentSortBy) {
+        case 'name_asc':
+            plantsToDisplay.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'name_desc':
+            plantsToDisplay.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+        case 'category_asc':
+            plantsToDisplay.sort((a, b) => a.category.localeCompare(b.category));
+            break;
+        case 'category_desc':
+            plantsToDisplay.sort((a, b) => b.category.localeCompare(a.category));
+            break;
+        case 'temp_asc':
+            plantsToDisplay.sort((a, b) => (a.tempMin || -Infinity) - (b.tempMin || -Infinity));
+            break;
+        case 'temp_desc':
+            plantsToDisplay.sort((a, b) => (b.tempMin || -Infinity) - (a.tempMin || -Infinity));
+            break;
+        case 'watering_asc':
+            plantsToDisplay.sort((a, b) => {
+                const waterA = a.watering || '';
+                const waterB = b.watering || '';
+                return waterA.localeCompare(waterB);
+            });
+            break;
+        case 'watering_desc':
+            plantsToDisplay.sort((a, b) => {
+                const waterA = a.watering || '';
+                const waterB = b.watering || '';
+                return waterB.localeCompare(waterA);
+            });
+            break;
+        case 'lux_asc':
+            plantsToDisplay.sort((a, b) => (a.idealLuxMin || -Infinity) - (b.idealLuxMin || -Infinity));
+            break;
+        case 'lux_desc':
+            plantsToDisplay.sort((a, b) => (b.idealLuxMin || -Infinity) - (a.idealLuxMin || -Infinity));
+            break;
     }
 
-    // --- Applicazione Ordinamento ---
-    
-    // Assicurati che currentSortBy sia correttamente aggiornato dalla tua UI (se hai un select/radio button)
-    // Se non hai un'interfaccia per scegliere l'ordinamento, currentSortBy rimane 'name_asc' di default
-
-    plantsToDisplay.sort((a, b) => {
-        switch (currentSortBy) {
-            case 'name_asc':
-                // *** CORREZIONE PER L'ERRORE 'localeCompare' ***
-                // Assicurati che i nomi siano stringhe valide (anche vuote) prima del confronto
-                const nameA = a.name ? a.name.toLowerCase() : '';
-                const nameB = b.name ? b.name.toLowerCase() : '';
-                return nameA.localeCompare(nameB);
-            case 'name_desc':
-                // *** CORREZIONE PER L'ERRORE 'localeCompare' ***
-                const nameADesc = a.name ? a.name.toLowerCase() : '';
-                const nameBDesc = b.name ? b.name.toLowerCase() : '';
-                return nameBDesc.localeCompare(nameADesc);
-            case 'category_asc':
-                // *** CORREZIONE SIMILE SE ORDINI PER CATEGORIA ***
-                const categoryA = a.category ? a.category.toLowerCase() : '';
-                const categoryB = b.category ? b.category.toLowerCase() : '';
-                return categoryA.localeCompare(categoryB);
-            case 'category_desc':
-                 const categoryADesc = a.category ? a.category.toLowerCase() : '';
-                 const categoryBDesc = b.category ? b.category.toLowerCase() : '';
-                 return categoryBDesc.localeCompare(categoryADesc);
-            case 'date_added_asc':
-                // Assumi che 'addedAt' sia un Timestamp di Firebase o un Date object
-                const dateA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt) : new Date(0); // Gestisce Firebase Timestamp (usato createdAt)
-                const dateB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt) : new Date(0);
-                return dateA.getTime() - dateB.getTime();
-            case 'date_added_desc':
-                const dateADesc = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt) : new Date(0);
-                const dateBDesc = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt) : new Date(0);
-                return dateBDesc.getTime() - dateADesc.getTime();
-            default:
-                // Ordinamento predefinito se nessuna opzione corrisponde
-                const defaultNameA = a.name ? a.name.toLowerCase() : '';
-                const defaultNameB = b.name ? b.name.toLowerCase() : '';
-                return defaultNameA.localeCompare(defaultNameB);
-        }
-    });
-
-    // Infine, visualizza le piante filtrate e ordinate
     displayPlants(plantsToDisplay);
+    hideLoadingSpinner();
 }
 
-function displayAllPlants() {
-    isMyGardenCurrentlyVisible = false;
-    plantsSectionHeader.textContent = 'Tutte le Piante Disponibili';
-    gardenContainer.style.display = 'flex'; // Mostra il contenitore delle piante globali
-    myGardenContainer.style.display = 'none'; // Nasconde il contenitore del giardino
-    applyFiltersAndSort(); // Applica filtri e ordinamento
-}
 
-async function displayMyGarden() {
-    isMyGardenCurrentlyVisible = true;
-    plantsSectionHeader.textContent = 'Le Tue Piante in Giardino';
-    gardenContainer.style.display = 'none'; // Nasconde il contenitore delle piante globali
-    myGardenContainer.style.display = 'flex'; // Mostra il contenitore del giardino
-
-    await loadMyGarden(); // Prima carica i dati aggiornati
-    applyFiltersAndSort(); // Poi visualizza i dati caricati (con filtri e ordinamento)
-}
-
-function displayPlants(plantsToDisplay) {
-    const container = isMyGardenCurrentlyVisible ? myGardenContainer : gardenContainer;
-
-    if (!container) {
-        console.error("Contenitore piante non trovato!");
-        return;
-    }
-
-    container.innerHTML = ''; // Pulisce il contenitore
-
-    if (plantsToDisplay.length === 0) {
-        const messageTemplate = document.getElementById('emptyGardenMessage');
-        const emptyMessageClone = messageTemplate.content.cloneNode(true);
-        if (!isMyGardenCurrentlyVisible) { // Se è la vista "Tutte le Piante"
-            emptyMessageClone.querySelector('p').textContent = 'Nessuna pianta trovata con i filtri applicati.';
-            emptyMessageClone.querySelector('p:nth-child(2)').textContent = 'Prova a modificare i criteri di ricerca.';
-            const iconElement = emptyMessageClone.querySelector('.empty-message p:first-child i'); 
-            if (iconElement) {
-                iconElement.className = 'fas fa-search-minus';
-            } else {
-                console.warn("Elemento icona <i> non trovato nel template 'emptyGardenMessage'. Impossibile impostare la classe.");
-            }
-        }
-        container.appendChild(emptyMessageClone);
-        return;
-    }
-
-    plantsToDisplay.forEach(plant => {
-        let imageUrlToDisplay;
-
-        if (isMyGardenCurrentlyVisible) {
-            imageUrlToDisplay = plant.imageUrl || categoryIcons[plant.category] || categoryIcons['Altro'];
-        } else {
-            imageUrlToDisplay = categoryIcons[plant.category] || categoryIcons['Altro'];
-        }
-
-        const plantCard = document.createElement('div');
-        plantCard.className = 'plant-card';
-        plantCard.dataset.id = plant.id;
-
-        // Crea l'elemento immagine separatamente per attaccare l'event listener
-        const plantImageElement = document.createElement('img');
-        plantImageElement.src = imageUrlToDisplay;
-        plantImageElement.alt = plant.name;
-        plantImageElement.classList.add('plant-image'); // Applica la classe CSS
-
-        // Aggiungi l'event listener per lo zoom dell'immagine
-        plantImageElement.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evita che il click sull'immagine attivi anche il click sulla card intera
-            console.log("Tentativo di aprire zoom immagine. URL:", plantImageElement.src); 
-            openImageZoomModal(plantImageElement.src); // Passa l'URL dell'immagine alla funzione di zoom
-        });
-
-        // Aggiungi l'immagine alla card
-        plantCard.appendChild(plantImageElement);
-
-        // Aggiungi il resto del contenuto della card come HTML interno
-        // Ho corretto qui la riga della "Luce"
-        plantCard.innerHTML += `
-            <h3>${plant.name}</h3>
-            <p><strong>Categoria:</strong> ${plant.category}</p>
-            <p><strong>Esposizione Solare:</strong> ${plant.sunlight || 'N/A'}</p>
-            <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
-            <p><strong>Luce:</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
-            <div class="card-actions">
-                ${isMyGardenCurrentlyVisible ? `<button class="btn btn-edit" data-id="${plant.id}"><i class="fas fa-edit"></i> Modifica</button>` : ''}
-                ${isMyGardenCurrentlyVisible ? `<button class="btn btn-remove" data-id="${plant.id}"><i class="fas fa-minus-circle"></i> Rimuovi dal Giardino</button>` : `<button class="btn btn-add" data-id="${plant.id}"><i class="fas fa-plus-circle"></i> Aggiungi al Giardino</button>`}
-            </div>
-        `;
-
-        // Listener per la modale di dettaglio della card (click sulla card, ma non sull'immagine o sui bottoni)
-        plantCard.addEventListener('click', (e) => {
-            // Assicurati che il click non sia sull'immagine (gestita da plantImageElement) o su un bottone di azione
-            if (!e.target.closest('.plant-image') && !e.target.closest('.card-actions button')) {
-                showPlantDetailsModal(plant.id);
-            }
-        });
-
-        container.appendChild(plantCard);
-
-        // Aggiungi listener per i bottoni "Modifica", "Rimuovi" e "Aggiungi" (dopo che innerHTML è stato impostato)
-        if (isMyGardenCurrentlyVisible) {
-            const editButton = plantCard.querySelector('.btn-edit');
-            if (editButton) {
-                editButton.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Evita che il click si propaghi alla card intera
-                    editPlant(e.target.dataset.id);
-                });
-            }
-            const removeButton = plantCard.querySelector('.btn-remove');
-            if (removeButton) {
-                removeButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    removePlantFromMyGarden(e.target.dataset.id);
-                });
-            }
-        } else {
-            const addButton = plantCard.querySelector('.btn-add');
-            if (addButton) {
-                addButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    addPlantToMyGarden(e.target.dataset.id);
-                });
-            }
-        }
-    });
-}
-
-// Funzione per mostrare i dettagli della pianta nella modale di zoom
-function showPlantDetailsModal(plantId) {
-    const plant = allPlants.find(p => p.id === plantId);
-    if (plant) {
-        zoomedCardContent.innerHTML = ''; // Pulisci il contenuto precedente
-
-        // Gestione dell'immagine nella modale di dettaglio
-        let detailsImageUrl;
-        if (plant.imageUrl && isMyGardenCurrentlyVisible) {
-            // Se in "Mio Giardino" e c'è un'immagine utente, usala
-            detailsImageUrl = plant.imageUrl;
-        } else {
-            // Altrimenti, usa l'icona generica della categoria
-            detailsImageUrl = categoryIcons[plant.category] || categoryIcons['Altro'];
-        }
-       
-
-        const detailsHtml = `
-            <h2>${plant.name}</h2>
-            <img id="zoomed-plant-image-display" src="${detailsImageUrl}" alt="Immagine di ${plant.name}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
-            <p><strong>Categoria:</strong> ${plant.category || 'N/A'}</p>
-            <p><strong>Descrizione:</strong> ${plant.description || 'N/A'}</p>
-            <p><strong>Temperatura:</strong> ${plant.tempMin !== null && plant.tempMax !== null ? `${plant.tempMin}°C - ${plant.tempMax}°C` : 'N/A'}</p>
-            <p><strong>Luce (Lux):</strong> ${plant.idealLuxMin !== null && plant.idealLuxMax !== null ? `${plant.idealLuxMin} - ${plant.idealLuxMax} Lux` : 'N/A'}</p>
-            <p><strong>Annaffiatura:</strong> ${plant.watering || 'N/A'}</p>
-            <p><strong>Aggiunta il:</strong> ${plant.createdAt ? new Date(plant.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
-            ${plant.updatedAt ? `<p><strong>Ultimo aggiornamento:</strong> ${new Date(plant.updatedAt.toDate()).toLocaleDateString()}</p>` : ''}
-        `;
-        zoomedCardContent.innerHTML = detailsHtml;
-        cardModal.style.display = 'flex';
-    }
-}
-
-// Funzione per aprire la modale di zoom immagine
-function openImageZoomModal(imageUrl) {
-    if (imageZoomDisplay) { // Controlla se l'elemento immagine della modale di zoom esiste
-        imageZoomDisplay.src = imageUrl; // Imposta l'URL dell'immagine da visualizzare
-        imageZoomModal.style.display = 'flex'; // Mostra la modale di zoom (usa 'flex' per centrare l'immagine)
-    } else {
-        console.error("Elemento 'imageZoomDisplay' non trovato. Assicurati che l'ID sia corretto nell'HTML.");
-        showToast("Impossibile caricare l'immagine zoom.", 'error');
-    }
-}
-
-// --- Funzioni Sensore Luce ---
-
-// Funzione per controllare la disponibilità del sensore e mostrare input manuale
-function checkLightSensorAvailability() {
+// --- Funzioni per il Sensore di Luce Ambientale ---
+async function checkLightSensorAvailability() {
     if ('AmbientLightSensor' in window) {
-        console.log('Sensore di luce ambientale disponibile.');
-        startLightSensorButton.style.display = 'inline-block';
-        stopLightSensorButton.style.display = 'inline-block';
-        manualLuxInputDiv.style.display = 'none'; // Nasconde l'input manuale se il sensore è disponibile
+        try {
+            ambientLightSensor = new AmbientLightSensor({ frequency: 100 });
+            ambientLightSensor.addEventListener('reading', () => {
+                const lux = ambientLightSensor.illuminance;
+                currentLuxValueSpan.textContent = `Valore Lux: ${lux.toFixed(2)}`;
+                updateLightFeedback(lux);
+            });
+            ambientLightSensor.addEventListener('error', event => {
+                console.error('Errore sensore luce:', event.error.name, event.error.message);
+                lightFeedbackDiv.textContent = `Errore sensore: ${event.error.message}`;
+            });
+            lightSensorContainer.style.display = 'block';
+            startLightSensorButton.style.display = 'inline-block';
+            stopLightSensorButton.style.display = 'none';
+            manualLuxInputDiv.style.display = 'none'; // Nascondi input manuale inizialmente
+            showToast('Sensore di luce ambientale disponibile.', 'info');
+        } catch (error) {
+            console.warn('Impossibile inizializzare AmbientLightSensor:', error);
+            lightSensorContainer.style.display = 'block'; // Mostra il contenitore
+            lightFeedbackDiv.textContent = 'Sensore di luce ambientale non disponibile o permesso negato. Usa l\'input manuale.';
+            startLightSensorButton.style.display = 'none';
+            stopLightSensorButton.style.display = 'none';
+            manualLuxInputDiv.style.display = 'block'; // Mostra input manuale
+            showToast('Sensore di luce ambientale non disponibile.', 'warning');
+        }
     } else {
-        console.log('Sensore di luce ambientale NON disponibile. Passaggio a input manuale.');
-        showToast('Sensore luce non disponibile. Inserisci i valori manualmente.', 'info', 5000);
+        lightSensorContainer.style.display = 'block'; // Mostra il contenitore
+        lightFeedbackDiv.textContent = 'Il tuo browser non supporta l\'API AmbientLightSensor. Usa l\'input manuale.';
         startLightSensorButton.style.display = 'none';
         stopLightSensorButton.style.display = 'none';
-        manualLuxInputDiv.style.display = 'block'; // Mostra l'input manuale
+        manualLuxInputDiv.style.display = 'block'; // Mostra input manuale
+        showToast('API AmbientLightSensor non supportata.', 'warning');
     }
 }
 
 function startLightSensor() {
-    if (!('AmbientLightSensor' in window)) {
-        showToast('Sensore luce non disponibile su questo dispositivo.', 'error');
-        return;
-    }
-
-    if (ambientLightSensor && ambientLightSensor.state === 'activated') {
-        showToast('Sensore già attivo.', 'info');
-        return;
-    }
-
-    try {
-        ambientLightSensor = new AmbientLightSensor();
-        ambientLightSensor.onreading = () => {
-            const lux = ambientLightSensor.illuminance;
-            currentLuxValueSpan.textContent = lux.toFixed(2);
-            updateLightFeedback(lux);
-            // Mostra il pulsante "Azzera Feedback Lux" quando il sensore è attivo
-            if (clearLightFeedbackButton) {
-                clearLightFeedbackButton.style.display = 'inline-block'; 
-            }
-        };
-        ambientLightSensor.onerror = (event) => {
-            console.error("Errore sensore luce:", event.error.name, event.error.message);
-            showToast(`Errore sensore luce: ${event.error.message}`, 'error', 5000);
-            stopLightSensor(); // Ferma il sensore in caso di errore
-            checkLightSensorAvailability();
-        };
+    if (ambientLightSensor) {
         ambientLightSensor.start();
-        showToast('Sensore luce avviato!', 'success');
-        console.log('Sensore luce avviato.');
-    } catch (error) {
-        console.error("Errore nell'avvio del sensore luce:", error);
-        showToast(`Errore nell'avvio del sensore luce: ${error.message}`, 'error', 5000);
-        checkLightSensorAvailability();
+        startLightSensorButton.style.display = 'none';
+        stopLightSensorButton.style.display = 'inline-block';
+        manualLuxInputDiv.style.display = 'none'; // Nascondi quando il sensore è attivo
+        showToast('Sensore di luce avviato.', 'info');
     }
 }
 
 function stopLightSensor() {
     if (ambientLightSensor) {
         ambientLightSensor.stop();
-        showToast('Sensore luce fermato.', 'info');
-        console.log('Sensore luce fermato.');
-        currentLuxValueSpan.textContent = 'N/A';
-        // Chiama la nuova funzione per pulire il feedback
-        clearLightFeedbackDisplay(); 
-    } else {
-        showToast('Sensore non attivo.', 'info');
+        lightFeedbackDiv.textContent = 'Sensore di luce fermato.';
+        startLightSensorButton.style.display = 'inline-block';
+        stopLightSensorButton.style.display = 'none';
+        manualLuxInputDiv.style.display = 'block'; // Mostra quando il sensore è fermo
+        showToast('Sensore di luce fermato.', 'info');
     }
 }
 
-function updateLightFeedback(lux) {
-    let generalFeedback = ''; // Feedback generale sull'ambiente
-    if (lux < 50) {
-        generalFeedback = 'Luce ambientale: molto bassa - ambiente buio.';
-    } else if (lux < 200) {
-        generalFeedback = 'Luce ambientale: bassa - adatto a piante d\'ombra profonda.';
-    } else if (lux < 1000) {
-        generalFeedback = 'Luce ambientale: media - ideale per piante d\'ombra o mezz\'ombra.';
-    } else if (lux < 5000) {
-        generalFeedback = 'Luce ambientale: buona - adatto a piante che amano la luce indiretta.';
-    } else if (lux < 10000) {
-        generalFeedback = 'Luce ambientale: alta - ideale per piante da pieno sole.';
-    } else {
-        generalFeedback = 'Luce ambientale: molto alta - ottimo per piante che amano il sole intenso.';
-    }
+function updateLightFeedback(currentLux) {
+    currentLuxDisplay.textContent = `Lux Attuali: ${currentLux.toFixed(2)}`;
+    luxFeedbackPlantsContainer.innerHTML = ''; // Pulisci il feedback precedente
 
-    // Inizializza il contenuto del div feedback con il feedback generale
-    lightFeedbackDiv.innerHTML = `<p>${generalFeedback}</p><hr>`;
+    const relevantPlants = allPlants.filter(plant =>
+        plant.idealLuxMin !== null &&
+        plant.idealLuxMax !== null &&
+        currentLux >= plant.idealLuxMin &&
+        currentLux <= plant.idealLuxMax
+    );
 
-    // Se ci sono piante nel mio giardino, fornisci feedback specifico per ciascuna
-    if (myGarden && myGarden.length > 0) {
-        lightFeedbackDiv.innerHTML += `<h4>Feedback per le piante nel tuo giardino:</h4>`;
-        myGarden.forEach(plant => {
-            const minLux = plant.idealLuxMin;
-            const maxLux = plant.idealLuxMax;
-            let plantSpecificHtml = `<p><strong>${plant.name}:</strong> `; // Definizione chiara di plantSpecificHtml
+    if (relevantPlants.length > 0) {
+        const feedbackMessage = document.createElement('p');
+        feedbackMessage.textContent = `Le seguenti piante sono adatte per ${currentLux.toFixed(2)} lux:`;
+        luxFeedbackPlantsContainer.appendChild(feedbackMessage);
 
-            if (minLux === undefined || maxLux === undefined || minLux === null || maxLux === null) {
-                plantSpecificHtml += `Dati Lux ideali non disponibili.`;
-            } else if (lux >= minLux && lux <= maxLux) {
-                plantSpecificHtml += `Condizioni di luce **Ideali** (${minLux}-${maxLux} Lux). <span style="color: #28a745;">&#10003;</span>`; // Checkmark verde
-            } else if (lux < minLux) {
-                plantSpecificHtml += `Luce **troppo bassa** (${lux.toFixed(0)} Lux), richiede almeno ${minLux} Lux. <span style="color: #dc3545;">&#10060;</span>`; // Cross mark rosso
-            } else { // lux > maxLux
-                plantSpecificHtml += `Luce **troppo alta** (${lux.toFixed(0)} Lux), richiede al massimo ${maxLux} Lux. <span style="color: #dc3545;">&#10060;</span>`; // Cross mark rosso
-            }
-            plantSpecificHtml += `</p>`;
-            lightFeedbackDiv.innerHTML += plantSpecificHtml; // Utilizza plantSpecificHtml
+        const ul = document.createElement('ul');
+        relevantPlants.forEach(plant => {
+            const li = document.createElement('li');
+            li.textContent = plant.name;
+            ul.appendChild(li);
         });
+        luxFeedbackPlantsContainer.appendChild(ul);
     } else {
-        lightFeedbackDiv.innerHTML += `<p>Nessuna pianta nel tuo giardino per un feedback specifico.</p>`;
-    }
-
-    // Mostra il pulsante "Azzera Feedback Lux" quando il feedback viene aggiornato
-    if (clearLightFeedbackButton) {
-        clearLightFeedbackButton.style.display = 'inline-block';
+        const noPlantsMessage = document.createElement('p');
+        noPlantsMessage.textContent = `Nessuna delle tue piante è attualmente adatta per ${currentLux.toFixed(2)} lux.`;
+        luxFeedbackPlantsContainer.appendChild(noPlantsMessage);
     }
 }
+
 function applyManualLux() {
     const manualLux = parseFloat(manualLuxInput.value);
     if (!isNaN(manualLux) && manualLux >= 0) {
-        currentLuxValueSpan.textContent = manualLux.toFixed(2);
+        currentLuxValueSpan.textContent = `Valore Lux Manuale: ${manualLux.toFixed(2)}`;
         updateLightFeedback(manualLux);
-         // Mostra il pulsante "Azzera Feedback Lux" quando il valore manuale viene applicato
-         if (clearLightFeedbackButton) {
-            clearLightFeedbackButton.style.display = 'inline-block';
-        }
+        showToast(`Lux manuale applicato: ${manualLux.toFixed(2)}`, 'success');
     } else {
-        showToast('Inserisci un valore Lux valido (numerico e non negativo).', 'error');
+        showToast('Inserisci un valore Lux valido (numero positivo).', 'error');
     }
 }
 
 function clearLightFeedbackDisplay() {
-    lightFeedbackDiv.innerHTML = '<p>Nessun feedback luce attivo.</p>';
-    if (clearLightFeedbackButton) {
-        clearLightFeedbackButton.style.display = 'none'; // Nasconde il bottone
-    }
+    currentLuxDisplay.textContent = 'Lux Attuali: N/A';
+    luxFeedbackPlantsContainer.innerHTML = '<p>Nessun feedback di luce visualizzato.</p>';
+    showToast('Feedback luce azzerato.', 'info');
 }
 
-// Funzione di placeholder per Google Lens
+
+// --- Funzioni per Google Lens (Placeholder) ---
 function launchGoogleLens() {
-    showToast('Funzionalità Google Lens non ancora implementata.', 'info', 3000);
-    // Qui andrebbe l'integrazione con l'API di Google Lens o un link diretto
-    // per esempio, potresti aprire una nuova scheda con Google Immagini
-    // window.open('https://images.google.com/searchbyimage?image_url=YOUR_IMAGE_URL_HERE', '_blank');
+    // Questo è un placeholder. L'API di Google Lens per il web è complessa e richiede integrazioni specifiche.
+    // Una possibile implementazione potrebbe coinvolgere:
+    // 1. Caricare un'immagine (dal file input o dalla galleria)
+    // 2. Inviare l'immagine a un backend che poi chiama l'API Cloud Vision di Google per l'analisi.
+    // 3. Mostrare i risultati all'utente.
+    // Per ora, mostriamo un semplice messaggio.
+    showToast('Funzionalità Google Lens non ancora implementata.', 'info');
+    console.log('Tentativo di avviare Google Lens...');
+    // Potresti reindirizzare a Google Images per una ricerca visiva:
+    // window.open('https://images.google.com/imghp?hl=en', '_blank');
 }
 
 
-// Funzione per recuperare i dati climatici da OpenWeatherMap
+// --- Funzioni per il Clima (Open-Meteo) ---
 async function getClimateData() {
     showLoadingSpinner();
-    const apiKey = 'ec44122d26f63116df1cf64b81c20963'; // Sostituisci con la tua chiave API di OpenWeatherMap
-
-    // Tenta di ottenere la posizione corrente dell'utente
+    // Ottieni la posizione corrente dell'utente
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (position) => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=it`;
-            const reverseGeocodeApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=it`; // Per ottenere il nome della città
+
+            const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto`;
 
             try {
-                // Chiamata per i dati climatici
-                const weatherResponse = await fetch(weatherApiUrl);
-                const weatherData = await weatherResponse.json();
+                const response = await fetch(weatherApiUrl);
+                const data = await response.json();
+                console.log("Dati meteo:", data);
 
-                // Chiamata per il reverse geocoding (per il nome della città)
-                const geocodeResponse = await fetch(reverseGeocodeApiUrl);
-                const geocodeData = await geocodeResponse.json();
-                
-                if (weatherData.main && geocodeData.name) {
-                    locationNameSpan.textContent = geocodeData.name;
-                    currentTempSpan.textContent = `${weatherData.main.temp}°C`;
-                    weatherDescriptionSpan.textContent = weatherData.weather[0].description;
-                    humiditySpan.textContent = `${weatherData.main.humidity}%`;
-                    windSpeedSpan.textContent = `${weatherData.wind.speed} m/s`;
-                    lastUpdatedSpan.textContent = new Date(weatherData.dt * 1000).toLocaleTimeString();
-                    showToast('Dati climatici aggiornati!', 'success');
+                if (data.current_weather) {
+                    const { temperature, windspeed, weathercode } = data.current_weather;
+                    const humidity = data.hourly.relative_humidity_2m[0]; // Prende il primo valore orario
+                    const timezone = data.timezone;
+                    const weatherDescription = getWeatherDescription(weathercode);
+
+                    locationNameSpan.textContent = `Posizione: Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)} (Fuso Orario: ${timezone})`;
+                    currentTempSpan.textContent = `Temperatura: ${temperature}°C`;
+                    weatherDescriptionSpan.textContent = `Condizioni: ${weatherDescription}`;
+                    humiditySpan.textContent = `Umidità: ${humidity}%`;
+                    windSpeedSpan.textContent = `Velocità Vento: ${windspeed} m/s`;
+                    lastUpdatedSpan.textContent = `Ultimo aggiornamento: ${new Date().toLocaleTimeString()}`;
+
+                    showToast('Dati meteo aggiornati!', 'success');
                 } else {
-                    showToast('Impossibile ottenere i dati climatici per la tua posizione.', 'error');
+                    showToast('Dati meteo non disponibili per la tua posizione.', 'warning');
                 }
             } catch (error) {
-                console.error("Errore nel recupero dati climatici:", error);
-                showToast(`Errore nel recupero dati climatici: ${error.message}`, 'error');
+                console.error("Errore nel recupero dei dati meteo:", error);
+                showToast(`Errore nel recupero dati meteo: ${error.message}`, 'error');
             } finally {
                 hideLoadingSpinner();
             }
         }, (error) => {
-            console.error("Errore geolocalizzazione:", error);
-            showToast('Impossibile accedere alla tua posizione per i dati climatici.', 'error', 5000);
+            console.error("Errore di geolocalizzazione:", error);
+            showToast(`Errore di geolocalizzazione: ${error.message}. Assicurati di aver concesso il permesso.`, 'error');
             hideLoadingSpinner();
         });
     } else {
-        showToast('Geolocalizzazione non supportata dal tuo browser.', 'error', 5000);
+        showToast('Geolocalizzazione non supportata dal tuo browser.', 'error');
         hideLoadingSpinner();
     }
 }
 
+function getWeatherDescription(code) {
+    // Mappa i codici meteo di Open-Meteo a descrizioni leggibili
+    const weatherCodes = {
+        0: 'Cielo sereno',
+        1: 'Prevalentemente sereno',
+        2: 'Parzialmente nuvoloso',
+        3: 'Cielo coperto',
+        45: 'Nebbia',
+        48: 'Nebbia gelata',
+        51: 'Pioggerella leggera',
+        53: 'Pioggerella moderata',
+        55: 'Pioggerella intensa',
+        56: 'Pioggerella gelata leggera',
+        57: 'Pioggerella gelata densa',
+        61: 'Pioggia leggera',
+        63: 'Pioggia moderata',
+        65: 'Pioggia forte',
+        66: 'Pioggia gelata leggera',
+        67: 'Pioggia gelata forte',
+        71: 'Nevicata leggera',
+        73: 'Nevicata moderata',
+        75: 'Nevicata forte',
+        77: 'Gragnola',
+        80: 'Rovesci leggeri',
+        81: 'Rovesci moderati',
+        82: 'Rovesci violenti',
+        85: 'Rovesci di neve leggeri',
+        86: 'Rovesci di neve forti',
+        95: 'Temporale',
+        96: 'Temporale con grandine leggera',
+        99: 'Temporale con grandine forte'
+    };
+    return weatherCodes[code] || 'Condizioni sconosciute';
+}
 
-// --- Inizializzazione quando il DOM è completamente caricato ---
+
+// --- Funzioni per il Ritaglio e Zoom Immagine ---
+function openCropImageModal(file) {
+    if (!file) return;
+
+    currentFile = file; // Salva il file originale
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imageToCrop.src = e.target.result;
+        cropImageModal.style.display = 'flex';
+
+        // Distruggi l'istanza precedente di Cropper se esiste
+        if (currentCropper) {
+            currentCropper.destroy();
+        }
+
+        // Inizializza Cropper.js
+        currentCropper = new Cropper(imageToCrop, {
+            aspectRatio: 1, // Puoi cambiare l'aspect ratio se desideri
+            viewMode: 1,
+            autoCropArea: 0.8, // Area di ritaglio iniziale
+            background: false, // Non mostrare lo sfondo a scacchiera
+            ready: function () {
+                // Opzionale: puoi fare qualcosa quando cropper è pronto
+            },
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function openImageZoomModal(imageUrl) {
+    imageZoomDisplay.src = imageUrl;
+    imageZoomModal.style.display = 'flex';
+}
+
+// Event Listener per l'input file (selezione immagine)
 document.addEventListener('DOMContentLoaded', () => {
+    // Inizializzazione Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
+        authDomain: "giardinodigitale.firebaseapp.com",
+        projectId: "giardinodigitale",
+        storageBucket: "giardinodigitale.firebasestorage.app",
+        messagingSenderId: "96265504027",
+        appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    auth = firebase.auth();
+    storage = firebase.storage();
+
     // Inizializzazione variabili DOM
-    loginForm = document.getElementById('login-form'); // Aggiungi questa riga
-    registerForm = document.getElementById('register-form'); // Aggiungi questa riga
-    gardenContainer = document.getElementById('garden-plants-container');
-    myGardenContainer = document.getElementById('my-garden-plants-container');
+    gardenContainer = document.getElementById('garden-container');
+    myGardenContainer = document.getElementById('my-garden-container');
     authContainerDiv = document.getElementById('auth-container');
     appContentDiv = document.getElementById('app-content');
-    loginButton = document.getElementById('loginButton');
-    registerButton = document.getElementById('registerButton');
-    showLoginLink = document.getElementById('showLoginLink');
-    showRegisterLink = document.getElementById('showRegisterLink');
-    emailInput = document.getElementById('login-email');
-    passwordInput = document.getElementById('login-password');
+    loginButton = document.getElementById('login-button');
+    registerButton = document.getElementById('register-button');
+    showLoginLink = document.getElementById('show-login');
+    showRegisterLink = document.getElementById('show-register');
+    emailInput = document.getElementById('email-input');
+    passwordInput = document.getElementById('password-input');
     loginError = document.getElementById('login-error');
-    registerEmailInput = document.getElementById('register-email');
-    registerPasswordInput = document.getElementById('register-password');
-    registerError = document.getElementById('registerError');
+    registerEmailInput = document.getElementById('register-email-input');
+    registerPasswordInput = document.getElementById('register-password-input');
+    registerError = document.getElementById('register-error');
     authStatusSpan = document.getElementById('auth-status');
-    logoutButton = document.getElementById('logoutButton');
-    searchInput = document.getElementById('searchInput');
-    categoryFilter = document.getElementById('categoryFilter');
-    addNewPlantButton = document.getElementById('addNewPlantButton');
-    showAllPlantsButton = document.getElementById('showAllPlantsButton');
-    showMyGardenButton = document.getElementById('showMyGardenButton');
-    plantsSectionHeader = document.getElementById('plantsSectionHeader');
+    logoutButton = document.getElementById('logout-button');
+    searchInput = document.getElementById('search-input');
+    categoryFilter = document.getElementById('category-filter');
+    addNewPlantButton = document.getElementById('add-new-plant-button');
+    showAllPlantsButton = document.getElementById('show-all-plants-button');
+    showMyGardenButton = document.getElementById('show-my-garden-button');
+    plantsSectionHeader = document.getElementById('plants-section-header');
     lightSensorContainer = document.getElementById('light-sensor-container');
-    startLightSensorButton = document.getElementById('startLightSensorButton');
-    stopLightSensorButton = document.getElementById('stopLightSensorButton');
+    startLightSensorButton = document.getElementById('start-light-sensor-button');
+    stopLightSensorButton = document.getElementById('stop-light-sensor-button');
     currentLuxValueSpan = document.getElementById('current-lux-value');
-    lightFeedbackDiv = document.getElementById('lightfeedback');
-    manualLuxInputDiv = document.getElementById('manual-lux-input-group'); // Inizializza il nuovo div
-    applyManualLuxButton = document.getElementById('apply-manual-lux'); // Inizializza il nuovo bottone
-    tempMinFilter = document.getElementById('tempMinFilter');
-    tempMaxFilter = document.getElementById('tempMaxFilter');
-    sortBySelect = document.getElementById('sortBySelect');
+    lightFeedbackDiv = document.getElementById('light-feedback');
+    manualLuxInputDiv = document.getElementById('manual-lux-input-group');
+    applyManualLuxButton = document.getElementById('apply-manual-lux-button');
+    tempMinFilter = document.getElementById('temp-min-filter');
+    tempMaxFilter = document.getElementById('temp-max-filter');
+    sortBySelect = document.getElementById('sort-by-select');
     plantModal = document.getElementById('plant-modal');
-    plantForm = document.getElementById('plantForm');
-    closePlantModalButton = document.getElementById('closePlantModalButton');
+    plantForm = document.getElementById('plant-form');
+    closePlantModalButton = document.getElementById('close-plant-modal');
     plantNameInput = document.getElementById('plant-name');
     plantCategorySelect = document.getElementById('plant-category');
     sunLightSelect = document.getElementById('plant-sunlight');
@@ -1055,100 +1105,96 @@ document.addEventListener('DOMContentLoaded', () => {
     plantWateringInput = document.getElementById('plant-watering');
     plantIdealLuxMinInput = document.getElementById('plant-ideal-lux-min');
     plantIdealLuxMaxInput = document.getElementById('plant-ideal-lux-max');
-    plantImageInput = document.getElementById('plantImageInput');
-    plantImagePreview = document.getElementById('plantImagePreview');
+    plantImageInput = document.getElementById('plant-image-input');
+    plantImagePreview = document.getElementById('plant-image-preview');
     saveUpdatePlantButton = document.getElementById('save-update-plant-button');
-    cancelUpdatePlantButton = document.getElementById('cancelUpdatePlantButton');
+    cancelUpdatePlantButton = document.getElementById('cancel-update-plant-button');
     deletePlantButton = document.getElementById('delete-plant-button');
-    imageModal = document.getElementById('imageModal');
-    closeImageModalButton = document.getElementById('closeImageModalButton');
+    imageModal = document.getElementById('image-modal');
+    closeImageModalButton = document.getElementById('close-image-modal');
+    sunLightFilter = document.getElementById('sunlight-filter');
     plantModalTitle = document.getElementById('plant-modal-title');
     cardModal = document.getElementById('card-modal');
-    closeCardModalButton = document.getElementById('closeCardModalButton');
+    closeCardModalButton = document.getElementById('close-card-modal');
     zoomedCardContent = document.getElementById('zoomed-card-content');
-    getClimateButton = document.getElementById('fetch-weather-button');
+    getClimateButton = document.getElementById('get-climate-button');
     locationNameSpan = document.getElementById('location-name');
     currentTempSpan = document.getElementById('current-temp');
     weatherDescriptionSpan = document.getElementById('weather-description');
     humiditySpan = document.getElementById('humidity');
     windSpeedSpan = document.getElementById('wind-speed');
     lastUpdatedSpan = document.getElementById('last-updated');
-    googleLensButton = document.getElementById('googlelensbutton'); // Inizializza qui
+    googleLensButton = document.getElementById('google-lens-button');
     cropImageModal = document.getElementById('crop-image-modal');
     closeCropImageModalButton = document.getElementById('close-crop-image-modal');
-    imageToCrop = document.getElementById('imageToCrop');
-    cropButton = document.getElementById('cropButton');
-    imageZoomModal = document.getElementById('imageZoomModal');
-    closeImageZoomModalButton = document.getElementById('closeImageZoomModal');
-    imageZoomDisplay = document.getElementById('imageZoomDisplay');
-
-    rotateLeftButton = document.getElementById('rotateLeftButton');
-    rotateRightButton = document.getElementById('rotateRightButton');
-    zoomInButton = document.getElementById('zoomInButton');
-    zoomOutButton = document.getElementById('zoomOutButton');
-    manualLuxInput = document.getElementById('manualLuxInput');
-    currentLuxDisplay = document.getElementById('current-lux-value');
+    imageToCrop = document.getElementById('image-to-crop');
+    cropButton = document.getElementById('crop-button');
+    imageZoomModal = document.getElementById('image-zoom-modal');
+    closeImageZoomModalButton = document.getElementById('close-image-zoom-modal');
+    imageZoomDisplay = document.getElementById('image-zoom-display');
+    rotateLeftButton = document.getElementById('rotate-left-button');
+    rotateRightButton = document.getElementById('rotate-right-button');
+    zoomInButton = document.getElementById('zoom-in-button');
+    zoomOutButton = document.getElementById('zoom-out-button');
+    manualLuxInput = document.getElementById('manual-lux-input');
+    currentLuxDisplay = document.getElementById('current-lux-display');
     luxFeedbackPlantsContainer = document.getElementById('lux-feedback-plants-container');
-    clearLightFeedbackButton = document.getElementById('clearlightfeedbackbutton'); // Inizializza il nuovo bottone
-    sunLightFilter = document.getElementById('sun-light-filter');
+    clearLuxFeedbackButton = document.getElementById('clear-lux-feedback-button');
+    clearLightFeedbackButton = document.getElementById('clear-light-feedback-button');
+    loginForm = document.getElementById('login-form');
+    registerForm = document.getElementById('register-form');
 
-    // **********************************
     // CHIAMATA ALLA FUNZIONE DI INIZIALIZZAZIONE AUTENTICAZIONE
-    setupAuthListeners(); 
-    // **********************************
-   
-    window.addEventListener('click', (e) => {
-        if (e.target === plantModal) {
-            plantModal.style.display = 'none';
-            plantForm.reset(); // Resetta il form quando la modale è chiusa
-            plantImagePreview.style.display = 'none'; // Nascondi l'anteprima
-            plantImagePreview.src = '#'; // Pulisci la sorgente dell'immagine
-            currentPlantIdToUpdate = null; // Resetta l'ID della pianta da aggiornare
-            croppedImageBlob = null; // Resetta il blob dell'immagine ritagliata
-            currentFile = null; // Resetta il file originale
-            if (currentCropper) {
-                currentCropper.destroy();
-                currentCropper = null;
-            }
-        }
-        if (e.target === cardModal) {
-            closeCardModal();
-        }
-    });
+    setupAuthListeners();
 
-    // Event Listeners per i bottoni principali
+    // Event Listeners principali
     addNewPlantButton.addEventListener('click', () => {
-        currentPlantIdToUpdate = null; // Quando aggiungi una nuova pianta, azzera l'ID
+        plantModal.style.display = 'flex';
         plantForm.reset();
         plantImagePreview.style.display = 'none';
         plantImagePreview.src = '#';
+        currentPlantIdToUpdate = null;
         if (plantModalTitle) {
             plantModalTitle.textContent = 'Aggiungi Nuova Pianta'; // Reimposta il titolo
         }
         saveUpdatePlantButton.textContent = 'Salva Pianta';
-        deletePlantButton.style.display = 'none'; // Nascondi il bottone elimina per la nuova pianta
-        plantModal.style.display = 'flex';
+        deletePlantButton.style.display = 'none'; // Nascondi il bottone elimina per le nuove piante
         croppedImageBlob = null; // Resetta il blob dell'immagine ritagliata
         currentFile = null; // Resetta il file originale
         if (currentCropper) {
-            currentCropper.destroy();
+            currentCropper.destroy(); // Distruggi l'istanza di cropper se esiste
             currentCropper = null;
         }
     });
 
     closePlantModalButton.addEventListener('click', () => {
         plantModal.style.display = 'none';
-        plantForm.reset();
-        plantImagePreview.style.display = 'none';
-        plantImagePreview.src = '#';
-        currentPlantIdToUpdate = null;
-        croppedImageBlob = null;
-        currentFile = null;
         if (currentCropper) {
-            currentCropper.destroy();
+            currentCropper.destroy(); // Assicurati di distruggere l'istanza di cropper
             currentCropper = null;
         }
     });
+
+    // Chiudi la modale se si clicca fuori dal contenuto
+    plantModal.addEventListener('click', (e) => {
+        if (e.target === plantModal) {
+            plantModal.style.display = 'none';
+            if (currentCropper) {
+                currentCropper.destroy();
+                currentCropper = null;
+            }
+        }
+    });
+
+    closeCardModalButton.addEventListener('click', closeCardModal);
+
+    cardModal.addEventListener('click', (e) => {
+        if (e.target === cardModal) {
+            closeCardModal();
+        }
+    });
+
+    plantForm.addEventListener('submit', savePlantToFirestore);
 
     cancelUpdatePlantButton.addEventListener('click', () => {
         plantModal.style.display = 'none';
@@ -1164,75 +1210,102 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    closeCardModalButton.addEventListener('click', closeCardModal);
+    deletePlantButton.addEventListener('click', () => {
+        if (currentPlantIdToUpdate) {
+            deletePlantFromFirestore(currentPlantIdToUpdate);
+        }
+    });
 
-
-    // Listener per il form di aggiunta/modifica pianta
-    plantForm.addEventListener('submit', savePlantToFirestore);
-
-    // Listener per l'input di ricerca e filtro
+    // Filtri e Ordinamento
     searchInput.addEventListener('input', applyFiltersAndSort);
     categoryFilter.addEventListener('change', applyFiltersAndSort);
+    tempMinFilter.addEventListener('input', applyFiltersAndSort);
+    tempMaxFilter.addEventListener('input', applyFiltersAndSort);
     sortBySelect.addEventListener('change', (e) => {
-        currentSortBy = e.target.value; // Aggiorna il criterio di ordinamento
-        applyFiltersAndSort(); // Riapplica filtri e ordinamento
+        currentSortBy = e.target.value;
+        applyFiltersAndSort();
     });
 
+    showAllPlantsButton.addEventListener('click', () => {
+        isMyGardenCurrentlyVisible = false;
+        plantsSectionHeader.textContent = 'Tutte le Piante Disponibili';
+        showMyGardenButton.classList.remove('active');
+        showAllPlantsButton.classList.add('active');
+        loadAllPlants(); // Assicurati che vengano caricate e mostrate tutte le piante
+    });
 
-    // Listener per visualizzare tutte le piante o il mio giardino
-    showAllPlantsButton.addEventListener('click', displayAllPlants);
-    showMyGardenButton.addEventListener('click', displayMyGarden);
+    showMyGardenButton.addEventListener('click', () => {
+        isMyGardenCurrentlyVisible = true;
+        plantsSectionHeader.textContent = 'Il Mio Giardino';
+        showAllPlantsButton.classList.remove('active');
+        showMyGardenButton.classList.add('active');
+        loadMyGarden(); // Assicurati che vengano caricate e mostrate le piante del giardino
+    });
 
-    // Listener per l'input immagine della pianta
+    // Event Listener per l'input dell'immagine
     plantImageInput.addEventListener('change', (event) => {
-        currentFile = event.target.files[0]; // Salva il file originale
-        if (currentFile) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imageToCrop.src = e.target.result; // Carica l'immagine nella modale di ritaglio
-                cropImageModal.style.display = 'flex'; // Mostra la modale di ritaglio
-                // Inizializza Cropper.js dopo che l'immagine è stata caricata
-                if (currentCropper) {
-                    currentCropper.destroy(); // Distrugge l'istanza precedente se esiste
-                }
-                currentCropper = new Cropper(imageToCrop, {
-                    aspectRatio: 1, // Imposta un rapporto 1:1 per immagini quadrate
-                    viewMode: 1, // Permette all'area di ritaglio di essere più grande del canvas
-                });
-            };
-            reader.readAsDataURL(currentFile);
+        const file = event.target.files[0];
+        if (file) {
+            openCropImageModal(file);
         }
     });
 
-    // Listener per il bottone di ritaglio
-    cropButton.addEventListener('click', () => {
+    // Event Listener per il bottone di ritaglio
+    if (cropButton) {
+        cropButton.addEventListener('click', () => {
+            if (currentCropper) {
+                currentCropper.getCroppedCanvas().toBlob((blob) => {
+                    croppedImageBlob = blob;
+                    plantImagePreview.src = URL.createObjectURL(blob);
+                    plantImagePreview.style.display = 'block';
+                    cropImageModal.style.display = 'none'; // Chiudi la modale di ritaglio
+                    currentCropper.destroy(); // Distruggi l'istanza di Cropper dopo il ritaglio
+                    currentCropper = null;
+                }, 'image/jpeg', 0.9); // Formato e qualità dell'immagine ritagliata
+            }
+        });
+    }
+
+    // Event Listeners per i bottoni di rotazione/zoom
+    if (rotateLeftButton) {
+        rotateLeftButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.rotate(-90);
+        });
+    }
+    if (rotateRightButton) {
+        rotateRightButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.rotate(90);
+        });
+    }
+    if (zoomInButton) {
+        zoomInButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.zoom(0.1);
+        });
+    }
+    if (zoomOutButton) {
+        zoomOutButton.addEventListener('click', () => {
+            if (currentCropper) currentCropper.zoom(-0.1);
+        });
+    }
+
+    // Event Listeners per la chiusura delle modali immagine
+    if (closeImageModalButton) closeImageModalButton.addEventListener('click', () => {
+        imageModal.style.display = 'none';
         if (currentCropper) {
-            // Ottieni l'immagine ritagliata come blob
-            currentCropper.getCroppedCanvas().toBlob((blob) => {
-                croppedImageBlob = blob; // Memorizza il blob ritagliato
-                plantImagePreview.src = URL.createObjectURL(blob); // Mostra l'anteprima
-                plantImagePreview.style.display = 'block';
-                cropImageModal.style.display = 'none'; // Chiudi la modale di ritaglio
-                currentCropper.destroy(); // Distruggi l'istanza di Cropper
-                currentCropper = null;
-            }, 'image/jpeg', 0.9); // Formato e qualità dell'immagine
+            currentCropper.destroy();
+            currentCropper = null;
         }
     });
-
-    // Listener per i bottoni di rotazione e zoom
-    rotateLeftButton.addEventListener('click', () => {
-        if (currentCropper) currentCropper.rotate(-90);
+    if (closeCropImageModalButton) closeCropImageModalButton.addEventListener('click', () => {
+        cropImageModal.style.display = 'none';
+        if (currentCropper) {
+            currentCropper.destroy();
+            currentCropper = null;
+        }
     });
-    rotateRightButton.addEventListener('click', () => {
-        if (currentCropper) currentCropper.rotate(90);
+    if (closeImageZoomModalButton) closeImageZoomModalButton.addEventListener('click', () => {
+        imageZoomModal.style.display = 'none';
     });
-    zoomInButton.addEventListener('click', () => {
-        if (currentCropper) currentCropper.zoom(0.1);
-    });
-    zoomOutButton.addEventListener('click', () => {
-        if (currentCropper) currentCropper.zoom(-0.1);
-    });
-
 
     // Chiudi la modale di ritaglio cliccando fuori
     if (cropImageModal) cropImageModal.addEventListener('click', (e) => {
