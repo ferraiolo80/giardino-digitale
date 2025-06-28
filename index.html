@@ -6,10 +6,15 @@
     <title>Il Mio Giardino Digitale</title>
     <!-- Collega il tuo file CSS personalizzato -->
     <link rel="stylesheet" href="./style.css">
-    <!-- Importa React e ReactDOM dalla CDN per semplicità se non usi un bundler -->
-    <!-- Per un progetto di produzione, usa npm/yarn e un bundler (es. Vite, Create React App) -->
+    <!-- Importa React e ReactDOM dalla CDN -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Importa Babel standalone per transpilare JSX nel browser -->
+    <script crossorigin src="https://unpkg.com/@babel/standalone@7.24.6/babel.min.js"></script>
+    <!-- Importa le librerie Firebase dalla CDN per l'accesso globale -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <!-- Font Inter per un look pulito -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -17,7 +22,7 @@
     <div id="root">
         <!-- Qui verrà montata la tua app React -->
     </div>
-    <!-- Carica il tuo script React principale (App.js) come modulo -->
-    <script type="module" src="./App.js"></script>
+    <!-- Carica il tuo script React principale (App.js) con type="text/babel" -->
+    <script type="text/babel" src="./App.js"></script>
 </body>
 </html>
