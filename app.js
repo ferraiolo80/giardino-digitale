@@ -222,6 +222,7 @@ const App = () => {
     // Gestione Modale Pianta
     const openPlantModal = React.useCallback((plant) => {
         setSelectedPlant(plant);
+        console.log("openPlantModal: plant received:", plant); // ADDED LOG
         setShowPlantModal(true);
     }, []);
 
@@ -233,6 +234,7 @@ const App = () => {
     // Gestione Modale Aggiungi/Modifica Pianta
     const openAddEditModal = React.useCallback((plantToEdit = null) => {
         setEditPlantData(plantToEdit);
+        console.log("openAddEditModal: plantToEdit received:", plantToEdit); // ADDED LOG
         setShowAddEditModal(true);
     }, []);
 
@@ -243,8 +245,9 @@ const App = () => {
 
     // Funzioni CRUD per le piante (Collezione Pubblica e Mio Giardino)
     const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null, imageFile = null) => {
+        console.log("addOrUpdatePlant: Function called."); // ADDED LOG
         if (!db || !userId || !storage) {
-            setMessage("Errore: Utente non autenticato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato o app non inizializzata.");
             return;
         }
         setLoading(true);
@@ -276,15 +279,22 @@ const App = () => {
 
         // Il campo scientificName verrà usato per memorizzare la dimensione ideale del vaso.
         const finalPlantData = { ...plantData, image: imageUrl };
-        console.log("Dati finali per Firestore (Update/Add):", finalPlantData);
-        console.log("ID pianta (da modal) per operazione:", plantId);
+        console.log("addOrUpdatePlant: Dati finali per Firestore (Update/Add):", finalPlantData);
+        console.log("addOrUpdatePlant: ID pianta (da modal) per operazione:", plantId);
+        console.log("addOrUpdatePlant: CURRENT editPlantData state:", editPlantData); // ADDED LOG for debugging
+
 
         try {
             // Determina quale collezione aggiornare/aggiungere
             // Se plantId è presente e la pianta da modificare ha isMyGardenPlant a true,
             // si tratta di un aggiornamento di una pianta nel "Mio Giardino".
             // Altrimenti, è un'aggiunta o aggiornamento di una pianta pubblica.
-            if (plantId && editPlantData && editPlantData.isMyGardenPlant) {
+            const isMyGardenPlantUpdate = plantId && editPlantData && editPlantData.isMyGardenPlant;
+            console.log("addOrUpdatePlant: Is editing My Garden plant?", isMyGardenPlantUpdate); // ADDED LOG
+            console.log("addOrUpdatePlant: editPlantData.isMyGardenPlant value:", editPlantData ? editPlantData.isMyGardenPlant : 'N/A'); // ADDED LOG
+
+
+            if (plantId && isMyGardenPlantUpdate) {
                 const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantId);
                 await myGardenDocRef.update(finalPlantData);
                 setMessage("Pianta nel tuo giardino aggiornata con successo!");
@@ -311,7 +321,7 @@ const App = () => {
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
-            setMessage("Errore: Utente non autenticato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato o app non inizializzata.");
             return;
         }
 
@@ -376,7 +386,7 @@ const App = () => {
     // Funzioni per il "Mio Giardino"
     const addPlantToMyGarden = React.useCallback(async (plant) => { // Ora accetta l'intero oggetto pianta
         if (!db || !userId) {
-            setMessage("Errore: Utente non autenticato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato o app non inizializzata.");
             return;
         }
         setLoading(true);
@@ -412,7 +422,7 @@ const App = () => {
 
     const removePlantFromMyGarden = React.useCallback(async (plantId) => {
         if (!db || !userId) {
-            setMessage("Errore: Utente non autenticato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato o app non inizializzata.");
             return;
         }
 
@@ -714,8 +724,8 @@ const App = () => {
                 tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
                 tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
             };
-            console.log("Dati inviati per aggiornamento:", dataToSend); // Log i dati inviati dal form
-            console.log("File immagine selezionato:", selectedFile); // Log il file immagine selezionato
+            console.log("AddEditPlantModal handleSubmit: Dati inviati per aggiornamento:", dataToSend); // ADDED LOG
+            console.log("AddEditPlantModal handleSubmit: File immagine selezionato:", selectedFile); // ADDED LOG
             onSubmit(dataToSend, plantToEdit ? plantToEdit.id : null, selectedFile); // Passa anche il file selezionato
         };
 
