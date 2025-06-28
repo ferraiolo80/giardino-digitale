@@ -57,7 +57,7 @@ const App = () => {
                     console.log("ID Utente corrente:", user.uid); // Console log dell'ID utente
                     setLoading(false);
                 } else {
-                    // Se non autenticato con un token, tenta l'accesso anonimo
+                    // Se non autentato con un token, tenta l'accesso anonimo
                     try {
                         const { user: anonymousUser } = await firebaseAuth.signInAnonymously(); // Usa firebaseAuth.signInAnonymously()
                         setUserId(anonymousUser.uid);
@@ -97,6 +97,7 @@ const App = () => {
         const plantsCollectionRef = db.collection('plants');
         const unsubscribe = plantsCollectionRef.onSnapshot((snapshot) => {
             const plantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            console.log("Firestore (plants) data received:", plantsData); // ADDED LOG
             setPlants(plantsData);
         }, (error) => {
             console.error("Errore nel recupero delle piante pubbliche:", error);
@@ -118,6 +119,7 @@ const App = () => {
                 ...doc.data(),
                 isMyGardenPlant: true // Indica che è una pianta del giardino personale
             }));
+            console.log("Firestore (myGardenPlants) data received:", myGardenData); // ADDED LOG
             setMyGardenPlants(myGardenData);
         }, (error) => {
             console.error("Errore nel recupero delle piante del mio giardino:", error);
@@ -239,7 +241,7 @@ const App = () => {
         setEditPlantData(null);
     }, []);
 
-    // Funzioni CRUD per le piante (Collezione Pubblica)
+    // Funzioni CRUD per le piante (Collezione Pubblica e Mio Giardino)
     const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null, imageFile = null) => {
         if (!db || !userId || !storage) {
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
@@ -258,7 +260,7 @@ const App = () => {
                 const snapshot = await imageRef.put(imageFile); // Carica il file
                 imageUrl = await snapshot.ref.getDownloadURL(); // Ottieni l'URL scaricabile
                 setMessage("Immagine caricata con successo!");
-                console.log("URL immagine caricata:", imageUrl); // Log dell'URL dopo il caricamento
+                console.log("URL immagine caricata:", imageUrl);
             } catch (error) {
                 console.error("Errore durante il caricamento dell'immagine:", error);
                 setMessage("Errore durante il caricamento dell'immagine. Riprova.");
@@ -273,22 +275,30 @@ const App = () => {
 
 
         // Il campo scientificName verrà usato per memorizzare la dimensione ideale del vaso.
-        // Questo per non modificare la struttura del database già esistente,
-        // ma si adatta alla nuova esigenza dell'interfaccia utente.
         const finalPlantData = { ...plantData, image: imageUrl };
-        console.log("Dati finali per Firestore (Update):", finalPlantData); // Log i dati finali che vanno a Firestore
-        console.log("ID pianta per aggiornamento:", plantId); // Log l'ID della pianta da aggiornare
+        console.log("Dati finali per Firestore (Update/Add):", finalPlantData);
+        console.log("ID pianta (da modal) per operazione:", plantId);
 
         try {
-            const plantsCollectionRef = db.collection('plants'); // Usa db.collection()
-            if (plantId) {
-                // Aggiorna pianta esistente
-                await plantsCollectionRef.doc(plantId).update(finalPlantData); // Usa .doc().update()
-                setMessage("Pianta aggiornata con successo!");
-            } else {
-                // Aggiungi nuova pianta
-                await plantsCollectionRef.add({ ...finalPlantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); // Usa .add() e FieldValue
-                setMessage("Pianta aggiunta con successo!");
+            // Determina quale collezione aggiornare/aggiungere
+            // Se plantId è presente e la pianta da modificare ha isMyGardenPlant a true,
+            // si tratta di un aggiornamento di una pianta nel "Mio Giardino".
+            // Altrimenti, è un'aggiunta o aggiornamento di una pianta pubblica.
+            if (plantId && editPlantData && editPlantData.isMyGardenPlant) {
+                const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantId);
+                await myGardenDocRef.update(finalPlantData);
+                setMessage("Pianta nel tuo giardino aggiornata con successo!");
+                console.log("Aggiornata pianta nel mio giardino con ID:", plantId);
+            } else if (plantId) {
+                const publicPlantDocRef = db.collection('plants').doc(plantId);
+                await publicPlantDocRef.update(finalPlantData);
+                setMessage("Pianta pubblica aggiornata con successo!");
+                console.log("Aggiornata pianta pubblica con ID:", plantId);
+            } else { // Aggiunta di una nuova pianta pubblica
+                const plantsCollectionRef = db.collection('plants');
+                await plantsCollectionRef.add({ ...finalPlantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                setMessage("Nuova pianta aggiunta alla collezione pubblica con successo!");
+                console.log("Aggiunta nuova pianta pubblica.");
             }
             closeAddEditModal();
         } catch (error) {
@@ -297,7 +307,7 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    }, [db, userId, storage, closeAddEditModal]);
+    }, [db, userId, storage, editPlantData, closeAddEditModal]); // Aggiungi editPlantData alle dipendenze
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
@@ -975,7 +985,6 @@ const App = () => {
                                             </li>
                                         ) : null;
                                     })}
-                                    {/* Mostra il messaggio generico solo se non ci sono feedback specifici (es. luxValue non valido o piante senza dati) */}
                                     {(!luxValue || isNaN(parseFloat(luxValue))) && (
                                         <li className="feedback-item">Inserisci un valore Lux per un feedback.</li>
                                     )}
