@@ -1068,3 +1068,4 @@ function setupAuthListeners() {
         if (getClimateButton) getClimateButton.addEventListener('click', getClimateData);
 
     });
+});
