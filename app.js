@@ -5,7 +5,7 @@ const App = () => {
     // Stato per l'applicazione
     const [db, setDb] = React.useState(null);
     const [auth, setAuth] = React.useState(null);
-    const [storage, setStorage] = React.useState(null); // NUOVO: Stato per Firebase Storage
+    const [storage, setStorage] = React.useState(null); // Stato per Firebase Storage
     const [userId, setUserId] = React.useState(null);
     const [plants, setPlants] = React.useState([]); // Tutte le piante (collezione pubblica)
     const [myGardenPlants, setMyGardenPlants] = React.useState([]); // Le piante nel mio giardino
@@ -19,7 +19,7 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
 
@@ -44,22 +44,24 @@ const App = () => {
             const app = firebase.initializeApp(firebaseConfig);
             const firestore = firebase.firestore(app); // Usa firebase.firestore()
             const firebaseAuth = firebase.auth(app); // Usa firebase.auth()
-            const firebaseStorage = firebase.storage(app); // NUOVO: Usa firebase.storage()
+            const firebaseStorage = firebase.storage(app); // Usa firebase.storage()
 
             setDb(firestore);
             setAuth(firebaseAuth);
-            setStorage(firebaseStorage); // NUOVO: Imposta lo stato per storage
+            setStorage(firebaseStorage); // Imposta lo stato per storage
 
             // Listener per lo stato di autenticazione
             const unsubscribeAuth = firebaseAuth.onAuthStateChanged(async (user) => { // Usa firebaseAuth.onAuthStateChanged
                 if (user) {
                     setUserId(user.uid);
+                    console.log("ID Utente corrente:", user.uid); // Console log dell'ID utente
                     setLoading(false);
                 } else {
                     // Se non autenticato con un token, tenta l'accesso anonimo
                     try {
                         const { user: anonymousUser } = await firebaseAuth.signInAnonymously(); // Usa firebaseAuth.signInAnonymously()
                         setUserId(anonymousUser.uid);
+                        console.log("ID Utente anonimo:", anonymousUser.uid); // Console log dell'ID utente anonimo
                         setLoading(false);
                     } catch (error) {
                         console.error("Errore nell'accesso anonimo:", error);
@@ -238,8 +240,8 @@ const App = () => {
     }, []);
 
     // Funzioni CRUD per le piante (Collezione Pubblica)
-    const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null, imageFile = null) => { // NUOVO: Aggiungi imageFile
-        if (!db || !userId || !storage) { // NUOVO: Controlla anche storage
+    const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null, imageFile = null) => {
+        if (!db || !userId || !storage) {
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
             return;
         }
@@ -248,7 +250,7 @@ const App = () => {
 
         let imageUrl = plantData.image; // Inizia con l'URL esistente o quello fornito nel form
 
-        // NUOVO: Gestione upload immagine
+        // Gestione upload immagine
         if (imageFile) {
             try {
                 const storageRef = storage.ref(); // Ottieni il riferimento allo storage
@@ -287,7 +289,7 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    }, [db, userId, storage, closeAddEditModal]); // NUOVO: Aggiungi 'storage' alle dipendenze
+    }, [db, userId, storage, closeAddEditModal]);
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
@@ -629,8 +631,8 @@ const App = () => {
             tempMax: '',
             tempMin: '',
         });
-        const [selectedFile, setSelectedFile] = React.useState(null); // NUOVO: Stato per il file selezionato
-        const [imagePreviewUrl, setImagePreviewUrl] = React.useState(''); // NUOVO: Stato per l'anteprima immagine
+        const [selectedFile, setSelectedFile] = React.useState(null); // Stato per il file selezionato
+        const [imagePreviewUrl, setImagePreviewUrl] = React.useState(''); // Stato per l'anteprima immagine
 
         React.useEffect(() => {
             if (plantToEdit) {
@@ -664,7 +666,7 @@ const App = () => {
             setFormData(prev => ({ ...prev, [name]: value }));
         };
 
-        // NUOVO: Gestione del cambiamento del file input
+        // Gestione del cambiamento del file input
         const handleFileChange = (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -692,7 +694,7 @@ const App = () => {
                 tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
                 tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
             };
-            onSubmit(dataToSend, plantToEdit ? plantToEdit.id : null, selectedFile); // NUOVO: Passa anche il file selezionato
+            onSubmit(dataToSend, plantToEdit ? plantToEdit.id : null, selectedFile); // Passa anche il file selezionato
         };
 
         return (
@@ -740,7 +742,7 @@ const App = () => {
                                 rows="3"
                             ></textarea>
                         </div>
-                        {/* NUOVO: Campo per il caricamento dell'immagine */}
+                        {/* Campo per il caricamento dell'immagine */}
                         <div className="form-group">
                             <label htmlFor="imageFile">Carica Immagine Pianta</label>
                             <input
