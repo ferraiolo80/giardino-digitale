@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
-import ReactDOM from 'react-dom/client'; // Importa ReactDOM per il rendering
+// Non importare React e ReactDOM da 'react' e 'react-dom' se usi CDN come fatto in index.html
+// Li userai come variabili globali React e ReactDOM.
 
 const App = () => {
     // Stato per l'applicazione
@@ -21,11 +18,11 @@ const App = () => {
     const [luxValue, setLuxValue] = useState(''); // Valore input lux
     const [userLocation, setUserLocation] = useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = useState('5a68d2b9d0dd9224423ad759b816a73c'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
 
     // Riferimenti per lo scroll
-    const allPlantsRef = useRef(null);
-    const myGardenRef = useRef(null);
+    const allPlantsRef = React.useRef(null);
+    const myGardenRef = React.useRef(null);
 
     // Configurazione Firebase fornita dall'utente
     const firebaseConfig = {
@@ -38,24 +35,25 @@ const App = () => {
     };
 
     // Inizializzazione Firebase e Autenticazione
-    useEffect(() => {
+    React.useEffect(() => {
         try {
-            const app = initializeApp(firebaseConfig);
-            const firestore = getFirestore(app);
-            const firebaseAuth = getAuth(app);
+            // Accedi a Firebase tramite l'oggetto globale 'firebase'
+            const app = firebase.initializeApp(firebaseConfig);
+            const firestore = firebase.firestore(app); // Usa firebase.firestore()
+            const firebaseAuth = firebase.auth(app); // Usa firebase.auth()
 
             setDb(firestore);
             setAuth(firebaseAuth);
 
             // Listener per lo stato di autenticazione
-            const unsubscribeAuth = onAuthStateChanged(firebaseAuth, async (user) => {
+            const unsubscribeAuth = firebaseAuth.onAuthStateChanged(async (user) => { // Usa firebaseAuth.onAuthStateChanged
                 if (user) {
                     setUserId(user.uid);
                     setLoading(false);
                 } else {
                     // Se non autenticato con un token, tenta l'accesso anonimo
                     try {
-                        const { user: anonymousUser } = await signInAnonymously(firebaseAuth);
+                        const { user: anonymousUser } = await firebaseAuth.signInAnonymously(); // Usa firebaseAuth.signInAnonymously()
                         setUserId(anonymousUser.uid);
                         setLoading(false);
                     } catch (error) {
@@ -67,8 +65,7 @@ const App = () => {
             });
 
             // Nota: __initial_auth_token non è disponibile in un ambiente React standard senza Canvas
-            // Se in futuro userai Canvas, questa parte verrà gestita dal sistema.
-            // Per ora, l'autenticazione anonima serve come fallback.
+            // Per test locali, l'autenticazione anonima verrà usata.
 
             return () => unsubscribeAuth(); // Pulizia del listener
         } catch (error) {
@@ -79,11 +76,12 @@ const App = () => {
     }, []);
 
     // Fetch e listener per le piante della collezione pubblica ('plants')
-    useEffect(() => {
+    React.useEffect(() => {
         if (!db) return;
 
-        const plantsCollectionRef = collection(db, 'plants');
-        const unsubscribe = onSnapshot(plantsCollectionRef, (snapshot) => {
+        // Usa db.collection() invece di collection(db, ...)
+        const plantsCollectionRef = db.collection('plants');
+        const unsubscribe = plantsCollectionRef.onSnapshot((snapshot) => {
             const plantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setPlants(plantsData);
         }, (error) => {
@@ -95,11 +93,11 @@ const App = () => {
     }, [db]);
 
     // Fetch e listener per le piante del mio giardino ('users/{userId}/gardens')
-    useEffect(() => {
+    React.useEffect(() => {
         if (!db || !userId) return;
 
-        const myGardenCollectionRef = collection(db, `users/${userId}/gardens`);
-        const unsubscribe = onSnapshot(myGardenCollectionRef, (snapshot) => {
+        const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
+        const unsubscribe = myGardenCollectionRef.onSnapshot((snapshot) => {
             const myGardenData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             // Mappa le piante del giardino con i dati completi dalla collezione pubblica
             const mergedGardenPlants = myGardenData.map(gardenPlant => {
@@ -114,10 +112,10 @@ const App = () => {
         });
 
         return () => unsubscribe();
-    }, [db, userId, plants]); // Dipende anche da 'plants' per la fusione dei dati
+    }, [db, userId, plants]);
 
     // Ottenere la geolocalizzazione
-    useEffect(() => {
+    React.useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -137,7 +135,7 @@ const App = () => {
     }, []);
 
     // Fetch dei dati meteo
-    useEffect(() => {
+    React.useEffect(() => {
         if (userLocation && weatherApiKey && weatherApiKey !== 'YOUR_OPENWEATHERMAP_API_KEY') {
             const fetchWeather = async () => {
                 const url = `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.lat}&lon=${userLocation.lon}&appid=${weatherApiKey}&units=metric&lang=it`;
@@ -172,29 +170,29 @@ const App = () => {
     };
 
     // Gestione Modale Pianta
-    const openPlantModal = useCallback((plant) => {
+    const openPlantModal = React.useCallback((plant) => {
         setSelectedPlant(plant);
         setShowPlantModal(true);
     }, []);
 
-    const closePlantModal = useCallback(() => {
+    const closePlantModal = React.useCallback(() => {
         setShowPlantModal(false);
         setSelectedPlant(null);
     }, []);
 
     // Gestione Modale Aggiungi/Modifica Pianta
-    const openAddEditModal = useCallback((plantToEdit = null) => {
+    const openAddEditModal = React.useCallback((plantToEdit = null) => {
         setEditPlantData(plantToEdit);
         setShowAddEditModal(true);
     }, []);
 
-    const closeAddEditModal = useCallback(() => {
+    const closeAddEditModal = React.useCallback(() => {
         setShowAddEditModal(false);
         setEditPlantData(null);
     }, []);
 
     // Funzioni CRUD per le piante (Collezione Pubblica)
-    const addOrUpdatePlant = useCallback(async (plantData, plantId = null) => {
+    const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null) => {
         if (!db || !userId) {
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
             return;
@@ -203,15 +201,14 @@ const App = () => {
         setMessage('');
 
         try {
-            const plantsCollectionRef = collection(db, 'plants'); // Collezione 'plants'
+            const plantsCollectionRef = db.collection('plants'); // Usa db.collection()
             if (plantId) {
                 // Aggiorna pianta esistente
-                const plantDocRef = doc(plantsCollectionRef, plantId);
-                await updateDoc(plantDocRef, plantData);
+                await plantsCollectionRef.doc(plantId).update(plantData); // Usa .doc().update()
                 setMessage("Pianta aggiornata con successo!");
             } else {
                 // Aggiungi nuova pianta
-                await addDoc(plantsCollectionRef, { ...plantData, ownerId: userId, createdAt: new Date() });
+                await plantsCollectionRef.add({ ...plantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); // Usa .add() e FieldValue
                 setMessage("Pianta aggiunta con successo!");
             }
             closeAddEditModal();
@@ -223,7 +220,7 @@ const App = () => {
         }
     }, [db, userId, closeAddEditModal]);
 
-    const deletePlantPermanently = useCallback(async (plantId) => {
+    const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
             return;
@@ -261,21 +258,20 @@ const App = () => {
 
         try {
             // Rimuovi la pianta dalla collezione pubblica
-            const plantDocRef = doc(db, 'plants', plantId); // Collezione 'plants'
-            await deleteDoc(plantDocRef);
+            await db.collection('plants').doc(plantId).delete(); // Usa .collection().doc().delete()
 
             // Rimuovi tutte le referenze a questa pianta dal "My Garden" di tutti gli utenti
-            const usersCollectionRef = collection(db, 'users'); // Collezione 'users'
-            const usersSnapshot = await getDocs(usersCollectionRef);
+            const usersCollectionRef = db.collection('users'); // Usa db.collection()
+            const usersSnapshot = await usersCollectionRef.get(); // Usa .get()
 
             for (const userDoc of usersSnapshot.docs) {
                 const currentUserId = userDoc.id;
-                const myGardenCollectionRef = collection(db, `users/${currentUserId}/gardens`); // Collezione 'users/{userId}/gardens'
-                const q = query(myGardenCollectionRef, where("publicPlantId", "==", plantId));
-                const gardenPlantsSnapshot = await getDocs(q);
+                const myGardenCollectionRef = db.collection(`users/${currentUserId}/gardens`); // Usa db.collection()
+                const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Usa .where()
+                const gardenPlantsSnapshot = await q.get(); // Usa .get()
 
                 for (const gardenDoc of gardenPlantsSnapshot.docs) {
-                    await deleteDoc(doc(myGardenCollectionRef, gardenDoc.id));
+                    await gardenDoc.ref.delete(); // Usa .ref.delete()
                 }
             }
 
@@ -289,7 +285,7 @@ const App = () => {
     }, [db, userId]);
 
     // Funzioni per il "Mio Giardino"
-    const addPlantToMyGarden = useCallback(async (plantId) => {
+    const addPlantToMyGarden = React.useCallback(async (plantId) => {
         if (!db || !userId) {
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
             return;
@@ -298,16 +294,15 @@ const App = () => {
         setMessage('');
 
         try {
-            const myGardenCollectionRef = collection(db, `users/${userId}/gardens`); // Collezione 'users/{userId}/gardens'
+            const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
             // Controlla se la pianta è già nel giardino
-            const q = query(myGardenCollectionRef, where("publicPlantId", "==", plantId));
-            const existingDocs = await getDocs(q);
+            const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Usa .where()
+            const existingDocs = await q.get(); // Usa .get()
 
             if (existingDocs.empty) {
-                await addDoc(myGardenCollectionRef, {
+                await myGardenCollectionRef.add({ // Usa .add()
                     publicPlantId: plantId,
-                    dateAdded: new Date(),
-                    // Puoi aggiungere altri campi specifici del giardino qui, es. 'notes'
+                    dateAdded: firebase.firestore.FieldValue.serverTimestamp(), // Usa FieldValue
                 });
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
@@ -321,7 +316,7 @@ const App = () => {
         }
     }, [db, userId]);
 
-    const removePlantFromMyGarden = useCallback(async (plantId) => {
+    const removePlantFromMyGarden = React.useCallback(async (plantId) => {
         if (!db || !userId) {
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
             return;
@@ -358,13 +353,13 @@ const App = () => {
         setMessage('');
 
         try {
-            const myGardenCollectionRef = collection(db, `users/${userId}/gardens`); // Collezione 'users/{userId}/gardens'
-            const q = query(myGardenCollectionRef, where("publicPlantId", "==", plantId));
-            const docsToDelete = await getDocs(q);
+            const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
+            const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Usa .where()
+            const docsToDelete = await q.get(); // Usa .get()
 
             if (!docsToDelete.empty) {
                 docsToDelete.forEach(async (docSnap) => {
-                    await deleteDoc(doc(myGardenCollectionRef, docSnap.id));
+                    await docSnap.ref.delete(); // Usa .ref.delete()
                 });
                 setMessage("Pianta rimossa dal tuo giardino!");
             } else {
@@ -379,11 +374,11 @@ const App = () => {
     }, [db, userId]);
 
     // Gestione input Lux e feedback piante
-    const handleLuxChange = useCallback((e) => {
+    const handleLuxChange = React.useCallback((e) => {
         setLuxValue(e.target.value);
     }, []);
 
-    const getPlantLuxFeedback = useCallback((plant) => {
+    const getPlantLuxFeedback = React.useCallback((plant) => {
         const lux = parseFloat(luxValue);
         if (isNaN(lux) || !plant.idealLuxMin || !plant.idealLuxMax) {
             return "Inserisci un valore Lux per un feedback.";
@@ -543,7 +538,7 @@ const App = () => {
 
     // Componente Modale Aggiungi/Modifica Pianta
     const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
-        const [formData, setFormData] = useState({
+        const [formData, setFormData] = React.useState({
             name: '',
             scientificName: '',
             description: '',
@@ -557,7 +552,7 @@ const App = () => {
             tempMin: '', // Nuovo campo 'tempMin'
         });
 
-        useEffect(() => {
+        React.useEffect(() => {
             if (plantToEdit) {
                 setFormData({
                     name: plantToEdit.name || '',
@@ -927,10 +922,15 @@ const App = () => {
 // Funzione per montare l'applicazione React
 const rootElement = document.getElementById('root');
 if (rootElement) {
+    // Usa React.StrictMode e ReactDOM.createRoot
     const root = ReactDOM.createRoot(rootElement);
-    root.render(<App />);
+    root.render(
+        <React.StrictMode>
+            <App />
+        </React.StrictMode>
+    );
 } else {
     console.error("Elemento 'root' non trovato nel DOM. Impossibile montare l'applicazione React.");
 }
 
-export default App;
+// Non è necessario export default App; quando si usa type="text/babel" e rendering globale
