@@ -3,22 +3,22 @@
 
 const App = () => {
     // Stato per l'applicazione
-    const [db, setDb] = useState(null);
-    const [auth, setAuth] = useState(null);
-    const [userId, setUserId] = useState(null);
-    const [plants, setPlants] = useState([]); // Tutte le piante (collezione pubblica)
-    const [myGardenPlants, setMyGardenPlants] = useState([]); // Le piante nel mio giardino
-    const [currentView, setCurrentView] = useState('allPlants'); // 'allPlants' o 'myGarden'
-    const [showPlantModal, setShowPlantModal] = useState(false);
-    const [selectedPlant, setSelectedPlant] = useState(null);
-    const [showAddEditModal, setShowAddEditModal] = useState(false);
-    const [editPlantData, setEditPlantData] = useState(null); // Per l'editing di una pianta esistente
-    const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState(''); // Per messaggi utente
-    const [luxValue, setLuxValue] = useState(''); // Valore input lux
-    const [userLocation, setUserLocation] = useState(null); // { lat, lon } per il meteo
-    const [weatherData, setWeatherData] = useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [db, setDb] = React.useState(null);
+    const [auth, setAuth] = React.useState(null);
+    const [userId, setUserId] = React.useState(null);
+    const [plants, setPlants] = React.useState([]); // Tutte le piante (collezione pubblica)
+    const [myGardenPlants, setMyGardenPlants] = React.useState([]); // Le piante nel mio giardino
+    const [currentView, setCurrentView] = React.useState('allPlants'); // 'allPlants' o 'myGarden'
+    const [showPlantModal, setShowPlantModal] = React.useState(false);
+    const [selectedPlant, setSelectedPlant] = React.useState(null);
+    const [showAddEditModal, setShowAddEditModal] = React.useState(false);
+    const [editPlantData, setEditPlantData] = React.useState(null); // Per l'editing di una pianta esistente
+    const [loading, setLoading] = React.useState(true);
+    const [message, setMessage] = React.useState(''); // Per messaggi utente
+    const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
+    const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
+    const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
+    const [weatherApiKey, setWeatherApiKey] = React.useState('5a68d2b9d0dd9224423ad759b816a73c'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
 
     // Riferimenti per lo scroll
     const allPlantsRef = React.useRef(null);
