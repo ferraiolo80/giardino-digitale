@@ -258,18 +258,26 @@ const App = () => {
                 const snapshot = await imageRef.put(imageFile); // Carica il file
                 imageUrl = await snapshot.ref.getDownloadURL(); // Ottieni l'URL scaricabile
                 setMessage("Immagine caricata con successo!");
+                console.log("URL immagine caricata:", imageUrl); // Log dell'URL dopo il caricamento
             } catch (error) {
                 console.error("Errore durante il caricamento dell'immagine:", error);
                 setMessage("Errore durante il caricamento dell'immagine. Riprova.");
                 setLoading(false);
                 return; // Ferma l'operazione se l'upload fallisce
             }
+        } else if (plantId && !imageFile && !plantData.image) {
+            // Se stiamo aggiornando, non c'è un nuovo file, e l'URL immagine è vuoto/null,
+            // significa che l'utente vuole rimuovere l'immagine.
+            imageUrl = ''; // Imposta l'URL a vuoto per rimuovere l'immagine
         }
+
 
         // Il campo scientificName verrà usato per memorizzare la dimensione ideale del vaso.
         // Questo per non modificare la struttura del database già esistente,
         // ma si adatta alla nuova esigenza dell'interfaccia utente.
         const finalPlantData = { ...plantData, image: imageUrl };
+        console.log("Dati finali per Firestore (Update):", finalPlantData); // Log i dati finali che vanno a Firestore
+        console.log("ID pianta per aggiornamento:", plantId); // Log l'ID della pianta da aggiornare
 
         try {
             const plantsCollectionRef = db.collection('plants'); // Usa db.collection()
@@ -679,7 +687,9 @@ const App = () => {
                 reader.readAsDataURL(file);
             } else {
                 setSelectedFile(null);
-                setImagePreviewUrl(plantToEdit ? plantToEdit.image : ''); // Ripristina l'URL esistente o vuoto
+                // Se nessun file è selezionato, ripristina l'URL dell'immagine esistente
+                // o svuota se è una nuova pianta.
+                setImagePreviewUrl(plantToEdit ? plantToEdit.image || '' : '');
             }
         };
 
@@ -694,6 +704,8 @@ const App = () => {
                 tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
                 tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
             };
+            console.log("Dati inviati per aggiornamento:", dataToSend); // Log i dati inviati dal form
+            console.log("File immagine selezionato:", selectedFile); // Log il file immagine selezionato
             onSubmit(dataToSend, plantToEdit ? plantToEdit.id : null, selectedFile); // Passa anche il file selezionato
         };
 
