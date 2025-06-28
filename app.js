@@ -264,7 +264,10 @@ const App = () => {
             }
         }
 
-        const finalPlantData = { ...plantData, image: imageUrl }; // Aggiorna l'URL dell'immagine
+        // Il campo scientificName verrà usato per memorizzare la dimensione ideale del vaso.
+        // Questo per non modificare la struttura del database già esistente,
+        // ma si adatta alla nuova esigenza dell'interfaccia utente.
+        const finalPlantData = { ...plantData, image: imageUrl };
 
         try {
             const plantsCollectionRef = db.collection('plants'); // Usa db.collection()
@@ -499,7 +502,8 @@ const App = () => {
                     onError={imageOnError}
                 />
                 <h3 className="plant-card-title">{plant.name}</h3>
-                <p className="plant-card-scientific-name">{plant.scientificName}</p>
+                {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
+                <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName || 'N/A'}</p>
                 <div className="plant-card-description">{plant.description || "Nessuna descrizione disponibile."}</div>
 
                 <div className="card-actions">
@@ -594,7 +598,8 @@ const App = () => {
                         onError={imageOnError}
                     />
                     <div className="modal-details-list">
-                        <p><strong>Nome Scientifico:</strong> {plant.scientificName || 'N/A'}</p>
+                        {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
+                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
                         <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                         <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                         <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
@@ -612,7 +617,8 @@ const App = () => {
     const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
         const [formData, setFormData] = React.useState({
             name: '',
-            scientificName: '',
+            // scientificName sarà usato per Dimensione Ideale Vaso nel database
+            scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
             description: '',
             image: '', // Campo 'image' per URL
             idealLuxMin: '',
@@ -630,7 +636,7 @@ const App = () => {
             if (plantToEdit) {
                 setFormData({
                     name: plantToEdit.name || '',
-                    scientificName: plantToEdit.scientificName || '',
+                    scientificName: plantToEdit.scientificName || '', // Carica valore esistente
                     description: plantToEdit.description || '',
                     image: plantToEdit.image || '', // Imposta l'URL esistente
                     idealLuxMin: plantToEdit.idealLuxMin || '',
@@ -714,10 +720,11 @@ const App = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="scientificName">Nome Scientifico</label>
+                            {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
+                            <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
                             <input
                                 type="text"
-                                name="scientificName"
+                                name="scientificName" // Il nome del campo nel database rimane scientificName
                                 id="scientificName"
                                 value={formData.scientificName}
                                 onChange={handleChange}
@@ -750,17 +757,6 @@ const App = () => {
                                     <img src={imagePreviewUrl} alt="Anteprima" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', objectFit: 'cover' }} />
                                 </div>
                             )}
-                            {/* Mantieni l'URL dell'immagine esistente per visualizzazione, ma non per editing diretto se si usa il file input */}
-                            {/* <label htmlFor="image">URL Immagine (fallback/esistente)</label>
-                            <input
-                                type="url"
-                                name="image"
-                                id="image"
-                                value={formData.image}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="O inserisci un URL immagine"
-                            /> */}
                         </div>
 
                         <div className="form-group">
@@ -902,8 +898,9 @@ const App = () => {
                         </button>
                     </div>
                 </div>
+                {/* Modifica: ID Utente stilizzato per essere meno prominente */}
                 <div className="user-id-display">
-                    {userId && `ID Utente: ${userId}`}
+                    {userId && <small>ID Utente: {userId}</small>}
                 </div>
             </header>
 
