@@ -169,13 +169,16 @@ const App = () => {
     };
 
     // Gestione visibilità feedback lux in base all'input
+    // showLuxFeedback viene gestito quando si clicca sul tasto chiudi
+    // oppure se luxValue ha un valore, altrimenti non mostrato
     React.useEffect(() => {
-        if (luxValue !== '') {
-            setShowLuxFeedback(true);
-        } else {
+        if (luxValue === '') {
             setShowLuxFeedback(false);
+        } else {
+            setShowLuxFeedback(true);
         }
     }, [luxValue]);
+
 
     // Aggiungi e rimuovi l'event listener per lo scroll
     React.useEffect(() => {
@@ -418,8 +421,9 @@ const App = () => {
 
     const getPlantLuxFeedback = React.useCallback((plant) => {
         const lux = parseFloat(luxValue);
+        // Restituisce null o stringa vuota se lux non è un numero valido o mancano i dati della pianta
         if (isNaN(lux) || !plant.idealLuxMin || !plant.idealLuxMax) {
-            return "Inserisci un valore Lux per un feedback.";
+            return null; // Non mostra feedback specifico
         }
 
         if (lux < plant.idealLuxMin) {
@@ -876,11 +880,21 @@ const App = () => {
                             <div className="feedback-section">
                                 <h3 className="feedback-title">Feedback per le piante:</h3>
                                 <ul className="feedback-list">
-                                    {plants.map(plant => (
-                                        <li key={plant.id} className="feedback-item">
-                                            {getPlantLuxFeedback(plant)}
-                                        </li>
-                                    ))}
+                                    {plants.map(plant => {
+                                        const feedback = getPlantLuxFeedback(plant);
+                                        return feedback ? ( // Mostra l'elemento <li> solo se c'è un feedback specifico
+                                            <li key={plant.id} className="feedback-item">
+                                                {feedback}
+                                            </li>
+                                        ) : null;
+                                    })}
+                                    {/* Mostra il messaggio generico solo se non ci sono feedback specifici (es. luxValue non valido o piante senza dati) */}
+                                    {(!luxValue || isNaN(parseFloat(luxValue))) && (
+                                        <li className="feedback-item">Inserisci un valore Lux per un feedback.</li>
+                                    )}
+                                    {luxValue && !isNaN(parseFloat(luxValue)) && plants.every(plant => getPlantLuxFeedback(plant) === null) && (
+                                        <li className="feedback-item">Nessun feedback specifico disponibile. Verifica i dati Lux delle piante.</li>
+                                    )}
                                 </ul>
                                 <button
                                     onClick={() => { setLuxValue(''); setShowLuxFeedback(false); }} /* Resetta input e nascondi */
