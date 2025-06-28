@@ -20,6 +20,7 @@ const App = () => {
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
     const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
+    const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
 
     // Riferimenti per lo scroll
     const allPlantsRef = React.useRef(null);
@@ -166,6 +167,15 @@ const App = () => {
             setShowScrollToTop(false);
         }
     };
+
+    // Gestione visibilità feedback lux in base all'input
+    React.useEffect(() => {
+        if (luxValue !== '') {
+            setShowLuxFeedback(true);
+        } else {
+            setShowLuxFeedback(false);
+        }
+    }, [luxValue]);
 
     // Aggiungi e rimuovi l'event listener per lo scroll
     React.useEffect(() => {
@@ -811,7 +821,7 @@ const App = () => {
                             onClick={() => window.open('https://lens.google/', '_blank')} // Placeholder per Google Lens
                             className="main-button button-yellow"
                         >
-                            Identifica
+                            Google Lens
                         </button>
                     </div>
                 </div>
@@ -862,7 +872,7 @@ const App = () => {
                                 className="form-input"
                             />
                         </div>
-                        {luxValue && (
+                        {showLuxFeedback && ( /* Condizionale per mostrare il feedback */
                             <div className="feedback-section">
                                 <h3 className="feedback-title">Feedback per le piante:</h3>
                                 <ul className="feedback-list">
@@ -872,6 +882,12 @@ const App = () => {
                                         </li>
                                     ))}
                                 </ul>
+                                <button
+                                    onClick={() => { setLuxValue(''); setShowLuxFeedback(false); }} /* Resetta input e nascondi */
+                                    className="close-lux-feedback-btn"
+                                >
+                                    Chiudi Feedback
+                                </button>
                             </div>
                         )}
                         <p className="light-sensor-note">
