@@ -783,7 +783,7 @@ const App = () => {
                             onClick={() => window.open('https://lens.google/', '_blank')} // Placeholder per Google Lens
                             className="main-button button-yellow"
                         >
-                            Google Lens
+                            Identifica
                         </button>
                     </div>
                 </div>
