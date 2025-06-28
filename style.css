@@ -95,8 +95,8 @@ body {
 .user-id-display {
     text-align: center;
     margin-top: 16px;
-    font-size: 14px;
-    color: #6b7280; /* text-gray-500 */
+    font-size: 12px; /* Ridotto la dimensione del font */
+    color: #9ca3af; /* Colore più discreto (gray-400) */
 }
 
 /* Alert/Message Box */
@@ -336,12 +336,14 @@ body {
     margin-bottom: 8px; /* mb-2 */
 }
 
-.plant-card-scientific-name {
+/* Modifica: Nuova classe per la dimensione vaso */
+.plant-card-pot-size {
     color: #4b5563; /* text-gray-600 */
     font-size: 14px; /* text-sm */
     margin-bottom: 16px; /* mb-4 */
     font-style: italic;
 }
+
 
 .plant-card-description {
     flex-grow: 1;
@@ -607,4 +609,16 @@ body {
 
 .close-lux-feedback-btn:hover {
     background-color: #9ca3af; /* gray-400 */
+}
+
+/* Stile per le icone Font Awesome all'interno dei bottoni */
+.main-button i,
+.card-action-button i,
+.form-button i {
+    margin-right: 8px; /* Spazio tra icona e testo */
+}
+
+/* Stile per l'icona meteo */
+.weather-description i {
+    margin-right: 5px;
 }
