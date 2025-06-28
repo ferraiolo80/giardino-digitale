@@ -589,3 +589,22 @@ body {
     background-color: #16a34a; /* green-600 */
     transform: translateY(-3px); /* leggero effetto di sollevamento */
 }
+
+/* Close Lux Feedback Button */
+.close-lux-feedback-btn {
+    background-color: #d1d5db; /* gray-300 */
+    color: #374151; /* gray-800 */
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px; /* Spazio dal feedback */
+    display: block; /* Per occupare tutta la larghezza o centrarsi */
+    margin-left: auto; /* Centra il pulsante se il contenitore è più largo */
+    margin-right: auto;
+    transition: background-color 0.2s ease;
+}
+
+.close-lux-feedback-btn:hover {
+    background-color: #9ca3af; /* gray-400 */
+}
