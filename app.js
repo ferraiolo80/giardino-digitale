@@ -5,6 +5,7 @@ const App = () => {
     // Stato per l'applicazione
     const [db, setDb] = React.useState(null);
     const [auth, setAuth] = React.useState(null);
+    const [storage, setStorage] = React.useState(null); // NUOVO: Stato per Firebase Storage
     const [userId, setUserId] = React.useState(null);
     const [plants, setPlants] = React.useState([]); // Tutte le piante (collezione pubblica)
     const [myGardenPlants, setMyGardenPlants] = React.useState([]); // Le piante nel mio giardino
@@ -43,9 +44,11 @@ const App = () => {
             const app = firebase.initializeApp(firebaseConfig);
             const firestore = firebase.firestore(app); // Usa firebase.firestore()
             const firebaseAuth = firebase.auth(app); // Usa firebase.auth()
+            const firebaseStorage = firebase.storage(app); // NUOVO: Usa firebase.storage()
 
             setDb(firestore);
             setAuth(firebaseAuth);
+            setStorage(firebaseStorage); // NUOVO: Imposta lo stato per storage
 
             // Listener per lo stato di autenticazione
             const unsubscribeAuth = firebaseAuth.onAuthStateChanged(async (user) => { // Usa firebaseAuth.onAuthStateChanged
@@ -66,9 +69,6 @@ const App = () => {
                 }
             });
 
-            // Nota: __initial_auth_token non è disponibile in un ambiente React standard senza Canvas
-            // Per test locali, l'autenticazione anonima verrà usata.
-
             return () => unsubscribeAuth(); // Pulizia del listener
         } catch (error) {
             console.error("Errore nell'inizializzazione di Firebase:", error);
@@ -76,6 +76,16 @@ const App = () => {
             setLoading(false);
         }
     }, []);
+
+    // Gestione messaggi Toast
+    React.useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => {
+                setMessage('');
+            }, 3000); // Messaggio sparisce dopo 3 secondi
+            return () => clearTimeout(timer);
+        }
+    }, [message]);
 
     // Fetch e listener per le piante della collezione pubblica ('plants')
     React.useEffect(() => {
@@ -228,23 +238,43 @@ const App = () => {
     }, []);
 
     // Funzioni CRUD per le piante (Collezione Pubblica)
-    const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null) => {
-        if (!db || !userId) {
+    const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null, imageFile = null) => { // NUOVO: Aggiungi imageFile
+        if (!db || !userId || !storage) { // NUOVO: Controlla anche storage
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
             return;
         }
         setLoading(true);
         setMessage('');
 
+        let imageUrl = plantData.image; // Inizia con l'URL esistente o quello fornito nel form
+
+        // NUOVO: Gestione upload immagine
+        if (imageFile) {
+            try {
+                const storageRef = storage.ref(); // Ottieni il riferimento allo storage
+                const imageRef = storageRef.child(`plant_images/${userId}/${imageFile.name}_${Date.now()}`); // Cartella per utente
+                const snapshot = await imageRef.put(imageFile); // Carica il file
+                imageUrl = await snapshot.ref.getDownloadURL(); // Ottieni l'URL scaricabile
+                setMessage("Immagine caricata con successo!");
+            } catch (error) {
+                console.error("Errore durante il caricamento dell'immagine:", error);
+                setMessage("Errore durante il caricamento dell'immagine. Riprova.");
+                setLoading(false);
+                return; // Ferma l'operazione se l'upload fallisce
+            }
+        }
+
+        const finalPlantData = { ...plantData, image: imageUrl }; // Aggiorna l'URL dell'immagine
+
         try {
             const plantsCollectionRef = db.collection('plants'); // Usa db.collection()
             if (plantId) {
                 // Aggiorna pianta esistente
-                await plantsCollectionRef.doc(plantId).update(plantData); // Usa .doc().update()
+                await plantsCollectionRef.doc(plantId).update(finalPlantData); // Usa .doc().update()
                 setMessage("Pianta aggiornata con successo!");
             } else {
                 // Aggiungi nuova pianta
-                await plantsCollectionRef.add({ ...plantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); // Usa .add() e FieldValue
+                await plantsCollectionRef.add({ ...finalPlantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); // Usa .add() e FieldValue
                 setMessage("Pianta aggiunta con successo!");
             }
             closeAddEditModal();
@@ -254,7 +284,7 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    }, [db, userId, closeAddEditModal]);
+    }, [db, userId, storage, closeAddEditModal]); // NUOVO: Aggiungi 'storage' alle dipendenze
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
@@ -270,8 +300,8 @@ const App = () => {
                 <div class="modal-content">
                     <p class="modal-title" style="font-size: 1.25rem; font-weight: 500; text-align: center; margin-bottom: 1rem;">Sei sicuro di voler eliminare definitivamente questa pianta dalla collezione pubblica?</p>
                     <div class="form-actions" style="justify-content: center; margin-top: 1rem;">
-                        <button id="confirmBtn" class="form-button submit" style="background-color: #ef4444; margin-right: 0.5rem;">Sì, elimina</button>
-                        <button id="cancelBtn" class="form-button cancel">Annulla</button>
+                        <button id="confirmBtn" class="form-button submit" style="background-color: #ef4444; margin-right: 0.5rem;"><i class="fas fa-trash-alt"></i> Sì, elimina</button>
+                        <button id="cancelBtn" class="form-button cancel"><i class="fas fa-times"></i> Annulla</button>
                     </div>
                 </div>
             `;
@@ -371,8 +401,8 @@ const App = () => {
                 <div class="modal-content">
                     <p class="modal-title" style="font-size: 1.25rem; font-weight: 500; text-align: center; margin-bottom: 1rem;">Sei sicuro di voler rimuovere questa pianta dal tuo giardino?</p>
                     <div class="form-actions" style="justify-content: center; margin-top: 1rem;">
-                        <button id="confirmBtn" class="form-button submit" style="background-color: #ef4444; margin-right: 0.5rem;">Sì, rimuovi</button>
-                        <button id="cancelBtn" class="form-button cancel">Annulla</button>
+                        <button id="confirmBtn" class="form-button submit" style="background-color: #ef4444; margin-right: 0.5rem;"><i class="fas fa-minus-circle"></i> Sì, rimuovi</button>
+                        <button id="cancelBtn" class="form-button cancel"><i class="fas fa-times"></i> Annulla</button>
                     </div>
                 </div>
             `;
@@ -480,13 +510,13 @@ const App = () => {
                                 onClick={() => onAddOrRemoveToMyGarden(plant)} // Passa l'intero oggetto plant
                                 className={`card-action-button ${isInMyGarden ? 'in-garden' : 'add-to-garden'}`}
                             >
-                                {isInMyGarden ? 'Già nel tuo giardino' : 'Aggiungi al mio giardino'}
+                                <i className="fas fa-leaf"></i> {isInMyGarden ? 'Già nel tuo giardino' : 'Aggiungi al mio giardino'}
                             </button>
                             <button
                                 onClick={() => onUpdatePlant(plant)}
                                 className="card-action-button update"
                             >
-                                Aggiorna pianta
+                                <i className="fas fa-edit"></i> Aggiorna pianta
                             </button>
                             {/* Mostra "Rimuovi definitivamente" solo se l'utente è quello che l'ha aggiunta */}
                             {plant.ownerId === userId && (
@@ -494,7 +524,7 @@ const App = () => {
                                     onClick={() => onDeletePlantPermanently(plant.id)}
                                     className="card-action-button delete"
                                 >
-                                    Rimuovi definitivamente
+                                    <i className="fas fa-trash-alt"></i> Rimuovi definitivamente
                                 </button>
                             )}
                         </>
@@ -507,13 +537,13 @@ const App = () => {
                                 onClick={() => onAddOrRemoveToMyGarden(plant.publicPlantId)} // Rimuovi usando l'ID pubblico di riferimento
                                 className="card-action-button delete"
                             >
-                                Rimuovi da mio giardino
+                                <i className="fas fa-minus-circle"></i> Rimuovi da mio giardino
                             </button>
                             <button
                                 onClick={() => onUpdatePlant(plant)}
                                 className="card-action-button update"
                             >
-                                Aggiorna pianta
+                                <i className="fas fa-edit"></i> Aggiorna pianta
                             </button>
                         </>
                     )}
@@ -584,15 +614,17 @@ const App = () => {
             name: '',
             scientificName: '',
             description: '',
-            image: '', // Campo 'image' invece di 'imageUrl'
-            idealLuxMin: '', // Campo 'idealLuxMin'
-            idealLuxMax: '', // Campo 'idealLuxMax'
-            watering: '', // Campo 'watering'
-            sunlight: '', // Campo 'sunlight'
-            category: '', // Nuovo campo 'category'
-            tempMax: '', // Nuovo campo 'tempMax'
-            tempMin: '', // Nuovo campo 'tempMin'
+            image: '', // Campo 'image' per URL
+            idealLuxMin: '',
+            idealLuxMax: '',
+            watering: '',
+            sunlight: '',
+            category: '',
+            tempMax: '',
+            tempMin: '',
         });
+        const [selectedFile, setSelectedFile] = React.useState(null); // NUOVO: Stato per il file selezionato
+        const [imagePreviewUrl, setImagePreviewUrl] = React.useState(''); // NUOVO: Stato per l'anteprima immagine
 
         React.useEffect(() => {
             if (plantToEdit) {
@@ -600,7 +632,7 @@ const App = () => {
                     name: plantToEdit.name || '',
                     scientificName: plantToEdit.scientificName || '',
                     description: plantToEdit.description || '',
-                    image: plantToEdit.image || '',
+                    image: plantToEdit.image || '', // Imposta l'URL esistente
                     idealLuxMin: plantToEdit.idealLuxMin || '',
                     idealLuxMax: plantToEdit.idealLuxMax || '',
                     watering: plantToEdit.watering || '',
@@ -609,19 +641,40 @@ const App = () => {
                     tempMax: plantToEdit.tempMax || '',
                     tempMin: plantToEdit.tempMin || '',
                 });
+                setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
             } else {
                 setFormData({
                     name: '', scientificName: '', description: '', image: '',
                     idealLuxMin: '', idealLuxMax: '', watering: '', sunlight: '',
                     category: '', tempMax: '', tempMin: '',
                 });
+                setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
             }
+            setSelectedFile(null); // Resetta sempre il file selezionato al mount
         }, [plantToEdit]);
 
         const handleChange = (e) => {
             const { name, value } = e.target;
             setFormData(prev => ({ ...prev, [name]: value }));
         };
+
+        // NUOVO: Gestione del cambiamento del file input
+        const handleFileChange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                setSelectedFile(file);
+                // Crea un URL di anteprima per il file selezionato
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImagePreviewUrl(reader.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                setSelectedFile(null);
+                setImagePreviewUrl(plantToEdit ? plantToEdit.image : ''); // Ripristina l'URL esistente o vuoto
+            }
+        };
+
 
         const handleSubmit = (e) => {
             e.preventDefault();
@@ -633,7 +686,7 @@ const App = () => {
                 tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
                 tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
             };
-            onSubmit(dataToSend, plantToEdit ? plantToEdit.id : null);
+            onSubmit(dataToSend, plantToEdit ? plantToEdit.id : null, selectedFile); // NUOVO: Passa anche il file selezionato
         };
 
         return (
@@ -680,16 +733,36 @@ const App = () => {
                                 rows="3"
                             ></textarea>
                         </div>
+                        {/* NUOVO: Campo per il caricamento dell'immagine */}
                         <div className="form-group">
-                            <label htmlFor="image">URL Immagine</label>
+                            <label htmlFor="imageFile">Carica Immagine Pianta</label>
+                            <input
+                                type="file"
+                                name="imageFile"
+                                id="imageFile"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="form-input"
+                            />
+                            {imagePreviewUrl && (
+                                <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                                    <p style={{ fontSize: '0.9em', color: '#555' }}>Anteprima Immagine:</p>
+                                    <img src={imagePreviewUrl} alt="Anteprima" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', objectFit: 'cover' }} />
+                                </div>
+                            )}
+                            {/* Mantieni l'URL dell'immagine esistente per visualizzazione, ma non per editing diretto se si usa il file input */}
+                            {/* <label htmlFor="image">URL Immagine (fallback/esistente)</label>
                             <input
                                 type="url"
                                 name="image"
                                 id="image"
                                 value={formData.image}
                                 onChange={handleChange}
-                            />
+                                className="form-input"
+                                placeholder="O inserisci un URL immagine"
+                            /> */}
                         </div>
+
                         <div className="form-group">
                             <label htmlFor="category">Categoria</label>
                             <input
@@ -770,13 +843,13 @@ const App = () => {
                                 onClick={onClose}
                                 className="form-button cancel"
                             >
-                                Annulla
+                                <i className="fas fa-times"></i> Annulla
                             </button>
                             <button
                                 type="submit"
                                 className="form-button submit"
                             >
-                                {plantToEdit ? 'Salva Modifiche' : 'Aggiungi Pianta'}
+                                <i className="fas fa-check"></i> {plantToEdit ? 'Salva Modifiche' : 'Aggiungi Pianta'}
                             </button>
                         </div>
                     </form>
@@ -807,25 +880,25 @@ const App = () => {
                             onClick={scrollToAllPlants}
                             className="main-button button-green"
                         >
-                            Mostra Piante di Tutti
+                            <i className="fas fa-globe-americas"></i> Mostra Piante di Tutti
                         </button>
                         <button
                             onClick={scrollToMyGarden}
                             className="main-button button-blue"
                         >
-                            Mostra il Mio Giardino
+                            <i className="fas fa-tree"></i> Mostra il Mio Giardino
                         </button>
                         <button
                             onClick={() => openAddEditModal()}
                             className="main-button button-purple"
                         >
-                            Aggiungi Pianta
+                            <i className="fas fa-plus-circle"></i> Aggiungi Pianta
                         </button>
                         <button
                             onClick={() => window.open('https://lens.google/', '_blank')} // Placeholder per Google Lens
                             className="main-button button-yellow"
                         >
-                            Google Lens
+                            <i className="fas fa-camera"></i> Google Lens
                         </button>
                     </div>
                 </div>
@@ -853,7 +926,10 @@ const App = () => {
                         {weatherData ? (
                             <>
                                 <p className="weather-temp">{Math.round(weatherData.main.temp)}°C</p>
-                                <p className="weather-description">{weatherData.weather[0].description}</p>
+                                <p className="weather-description">
+                                    <i className={`fas ${weatherData.weather[0].icon === '01d' ? 'fa-sun' : weatherData.weather[0].icon === '01n' ? 'fa-moon' : weatherData.weather[0].icon.includes('02') ? 'fa-cloud-sun' : weatherData.weather[0].icon.includes('03') || weatherData.weather[0].icon.includes('04') ? 'fa-cloud' : weatherData.weather[0].icon.includes('09') || weatherData.weather[0].icon.includes('10') ? 'fa-cloud-showers-heavy' : weatherData.weather[0].icon.includes('11') ? 'fa-bolt' : weatherData.weather[0].icon.includes('13') ? 'fa-snowflake' : weatherData.weather[0].icon.includes('50') ? 'fa-smog' : 'fa-cloud'}`}></i> {/* Icona dinamica */}
+                                    {' '} {weatherData.weather[0].description}
+                                </p>
                                 <p className="weather-location">A {weatherData.name}, {weatherData.sys.country}</p>
                                 <p className="weather-details">Umidità: {weatherData.main.humidity}% | Vento: {weatherData.wind.speed} m/s</p>
                             </>
@@ -900,7 +976,7 @@ const App = () => {
                                     onClick={() => { setLuxValue(''); setShowLuxFeedback(false); }} /* Resetta input e nascondi */
                                     className="close-lux-feedback-btn"
                                 >
-                                    Chiudi Feedback
+                                    <i className="fas fa-times-circle"></i> Chiudi Feedback
                                 </button>
                             </div>
                         )}
