@@ -98,21 +98,20 @@ const App = () => {
 
         const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
         const unsubscribe = myGardenCollectionRef.onSnapshot((snapshot) => {
-            const myGardenData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // Mappa le piante del giardino con i dati completi dalla collezione pubblica
-            const mergedGardenPlants = myGardenData.map(gardenPlant => {
-                const publicPlant = plants.find(p => p.id === gardenPlant.publicPlantId);
-                return publicPlant ? { ...publicPlant, ...gardenPlant, isMyGardenPlant: true } : null;
-            }).filter(Boolean); // Filtra eventuali piante pubbliche non trovate
-
-            setMyGardenPlants(mergedGardenPlants);
+            // Semplicemente prendi i dati come sono e aggiungi il flag isMyGardenPlant
+            const myGardenData = snapshot.docs.map(doc => ({
+                id: doc.id, // ID del documento nel giardino personale
+                ...doc.data(),
+                isMyGardenPlant: true // Indica che è una pianta del giardino personale
+            }));
+            setMyGardenPlants(myGardenData);
         }, (error) => {
             console.error("Errore nel recupero delle piante del mio giardino:", error);
             setMessage("Errore nel caricamento delle piante del tuo giardino.");
         });
 
         return () => unsubscribe();
-    }, [db, userId, plants]);
+    }, [db, userId]); // Non dipende più da 'plants' qui per la visualizzazione
 
     // Ottenere la geolocalizzazione
     React.useEffect(() => {
@@ -285,7 +284,7 @@ const App = () => {
     }, [db, userId]);
 
     // Funzioni per il "Mio Giardino"
-    const addPlantToMyGarden = React.useCallback(async (plantId) => {
+    const addPlantToMyGarden = React.useCallback(async (plant) => { // Ora accetta l'intero oggetto pianta
         if (!db || !userId) {
             setMessage("Errore: Utente non autenticato o app non inizializzata.");
             return;
@@ -295,14 +294,19 @@ const App = () => {
 
         try {
             const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
-            // Controlla se la pianta è già nel giardino
-            const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Usa .where()
+            // Controlla se la pianta (tramite il suo ID pubblico) è già nel giardino
+            const q = myGardenCollectionRef.where("publicPlantId", "==", plant.id); // Usa .where()
             const existingDocs = await q.get(); // Usa .get()
 
             if (existingDocs.empty) {
+                // Copia tutti i dati della pianta pubblica nel giardino dell'utente,
+                // e aggiungi publicPlantId per riferimento all'originale
                 await myGardenCollectionRef.add({ // Usa .add()
-                    publicPlantId: plantId,
+                    ...plant, // Copia tutti i campi della pianta pubblica
+                    publicPlantId: plant.id, // Aggiungi l'ID della pianta pubblica come riferimento
                     dateAdded: firebase.firestore.FieldValue.serverTimestamp(), // Usa FieldValue
+                    // ownerId: userId, // L'owner della copia nel giardino è l'utente attuale (opzionale se già incluso in 'plant')
+                    // createdAt: plant.createdAt // Puoi mantenere il createdAt originale o usare un nuovo timestamp
                 });
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
@@ -354,7 +358,7 @@ const App = () => {
 
         try {
             const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
-            const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Usa .where()
+            const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Ora cerca per publicPlantId
             const docsToDelete = await q.get(); // Usa .get()
 
             if (!docsToDelete.empty) {
@@ -395,7 +399,7 @@ const App = () => {
 
     // Componente Card Pianta
     const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGarden, onUpdatePlant, onDeletePlantPermanently }) => {
-        const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id);
+        const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id); // Controlla se l'ID pubblico è nel giardino
 
         // Funzione per generare il percorso dell'icona di categoria
         const getCategoryIconPath = (categoryName) => {
@@ -435,7 +439,7 @@ const App = () => {
                     {!isMyGardenPlant && (
                         <>
                             <button
-                                onClick={() => onAddOrRemoveToMyGarden(plant.id)}
+                                onClick={() => onAddOrRemoveToMyGarden(plant)} // Passa l'intero oggetto plant
                                 className={`card-action-button ${isInMyGarden ? 'in-garden' : 'add-to-garden'}`}
                             >
                                 {isInMyGarden ? 'Già nel tuo giardino' : 'Aggiungi al mio giardino'}
@@ -462,7 +466,7 @@ const App = () => {
                     {isMyGardenPlant && (
                         <>
                             <button
-                                onClick={() => onAddOrRemoveToMyGarden(plant.id)}
+                                onClick={() => onAddOrRemoveToMyGarden(plant.publicPlantId)} // Rimuovi usando l'ID pubblico di riferimento
                                 className="card-action-button delete"
                             >
                                 Rimuovi da mio giardino
@@ -886,7 +890,7 @@ const App = () => {
                         {myGardenPlants.length > 0 ? (
                             myGardenPlants.map(plant => (
                                 <PlantCard
-                                    key={plant.id} // Usa l'ID della pianta pubblica per la chiave
+                                    key={plant.id} // Usa l'ID del documento del giardino personale come chiave
                                     plant={plant}
                                     isMyGardenPlant={true}
                                     onDetailsClick={openPlantModal}
