@@ -19,6 +19,7 @@ const App = () => {
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
     const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
 
     // Riferimenti per lo scroll
     const allPlantsRef = React.useRef(null);
@@ -157,7 +158,30 @@ const App = () => {
         }
     }, [userLocation, weatherApiKey]);
 
-    // Funzioni di scroll
+    // Funzione per mostrare/nascondere il tasto "scroll to top"
+    const handleScroll = () => {
+        if (window.pageYOffset > 300) { // Mostra il tasto dopo aver scrollato di 300px
+            setShowScrollToTop(true);
+        } else {
+            setShowScrollToTop(false);
+        }
+    };
+
+    // Aggiungi e rimuovi l'event listener per lo scroll
+    React.useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Funzione per scorrere in cima alla pagina
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
+    // Funzioni di scroll alle sezioni
     const scrollToAllPlants = () => {
         setCurrentView('allPlants');
         allPlantsRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -905,6 +929,16 @@ const App = () => {
                     </div>
                 </section>
             </main>
+
+            {/* Tasto Scroll to Top */}
+            {showScrollToTop && (
+                <button
+                    onClick={scrollToTop}
+                    className="scroll-to-top-button"
+                >
+                    ↑
+                </button>
+            )}
 
             {/* Modale Dettagli Pianta */}
             {showPlantModal && (
