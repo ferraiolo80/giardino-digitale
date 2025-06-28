@@ -19,7 +19,7 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    // Correzione: La riga successiva era tagliata nel tuo codice.
+    // Correzione: La riga successiva era tagliata nel tuo codice e conteneva testo diagnostico.
     const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
@@ -31,7 +31,40 @@ const App = () => {
     // Configurazione Firebase fornita dall'utente
     const firebaseConfig = {
         apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-        authDomain: "giardinodigitale.firebaseapp.com",
+        authDomain: "giardinodigitApp.js:280 ID pianta (da modal) per operazione: mvmGFuVyC2NQPKmNPvsk
+App.js:305 Errore durante l'aggiunta/aggiornamento della pianta: FirebaseError: No document to update: projects/giardinodigitale/databases/(default)/documents/users/mICKClxfuJd14ODPFIMTNyfkc3s1/gardens/mvmGFuVyC2NQPKmNPvsk
+_callee3$ @ App.js:305
+tryCatch @ App.js:2
+(anonymous) @ App.js:2
+(anonymous) @ App.js:2
+asyncGeneratorStep @ App.js:2
+_throw @ App.js:2
+Promise.then
+asyncGeneratorStep @ App.js:2
+_next @ App.js:2
+Promise.then
+asyncGeneratorStep @ App.js:2
+_next @ App.js:2
+Promise.then
+asyncGeneratorStep @ App.js:2
+_next @ App.js:2
+(anonymous) @ App.js:2
+(anonymous) @ App.js:2
+(anonymous) @ App.js:310
+handleSubmit @ App.js:719
+kj @ react-dom.production.min.js:223
+jj @ react-dom.production.min.js:34
+mj @ react-dom.production.min.js:34
+gh @ react-dom.production.min.js:62
+Xg @ react-dom.production.min.js:63
+(anonymous) @ react-dom.production.min.js:72
+Tf @ react-dom.production.min.js:189
+wg @ react-dom.production.min.js:32
+Ce @ react-dom.production.min.js:65
+Be @ react-dom.production.min.js:47
+zj @ react-dom.production.min.js:46
+webchannel_connection.ts:386
+POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Fgiardinodigitale%2Fdatabases%2F(default)&gsessionid=_6Nc3A5G6ZTdzRXdVQv9VeazGhg84ZvnXhrBB9-KD2s&SID=fK9tHVKNiZOnd7VebHLb3w&RID=41400&TYPE=terminate&zx=byg0jc5wq2rq 400 (Bad Request)ale.firebaseapp.com",
         projectId: "giardinodigitale",
         storageBucket: "giardinodigitale.firebasestorage.app",
         messagingSenderId: "96265504027",
@@ -66,7 +99,7 @@ const App = () => {
                         setLoading(false);
                     } catch (error) {
                         console.error("Errore nell'accesso anonimo:", error);
-                        setMessage("Errore nell'autenticazione. Riprova.");
+                        setMessage("Errore nell'autentazione. Riprova.");
                         setLoading(false);
                     }
                 }
