@@ -983,7 +983,7 @@ const App = () => {
                         <div className="form-group">
                             <label htmlFor="watering">Frequenza Irrigazione</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="watering"
                                 id="watering"
                                 value={formData.watering}
