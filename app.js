@@ -895,10 +895,12 @@ const App = () => {
                                 <option value="">Seleziona una categoria</option>
                                 <option value="Fiori">Fiori</option>
                                 <option value="Alberi">Alberi</option>
+                                <option value="Piante Grasse">Piante Grasse</option>
                                 <option value="Arbusti">Arbusti</option>
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
+                                <option value="Piante">Piante</option>
                                 {/* Aggiungi altre opzioni qui */}
                             </select>
                         </div>
@@ -943,6 +945,7 @@ const App = () => {
                                 <option value="">Seleziona</option>
                                 <option value="ombra">Ombra</option>
                                 <option value="mezzombra">Mezz'ombra</option>
+                                <option value="molta luce non diretta">Molta luce non diretta</option>
                                 <option value="pienosole">Pieno Sole</option>
                             </select>
                         </div>
