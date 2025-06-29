@@ -588,7 +588,7 @@ const App = () => {
     // Funzione per richiamare l'AI per la ricerca di informazioni
     const handleAiQuery = React.useCallback(async () => {
         if (!aiQuery.trim()) {
-            setAiResponse("Per favore, inserisci una domanda.");
+            setAiResponse("Per favoré, inserisci una domanda.");
             return;
         }
         setAiLoading(true);
@@ -1106,6 +1106,11 @@ const App = () => {
 
     // Nuovo componente Modale AI Query
     const AiQueryModal = ({ onClose, onQuerySubmit, query, setQuery, response, loading }) => {
+        // Usa React.useCallback per mantenere la stabilità della funzione di gestione del cambiamento
+        const handleTextareaChange = React.useCallback((e) => {
+            setQuery(e.target.value);
+        }, [setQuery]);
+
         return (
             <div className="modal-overlay">
                 <div className="modal-content">
@@ -1119,7 +1124,7 @@ const App = () => {
                             <textarea
                                 id="aiQuery"
                                 value={query}
-                                onChange={(e) => setQuery(e.target.value)}
+                                onChange={handleTextareaChange} // Usa la funzione stabile
                                 placeholder="Ad esempio: 'Quali sono i requisiti di luce per una Monstera Deliciosa?'"
                                 rows="4"
                                 className="form-input"
