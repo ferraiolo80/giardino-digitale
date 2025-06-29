@@ -20,7 +20,7 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
     const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
@@ -149,7 +149,7 @@ const App = () => {
     React.useEffect(() => {
         if (userLocation && weatherApiKey && weatherApiKey !== 'YOUR_OPENWEATHERMAP_API_KEY') {
             const fetchWeather = async () => {
-                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.lat}&lon=${userLocation.lon}&appid=${weatherApiKey}&units=metric&lang=it`;
+                const url = `https://api.openweathermap.org/data/2.5/weather/weather?lat=${userLocation.lat}&lon=${userLocation.lon}&appid=${weatherApiKey}&units=metric&lang=it`;
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
@@ -287,12 +287,14 @@ const App = () => {
         try {
             const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null;
             
-            // Un modo più affidabile per verificare se la pianta in fase di modifica proviene da Mio Giardino
-            // Controlla se qualsiasi pianta nell'array myGardenPlants ha lo stesso ID dell'originalPlantObject
-            const isEditingMyGardenPlant = plantIdToOperate && myGardenPlants.some(p => p.id === plantIdToOperate);
+            // Determinazione affidabile della provenienza della pianta:
+            // Se originalPlantObject è presente e ha la proprietà isMyGardenPlant a true,
+            // allora stiamo modificando una pianta dal Mio Giardino.
+            const isEditingMyGardenPlant = originalPlantObject && originalPlantObject.isMyGardenPlant;
 
             console.log("addOrUpdatePlant: Is editing My Garden plant?", isEditingMyGardenPlant);
             console.log("addOrUpdatePlant: ID del documento per l'operazione:", plantIdToOperate);
+            console.log("addOrUpdatePlant: Public Plant ID (if applicable):", originalPlantObject ? originalPlantObject.publicPlantId : 'N/A');
 
 
             if (plantIdToOperate && isEditingMyGardenPlant) {
@@ -307,7 +309,7 @@ const App = () => {
 
                 // Controlla se questa pianta è stata aggiunta dall'utente corrente alla collezione pubblica
                 // (e quindi l'utente è l'owner della versione pubblica)
-                const publicPlantId = originalPlantObject.publicPlantId || plantIdToOperate; // Usa publicPlantId se disponibile, altrimenti l'ID corrente
+                const publicPlantId = originalPlantObject.publicPlantId || plantIdToOperate; // Usa publicPlantId se disponibile, altrimenti l'ID corrente (che dovrebbe essere publicPlantId)
                 const publicPlantDocRef = db.collection('plants').doc(publicPlantId);
                 const publicPlantSnap = await publicPlantDocRef.get();
 
