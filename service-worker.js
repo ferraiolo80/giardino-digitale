@@ -6,9 +6,11 @@ const urlsToCache = [
     './index.html',
     './App.js',
     './style.css',
-    '/assets/icons/icon-192x192.png', // Assicurati questi percorsi siano corretti
-    '/assets/icons/icon-592x592.png',
-    // Aggiungi qui anche le icone delle categorie se sono locali
+    '/assets/icons/icon-192x192.png', // <-- VERIFICA QUESTI PERCORSI E NOMI FILE
+    '/assets/icons/icon-592x592.png', // <-- VERIFICA QUESTI PERCORSI E NOMI FILE
+    // Se hai anche icone 512x512 come suggerito nel manifest, assicurati che il nome sia corretto
+    // '/assets/icons/icon-512x512.png', // <--- Se hai questo file, DECOMMENTA E VERIFICA IL NOME ESATTO
+    // Aggiungi qui anche le icone delle categorie se sono locali e non placeholder
     // Esempio: '/assets/category_icons/fiori-estivi.png',
     // Font Awesome e Firebase CDN non verranno cachati dal service worker locale,
     // dato che sono serviti da terze parti. Il browser si occupa della loro cache.
@@ -20,10 +22,15 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('[Service Worker] Caching app shell');
+                // Prova a cachare tutte le risorse. Se una fallisce, l'intero addAll fallisce.
                 return cache.addAll(urlsToCache);
             })
             .catch((error) => {
                 console.error('[Service Worker] Cache addAll failed:', error);
+                // Puoi aggiungere qui una diagnostica più specifica se necessario,
+                // ma spesso l'errore del browser è già sufficientemente descrittivo.
+                // L'errore "Request failed" significa che il browser non è riuscito a scaricare il file.
+                // Ciò è quasi sempre dovuto a un percorso errato o a un file mancante (HTTP 404).
             })
     );
 });
@@ -57,11 +64,11 @@ self.addEventListener('fetch', (event) => {
             .then((response) => {
                 // Cache hit - restituisci la risposta cachata
                 if (response) {
-                    console.log(`[Service Worker] Serving from cache: ${event.request.url}`);
+                    // console.log(`[Service Worker] Serving from cache: ${event.request.url}`); // Commentato per ridurre verbosità
                     return response;
                 }
                 // Nessuna cache hit - recupera dalla rete
-                console.log(`[Service Worker] Fetching from network: ${event.request.url}`);
+                // console.log(`[Service Worker] Fetching from network: ${event.request.url}`); // Commentato per ridurre verbosità
                 return fetch(event.request)
                     .then((networkResponse) => {
                         // Controlla se la risposta è valida per la cache
