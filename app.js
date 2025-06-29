@@ -19,7 +19,7 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
 
@@ -298,21 +298,15 @@ const App = () => {
                 const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
                 console.log("Tentativo di aggiornare pianta nel Mio Giardino al percorso:", myGardenDocRef.path);
 
-                // Verifica esplicita se il documento esiste prima di tentare set con merge (anche se set dovrebbe crearlo, questo serve per la diagnostica)
-                const docSnap = await myGardenDocRef.get();
-                if (!docSnap.exists) {
-                    // Questa situazione dovrebbe essere rara con set({merge: true}), ma se si verifica, è critica.
-                    console.error("DEBUG: Documento non esiste al percorso:", myGardenDocRef.path, "Questo è inaspettato per un aggiornamento 'Mio Giardino'.");
-                    setMessage("Errore interno: La pianta non è stata trovata nel tuo giardino per l'aggiornamento. Prova a rimuoverla e riaggiungerla.");
-                    setLoading(false);
-                    return; // Esci dalla funzione se il documento non esiste
-                }
+                // RIMOSSO: La verifica esplicita dell'esistenza del documento che causava il blocco.
+                // Ora set con merge: true si occuperà di creare/aggiornare.
                 
                 await myGardenDocRef.set(finalPlantData, { merge: true });
                 setMessage("Pianta nel tuo giardino aggiornata con successo!");
                 console.log("Aggiornata pianta nel mio giardino con ID:", plantIdToOperate);
             } else if (plantIdToOperate) {
-                // Aggiornamento di una pianta pubblica
+                // Aggiornamento di una pianta pubblica (se l'ID corrisponde)
+                // Se la pianta è nella collezione 'plants' E l'utente corrente è l'owner.
                 const publicPlant = plants.find(p => p.id === plantIdToOperate);
                 if (publicPlant && publicPlant.ownerId === userId) {
                     const publicPlantDocRef = db.collection('plants').doc(plantIdToOperate);
@@ -422,15 +416,14 @@ const App = () => {
             const existingDocs = await q.get(); // Usa .get()
 
             if (existingDocs.empty) {
-                // Copia tutti i dati della pianta pubblica nel giardino dell'utente,
-                // e aggiungi publicPlantId per riferimento all'originale
-                await myGardenCollectionRef.add({ // Usa .add()
+                const newDocRef = await myGardenCollectionRef.add({ // Capture the document reference
                     ...plant, // Copia tutti i campi della pianta pubblica
                     publicPlantId: plant.id, // Aggiungi l'ID della pianta pubblica come riferimento
                     dateAdded: firebase.firestore.FieldValue.serverTimestamp(), // Usa FieldValue
                     // ownerId: userId, // L'owner della copia nel giardino è l'utente attuale (opzionale se già incluso in 'plant')
                     // createdAt: plant.createdAt // Puoi mantenere il createdAt originale o usare un nuovo timestamp
                 });
+                console.log("Nuova pianta aggiunta al mio giardino con ID:", newDocRef.id); // Log the actual ID
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
                 setMessage("Questa pianta è già nel tuo giardino.");
