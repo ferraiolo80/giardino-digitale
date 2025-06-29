@@ -272,6 +272,9 @@ const App = () => {
             // Se stiamo aggiornando, non c'è un nuovo file, e l'URL immagine è vuoto/null,
             // significa che l'utente vuole rimuovere l'immagine.
             imageUrl = ''; // Imposta l'URL a vuoto per rimuovere l'immagine
+        } else if (originalPlantObject && !imageFile && originalPlantObject.image) {
+            // Nessun nuovo file e nessuna rimozione esplicita, mantieni l'URL dell'immagine esistente da originalPlantObject
+            imageUrl = originalPlantObject.image;
         }
 
 
@@ -282,32 +285,61 @@ const App = () => {
 
 
         try {
-            // Determina se stiamo aggiornando una pianta del "Mio Giardino" o una pubblica
-            const isMyGardenPlantUpdate = originalPlantObject && originalPlantObject.isMyGardenPlant;
-            const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null; // Usa l'ID dall'oggetto originale
+            const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null;
+            
+            // Un modo più affidabile per verificare se la pianta in fase di modifica proviene da Mio Giardino
+            // Controlla se qualsiasi pianta nell'array myGardenPlants ha lo stesso ID dell'originalPlantObject
+            const isEditingMyGardenPlant = plantIdToOperate && myGardenPlants.some(p => p.id === plantIdToOperate);
 
-            console.log("addOrUpdatePlant: Is editing My Garden plant?", isMyGardenPlantUpdate);
+            console.log("addOrUpdatePlant: Is editing My Garden plant?", isEditingMyGardenPlant);
             console.log("addOrUpdatePlant: ID del documento per l'operazione:", plantIdToOperate);
 
 
-            if (plantIdToOperate && isMyGardenPlantUpdate) {
-                // Aggiornamento di una pianta nel "Mio Giardino"
+            if (plantIdToOperate && isEditingMyGardenPlant) {
+                // Scenario 1: Aggiornamento di una pianta dal "Mio Giardino"
+                // Aggiorna SEMPRE la copia nel giardino dell'utente
                 const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
                 console.log("Tentativo di aggiornare pianta nel Mio Giardino al percorso:", myGardenDocRef.path);
                 
                 await myGardenDocRef.set(finalPlantData, { merge: true });
                 setMessage("Pianta nel tuo giardino aggiornata con successo!");
                 console.log("Aggiornata pianta nel mio giardino con ID:", plantIdToOperate);
+
+                // Controlla se questa pianta è stata aggiunta dall'utente corrente alla collezione pubblica
+                // (e quindi l'utente è l'owner della versione pubblica)
+                const publicPlantId = originalPlantObject.publicPlantId || plantIdToOperate; // Usa publicPlantId se disponibile, altrimenti l'ID corrente
+                const publicPlantDocRef = db.collection('plants').doc(publicPlantId);
+                const publicPlantSnap = await publicPlantDocRef.get();
+
+                if (publicPlantSnap.exists && publicPlantSnap.data().ownerId === userId) {
+                    // Se l'utente è l'owner della pianta pubblica corrispondente, aggiorna anche la versione pubblica
+                    await publicPlantDocRef.update(finalPlantData); // Aggiorna la pianta pubblica con i nuovi dati
+                    setMessage(prev => prev + " e anche la versione pubblica!");
+                    console.log("Aggiornata anche la pianta pubblica con ID:", publicPlantId);
+                }
+
             } else if (plantIdToOperate) {
-                // Aggiornamento di una pianta pubblica (se l'ID corrisponde)
-                // Se la pianta è nella collezione 'plants' E l'utente corrente è l'owner.
-                const publicPlant = plants.find(p => p.id === plantIdToOperate);
-                if (publicPlant && publicPlant.ownerId === userId) {
-                    const publicPlantDocRef = db.collection('plants').doc(plantIdToOperate);
+                // Scenario 2: Aggiornamento di una pianta dalla collezione "Tutte le Piante" (pubblica)
+                const publicPlantDocRef = db.collection('plants').doc(plantIdToOperate);
+                const publicPlantSnap = await publicPlantDocRef.get();
+
+                if (publicPlantSnap.exists && publicPlantSnap.data().ownerId === userId) {
                     await publicPlantDocRef.update(finalPlantData);
                     setMessage("Pianta pubblica aggiornata con successo!");
                     console.log("Aggiornata pianta pubblica con ID:", plantIdToOperate);
-                } else if (publicPlant) {
+
+                    // Dopo aver aggiornato la pianta pubblica, aggiorna anche la copia nel giardino dell'utente attuale
+                    // (se l'utente l'ha nel suo giardino)
+                    const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate); // L'ID corrisponde al publicPlantId
+                    const myGardenDocSnap = await myGardenDocRef.get();
+                    if (myGardenDocSnap.exists) {
+                        await myGardenDocRef.update(finalPlantData);
+                        setMessage(prev => prev + " e la copia nel tuo giardino.");
+                        console.log("Aggiornata anche la copia nel giardino dell'utente con ID:", plantIdToOperate);
+                    }
+
+
+                } else if (publicPlantSnap.exists) {
                     setMessage("Non hai i permessi per modificare questa pianta pubblica.");
                     console.warn("Tentativo di modificare pianta pubblica non propria:", plantIdToOperate);
                 } else {
@@ -315,7 +347,8 @@ const App = () => {
                     setMessage("Errore: Pianta non trovata per l'aggiornamento.");
                 }
 
-            } else { // Aggiunta di una nuova pianta pubblica
+            } else {
+                // Scenario 3: Aggiunta di una nuova pianta pubblica
                 const plantsCollectionRef = db.collection('plants');
                 await plantsCollectionRef.add({ ...finalPlantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 setMessage("Nuova pianta aggiunta alla collezione pubblica con successo!");
@@ -328,7 +361,7 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    }, [db, userId, storage, closeAddEditModal, myGardenPlants, plants]); // editPlantData non è più una dipendenza diretta qui
+    }, [db, userId, storage, closeAddEditModal, myGardenPlants, plants]); // Aggiunto myGardenPlants alle dipendenze per il controllo .some()
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
