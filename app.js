@@ -60,9 +60,9 @@ const App = () => {
                     console.log("ID Utente corrente:", user.uid, "Email:", user.email); // Console log dell'ID e email utente
                     setLoading(false);
                 } else {
-                    setUserId(null); // Se non autenticato, userId è null
-                    setUserEmail(null); // Se non autenticato, email è null
-                    console.log("Utente non autenticato. Si prega di effettuare il login.");
+                    setUserId(null); // Se non autentato, userId è null
+                    setUserEmail(null); // Se non autentato, email è null
+                    console.log("Utente non autentato. Si prega di effettuare il login.");
                     setLoading(false);
                 }
             });
@@ -716,7 +716,7 @@ const App = () => {
                     name: plantToEdit.name || '',
                     scientificName: plantToEdit.scientificName || '', // Carica valore esistente
                     description: plantToEdit.description || '',
-                    image: plantToEdit.image || '', // Imposta l'URL esistente
+                    image: plantToEdit.image || '', // Imposta l'URL esistente in formData
                     idealLuxMin: plantToEdit.idealLuxMin || '',
                     idealLuxMax: plantToEdit.idealLuxMax || '',
                     watering: plantToEdit.watering || '',
@@ -747,17 +747,21 @@ const App = () => {
             const file = e.target.files[0];
             if (file) {
                 setSelectedFile(file);
-                // Crea un URL di anteprima per il file selezionato
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     setImagePreviewUrl(reader.result);
+                    // IMPORTANTE: Aggiorna formData.image con l'URL temporaneo per la preview.
+                    // Questo sarà sovrascritto dall'URL di Firebase Storage dopo l'upload.
+                    setFormData(prev => ({ ...prev, image: reader.result })); 
                 };
                 reader.readAsDataURL(file);
             } else {
                 setSelectedFile(null);
-                // Se nessun file è selezionato, ripristina l'URL dell'immagine esistente
-                // o svuota se è una nuova pianta.
-                setImagePreviewUrl(plantToEdit ? plantToEdit.image || '' : '');
+                // Se nessun file è selezionato (input cleared), ripristina l'URL dell'immagine originale in formData
+                // e nella preview, se esisteva. Altrimenti, imposta a stringa vuota.
+                const originalImageUrl = plantToEdit ? plantToEdit.image || '' : '';
+                setImagePreviewUrl(originalImageUrl);
+                setFormData(prev => ({ ...prev, image: originalImageUrl }));
             }
         };
 
