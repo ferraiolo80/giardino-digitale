@@ -19,7 +19,6 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    // Correzione: La riga successiva era tagliata nel tuo codice e conteneva testo diagnostico.
     const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
@@ -31,40 +30,7 @@ const App = () => {
     // Configurazione Firebase fornita dall'utente
     const firebaseConfig = {
         apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
-        authDomain: "giardinodigitApp.js:280 ID pianta (da modal) per operazione: mvmGFuVyC2NQPKmNPvsk
-App.js:305 Errore durante l'aggiunta/aggiornamento della pianta: FirebaseError: No document to update: projects/giardinodigitale/databases/(default)/documents/users/mICKClxfuJd14ODPFIMTNyfkc3s1/gardens/mvmGFuVyC2NQPKmNPvsk
-_callee3$ @ App.js:305
-tryCatch @ App.js:2
-(anonymous) @ App.js:2
-(anonymous) @ App.js:2
-asyncGeneratorStep @ App.js:2
-_throw @ App.js:2
-Promise.then
-asyncGeneratorStep @ App.js:2
-_next @ App.js:2
-Promise.then
-asyncGeneratorStep @ App.js:2
-_next @ App.js:2
-Promise.then
-asyncGeneratorStep @ App.js:2
-_next @ App.js:2
-(anonymous) @ App.js:2
-(anonymous) @ App.js:2
-(anonymous) @ App.js:310
-handleSubmit @ App.js:719
-kj @ react-dom.production.min.js:223
-jj @ react-dom.production.min.js:34
-mj @ react-dom.production.min.js:34
-gh @ react-dom.production.min.js:62
-Xg @ react-dom.production.min.js:63
-(anonymous) @ react-dom.production.min.js:72
-Tf @ react-dom.production.min.js:189
-wg @ react-dom.production.min.js:32
-Ce @ react-dom.production.min.js:65
-Be @ react-dom.production.min.js:47
-zj @ react-dom.production.min.js:46
-webchannel_connection.ts:386
-POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Fgiardinodigitale%2Fdatabases%2F(default)&gsessionid=_6Nc3A5G6ZTdzRXdVQv9VeazGhg84ZvnXhrBB9-KD2s&SID=fK9tHVKNiZOnd7VebHLb3w&RID=41400&TYPE=terminate&zx=byg0jc5wq2rq 400 (Bad Request)ale.firebaseapp.com",
+        authDomain: "giardinodigitale.firebaseapp.com",
         projectId: "giardinodigitale",
         storageBucket: "giardinodigitale.firebasestorage.app",
         messagingSenderId: "96265504027",
@@ -131,7 +97,7 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
         const plantsCollectionRef = db.collection('plants');
         const unsubscribe = plantsCollectionRef.onSnapshot((snapshot) => {
             const plantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            console.log("Firestore (plants) data received:", plantsData); // ADDED LOG
+            console.log("Firestore (plants) data received:", plantsData);
             setPlants(plantsData);
         }, (error) => {
             console.error("Errore nel recupero delle piante pubbliche:", error);
@@ -153,7 +119,7 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
                 ...doc.data(),
                 isMyGardenPlant: true // Indica che è una pianta del giardino personale
             }));
-            console.log("Firestore (myGardenPlants) data received:", myGardenData); // ADDED LOG
+            console.log("Firestore (myGardenPlants) data received:", myGardenData);
             setMyGardenPlants(myGardenData);
         }, (error) => {
             console.error("Errore nel recupero delle piante del mio giardino:", error);
@@ -161,7 +127,7 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
         });
 
         return () => unsubscribe();
-    }, [db, userId]); // Non dipende più da 'plants' qui per la visualizzazione
+    }, [db, userId]);
 
     // Ottenere la geolocalizzazione
     React.useEffect(() => {
@@ -278,7 +244,8 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
     }, []);
 
     // Funzioni CRUD per le piante (Collezione Pubblica e Mio Giardino)
-    const addOrUpdatePlant = React.useCallback(async (plantData, plantId = null, imageFile = null) => {
+    // Ora riceve l'intero oggetto della pianta originale invece del solo ID
+    const addOrUpdatePlant = React.useCallback(async (plantData, originalPlantObject = null, imageFile = null) => {
         console.log("addOrUpdatePlant: Function called.");
         if (!db || !userId || !storage) {
             setMessage("Errore: Utente non autentato o app non inizializzata.");
@@ -304,7 +271,7 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
                 setLoading(false);
                 return; // Ferma l'operazione se l'upload fallisce
             }
-        } else if (plantId && !imageFile && !plantData.image) {
+        } else if (originalPlantObject && !imageFile && !plantData.image) {
             // Se stiamo aggiornando, non c'è un nuovo file, e l'URL immagine è vuoto/null,
             // significa che l'utente vuole rimuovere l'immagine.
             imageUrl = ''; // Imposta l'URL a vuoto per rimuovere l'immagine
@@ -314,24 +281,28 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
         // Il campo scientificName verrà usato per memorizzare la dimensione ideale del vaso.
         const finalPlantData = { ...plantData, image: imageUrl };
         console.log("addOrUpdatePlant: Dati finali per Firestore (Update/Add):", finalPlantData);
-        console.log("addOrUpdatePlant: ID pianta (da modal) per operazione:", plantId);
-        console.log("addOrUpdatePlant: CURRENT editPlantData state:", editPlantData);
+        console.log("addOrUpdatePlant: Oggetto Pianta Originale per operazione:", originalPlantObject);
 
 
         try {
-            const isMyGardenPlantUpdate = plantId && editPlantData && editPlantData.isMyGardenPlant;
-            
+            // Determina se stiamo aggiornando una pianta del "Mio Giardino" o una pubblica
+            const isMyGardenPlantUpdate = originalPlantObject && originalPlantObject.isMyGardenPlant;
+            const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null; // Usa l'ID dall'oggetto originale
+
             console.log("addOrUpdatePlant: Is editing My Garden plant?", isMyGardenPlantUpdate);
-            console.log("addOrUpdatePlant: editPlantData.isMyGardenPlant value:", editPlantData ? editPlantData.isMyGardenPlant : 'N/A');
+            console.log("addOrUpdatePlant: ID del documento per l'operazione:", plantIdToOperate);
 
-            if (plantId && isMyGardenPlantUpdate) {
-                const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantId);
-                console.log("Attempting to update My Garden plant at path:", myGardenDocRef.path); // Diagnostic log
 
-                // Verifica esplicita se il documento esiste
+            if (plantIdToOperate && isMyGardenPlantUpdate) {
+                // Aggiornamento di una pianta nel "Mio Giardino"
+                const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
+                console.log("Tentativo di aggiornare pianta nel Mio Giardino al percorso:", myGardenDocRef.path);
+
+                // Verifica esplicita se il documento esiste prima di tentare set con merge (anche se set dovrebbe crearlo, questo serve per la diagnostica)
                 const docSnap = await myGardenDocRef.get();
                 if (!docSnap.exists) {
-                    console.error("DEBUG: Document does not exist at path:", myGardenDocRef.path, "This is unexpected for a 'My Garden' update.");
+                    // Questa situazione dovrebbe essere rara con set({merge: true}), ma se si verifica, è critica.
+                    console.error("DEBUG: Documento non esiste al percorso:", myGardenDocRef.path, "Questo è inaspettato per un aggiornamento 'Mio Giardino'.");
                     setMessage("Errore interno: La pianta non è stata trovata nel tuo giardino per l'aggiornamento. Prova a rimuoverla e riaggiungerla.");
                     setLoading(false);
                     return; // Esci dalla funzione se il documento non esiste
@@ -339,19 +310,20 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
                 
                 await myGardenDocRef.set(finalPlantData, { merge: true });
                 setMessage("Pianta nel tuo giardino aggiornata con successo!");
-                console.log("Aggiornata pianta nel mio giardino con ID:", plantId);
-            } else if (plantId) {
-                const publicPlant = plants.find(p => p.id === plantId);
+                console.log("Aggiornata pianta nel mio giardino con ID:", plantIdToOperate);
+            } else if (plantIdToOperate) {
+                // Aggiornamento di una pianta pubblica
+                const publicPlant = plants.find(p => p.id === plantIdToOperate);
                 if (publicPlant && publicPlant.ownerId === userId) {
-                    const publicPlantDocRef = db.collection('plants').doc(plantId);
+                    const publicPlantDocRef = db.collection('plants').doc(plantIdToOperate);
                     await publicPlantDocRef.update(finalPlantData);
                     setMessage("Pianta pubblica aggiornata con successo!");
-                    console.log("Aggiornata pianta pubblica con ID:", plantId);
+                    console.log("Aggiornata pianta pubblica con ID:", plantIdToOperate);
                 } else if (publicPlant) {
                     setMessage("Non hai i permessi per modificare questa pianta pubblica.");
-                    console.warn("Tentativo di modificare pianta pubblica non propria:", plantId);
+                    console.warn("Tentativo di modificare pianta pubblica non propria:", plantIdToOperate);
                 } else {
-                    console.error("Errore: ID pianta non trovato per l'aggiornamento.", plantId);
+                    console.error("Errore: ID pianta non trovato per l'aggiornamento.", plantIdToOperate);
                     setMessage("Errore: Pianta non trovata per l'aggiornamento.");
                 }
 
@@ -364,11 +336,11 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
             closeAddEditModal();
         } catch (error) {
             console.error("Errore durante l'aggiunta/aggiornamento della pianta:", error);
-            setMessage(`Errore: ${plantId ? 'aggiornamento' : 'aggiunta'} pianta fallito.`);
+            setMessage(`Errore: ${originalPlantObject ? 'aggiornamento' : 'aggiunta'} pianta fallito.`);
         } finally {
             setLoading(false);
         }
-    }, [db, userId, storage, editPlantData, closeAddEditModal, myGardenPlants, plants]);
+    }, [db, userId, storage, closeAddEditModal, myGardenPlants, plants]); // editPlantData non è più una dipendenza diretta qui
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
@@ -777,7 +749,8 @@ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channe
             };
             console.log("AddEditPlantModal handleSubmit: Dati inviati per aggiornamento:", dataToSend);
             console.log("AddEditPlantModal handleSubmit: File immagine selezionato:", selectedFile);
-            onSubmit(dataToSend, plantToEdit ? plantToEdit.id : null, selectedFile); // Passa anche il file selezionato
+            // Passa l'intero oggetto plantToEdit, non solo l'ID.
+            onSubmit(dataToSend, plantToEdit, selectedFile);
         };
 
         return (
