@@ -770,7 +770,7 @@ const App = () => {
                     />
                     <div className="modal-details-list">
                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
+                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'} <strong> cm </strong></p>
                         <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                         <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                         <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
