@@ -7,6 +7,7 @@ const App = () => {
     const [auth, setAuth] = React.useState(null);
     const [storage, setStorage] = React.useState(null); // Stato per Firebase Storage
     const [userId, setUserId] = React.useState(null);
+    const [userEmail, setUserEmail] = React.useState(null); // Nuovo stato per l'email dell'utente
     const [plants, setPlants] = React.useState([]); // Tutte le piante (collezione pubblica)
     const [myGardenPlants, setMyGardenPlants] = React.useState([]); // Le piante nel mio giardino
     const [currentView, setCurrentView] = React.useState('allPlants'); // 'allPlants' o 'myGarden'
@@ -19,9 +20,10 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
+    const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
 
     // Riferimenti per lo scroll
     const allPlantsRef = React.useRef(null);
@@ -54,20 +56,14 @@ const App = () => {
             const unsubscribeAuth = firebaseAuth.onAuthStateChanged(async (user) => { // Usa firebaseAuth.onAuthStateChanged
                 if (user) {
                     setUserId(user.uid);
-                    console.log("ID Utente corrente:", user.uid); // Console log dell'ID utente
+                    setUserEmail(user.email); // Imposta l'email dell'utente
+                    console.log("ID Utente corrente:", user.uid, "Email:", user.email); // Console log dell'ID e email utente
                     setLoading(false);
                 } else {
-                    // Se non autentato con un token, tenta l'accesso anonimo
-                    try {
-                        const { user: anonymousUser } = await firebaseAuth.signInAnonymously(); // Usa firebaseAuth.signInAnonymously()
-                        setUserId(anonymousUser.uid);
-                        console.log("ID Utente anonimo:", anonymousUser.uid); // Console log dell'ID utente anonimo
-                        setLoading(false);
-                    } catch (error) {
-                        console.error("Errore nell'accesso anonimo:", error);
-                        setMessage("Errore nell'autentazione. Riprova.");
-                        setLoading(false);
-                    }
+                    setUserId(null); // Se non autenticato, userId è null
+                    setUserEmail(null); // Se non autenticato, email è null
+                    console.log("Utente non autenticato. Si prega di effettuare il login.");
+                    setLoading(false);
                 }
             });
 
@@ -248,7 +244,8 @@ const App = () => {
     const addOrUpdatePlant = React.useCallback(async (plantData, originalPlantObject = null, imageFile = null) => {
         console.log("addOrUpdatePlant: Function called.");
         if (!db || !userId || !storage) {
-            setMessage("Errore: Utente non autentato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato. Si prega di effettuare il login per aggiungere/modificare piante.");
+            setLoading(false);
             return;
         }
         setLoading(true);
@@ -335,7 +332,7 @@ const App = () => {
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
-            setMessage("Errore: Utente non autentato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato. Si prega di effettuare il login per eliminare piante.");
             return;
         }
 
@@ -400,7 +397,7 @@ const App = () => {
     // Funzioni per il "Mio Giardino"
     const addPlantToMyGarden = React.useCallback(async (plant) => { // Ora accetta l'intero oggetto pianta
         if (!db || !userId) {
-            setMessage("Errore: Utente non autentato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato. Si prega di effettuare il login per aggiungere piante al giardino.");
             return;
         }
         setLoading(true);
@@ -433,7 +430,7 @@ const App = () => {
 
     const removePlantFromMyGarden = React.useCallback(async (plantId) => {
         if (!db || !userId) {
-            setMessage("Errore: Utente non autentato o app non inizializzata.");
+            setMessage("Errore: Utente non autentato. Si prega di effettuare il login per rimuovere piante.");
             return;
         }
 
@@ -478,6 +475,51 @@ const App = () => {
             setLoading(false);
         }
     }, [db, userId]);
+
+    // Funzioni di autenticazione
+    const handleRegister = async (email, password) => {
+        setLoading(true);
+        setMessage('');
+        try {
+            await auth.createUserWithEmailAndPassword(email, password);
+            setMessage("Registrazione completata! Accesso effettuato.");
+            setShowAuthModal(false);
+        } catch (error) {
+            console.error("Errore durante la registrazione:", error);
+            setMessage(`Errore registrazione: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogin = async (email, password) => {
+        setLoading(true);
+        setMessage('');
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            setMessage("Login effettuato con successo!");
+            setShowAuthModal(false);
+        } catch (error) {
+            console.error("Errore durante il login:", error);
+            setMessage(`Errore login: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        setLoading(true);
+        setMessage('');
+        try {
+            await auth.signOut();
+            setMessage("Logout effettuato con successo!");
+        } catch (error) {
+            console.error("Errore durante il logout:", error);
+            setMessage(`Errore logout: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Gestione input Lux e feedback piante
     const handleLuxChange = React.useCallback((e) => {
@@ -545,17 +587,19 @@ const App = () => {
                             <button
                                 onClick={() => onAddOrRemoveToMyGarden(plant)} // Passa l'intero oggetto plant
                                 className={`card-action-button ${isInMyGarden ? 'in-garden' : 'add-to-garden'}`}
+                                disabled={!userId} // Disabilita se non loggato
                             >
                                 <i className="fas fa-leaf"></i> {isInMyGarden ? 'Già nel tuo giardino' : 'Aggiungi al mio giardino'}
                             </button>
                             <button
                                 onClick={() => onUpdatePlant(plant)}
                                 className="card-action-button update"
+                                disabled={!userId || plant.ownerId !== userId} // Disabilita se non proprietario o non loggato
                             >
                                 <i className="fas fa-edit"></i> Aggiorna pianta
                             </button>
-                            {/* Mostra "Rimuovi definitivamente" solo se l'utente è quello che l'ha aggiunta */}
-                            {plant.ownerId === userId && (
+                            {/* Mostra "Rimuovi definitivamente" solo se l'utente è quello che l'ha aggiunta E loggato */}
+                            {plant.ownerId === userId && userId && (
                                 <button
                                     onClick={() => onDeletePlantPermanently(plant.id)}
                                     className="card-action-button delete"
@@ -570,14 +614,16 @@ const App = () => {
                     {isMyGardenPlant && (
                         <>
                             <button
-                                onClick={() => onAddOrRemoveToMyGarden(plant.publicPlantId)} // Rimuovi usando l'ID pubblico di riferimento
+                                onClick={() => onAddOrRemoveToMyGarden(plant.id)} // Rimuovi usando l'ID del documento nel giardino
                                 className="card-action-button delete"
+                                disabled={!userId} // Disabilita se non loggato
                             >
                                 <i className="fas fa-minus-circle"></i> Rimuovi da mio giardino
                             </button>
                             <button
                                 onClick={() => onUpdatePlant(plant)}
                                 className="card-action-button update"
+                                disabled={!userId} // Disabilita se non loggato
                             >
                                 <i className="fas fa-edit"></i> Aggiorna pianta
                             </button>
@@ -891,6 +937,68 @@ const App = () => {
         );
     };
 
+    // Nuovo componente Modale di Autenticazione
+    const AuthModal = ({ onClose, onRegister, onLogin }) => {
+        const [email, setEmail] = React.useState('');
+        const [password, setPassword] = React.useState('');
+        const [isRegisterMode, setIsRegisterMode] = React.useState(true); // True per Registrazione, False per Login
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            if (isRegisterMode) {
+                onRegister(email, password);
+            } else {
+                onLogin(email, password);
+            }
+        };
+
+        return (
+            <div className="modal-overlay">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h2 className="add-edit-modal-title">{isRegisterMode ? 'Registrazione Utente' : 'Accedi'}</h2>
+                        <button onClick={onClose} className="modal-close-btn">&times;</button>
+                    </div>
+                    <form onSubmit={handleSubmit} className="form-spacing">
+                        <div className="form-group">
+                            <label htmlFor="auth-email">Email</label>
+                            <input
+                                type="email"
+                                id="auth-email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="auth-password">Password</label>
+                            <input
+                                type="password"
+                                id="auth-password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-actions">
+                            <button
+                                type="button"
+                                onClick={() => setIsRegisterMode(prev => !prev)}
+                                className="form-button cancel"
+                            >
+                                {isRegisterMode ? 'Hai già un account? Accedi' : 'Non hai un account? Registrati'}
+                            </button>
+                            <button type="submit" className="form-button submit">
+                                <i className="fas fa-sign-in-alt"></i> {isRegisterMode ? 'Registrati' : 'Accedi'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    };
+
+
     if (loading) {
         return (
             <div className="loading-screen">
@@ -921,9 +1029,12 @@ const App = () => {
                         >
                             <i className="fas fa-tree"></i> Mostra il Mio Giardino
                         </button>
+                        {/* Bottone per aggiungere pianta, disabilitato se non loggato */}
                         <button
                             onClick={() => openAddEditModal()}
                             className="main-button button-purple"
+                            disabled={!userId}
+                            title={!userId ? "Effettua il login per aggiungere piante" : ""}
                         >
                             <i className="fas fa-plus-circle"></i> Aggiungi Pianta
                         </button>
@@ -933,6 +1044,16 @@ const App = () => {
                         >
                             <i className="fas fa-camera"></i> Google Lens
                         </button>
+                        {/* Pulsanti di autenticazione */}
+                        {userId ? (
+                            <button onClick={handleLogout} className="main-button button-red">
+                                <i className="fas fa-sign-out-alt"></i> Logout ({userEmail})
+                            </button>
+                        ) : (
+                            <button onClick={() => setShowAuthModal(true)} className="main-button button-orange">
+                                <i className="fas fa-user-circle"></i> Login / Registrati
+                            </button>
+                        )}
                     </div>
                 </div>
                 {/* Modifica: ID Utente stilizzato per essere meno prominente */}
@@ -1090,6 +1211,15 @@ const App = () => {
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
+                />
+            )}
+
+            {/* Modale Autenticazione */}
+            {showAuthModal && (
+                <AuthModal
+                    onClose={() => setShowAuthModal(false)}
+                    onRegister={handleRegister}
+                    onLogin={handleLogin}
                 />
             )}
         </div>
