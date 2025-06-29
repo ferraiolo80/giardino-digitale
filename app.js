@@ -20,10 +20,16 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
     const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
+
+    // Stati per la nuova funzionalità AI
+    const [showAiModal, setShowAiModal] = React.useState(false);
+    const [aiQuery, setAiQuery] = React.useState('');
+    const [aiResponse, setAiResponse] = React.useState('');
+    const [aiLoading, setAiLoading] = React.useState(false);
 
     // Riferimenti per lo scroll
     const allPlantsRef = React.useRef(null);
@@ -579,6 +585,55 @@ const App = () => {
         }
     }, [luxValue]);
 
+    // Funzione per richiamare l'AI per la ricerca di informazioni
+    const handleAiQuery = React.useCallback(async () => {
+        if (!aiQuery.trim()) {
+            setAiResponse("Per favore, inserisci una domanda.");
+            return;
+        }
+        setAiLoading(true);
+        setAiResponse('');
+        setMessage('');
+
+        try {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Errore API: ${response.status} - ${errorData.error.message || response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                setAiResponse(text);
+                setMessage("Informazioni AI caricate con successo!");
+            } else {
+                setAiResponse("Nessuna risposta valida dall'AI. Riprova con una domanda diversa.");
+                setMessage("Nessuna risposta dall'AI.");
+            }
+        } catch (error) {
+            console.error("Errore durante la chiamata AI:", error);
+            setAiResponse(`Si è verificato un errore durante la ricerca AI: ${error.message}`);
+            setMessage("Errore durante la ricerca AI.");
+        } finally {
+            setAiLoading(false);
+        }
+    }, [aiQuery]);
+
     // Componente Card Pianta
     const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGarden, onUpdatePlant, onDeletePlantPermanently }) => {
         const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id); // Controlla se l'ID pubblico è nel giardino
@@ -738,6 +793,7 @@ const App = () => {
             description: '',
             image: '', // Campo 'image' per URL
             idealLuxMin: '',
+            priorità: '',
             idealLuxMax: '',
             watering: '',
             sunlight: '',
@@ -895,12 +951,10 @@ const App = () => {
                                 <option value="">Seleziona una categoria</option>
                                 <option value="Fiori">Fiori</option>
                                 <option value="Alberi">Alberi</option>
-                                <option value="Piante Grasse">Piante Grasse</option>
                                 <option value="Arbusti">Arbusti</option>
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
-                                <option value="Piante">Piante</option>
                                 {/* Aggiungi altre opzioni qui */}
                             </select>
                         </div>
@@ -945,7 +999,6 @@ const App = () => {
                                 <option value="">Seleziona</option>
                                 <option value="ombra">Ombra</option>
                                 <option value="mezzombra">Mezz'ombra</option>
-                                <option value="molta luce non diretta">Molta luce non diretta</option>
                                 <option value="pienosole">Pieno Sole</option>
                             </select>
                         </div>
@@ -1051,6 +1104,62 @@ const App = () => {
         );
     };
 
+    // Nuovo componente Modale AI Query
+    const AiQueryModal = ({ onClose, onQuerySubmit, query, setQuery, response, loading }) => {
+        return (
+            <div className="modal-overlay">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h2 className="add-edit-modal-title">Chiedi all'AI sulle Piante</h2>
+                        <button onClick={onClose} className="modal-close-btn">&times;</button>
+                    </div>
+                    <div className="form-spacing">
+                        <div className="form-group">
+                            <label htmlFor="aiQuery" className="form-label">La tua domanda:</label>
+                            <textarea
+                                id="aiQuery"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Ad esempio: 'Quali sono i requisiti di luce per una Monstera Deliciosa?'"
+                                rows="4"
+                                className="form-input"
+                            ></textarea>
+                        </div>
+                        <div className="form-actions">
+                            <button
+                                type="button"
+                                onClick={onQuerySubmit}
+                                className="form-button submit"
+                                disabled={loading}
+                            >
+                                {loading ? 'Caricamento...' : <><i className="fas fa-robot"></i> Ottieni Informazioni</>}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="form-button cancel"
+                            >
+                                <i className="fas fa-times"></i> Chiudi
+                            </button>
+                        </div>
+                        {response && (
+                            <div className="ai-response-box">
+                                <h3>Risposta AI:</h3>
+                                <p>{response}</p>
+                            </div>
+                        )}
+                        {loading && (
+                            <div className="loading-spinner-ai">
+                                <div className="spinner"></div>
+                                <p>Ricerca AI in corso...</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
 
     if (loading) {
         return (
@@ -1092,10 +1201,17 @@ const App = () => {
                             <i className="fas fa-plus-circle"></i> Aggiungi Pianta
                         </button>
                         <button
-                            onClick={() => window.open('https://lens.google/', '_blank')} // Placeholder per Google Lens
+                            onClick={() => window.open('https://lens.google.com/upload', '_blank')} // Modificato per puntare al form di upload
                             className="main-button button-yellow"
                         >
                             <i className="fas fa-camera"></i> Google Lens
+                        </button>
+                        {/* Nuovo pulsante per richiamare l'AI */}
+                        <button
+                            onClick={() => { setShowAiModal(true); setAiResponse(''); setAiQuery(''); }}
+                            className="main-button button-orange"
+                        >
+                            <i className="fas fa-magic"></i> Chiedi all'AI
                         </button>
                         {/* Pulsanti di autenticazione */}
                         {userId ? (
@@ -1110,9 +1226,6 @@ const App = () => {
                     </div>
                 </div>
                 {/* Rimosso ID Utente come richiesto */}
-                {/* <div className="user-id-display">
-                    {userId && <small>ID Utente: {userId}</small>}
-                </div> */}
             </header>
 
             {/* Messaggi utente */}
@@ -1275,6 +1388,18 @@ const App = () => {
                     onClose={() => setShowAuthModal(false)}
                     onRegister={handleRegister}
                     onLogin={handleLogin}
+                />
+            )}
+
+            {/* Modale AI Query */}
+            {showAiModal && (
+                <AiQueryModal
+                    onClose={() => setShowAiModal(false)}
+                    onQuerySubmit={handleAiQuery}
+                    query={aiQuery}
+                    setQuery={setAiQuery}
+                    response={aiResponse}
+                    loading={aiLoading}
                 />
             )}
         </div>
