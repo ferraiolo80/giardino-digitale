@@ -611,6 +611,7 @@ const App = () => {
                     className="plant-card-image"
                     onClick={() => onDetailsClick(plant)}
                     onError={imageOnError}
+                    style={{ width: '100%', height: 'auto', objectFit: 'cover' }} // Stili aggiunti per ridimensionamento automatico
                 />
                 <h3 className="plant-card-title">{plant.name}</h3>
                 {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
@@ -740,7 +741,7 @@ const App = () => {
             idealLuxMax: '',
             watering: '',
             sunlight: '',
-            category: '',
+            category: '', // Questo sarà ora un dropdown
             tempMax: '',
             tempMin: '',
         });
@@ -885,13 +886,21 @@ const App = () => {
 
                         <div className="form-group">
                             <label htmlFor="category">Categoria</label>
-                            <input
-                                type="text"
+                            <select // Cambiato da input a select
                                 name="category"
                                 id="category"
                                 value={formData.category}
                                 onChange={handleChange}
-                            />
+                            >
+                                <option value="">Seleziona una categoria</option>
+                                <option value="Fiori">Fiori</option>
+                                <option value="Alberi">Alberi</option>
+                                <option value="Arbusti">Arbusti</option>
+                                <option value="Succulente">Succulente</option>
+                                <option value="Ortaggi">Ortaggi</option>
+                                <option value="Erbe Aromatiche">Erbe Aromatiche</option>
+                                {/* Aggiungi altre opzioni qui */}
+                            </select>
                         </div>
                         <div className="form-group">
                             <label htmlFor="idealLuxMin">Luce Minima (Lux)</label>
@@ -1097,10 +1106,10 @@ const App = () => {
                         )}
                     </div>
                 </div>
-                {/* Modifica: ID Utente stilizzato per essere meno prominente */}
-                <div className="user-id-display">
+                {/* Rimosso ID Utente come richiesto */}
+                {/* <div className="user-id-display">
                     {userId && <small>ID Utente: {userId}</small>}
-                </div>
+                </div> */}
             </header>
 
             {/* Messaggi utente */}
