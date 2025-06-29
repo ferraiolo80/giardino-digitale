@@ -297,9 +297,6 @@ const App = () => {
                 // Aggiornamento di una pianta nel "Mio Giardino"
                 const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
                 console.log("Tentativo di aggiornare pianta nel Mio Giardino al percorso:", myGardenDocRef.path);
-
-                // RIMOSSO: La verifica esplicita dell'esistenza del documento che causava il blocco.
-                // Ora set con merge: true si occuperà di creare/aggiornare.
                 
                 await myGardenDocRef.set(finalPlantData, { merge: true });
                 setMessage("Pianta nel tuo giardino aggiornata con successo!");
@@ -410,20 +407,18 @@ const App = () => {
         setMessage('');
 
         try {
-            const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
-            // Controlla se la pianta (tramite il suo ID pubblico) è già nel giardino
-            const q = myGardenCollectionRef.where("publicPlantId", "==", plant.id); // Usa .where()
-            const existingDocs = await q.get(); // Usa .get()
+            // Usa l'ID della pianta pubblica come ID del documento nel giardino
+            const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plant.id);
+            const docSnap = await myGardenDocRef.get();
 
-            if (existingDocs.empty) {
-                const newDocRef = await myGardenCollectionRef.add({ // Capture the document reference
+            if (!docSnap.exists) {
+                // Crea il documento usando l'ID della pianta pubblica come suo ID
+                await myGardenDocRef.set({
                     ...plant, // Copia tutti i campi della pianta pubblica
-                    publicPlantId: plant.id, // Aggiungi l'ID della pianta pubblica come riferimento
-                    dateAdded: firebase.firestore.FieldValue.serverTimestamp(), // Usa FieldValue
-                    // ownerId: userId, // L'owner della copia nel giardino è l'utente attuale (opzionale se già incluso in 'plant')
-                    // createdAt: plant.createdAt // Puoi mantenere il createdAt originale o usare un nuovo timestamp
+                    publicPlantId: plant.id, // Memorizza anche l'ID della pianta pubblica per query future
+                    dateAdded: firebase.firestore.FieldValue.serverTimestamp(),
                 });
-                console.log("Nuova pianta aggiunta al mio giardino con ID:", newDocRef.id); // Log the actual ID
+                console.log("Nuova pianta aggiunta al mio giardino (con ID della pianta pubblica):", plant.id);
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
                 setMessage("Questa pianta è già nel tuo giardino.");
@@ -473,18 +468,9 @@ const App = () => {
         setMessage('');
 
         try {
-            const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
-            const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Ora cerca per publicPlantId
-            const docsToDelete = await q.get(); // Usa .get()
-
-            if (!docsToDelete.empty) {
-                docsToDelete.forEach(async (docSnap) => {
-                    await docSnap.ref.delete(); // Usa .ref.delete()
-                });
-                setMessage("Pianta rimossa dal tuo giardino!");
-            } else {
-                setMessage("Questa pianta non è nel tuo giardino.");
-            }
+            // Rimuovi direttamente usando l'ID passato (che ora sarà l'ID del documento nel giardino)
+            await db.collection(`users/${userId}/gardens`).doc(plantId).delete();
+            setMessage("Pianta rimossa dal tuo giardino!");
         } catch (error) {
             console.error("Errore nella rimozione dal mio giardino:", error);
             setMessage("Errore: rimozione dal giardino fallita.");
