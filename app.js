@@ -20,7 +20,7 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
     const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
@@ -56,7 +56,8 @@ const App = () => {
             const unsubscribeAuth = firebaseAuth.onAuthStateChanged(async (user) => { // Usa firebaseAuth.onAuthStateChanged
                 if (user) {
                     setUserId(user.uid);
-                    setUserEmail(user.email); // Imposta l'email dell'utente
+                    // Usa user.email se disponibile, altrimenti un fallback
+                    setUserEmail(user.email || 'Utente Autenticato'); 
                     console.log("ID Utente corrente:", user.uid, "Email:", user.email); // Console log dell'ID e email utente
                     setLoading(false);
                 } else {
@@ -149,7 +150,8 @@ const App = () => {
     React.useEffect(() => {
         if (userLocation && weatherApiKey && weatherApiKey !== 'YOUR_OPENWEATHERMAP_API_KEY') {
             const fetchWeather = async () => {
-                const url = `https://api.openweathermap.org/data/2.5/weather/weather?lat=${userLocation.lat}&lon=${userLocation.lon}&appid=${weatherApiKey}&units=metric&lang=it`;
+                // Correzione dell'URL dell'API di OpenWeatherMap
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.lat}&lon=${userLocation.lon}&appid=${weatherApiKey}&units=metric&lang=it`;
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
@@ -288,9 +290,9 @@ const App = () => {
             const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null;
             
             // Determinazione affidabile della provenienza della pianta:
-            // Se originalPlantObject è presente e ha la proprietà isMyGardenPlant a true,
-            // allora stiamo modificando una pianta dal Mio Giardino.
-            const isEditingMyGardenPlant = originalPlantObject && originalPlantObject.isMyGardenPlant;
+            // Cerca la pianta nell'array myGardenPlants usando il suo ID
+            const isEditingMyGardenPlant = originalPlantObject && myGardenPlants.some(p => p.id === originalPlantObject.id);
+
 
             console.log("addOrUpdatePlant: Is editing My Garden plant?", isEditingMyGardenPlant);
             console.log("addOrUpdatePlant: ID del documento per l'operazione:", plantIdToOperate);
@@ -1086,7 +1088,7 @@ const App = () => {
                         {/* Pulsanti di autenticazione */}
                         {userId ? (
                             <button onClick={handleLogout} className="main-button button-red">
-                                <i className="fas fa-sign-out-alt"></i> Logout ({userEmail})
+                                <i className="fas fa-sign-out-alt"></i> Logout ({userEmail || 'Ospite'})
                             </button>
                         ) : (
                             <button onClick={() => setShowAuthModal(true)} className="main-button button-orange">
@@ -1234,6 +1236,8 @@ const App = () => {
                 <button
                     onClick={scrollToTop}
                     className="scroll-to-top-button"
+                    // Puoi aggiungere stili inline qui per debuggarne la visibilità
+                    // Esempio: style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', padding: '10px 15px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
                 >
                     ↑
                 </button>
