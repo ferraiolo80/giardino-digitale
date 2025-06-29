@@ -773,10 +773,10 @@ const App = () => {
                         <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'} <strong> cm </strong></p>
                         <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                         <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
-                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
+                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'} <strong> Lux </strong></p>
+                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'} <strong> volte a settimana </strong></p>
                         <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
-                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
+                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'} <strong> °C </strong></p>
                         {/* Aggiungi qui altri campi se necessario */}
                     </div>
                 </div>
