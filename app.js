@@ -1198,16 +1198,22 @@ const App = () => {
                         <button
                             onClick={scrollToMyGarden}
                             className="main-button button-blue"
-                            disabled={!userId} // Disabilita se non loggato
+                            // disabled={!userId} RIMOSSO
                             title={!userId ? "Effettua il login per visualizzare il tuo giardino" : ""}
                         >
                             <i className="fas fa-tree"></i> Mostra il Mio Giardino
                         </button>
                         {/* Bottone per aggiungere pianta, disabilitato se non loggato */}
                         <button
-                            onClick={() => openAddEditModal()}
+                            onClick={() => { // Modificato per mostrare il messaggio al click
+                                if (!userId) {
+                                    setMessage("Devi essere loggato per aggiungere nuove piante.");
+                                } else {
+                                    openAddEditModal();
+                                }
+                            }}
                             className="main-button button-purple"
-                            disabled={!userId}
+                            // disabled={!userId} RIMOSSO
                             title={!userId ? "Effettua il login per aggiungere piante" : ""}
                         >
                             <i className="fas fa-plus-circle"></i> Aggiungi Pianta
