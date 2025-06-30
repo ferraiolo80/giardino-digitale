@@ -770,13 +770,13 @@ const App = () => {
                     />
                     <div className="modal-details-list">
                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'} <strong> cm </strong></p>
                         <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                         <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                         <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'} <strong> Lux </strong></p>
                         <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'} <strong> volte a settimana </strong></p>
                         <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
                         <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'} <strong> °C </strong></p>
+                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'} <strong> cm </strong></p>   
                         {/* Aggiungi qui altri campi se necessario */}
                     </div>
                 </div>
@@ -789,7 +789,6 @@ const App = () => {
         const [formData, setFormData] = React.useState({
             name: '',
             // scientificName sarà usato per Dimensione Ideale Vaso nel database
-            scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
             description: '',
             image: '', // Campo 'image' per URL
             idealLuxMin: '',
@@ -800,6 +799,7 @@ const App = () => {
             category: '', // Questo sarà ora un dropdown
             tempMax: '',
             tempMin: '',
+            scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
         });
         const [selectedFile, setSelectedFile] = React.useState(null); // Stato per il file selezionato
         const [imagePreviewUrl, setImagePreviewUrl] = React.useState(''); // Stato per l'anteprima immagine
@@ -808,7 +808,6 @@ const App = () => {
             if (plantToEdit) {
                 setFormData({
                     name: plantToEdit.name || '',
-                    scientificName: plantToEdit.scientificName || '', // Carica valore esistente
                     description: plantToEdit.description || '',
                     image: plantToEdit.image || '', // Imposta l'URL esistente in formData
                     idealLuxMin: plantToEdit.idealLuxMin || '',
@@ -818,13 +817,14 @@ const App = () => {
                     category: plantToEdit.category || '',
                     tempMax: plantToEdit.tempMax || '',
                     tempMin: plantToEdit.tempMin || '',
+                    scientificName: plantToEdit.scientificName || '', // Carica valore esistente
                 });
                 setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
             } else {
                 setFormData({
-                    name: '', scientificName: '', description: '', image: '',
+                    name: '', description: '', image: '',
                     idealLuxMin: '', idealLuxMax: '', watering: '', sunlight: '',
-                    category: '', tempMax: '', tempMin: '',
+                    category: '', tempMax: '', tempMin: '', scientificName: '',
                 });
                 setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
             }
