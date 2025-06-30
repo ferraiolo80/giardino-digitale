@@ -20,7 +20,7 @@ const App = () => {
     const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
     const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
@@ -219,6 +219,10 @@ const App = () => {
     };
 
     const scrollToMyGarden = () => {
+        if (!userId) { // Check if user is logged in
+            setMessage("Devi essere loggato per visualizzare il tuo giardino.");
+            return;
+        }
         setCurrentView('myGarden');
         myGardenRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
@@ -599,7 +603,7 @@ const App = () => {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyBeg9C9fz8mVxEcp36SlYXnpyM5SaQayTA"; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -770,13 +774,13 @@ const App = () => {
                     />
                     <div className="modal-details-list">
                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
+                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
                         <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                         <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'} <strong> Lux </strong></p>
-                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'} <strong> volte a settimana </strong></p>
+                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
+                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
                         <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
-                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'} <strong> °C </strong></p>
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'} <strong> cm </strong></p>   
+                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
                         {/* Aggiungi qui altri campi se necessario */}
                     </div>
                 </div>
@@ -789,6 +793,7 @@ const App = () => {
         const [formData, setFormData] = React.useState({
             name: '',
             // scientificName sarà usato per Dimensione Ideale Vaso nel database
+            scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
             description: '',
             image: '', // Campo 'image' per URL
             idealLuxMin: '',
@@ -799,7 +804,6 @@ const App = () => {
             category: '', // Questo sarà ora un dropdown
             tempMax: '',
             tempMin: '',
-            scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
         });
         const [selectedFile, setSelectedFile] = React.useState(null); // Stato per il file selezionato
         const [imagePreviewUrl, setImagePreviewUrl] = React.useState(''); // Stato per l'anteprima immagine
@@ -808,6 +812,7 @@ const App = () => {
             if (plantToEdit) {
                 setFormData({
                     name: plantToEdit.name || '',
+                    scientificName: plantToEdit.scientificName || '', // Carica valore esistente
                     description: plantToEdit.description || '',
                     image: plantToEdit.image || '', // Imposta l'URL esistente in formData
                     idealLuxMin: plantToEdit.idealLuxMin || '',
@@ -817,14 +822,13 @@ const App = () => {
                     category: plantToEdit.category || '',
                     tempMax: plantToEdit.tempMax || '',
                     tempMin: plantToEdit.tempMin || '',
-                    scientificName: plantToEdit.scientificName || '', // Carica valore esistente
                 });
                 setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
             } else {
                 setFormData({
-                    name: '', description: '', image: '',
+                    name: '', scientificName: '', description: '', image: '',
                     idealLuxMin: '', idealLuxMax: '', watering: '', sunlight: '',
-                    category: '', tempMax: '', tempMin: '', scientificName: '',
+                    category: '', tempMax: '', tempMin: '',
                 });
                 setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
             }
@@ -901,6 +905,17 @@ const App = () => {
                             />
                         </div>
                         <div className="form-group">
+                            {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
+                            <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
+                            <input
+                                type="text"
+                                name="scientificName" // Il nome del campo nel database rimane scientificName
+                                id="scientificName"
+                                value={formData.scientificName}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className="form-group">
                             <label htmlFor="description">Descrizione</label>
                             <textarea
                                 name="description"
@@ -940,9 +955,7 @@ const App = () => {
                                 <option value="">Seleziona una categoria</option>
                                 <option value="Fiori">Fiori</option>
                                 <option value="Alberi">Alberi</option>
-                                <option value="Piante Grasse">Piante Grasse</option>
                                 <option value="Arbusti">Arbusti</option>
-                                <option value="Piante">Piante</option>
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
@@ -972,7 +985,7 @@ const App = () => {
                         <div className="form-group">
                             <label htmlFor="watering">Frequenza Irrigazione</label>
                             <input
-                                type="number"
+                                type="text"
                                 name="watering"
                                 id="watering"
                                 value={formData.watering}
@@ -988,10 +1001,9 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="Ombra">Ombra</option>
-                                <option value="Mezz'ombra">Mezz'ombra</option>
-                                <option value="Tanta luce ma NON diretta">Tanta luce ma NON diretta</option>
-                                <option value="Pieno Sole">Pieno Sole</option>
+                                <option value="ombra">Ombra</option>
+                                <option value="mezzombra">Mezz'ombra</option>
+                                <option value="pienosole">Pieno Sole</option>
                             </select>
                         </div>
                         <div className="form-group">
@@ -1014,17 +1026,6 @@ const App = () => {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="form-group">
-                            {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
-                            <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
-                            <input
-                                type="number"
-                                name="scientificName" // Il nome del campo nel database rimane scientificName
-                                id="scientificName"
-                                value={formData.scientificName}
-                                onChange={handleChange}
-                            />
-                        </div>            
                         <div className="form-actions">
                             <button
                                 type="button"
@@ -1197,6 +1198,8 @@ const App = () => {
                         <button
                             onClick={scrollToMyGarden}
                             className="main-button button-blue"
+                            disabled={!userId} // Disabilita se non loggato
+                            title={!userId ? "Effettua il login per visualizzare il tuo giardino" : ""}
                         >
                             <i className="fas fa-tree"></i> Mostra il Mio Giardino
                         </button>
