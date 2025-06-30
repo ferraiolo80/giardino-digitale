@@ -999,10 +999,10 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="ombra">Ombra</option>
-                                <option value="mezzombra">Mezz'ombra</option>
-                                <option value="tantalucemanondiretta">Tanta luce ma NON diretta</option>
-                                <option value="pienosole">Pieno Sole</option>
+                                <option value="Ombra">Ombra</option>
+                                <option value="Mezz'ombra">Mezz'ombra</option>
+                                <option value="Tanta luce ma NON diretta">Tanta luce ma NON diretta</option>
+                                <option value="Pieno Sole">Pieno Sole</option>
                             </select>
                         </div>
                         <div className="form-group">
