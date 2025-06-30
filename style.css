@@ -516,11 +516,15 @@ body {
 }
 
 .form-button.submit {
-    background-color: #16a34a; /* bg-green-600 */
-    color: #fff;
+    background-color: #f97316; /* bg-orange-500 */
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 .form-button.submit:hover {
-    background-color: #15803d; /* hover:bg-green-700 */
+    background-color: #ea580c; /* hover:bg-orange-600 */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Loading Spinner */
