@@ -622,3 +622,240 @@ body {
 .weather-description i {
     margin-right: 5px;
 }
+/* --- Nuove regole per il layout delle card (aggiungi queste alla fine del tuo file) --- */
+.plant-cards-container {
+    display: grid;
+    /* Adatta automaticamente il numero di colonne, con un minimo di 280px per card.
+       Su schermi ampi, cercherà di creare più colonne. */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px; /* Spazio tra le card */
+    justify-content: center; /* Centra le card nel contenitore */
+    padding: 20px;
+}
+
+/* Media query per schermi molto piccoli (es. cellulari in verticale), 1 colonna */
+@media (max-width: 640px) {
+    .plant-cards-container {
+        grid-template-columns: 1fr; /* Una singola colonna per schermi stretti */
+    }
+}
+
+/* Media query per schermi medi (es. tablet, piccoli laptop), 2 o 3 colonne */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .plant-cards-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Minimo 300px per card, si adatta per 2 o 3 */
+    }
+}
+
+/* Media query per schermi grandi (es. desktop), 3 o più colonne */
+@media (min-width: 1025px) {
+    .plant-cards-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Minimo 280px, ma si adatta per 3+ */
+    }
+}
+
+/* Stili per la singola card per garantire coerenza con il layout a griglia */
+.plant-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+.plant-card:hover {
+    transform: translateY(-5px);
+}
+
+.plant-card-image {
+    width: 100%;
+    height: 180px; /* Altezza fissa per le immagini per uniformità */
+    object-fit: cover; /* Assicura che l'immagine copra lo spazio senza distorcere */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.plant-card-title {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700; /* bold */
+    color: #1a202c; /* gray-900 */
+    margin-bottom: 8px;
+}
+
+.plant-card-pot-size {
+    font-size: 0.9rem; /* 14px */
+    color: #4a5568; /* gray-700 */
+    margin-bottom: 12px;
+    font-style: italic;
+}
+
+.plant-card-description {
+    font-size: 0.85rem; /* 14px */
+    color: #2d3748; /* gray-800 */
+    flex-grow: 1; /* Permette alla descrizione di occupare lo spazio disponibile */
+    margin-bottom: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limita a 3 righe */
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap; /* Permette ai bottoni di andare a capo su schermi piccoli */
+    justify-content: center;
+    gap: 8px; /* Spazio tra i bottoni */
+    margin-top: auto; /* Spinge i bottoni in fondo alla card */
+    width: 100%; /* I bottoni occupano tutta la larghezza disponibile */
+}
+
+.card-action-button {
+    padding: 8px 12px;
+    border-radius: 20px; /* Più arrotondati */
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    white-space: nowrap; /* Evita che il testo del bottone vada a capo */
+    border: none; /* Assicurati che i bottoni non abbiano bordi predefiniti */
+}
+
+/* Colori specifici per i bottoni delle card (se non li avevi, aggiungili) */
+.card-action-button.add-to-garden {
+    background-color: #34d399; /* green-400 */
+    color: white;
+}
+.card-action-button.add-to-garden:hover {
+    background-color: #10b981; /* green-500 */
+    transform: translateY(-2px);
+}
+
+.card-action-button.in-garden {
+    background-color: #6ee7b7; /* green-300 */
+    color: #065f46; /* green-800 */
+    cursor: default; /* Non cliccabile una volta aggiunta */
+}
+
+.card-action-button.update {
+    background-color: #fcd34d; /* yellow-300 */
+    color: #92400e; /* yellow-800 */
+}
+.card-action-button.update:hover {
+    background-color: #fbbf24; /* yellow-400 */
+    transform: translateY(-2px);
+}
+
+.card-action-button.delete {
+    background-color: #fca5a5; /* red-300 */
+    color: #991b1b; /* red-800 */
+}
+.card-action-button.delete:hover {
+    background-color: #f87171; /* red-400 */
+    transform: translateY(-2px);
+}
+
+/* --- REGOLA PER IL PULSANTE SCROLL TO TOP (aggiungi questa alla fine del tuo file) --- */
+.scroll-to-top-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #22c55e; /* green-500 */
+    color: white;
+    border: none;
+    border-radius: 50%; /* rounded-full */
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-lg */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    z-index: 1000; /* Assicura che sia sopra altri elementi */
+}
+
+.scroll-to-top-button:hover {
+    background-color: #16a34a; /* green-600 */
+    transform: translateY(-3px); /* leggero effetto di sollevamento */
+}
+
+/* --- REGOLA PER IL PULSANTE CHIUDI FEEDBACK LUX (aggiungi questa alla fine del tuo file) --- */
+.close-lux-feedback-btn {
+    background-color: #d1d5db; /* gray-300 */
+    color: #374151; /* gray-800 */
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px; /* Spazio dal feedback */
+    display: block; /* Per occupare tutta la larghezza o centrarsi */
+    margin-left: auto; /* Centra il pulsante se il contenitore è più largo */
+    margin-right: auto;
+    transition: background-color 0.2s ease;
+}
+
+.close-lux-feedback-btn:hover {
+    background-color: #9ca3af; /* gray-400 */
+}
+
+/* --- Stili per il modale AI (aggiungi questi alla fine del tuo file) --- */
+.ai-response-box {
+    background-color: #f0f9ff; /* blue-50 */
+    border: 1px solid #bfdbfe; /* blue-200 */
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.ai-response-box h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 10px;
+}
+
+.ai-response-box p {
+    font-size: 0.95rem;
+    color: #2d3748;
+    line-height: 1.5;
+    white-space: pre-wrap; /* Mantiene la formattazione del testo, inclusi i salti di riga */
+}
+
+.loading-spinner-ai {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.loading-spinner-ai .spinner {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #34d399; /* Green */
+    border-radius: 50%;
+    width: 40px; /* Più piccolo per lo spinner del modale */
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+.loading-spinner-ai p {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #4a5568;
+}
+
+/* Assicurati che l'animazione 'spin' sia definita nel tuo CSS, se non lo è già */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
