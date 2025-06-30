@@ -901,17 +901,6 @@ const App = () => {
                             />
                         </div>
                         <div className="form-group">
-                            {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
-                            <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
-                            <input
-                                type="number"
-                                name="scientificName" // Il nome del campo nel database rimane scientificName
-                                id="scientificName"
-                                value={formData.scientificName}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="form-group">
                             <label htmlFor="description">Descrizione</label>
                             <textarea
                                 name="description"
@@ -1025,6 +1014,17 @@ const App = () => {
                                 onChange={handleChange}
                             />
                         </div>
+                        <div className="form-group">
+                            {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
+                            <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
+                            <input
+                                type="number"
+                                name="scientificName" // Il nome del campo nel database rimane scientificName
+                                id="scientificName"
+                                value={formData.scientificName}
+                                onChange={handleChange}
+                            />
+                        </div>            
                         <div className="form-actions">
                             <button
                                 type="button"
