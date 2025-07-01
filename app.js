@@ -1219,7 +1219,7 @@ const App = () => {
                             <i className="fas fa-plus-circle"></i> Aggiungi Pianta
                         </button>
                         <button
-                            onClick={() => window.open('https://lens.google.com/upload', '_blank')} // Modificato per puntare al form di upload
+                            onClick={() => window.open('https://images.google.com/imghp?hl=it&gws_rd=ssl', '_blank')} // Modificato per puntare al form di upload
                             className="main-button button-yellow"
                         >
                             <i className="fas fa-camera"></i> Google Lens
