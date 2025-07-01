@@ -1279,7 +1279,7 @@ const App = () => {
 
                     {/* Sensore Luce / Input manuale */}
                     <div className="info-card light-sensor-card">
-                        <h2 className="info-card-title">Misurazione Luce</h2>
+                        <h2 className="info-card-title">Valutazione Luce</h2>
                         <div className="form-group">
                             <label htmlFor="luxInput" className="form-label">Lux attuali (inserimento manuale):</label>
                             <input
