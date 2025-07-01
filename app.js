@@ -1119,12 +1119,12 @@ const App = () => {
             <div className="modal-overlay">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h2 className="add-edit-modal-title">Chiedi all'AI sulle Piante</h2>
+                        <h2 className="add-edit-modal-title","main-button button-green">Chiedi all'AI sulle Piante</h2>
                         <button onClick={onClose} className="modal-close-btn">&times;</button>
                     </div>
                     <div className="form-spacing">
                         <div className="form-group">
-                            <label htmlFor="aiQuery" className="form-label">La tua domanda:</label>
+                            <label htmlFor="aiQuery" className="form-label">Fai la tua domanda, e proverò a risponderti:</label>
                             <textarea
                                 id="aiQuery"
                                 value={query}
@@ -1142,7 +1142,7 @@ const App = () => {
                                 className="form-button submit"
                                 disabled={loading}
                             >
-                                {loading ? 'Caricamento...' : <><i className="fas fa-robot"></i> Ottieni Informazioni</>}
+                                {loading ? 'Caricamento...' : <><i className="fas fa-robot"></i> Ottieni la Risposta</>}
                             </button>
                             <button
                                 type="button"
