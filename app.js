@@ -1119,7 +1119,7 @@ const App = () => {
             <div className="modal-overlay">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h2 className="add-edit-modal-title","main-button button-green">Chiedi all'AI sulle Piante</h2>
+                        <h2 className="add-edit-modal-title">Chiedi all'AI sulle Piante</h2>
                         <button onClick={onClose} className="modal-close-btn">&times;</button>
                     </div>
                     <div className="form-spacing">
