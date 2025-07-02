@@ -535,8 +535,9 @@ const AiQueryModal = ({ onClose, onQuerySubmit, query, setQuery, response, loadi
                     )}
                 </div>
             </div>
-        );
-    };
+        </div> // Questa era la graffa in più!
+    );
+};
 
 
 const App = () => {
