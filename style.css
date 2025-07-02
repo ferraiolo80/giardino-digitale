@@ -54,6 +54,9 @@ body {
     border-radius: 9999px; /* rounded-full */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
     transition: all 0.2s ease-in-out; /* transition-all transform */
+    font-size: 16px; /* Aumentato per migliore leggibilità su mobile */
+    min-width: 150px; /* Larghezza minima per i bottoni */
+    text-align: center; /* Centra il testo */
 }
 
 .main-button:hover {
@@ -92,6 +95,23 @@ body {
     background-color: #d97706; /* hover:bg-yellow-600 */
 }
 
+.button-orange { /* Nuovo colore per i bottoni AI/Login */
+    background-color: #f97316; /* Tailwind orange-500 */
+    color: #fff;
+}
+.button-orange:hover {
+    background-color: #ea580c; /* Tailwind orange-600 */
+}
+
+.button-red {
+    background-color: #ef4444; /* Tailwind red-500 */
+    color: #fff;
+}
+.button-red:hover {
+    background-color: #dc2626; /* Tailwind red-600 */
+}
+
+
 .user-id-display {
     text-align: center;
     margin-top: 16px;
@@ -109,15 +129,14 @@ body {
     position: relative;
     max-width: 768px; /* max-w-3xl */
     margin: 16px auto 0 auto; /* mx-auto mt-4 */
+    display: flex; /* Per allineare icona e testo */
+    align-items: center;
+    justify-content: space-between;
 }
 
 .alert-close-btn {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    padding: 12px 16px;
     cursor: pointer;
+    margin-left: 10px; /* Spazio dal testo */
 }
 
 .alert-close-icon {
@@ -380,9 +399,8 @@ body {
 }
 .card-action-button.in-garden {
     background-color: #22c55e; /* bg-green-500 */
-}
-.card-action-button.in-garden:hover {
-    background-color: #16a34a; /* hover:bg-green-600 */
+    color: #065f46; /* green-800 */
+    cursor: default; /* Non cliccabile una volta aggiunta */
 }
 .card-action-button.update {
     background-color: #f59e0b; /* bg-yellow-500 */
@@ -568,6 +586,23 @@ body {
     .main-buttons {
         width: 100%; /* Ensure buttons stack on small screens */
     }
+    .main-button {
+        width: 100%; /* Full width buttons on small screens */
+        padding: 12px 24px; /* Aumenta il padding per facilitare il tocco */
+        font-size: 18px; /* Aumenta la dimensione del font */
+    }
+    .modal-content {
+        padding: 16px; /* Riduci padding per schermi più piccoli */
+    }
+    .modal-title {
+        font-size: 24px; /* Adatta la dimensione del titolo del modale */
+    }
+    .form-button {
+        width: 100%; /* Full width buttons in forms on small screens */
+    }
+    .form-actions {
+        flex-direction: column; /* Stack form buttons vertically */
+    }
 }
 
 /* Scroll to Top Button */
@@ -691,12 +726,14 @@ body {
     margin-bottom: 8px;
 }
 
+/* Modifica: Nuova classe per la dimensione vaso */
 .plant-card-pot-size {
-    font-size: 0.9rem; /* 14px */
     color: #4a5568; /* gray-700 */
+    font-size: 0.9rem; /* 14px */
     margin-bottom: 12px;
     font-style: italic;
 }
+
 
 .plant-card-description {
     font-size: 0.85rem; /* 14px */
@@ -729,6 +766,8 @@ body {
     transition: background-color 0.2s ease, transform 0.1s ease;
     white-space: nowrap; /* Evita che il testo del bottone vada a capo */
     border: none; /* Assicurati che i bottoni non abbiano bordi predefiniti */
+    flex-grow: 1; /* Permette ai bottoni di espandersi */
+    min-width: 120px; /* Larghezza minima per i bottoni */
 }
 
 /* Colori specifici per i bottoni delle card (se non li avevi, aggiungili) */
@@ -862,4 +901,3 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
