@@ -1,80 +1,610 @@
 // Non importare React e ReactDOM da 'react' e 'react-dom' se usi CDN come fatto in index.html
 // Li userai come variabili globali React e ReactDOM.
 
+// Funzione di utilità per il debounce
+// Spostata fuori dal componente App per essere riutilizzabile e non ricreata ad ogni render
+const debounce = (func, delay) => {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+};
+
+// Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
+// Spostata fuori dal componente App
+const categoryIcons = {
+    'Fiori': '/assets/category_icons/flower.png',
+    'Piante Grasse': '/assets/category_icons/succulent.png',
+    'Piante Erbacee': '/assets/category_icons/herbaceous.png',
+    'Alberi': '/assets/category_icons/tree.png',
+    'Arbusti': '/assets/category_icons/shrub.png',
+    'Succulente': '/assets/category_icons/succulent.png',
+    'Ortaggi': '/assets/category_icons/vegetable.png',
+    'Erbe Aromatiche': '/assets/category_icons/aromatic-herb.png',
+    'Ombra': '/assets/category_icons/shade.png',
+    'Mezzombra': '/assets/category_icons/partial-shade.png',
+    'Pienosole': '/assets/category_icons/full-sun.png',
+    'Altro': '/assets/category_icons/default.png' // Icona di default per categorie non mappate
+};
+
+// Componente Card Pianta
+// Spostato fuori dal componente App
+const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGarden, onUpdatePlant, onDeletePlantPermanently, userId, myGardenPlants }) => {
+    // Controlla se la pianta è nel giardino usando l'ID pubblico
+    const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id);
+
+    // Funzione per generare il percorso dell'icona di categoria
+    const getCategoryIconPath = (categoryName) => {
+        if (!categoryName) return categoryIcons['Altro'];
+        const fileName = categoryName.toLowerCase().replace(/\s/g, '-');
+        const iconPath = `/assets/category_icons/${fileName}.png`;
+        // Puoi aggiungere una logica per verificare se l'immagine esiste, altrimenti usare un fallback
+        return iconPath;
+    };
+
+    const imageUrl = plant.image || getCategoryIconPath(plant.category);
+
+    const imageOnError = (e) => {
+        e.target.onerror = null; // Evita loop infiniti in caso di errore persistente
+        e.target.src = `https://placehold.co/400x300/f0fdf4/16a34a?text=IMMAGINE+NON+TROVATA`;
+    };
+
+    return (
+        <div className="plant-card">
+            <img
+                src={imageUrl}
+                alt={plant.name}
+                className="plant-card-image"
+                onClick={() => onDetailsClick(plant)}
+                onError={imageOnError}
+            />
+            <h3 className="plant-card-title">{plant.name}</h3>
+            <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName || 'N/A'}</p>
+            <div className="plant-card-description">{plant.description || "Nessuna descrizione disponibile."}</div>
+
+            <div className="card-actions">
+                {/* Azioni per collezione pubblica */}
+                {!isMyGardenPlant && (
+                    <button
+                        onClick={() => onAddOrRemoveToMyGarden(plant)} // Passa l'intero oggetto plant
+                        className={`card-action-button ${isInMyGarden ? 'in-garden' : 'add-to-garden'}`}
+                        disabled={!userId || isInMyGarden} // Disabilita se non loggato o già nel giardino
+                    >
+                        <i className="fas fa-leaf"></i> {isInMyGarden ? 'Già nel tuo giardino' : 'Aggiungi al mio giardino'}
+                    </button>
+                )}
+
+                {/* Azioni per "Mio Giardino" */}
+                {isMyGardenPlant && (
+                    <button
+                        onClick={() => onAddOrRemoveToMyGarden(plant.id)} // Rimuovi usando l'ID del documento nel giardino
+                        className="card-action-button delete"
+                        disabled={!userId} // Disabilita se non loggato
+                    >
+                        <i className="fas fa-minus-circle"></i> Rimuovi da mio giardino
+                    </button>
+                )}
+
+                {/* Bottone Aggiorna pianta (visibile per l'owner o se è nel mio giardino) */}
+                {(plant.ownerId === userId || isMyGardenPlant) && userId && (
+                    <button
+                        onClick={() => onUpdatePlant(plant)}
+                        className="card-action-button update"
+                        disabled={!userId} // Disabilita se non loggato
+                    >
+                        <i className="fas fa-edit"></i> Aggiorna pianta
+                    </button>
+                )}
+
+                {/* Bottone Rimuovi definitivamente (solo per l'owner della pianta pubblica) */}
+                {plant.ownerId === userId && userId && (
+                    <button
+                        onClick={() => onDeletePlantPermanently(plant.id)}
+                        className="card-action-button delete"
+                    >
+                        <i className="fas fa-trash-alt"></i> Rimuovi definitivamente
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
+
+// Componente Modale Dettagli Pianta
+// Spostato fuori dal componente App
+const PlantDetailsModal = ({ plant, onClose }) => {
+    if (!plant) return null;
+
+    const imageUrl = plant.image || categoryIcons[plant.category] || categoryIcons['Altro'];
+
+    const imageOnError = (e) => {
+        e.target.onerror = null;
+        e.target.src = `https://placehold.co/600x400/f0fdf4/16a34a?text=IMMAGINE+NON+TROVATA`;
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2 className="modal-title">{plant.name}</h2>
+                    <button
+                        onClick={onClose}
+                        className="modal-close-btn"
+                    >
+                        &times;
+                    </button>
+                </div>
+                <img
+                    src={imageUrl}
+                    alt={plant.name}
+                    className="modal-image"
+                    onError={imageOnError}
+                />
+                <div className="modal-details-list">
+                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
+                    <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
+                    <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
+                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
+                    <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
+                    <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
+                    <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Componente Modale Aggiungi/Modifica Pianta
+// Spostato fuori dal componente App
+const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
+    const [formData, setFormData] = React.useState({
+        name: '',
+        scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
+        description: '',
+        image: '', // Campo 'image' per URL
+        idealLuxMin: '',
+        idealLuxMax: '',
+        watering: '',
+        sunlight: '',
+        category: '',
+        tempMax: '',
+        tempMin: '',
+    });
+    const [selectedFile, setSelectedFile] = React.useState(null);
+    const [imagePreviewUrl, setImagePreviewUrl] = React.useState('');
+
+    React.useEffect(() => {
+        if (plantToEdit) {
+            setFormData({
+                name: plantToEdit.name || '',
+                scientificName: plantToEdit.scientificName || '', // Carica valore esistente
+                description: plantToEdit.description || '',
+                image: plantToEdit.image || '', // Imposta l'URL esistente in formData
+                idealLuxMin: plantToEdit.idealLuxMin || '',
+                idealLuxMax: plantToEdit.idealLuxMax || '',
+                watering: plantToEdit.watering || '',
+                sunlight: plantToEdit.sunlight || '',
+                category: plantToEdit.category || '',
+                tempMax: plantToEdit.tempMax || '',
+                tempMin: plantToEdit.tempMin || '',
+            });
+            setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
+        } else {
+            setFormData({
+                name: '', scientificName: '', description: '', image: '',
+                idealLuxMin: '', idealLuxMax: '', watering: '', sunlight: '',
+                category: '', tempMax: '', tempMin: '',
+            });
+            setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
+        }
+        setSelectedFile(null); // Resetta sempre il file selezionato al mount
+    }, [plantToEdit]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    // Gestione del cambiamento del file input
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviewUrl(reader.result);
+                // IMPORTANTE: Aggiorna formData.image con l'URL temporaneo per la preview.
+                // Questo sarà sovrascritto dall'URL di Firebase Storage dopo l'upload.
+                setFormData(prev => ({ ...prev, image: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setSelectedFile(null);
+            // Se nessun file è selezionato (input cleared), ripristina l'URL dell'immagine originale in formData
+            // e nella preview, se esisteva. Altrimenti, imposta a stringa vuota.
+            const originalImageUrl = plantToEdit ? plantToEdit.image || '' : '';
+            setImagePreviewUrl(originalImageUrl);
+            setFormData(prev => ({ ...prev, image: originalImageUrl }));
+        }
+    };
+
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Converti i campi numerici
+        const dataToSend = {
+            ...formData,
+            idealLuxMin: formData.idealLuxMin !== '' ? parseFloat(formData.idealLuxMin) : null,
+            idealLuxMax: formData.idealLuxMax !== '' ? parseFloat(formData.idealLuxMax) : null,
+            tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
+            tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
+        };
+        console.log("AddEditPlantModal handleSubmit: Dati inviati per aggiornamento:", dataToSend);
+        console.log("AddEditPlantModal handleSubmit: File immagine selezionato:", selectedFile);
+        // Passa l'intero oggetto plantToEdit, non solo l'ID.
+        onSubmit(dataToSend, plantToEdit, selectedFile);
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2 className="add-edit-modal-title">{plantToEdit ? 'Aggiorna Pianta' : 'Aggiungi Nuova Pianta'}</h2>
+                    <button
+                        onClick={onClose}
+                        className="modal-close-btn"
+                    >
+                        &times;
+                    </button>
+                </div>
+                <form onSubmit={handleSubmit} className="form-spacing">
+                    <div className="form-group">
+                        <label htmlFor="name">Nome Comune</label>
+                        <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
+                        <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
+                        <input
+                            type="text"
+                            name="scientificName" // Il nome del campo nel database rimane scientificName
+                            id="scientificName"
+                            value={formData.scientificName}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="description">Descrizione</label>
+                        <textarea
+                            name="description"
+                            id="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            rows="3"
+                        ></textarea>
+                    </div>
+                    {/* Campo per il caricamento dell'immagine */}
+                    <div className="form-group">
+                        <label htmlFor="imageFile">Carica Immagine Pianta</label>
+                        <input
+                            type="file"
+                            name="imageFile"
+                            id="imageFile"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="form-input"
+                        />
+                        {imagePreviewUrl && (
+                            <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                                <p style={{ fontSize: '0.9em', color: '#555' }}>Anteprima Immagine:</p>
+                                <img src={imagePreviewUrl} alt="Anteprima" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', objectFit: 'cover' }} />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="category">Categoria</label>
+                        <select
+                            name="category"
+                            id="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleziona una categoria</option>
+                            <option value="Fiori">Fiori</option>
+                            <option value="Piante Grasse">Piante Grasse</option>
+                            <option value="Piante Erbacee">Piante Erbacee</option>
+                            <option value="Alberi">Alberi</option>
+                            <option value="Arbusti">Arbusti</option>
+                            <option value="Succulente">Succulente</option>
+                            <option value="Ortaggi">Ortaggi</option>
+                            <option value="Erbe Aromatiche">Erbe Aromatiche</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="idealLuxMin">Luce Minima (Lux)</label>
+                        <input
+                            type="number"
+                            name="idealLuxMin"
+                            id="idealLuxMin"
+                            value={formData.idealLuxMin}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="idealLuxMax">Luce Massima (Lux)</label>
+                        <input
+                            type="number"
+                            name="idealLuxMax"
+                            id="idealLuxMax"
+                            value={formData.idealLuxMax}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="watering">Frequenza Irrigazione</label>
+                        <input
+                            type="text"
+                            name="watering"
+                            id="watering"
+                            value={formData.watering}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="sunlight">Esigenza Luce Solare</label>
+                        <select
+                            name="sunlight"
+                            id="sunlight"
+                            value={formData.sunlight}
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleziona</option>
+                            <option value="ombra">Ombra</option>
+                            <option value="mezzombra">Mezz'ombra</option>
+                            <option value="pienosole">Pieno Sole</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="tempMin">Temperatura Minima (°C)</label>
+                        <input
+                            type="number"
+                            name="tempMin"
+                            id="tempMin"
+                            value={formData.tempMin}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="tempMax">Temperatura Massima (°C)</label>
+                        <input
+                            type="number"
+                            name="tempMax"
+                            id="tempMax"
+                            value={formData.tempMax}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-actions">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="form-button cancel"
+                        >
+                            <i className="fas fa-times"></i> Annulla
+                        </button>
+                        <button
+                            type="submit"
+                            className="form-button submit"
+                        >
+                            <i className="fas fa-check"></i> {plantToEdit ? 'Salva Modifiche' : 'Aggiungi Pianta'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+// Componente Modale di Autenticazione
+// Spostato fuori dal componente App
+const AuthModal = ({ onClose, onRegister, onLogin }) => {
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [isRegisterMode, setIsRegisterMode] = React.useState(true);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (isRegisterMode) {
+            onRegister(email, password);
+        } else {
+            onLogin(email, password);
+        }
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2 className="add-edit-modal-title">{isRegisterMode ? 'Registrazione Utente' : 'Accedi'}</h2>
+                    <button onClick={onClose} className="modal-close-btn">&times;</button>
+                </div>
+                <form onSubmit={handleSubmit} className="form-spacing">
+                    <div className="form-group">
+                        <label htmlFor="auth-email">Email</label>
+                        <input
+                            type="email"
+                            id="auth-email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="auth-password">Password</label>
+                        <input
+                            type="password"
+                            id="auth-password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-actions">
+                        <button
+                            type="button"
+                            onClick={() => setIsRegisterMode(prev => !prev)}
+                            className="form-button cancel"
+                        >
+                            {isRegisterMode ? 'Hai già un account? Accedi' : 'Non hai un account? Registrati'}
+                        </button>
+                        <button type="submit" className="form-button submit">
+                            <i className="fas fa-sign-in-alt"></i> {isRegisterMode ? 'Registrati' : 'Accedi'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+// Componente Modale AI Query
+// Spostato fuori dal componente App
+const AiQueryModal = ({ onClose, onQuerySubmit, query, setQuery, response, loading }) => {
+    const handleTextareaChange = React.useCallback((e) => {
+        setQuery(e.target.value);
+    }, [setQuery]); // Dipendenza da setQuery per useCallback
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2 className="add-edit-modal-title">Chiedi all'AI sulle Piante</h2>
+                    <button onClick={onClose} className="modal-close-btn">&times;</button>
+                </div>
+                <div className="form-spacing">
+                    <div className="form-group">
+                        <label htmlFor="aiQuery" className="form-label">Fai la tua domanda, e proverò a risponderti:</label>
+                        <textarea
+                            id="aiQuery"
+                            value={query}
+                            onChange={handleTextareaChange} // Usa la funzione stabile
+                            placeholder="Ad esempio: 'Quali sono i requisiti di luce per una Monstera Deliciosa?'"
+                            rows="4"
+                            className="form-input"
+                            autoFocus // Aggiunto per dare focus automatico all'apertura del modale
+                        ></textarea>
+                    </div>
+                    <div className="form-actions">
+                        <button
+                            type="button"
+                            onClick={onQuerySubmit}
+                            className="form-button submit"
+                            disabled={loading}
+                        >
+                            {loading ? 'Caricamento...' : <><i className="fas fa-robot"></i> Ottieni la Risposta</>}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="form-button cancel"
+                        >
+                            <i className="fas fa-times"></i> Chiudi
+                        </button>
+                    </div>
+                    {response && (
+                        <div className="ai-response-box">
+                            <h3>Risposta AI:</h3>
+                            <p>{response}</p>
+                        </div>
+                    )}
+                    {loading && (
+                        <div className="loading-spinner-ai">
+                            <div className="spinner"></div>
+                            <p>Ricerca AI in corso...</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+
 const App = () => {
     // Stato per l'applicazione
     const [db, setDb] = React.useState(null);
     const [auth, setAuth] = React.useState(null);
-    const [storage, setStorage] = React.useState(null); // Stato per Firebase Storage
+    const [storage, setStorage] = React.useState(null);
     const [userId, setUserId] = React.useState(null);
-    const [userEmail, setUserEmail] = React.useState(null); // Nuovo stato per l'email dell'utente
-    const [plants, setPlants] = React.useState([]); // Tutte le piante (collezione pubblica)
-    const [myGardenPlants, setMyGardenPlants] = React.useState([]); // Le piante nel mio giardino
-    const [currentView, setCurrentView] = React.useState('allPlants'); // 'allPlants' o 'myGarden'
+    const [userEmail, setUserEmail] = React.useState(null);
+    const [plants, setPlants] = React.useState([]);
+    const [myGardenPlants, setMyGardenPlants] = React.useState([]);
+    const [currentView, setCurrentView] = React.useState('allPlants');
     const [showPlantModal, setShowPlantModal] = React.useState(false);
     const [selectedPlant, setSelectedPlant] = React.useState(null);
     const [showAddEditModal, setShowAddEditModal] = React.useState(false);
-    const [editPlantData, setEditPlantData] = React.useState(null); // Per l'editing di una pianta esistente
+    const [editPlantData, setEditPlantData] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
-    const [message, setMessage] = React.useState(''); // Per messaggi utente
-    const [luxValue, setLuxValue] = React.useState(''); // Valore input lux
-    const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
-    const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
+    const [message, setMessage] = React.useState('');
+    const [luxValue, setLuxValue] = React.useState('');
+    const [userLocation, setUserLocation] = React.useState(null);
+    const [weatherData, setWeatherData] = React.useState(null);
     const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
-    const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
-    const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
-    const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
+    const [showScrollToTop, setShowScrollToTop] = React.useState(false);
+    const [showLuxFeedback, setShowLuxFeedback] = React.useState(false);
+    const [showAuthModal, setShowAuthModal] = React.useState(false);
 
-    // Stati per la nuova funzionalità AI
     const [showAiModal, setShowAiModal] = React.useState(false);
     const [aiQuery, setAiQuery] = React.useState('');
     const [aiResponse, setAiResponse] = React.useState('');
     const [aiLoading, setAiLoading] = React.useState(false);
 
-    // Riferimenti per lo scroll
     const allPlantsRef = React.useRef(null);
     const myGardenRef = React.useRef(null);
 
-    // Configurazione Firebase fornita dall'utente
     const firebaseConfig = {
         apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
         authDomain: "giardinodigitale.firebaseapp.com",
         projectId: "giardinodigitale",
         storageBucket: "giardinodigitale.firebasestorage.app",
-        messagingSenderId: "96265504027",
         appId: "1:96265504027:web:903c3df92cfa24beb17fbe"
     };
 
-    // Inizializzazione Firebase e Autenticazione
     React.useEffect(() => {
         try {
-            // Accedi a Firebase tramite l'oggetto globale 'firebase'
             const app = firebase.initializeApp(firebaseConfig);
-            const firestore = firebase.firestore(app); // Usa firebase.firestore()
-            const firebaseAuth = firebase.auth(app); // Usa firebase.auth()
-            const firebaseStorage = firebase.storage(app); // Usa firebase.storage()
+            const firestore = firebase.firestore(app);
+            const firebaseAuth = firebase.auth(app);
+            const firebaseStorage = firebase.storage(app);
 
             setDb(firestore);
             setAuth(firebaseAuth);
-            setStorage(firebaseStorage); // Imposta lo stato per storage
+            setStorage(firebaseStorage);
 
-            // Listener per lo stato di autenticazione
-            const unsubscribeAuth = firebaseAuth.onAuthStateChanged(async (user) => { // Usa firebaseAuth.onAuthStateChanged
+            const unsubscribeAuth = firebaseAuth.onAuthStateChanged(async (user) => {
                 if (user) {
                     setUserId(user.uid);
-                    // Usa user.email se disponibile, altrimenti un fallback
-                    setUserEmail(user.email || 'Utente Autenticato'); 
-                    console.log("ID Utente corrente:", user.uid, "Email:", user.email); // Console log dell'ID e email utente
+                    setUserEmail(user.email || 'Utente Autenticato');
+                    console.log("ID Utente corrente:", user.uid, "Email:", user.email);
                     setLoading(false);
                 } else {
-                    setUserId(null); // Se non autentato, userId è null
-                    setUserEmail(null); // Se non autentato, email è null
+                    setUserId(null);
+                    setUserEmail(null);
                     console.log("Utente non autentato. Si prega di effettuare il login.");
                     setLoading(false);
                 }
             });
 
-            return () => unsubscribeAuth(); // Pulizia del listener
+            return () => unsubscribeAuth();
         } catch (error) {
             console.error("Errore nell'inizializzazione di Firebase:", error);
             setMessage("Errore grave nell'inizializzazione dell'app.");
@@ -82,12 +612,11 @@ const App = () => {
         }
     }, []);
 
-    // Gestione messaggi Toast
     React.useEffect(() => {
         if (message) {
             const timer = setTimeout(() => {
                 setMessage('');
-            }, 3000); // Messaggio sparisce dopo 3 secondi
+            }, 3000);
             return () => clearTimeout(timer);
         }
     }, [message]);
@@ -96,7 +625,6 @@ const App = () => {
     React.useEffect(() => {
         if (!db) return;
 
-        // Usa db.collection() invece di collection(db, ...)
         const plantsCollectionRef = db.collection('plants');
         const unsubscribe = plantsCollectionRef.onSnapshot((snapshot) => {
             const plantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -112,15 +640,17 @@ const App = () => {
 
     // Fetch e listener per le piante del mio giardino ('users/{userId}/gardens')
     React.useEffect(() => {
-        if (!db || !userId) return;
+        if (!db || !userId) {
+            setMyGardenPlants([]); // Pulisci il giardino se non c'è utente
+            return;
+        }
 
-        const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
+        const myGardenCollectionRef = db.collection(`users/${userId}/gardens`);
         const unsubscribe = myGardenCollectionRef.onSnapshot((snapshot) => {
-            // Semplicemente prendi i dati come sono e aggiungi il flag isMyGardenPlant
             const myGardenData = snapshot.docs.map(doc => ({
-                id: doc.id, // ID del documento nel giardino personale
+                id: doc.id,
                 ...doc.data(),
-                isMyGardenPlant: true // Indica che è una pianta del giardino personale
+                isMyGardenPlant: true
             }));
             console.log("Firestore (myGardenPlants) data received:", myGardenData);
             setMyGardenPlants(myGardenData);
@@ -132,7 +662,6 @@ const App = () => {
         return () => unsubscribe();
     }, [db, userId]);
 
-    // Ottenere la geolocalizzazione
     React.useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -152,11 +681,9 @@ const App = () => {
         }
     }, []);
 
-    // Fetch dei dati meteo
     React.useEffect(() => {
         if (userLocation && weatherApiKey && weatherApiKey !== 'YOUR_OPENWEATHERMAP_API_KEY') {
             const fetchWeather = async () => {
-                // Correzione dell'URL dell'API di OpenWeatherMap
                 const url = `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.lat}&lon=${userLocation.lon}&appid=${weatherApiKey}&units=metric&lang=it`;
                 try {
                     const response = await fetch(url);
@@ -168,7 +695,7 @@ const App = () => {
                 } catch (error) {
                     console.error("Errore nel recupero dati meteo:", error);
                     setMessage("Errore nel recupero delle previsioni meteo.");
-                    setWeatherData(null); // Clear previous weather data on error
+                    setWeatherData(null);
                 }
             };
             fetchWeather();
@@ -177,18 +704,14 @@ const App = () => {
         }
     }, [userLocation, weatherApiKey]);
 
-    // Funzione per mostrare/nascondere il tasto "scroll to top"
     const handleScroll = () => {
-        if (window.pageYOffset > 300) { // Mostra il tasto dopo aver scrollato di 300px
+        if (window.pageYOffset > 300) {
             setShowScrollToTop(true);
         } else {
             setShowScrollToTop(false);
         }
     };
 
-    // Gestione visibilità feedback lux in base all'input
-    // showLuxFeedback viene gestito quando si clicca sul tasto chiudi
-    // oppure se luxValue ha un valore, altrimenti non mostrato
     React.useEffect(() => {
         if (luxValue === '') {
             setShowLuxFeedback(false);
@@ -197,14 +720,11 @@ const App = () => {
         }
     }, [luxValue]);
 
-
-    // Aggiungi e rimuovi l'event listener per lo scroll
     React.useEffect(() => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Funzione per scorrere in cima alla pagina
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
@@ -212,14 +732,13 @@ const App = () => {
         });
     };
 
-    // Funzioni di scroll alle sezioni
     const scrollToAllPlants = () => {
         setCurrentView('allPlants');
         allPlantsRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const scrollToMyGarden = () => {
-        if (!userId) { // Check if user is logged in
+        if (!userId) {
             setMessage("Devi essere loggato per visualizzare il tuo giardino.");
             return;
         }
@@ -227,10 +746,8 @@ const App = () => {
         myGardenRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    // Gestione Modale Pianta
     const openPlantModal = React.useCallback((plant) => {
         setSelectedPlant(plant);
-        console.log("openPlantModal: plant received:", plant);
         setShowPlantModal(true);
     }, []);
 
@@ -239,10 +756,8 @@ const App = () => {
         setSelectedPlant(null);
     }, []);
 
-    // Gestione Modale Aggiungi/Modifica Pianta
     const openAddEditModal = React.useCallback((plantToEdit = null) => {
         setEditPlantData(plantToEdit);
-        console.log("openAddEditModal: plantToEdit received:", plantToEdit);
         setShowAddEditModal(true);
     }, []);
 
@@ -251,10 +766,7 @@ const App = () => {
         setEditPlantData(null);
     }, []);
 
-    // Funzioni CRUD per le piante (Collezione Pubblica e Mio Giardino)
-    // Ora riceve l'intero oggetto della pianta originale invece del solo ID
     const addOrUpdatePlant = React.useCallback(async (plantData, originalPlantObject = null, imageFile = null) => {
-        console.log("addOrUpdatePlant: Function called.");
         if (!db || !userId || !storage) {
             setMessage("Errore: Utente non autentato. Si prega di effettuare il login per aggiungere/modificare piante.");
             setLoading(false);
@@ -263,110 +775,71 @@ const App = () => {
         setLoading(true);
         setMessage('');
 
-        let imageUrl = plantData.image; // Inizia con l'URL esistente o quello fornito nel form
+        let imageUrl = plantData.image;
 
-        // Gestione upload immagine
         if (imageFile) {
             try {
-                const storageRef = storage.ref(); // Ottieni il riferimento allo storage
-                const imageRef = storageRef.child(`plant_images/${userId}/${imageFile.name}_${Date.now()}`); // Cartella per utente
-                const snapshot = await imageRef.put(imageFile); // Carica il file
-                imageUrl = await snapshot.ref.getDownloadURL(); // Ottieni l'URL scaricabile
+                const storageRef = storage.ref();
+                const imageRef = storageRef.child(`plant_images/${userId}/${imageFile.name}_${Date.now()}`);
+                const snapshot = await imageRef.put(imageFile);
+                imageUrl = await snapshot.ref.getDownloadURL();
                 setMessage("Immagine caricata con successo!");
-                console.log("URL immagine caricata:", imageUrl);
             } catch (error) {
                 console.error("Errore durante il caricamento dell'immagine:", error);
                 setMessage("Errore durante il caricamento dell'immagine. Riprova.");
                 setLoading(false);
-                return; // Ferma l'operazione se l'upload fallisce
+                return;
             }
         } else if (originalPlantObject && !imageFile && !plantData.image) {
-            // Se stiamo aggiornando, non c'è un nuovo file, e l'URL immagine è vuoto/null,
-            // significa che l'utente vuole rimuovere l'immagine.
-            imageUrl = ''; // Imposta l'URL a vuoto per rimuovere l'immagine
+            imageUrl = '';
         } else if (originalPlantObject && !imageFile && originalPlantObject.image) {
-            // Nessun nuovo file e nessuna rimozione esplicita, mantieni l'URL dell'immagine esistente da originalPlantObject
             imageUrl = originalPlantObject.image;
         }
 
-
-        // Il campo scientificName verrà usato per memorizzare la dimensione ideale del vaso.
         const finalPlantData = { ...plantData, image: imageUrl };
-        console.log("addOrUpdatePlant: Dati finali per Firestore (Update/Add):", finalPlantData);
-        console.log("addOrUpdatePlant: Oggetto Pianta Originale per operazione:", originalPlantObject);
-
 
         try {
             const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null;
-            
-            // Determinazione affidabile della provenienza della pianta:
-            // Cerca la pianta nell'array myGardenPlants usando il suo ID
             const isEditingMyGardenPlant = originalPlantObject && myGardenPlants.some(p => p.id === originalPlantObject.id);
 
-
-            console.log("addOrUpdatePlant: Is editing My Garden plant?", isEditingMyGardenPlant);
-            console.log("addOrUpdatePlant: ID del documento per l'operazione:", plantIdToOperate);
-            console.log("addOrUpdatePlant: Public Plant ID (if applicable):", originalPlantObject ? originalPlantObject.publicPlantId : 'N/A');
-
-
             if (plantIdToOperate && isEditingMyGardenPlant) {
-                // Scenario 1: Aggiornamento di una pianta dal "Mio Giardino"
-                // Aggiorna SEMPRE la copia nel giardino dell'utente
                 const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
-                console.log("Tentativo di aggiornare pianta nel Mio Giardino al percorso:", myGardenDocRef.path);
-                
                 await myGardenDocRef.set(finalPlantData, { merge: true });
                 setMessage("Pianta nel tuo giardino aggiornata con successo!");
-                console.log("Aggiornata pianta nel mio giardino con ID:", plantIdToOperate);
 
-                // Controlla se questa pianta è stata aggiunta dall'utente corrente alla collezione pubblica
-                // (e quindi l'utente è l'owner della versione pubblica)
-                const publicPlantId = originalPlantObject.publicPlantId || plantIdToOperate; // Usa publicPlantId se disponibile, altrimenti l'ID corrente (che dovrebbe essere publicPlantId)
+                const publicPlantId = originalPlantObject.publicPlantId || plantIdToOperate;
                 const publicPlantDocRef = db.collection('plants').doc(publicPlantId);
                 const publicPlantSnap = await publicPlantDocRef.get();
 
                 if (publicPlantSnap.exists && publicPlantSnap.data().ownerId === userId) {
-                    // Se l'utente è l'owner della pianta pubblica corrispondente, aggiorna anche la versione pubblica
-                    await publicPlantDocRef.update(finalPlantData); // Aggiorna la pianta pubblica con i nuovi dati
+                    await publicPlantDocRef.update(finalPlantData);
                     setMessage(prev => prev + " e anche la versione pubblica!");
-                    console.log("Aggiornata anche la pianta pubblica con ID:", publicPlantId);
                 }
 
             } else if (plantIdToOperate) {
-                // Scenario 2: Aggiornamento di una pianta dalla collezione "Tutte le Piante" (pubblica)
                 const publicPlantDocRef = db.collection('plants').doc(plantIdToOperate);
                 const publicPlantSnap = await publicPlantDocRef.get();
 
                 if (publicPlantSnap.exists && publicPlantSnap.data().ownerId === userId) {
                     await publicPlantDocRef.update(finalPlantData);
                     setMessage("Pianta pubblica aggiornata con successo!");
-                    console.log("Aggiornata pianta pubblica con ID:", plantIdToOperate);
 
-                    // Dopo aver aggiornato la pianta pubblica, aggiorna anche la copia nel giardino dell'utente attuale
-                    // (se l'utente l'ha nel suo giardino)
-                    const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate); // L'ID corrisponde al publicPlantId
+                    const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
                     const myGardenDocSnap = await myGardenDocRef.get();
                     if (myGardenDocSnap.exists) {
                         await myGardenDocRef.update(finalPlantData);
                         setMessage(prev => prev + " e la copia nel tuo giardino.");
-                        console.log("Aggiornata anche la copia nel giardino dell'utente con ID:", plantIdToOperate);
                     }
-
-
                 } else if (publicPlantSnap.exists) {
                     setMessage("Non hai i permessi per modificare questa pianta pubblica.");
-                    console.warn("Tentativo di modificare pianta pubblica non propria:", plantIdToOperate);
                 } else {
-                    console.error("Errore: ID pianta non trovato per l'aggiornamento.", plantIdToOperate);
                     setMessage("Errore: Pianta non trovata per l'aggiornamento.");
                 }
 
             } else {
-                // Scenario 3: Aggiunta di una nuova pianta pubblica
                 const plantsCollectionRef = db.collection('plants');
                 await plantsCollectionRef.add({ ...finalPlantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 setMessage("Nuova pianta aggiunta alla collezione pubblica con successo!");
-                console.log("Aggiunta nuova pianta pubblica.");
             }
             closeAddEditModal();
         } catch (error) {
@@ -375,7 +848,7 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    }, [db, userId, storage, closeAddEditModal, myGardenPlants, plants]); // Aggiunto myGardenPlants alle dipendenze per il controllo .some()
+    }, [db, userId, storage, closeAddEditModal, myGardenPlants, plants]);
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
@@ -383,10 +856,9 @@ const App = () => {
             return;
         }
 
-        // Chiedi conferma all'utente con un modale personalizzato
         const confirmDelete = await new Promise(resolve => {
             const modal = document.createElement('div');
-            modal.className = 'modal-overlay'; // Usa la classe CSS per l'overlay
+            modal.className = 'modal-overlay';
             modal.innerHTML = `
                 <div class="modal-content">
                     <p class="modal-title" style="font-size: 1.25rem; font-weight: 500; text-align: center; margin-bottom: 1rem;">Sei sicuro di voler eliminare definitivamente questa pianta dalla collezione pubblica?</p>
@@ -414,21 +886,19 @@ const App = () => {
         setMessage('');
 
         try {
-            // Rimuovi la pianta dalla collezione pubblica
-            await db.collection('plants').doc(plantId).delete(); // Usa .collection().doc().delete()
+            await db.collection('plants').doc(plantId).delete();
 
-            // Rimuovi tutte le referenze a questa pianta dal "My Garden" di tutti gli utenti
-            const usersCollectionRef = db.collection('users'); // Usa db.collection()
-            const usersSnapshot = await usersCollectionRef.get(); // Usa .get()
+            const usersCollectionRef = db.collection('users');
+            const usersSnapshot = await usersCollectionRef.get();
 
             for (const userDoc of usersSnapshot.docs) {
                 const currentUserId = userDoc.id;
-                const myGardenCollectionRef = db.collection(`users/${currentUserId}/gardens`); // Usa db.collection()
-                const q = myGardenCollectionRef.where("publicPlantId", "==", plantId); // Usa .where()
-                const gardenPlantsSnapshot = await q.get(); // Usa .get()
+                const myGardenCollectionRef = db.collection(`users/${currentUserId}/gardens`);
+                const q = myGardenCollectionRef.where("publicPlantId", "==", plantId);
+                const gardenPlantsSnapshot = await q.get();
 
                 for (const gardenDoc of gardenPlantsSnapshot.docs) {
-                    await gardenDoc.ref.delete(); // Usa .ref.delete()
+                    await gardenDoc.ref.delete();
                 }
             }
 
@@ -441,8 +911,7 @@ const App = () => {
         }
     }, [db, userId]);
 
-    // Funzioni per il "Mio Giardino"
-    const addPlantToMyGarden = React.useCallback(async (plant) => { // Ora accetta l'intero oggetto pianta
+    const addPlantToMyGarden = React.useCallback(async (plant) => {
         if (!db || !userId) {
             setMessage("Errore: Utente non autentato. Si prega di effettuare il login per aggiungere piante al giardino.");
             return;
@@ -451,18 +920,15 @@ const App = () => {
         setMessage('');
 
         try {
-            // Usa l'ID della pianta pubblica come ID del documento nel giardino
             const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plant.id);
             const docSnap = await myGardenDocRef.get();
 
             if (!docSnap.exists) {
-                // Crea il documento usando l'ID della pianta pubblica come suo ID
                 await myGardenDocRef.set({
-                    ...plant, // Copia tutti i campi della pianta pubblica
-                    publicPlantId: plant.id, // Memorizza anche l'ID della pianta pubblica per query future
+                    ...plant,
+                    publicPlantId: plant.id,
                     dateAdded: firebase.firestore.FieldValue.serverTimestamp(),
                 });
-                console.log("Nuova pianta aggiunta al mio giardino (con ID della pianta pubblica):", plant.id);
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
                 setMessage("Questa pianta è già nel tuo giardino.");
@@ -481,10 +947,9 @@ const App = () => {
             return;
         }
 
-        // Chiedi conferma all'utente con un modale personalizzato
         const confirmRemove = await new Promise(resolve => {
             const modal = document.createElement('div');
-            modal.className = 'modal-overlay'; // Usa la classe CSS per l'overlay
+            modal.className = 'modal-overlay';
             modal.innerHTML = `
                 <div class="modal-content">
                     <p class="modal-title" style="font-size: 1.25rem; font-weight: 500; text-align: center; margin-bottom: 1rem;">Sei sicuro di voler rimuovere questa pianta dal tuo giardino?</p>
@@ -512,7 +977,6 @@ const App = () => {
         setMessage('');
 
         try {
-            // Rimuovi direttamente usando l'ID passato (che ora sarà l'ID del documento nel giardino)
             await db.collection(`users/${userId}/gardens`).doc(plantId).delete();
             setMessage("Pianta rimossa dal tuo giardino!");
         } catch (error) {
@@ -523,7 +987,6 @@ const App = () => {
         }
     }, [db, userId]);
 
-    // Funzioni di autenticazione
     const handleRegister = async (email, password) => {
         setLoading(true);
         setMessage('');
@@ -568,16 +1031,14 @@ const App = () => {
         }
     };
 
-    // Gestione input Lux e feedback piante
     const handleLuxChange = React.useCallback((e) => {
         setLuxValue(e.target.value);
     }, []);
 
     const getPlantLuxFeedback = React.useCallback((plant) => {
         const lux = parseFloat(luxValue);
-        // Restituisce null o stringa vuota se lux non è un numero valido o mancano i dati della pianta
         if (isNaN(lux) || !plant.idealLuxMin || !plant.idealLuxMax) {
-            return null; // Non mostra feedback specifico
+            return null;
         }
 
         if (lux < plant.idealLuxMin) {
@@ -589,7 +1050,6 @@ const App = () => {
         }
     }, [luxValue]);
 
-    // Funzione per richiamare l'AI per la ricerca di informazioni
     const handleAiQuery = React.useCallback(async () => {
         if (!aiQuery.trim()) {
             setAiResponse("Per favoré, inserisci una domanda.");
@@ -603,7 +1063,7 @@ const App = () => {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyBeg9C9fz8mVxEcp36SlYXnpyM5SaQayTA"; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -638,541 +1098,6 @@ const App = () => {
         }
     }, [aiQuery]);
 
-    // Componente Card Pianta
-    const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGarden, onUpdatePlant, onDeletePlantPermanently }) => {
-        const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id); // Controlla se l'ID pubblico è nel giardino
-
-        // Funzione per generare il percorso dell'icona di categoria
-        const getCategoryIconPath = (categoryName) => {
-            if (!categoryName) return null;
-            // Converte il nome della categoria in un formato compatibile con il nome del file (es. "Fiori Estivi" -> "fiori-estivi.png")
-            const fileName = categoryName.toLowerCase().replace(/\s/g, '-');
-            return `/assets/category_icons/${fileName}.png`; // Assicurati che il percorso sia corretto rispetto alla cartella public
-        };
-
-        const imageUrl = isMyGardenPlant
-            ? (plant.image || `https://placehold.co/400x300/e0e0e0/000000?text=${plant.name}`) // Immagine reale per il giardino
-            : (plant.category ? getCategoryIconPath(plant.category) : `https://placehold.co/400x300/f0fdf4/16a34a?text=PIANTA`); // Icona di categoria o placeholder per "di tutti"
-
-        const imageOnError = (e) => {
-            e.target.onerror = null;
-            // Fallback specifico per le card "di tutti" se l'icona di categoria non si carica
-            e.target.src = isMyGardenPlant
-                ? `https://placehold.co/400x300/e0e0e0/000000?text=${plant.name}`
-                : `https://placehold.co/400x300/f0fdf4/16a34a?text=PIANTA+GENERICA`;
-        };
-
-        return (
-            <div className="plant-card">
-                <img
-                    src={imageUrl}
-                    alt={plant.name}
-                    className="plant-card-image"
-                    onClick={() => onDetailsClick(plant)}
-                    onError={imageOnError}
-                    style={{ width: '100%', height: 'auto', objectFit: 'cover' }} // Stili aggiunti per ridimensionamento automatico
-                />
-                <h3 className="plant-card-title">{plant.name}</h3>
-                {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName || 'N/A'}</p>
-                <div className="plant-card-description">{plant.description || "Nessuna descrizione disponibile."}</div>
-
-                <div className="card-actions">
-                    {/* Azioni per collezione pubblica */}
-                    {!isMyGardenPlant && (
-                        <>
-                            <button
-                                onClick={() => onAddOrRemoveToMyGarden(plant)} // Passa l'intero oggetto plant
-                                className={`card-action-button ${isInMyGarden ? 'in-garden' : 'add-to-garden'}`}
-                                disabled={!userId} // Disabilita se non loggato
-                            >
-                                <i className="fas fa-leaf"></i> {isInMyGarden ? 'Già nel tuo giardino' : 'Aggiungi al mio giardino'}
-                            </button>
-                            <button
-                                onClick={() => onUpdatePlant(plant)}
-                                className="card-action-button update"
-                                disabled={!userId || plant.ownerId !== userId} // Disabilita se non proprietario o non loggato
-                            >
-                                <i className="fas fa-edit"></i> Aggiorna pianta
-                            </button>
-                            {/* Mostra "Rimuovi definitivamente" solo se l'utente è quello che l'ha aggiunta E loggato */}
-                            {plant.ownerId === userId && userId && (
-                                <button
-                                    onClick={() => onDeletePlantPermanently(plant.id)}
-                                    className="card-action-button delete"
-                                >
-                                    <i className="fas fa-trash-alt"></i> Rimuovi definitivamente
-                                </button>
-                            )}
-                        </>
-                    )}
-
-                    {/* Azioni per "Mio Giardino" */}
-                    {isMyGardenPlant && (
-                        <>
-                            <button
-                                onClick={() => onAddOrRemoveToMyGarden(plant.id)} // Rimuovi usando l'ID del documento nel giardino
-                                className="card-action-button delete"
-                                disabled={!userId} // Disabilita se non loggato
-                            >
-                                <i className="fas fa-minus-circle"></i> Rimuovi da mio giardino
-                            </button>
-                            <button
-                                onClick={() => onUpdatePlant(plant)}
-                                className="card-action-button update"
-                                disabled={!userId} // Disabilita se non loggato
-                            >
-                                <i className="fas fa-edit"></i> Aggiorna pianta
-                            </button>
-                        </>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    // Componente Modale Dettagli Pianta
-    const PlantDetailsModal = ({ plant, onClose }) => {
-        if (!plant) return null;
-
-        // Funzione per generare il percorso dell'icona di categoria
-        const getCategoryIconPath = (categoryName) => {
-            if (!categoryName) return null;
-            const fileName = categoryName.toLowerCase().replace(/\s/g, '-');
-            return `/assets/category_icons/${fileName}.png`;
-        };
-
-        // Determine image URL based on whether it's a "my garden" plant
-        const imageUrl = plant.isMyGardenPlant
-            ? (plant.image || `https://placehold.co/600x400/e0e0e0/000000?text=${plant.name}`)
-            : (plant.category ? getCategoryIconPath(plant.category) : `https://placehold.co/600x400/f0fdf4/16a34a?text=PIANTA`);
-
-        const imageOnError = (e) => {
-            e.target.onerror = null;
-            e.target.src = plant.isMyGardenPlant
-                ? `https://placehold.co/600x400/e0e0e0/000000?text=${plant.name}`
-                : `https://placehold.co/600x400/f0fdf4/16a34a?text=PIANTA+GENERICA`;
-        };
-
-        return (
-            <div className="modal-overlay">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h2 className="modal-title">{plant.name}</h2>
-                        <button
-                            onClick={onClose}
-                            className="modal-close-btn"
-                        >
-                            &times;
-                        </button>
-                    </div>
-                    <img
-                        src={imageUrl}
-                        alt={plant.name}
-                        className="modal-image"
-                        onError={imageOnError}
-                    />
-                    <div className="modal-details-list">
-                        {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
-                        <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
-                        <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
-                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
-                        <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
-                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
-                        {/* Aggiungi qui altri campi se necessario */}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    // Componente Modale Aggiungi/Modifica Pianta
-    const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
-        const [formData, setFormData] = React.useState({
-            name: '',
-            // scientificName sarà usato per Dimensione Ideale Vaso nel database
-            scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
-            description: '',
-            image: '', // Campo 'image' per URL
-            idealLuxMin: '',
-            priorità: '',
-            idealLuxMax: '',
-            watering: '',
-            sunlight: '',
-            category: '', // Questo sarà ora un dropdown
-            tempMax: '',
-            tempMin: '',
-        });
-        const [selectedFile, setSelectedFile] = React.useState(null); // Stato per il file selezionato
-        const [imagePreviewUrl, setImagePreviewUrl] = React.useState(''); // Stato per l'anteprima immagine
-
-        React.useEffect(() => {
-            if (plantToEdit) {
-                setFormData({
-                    name: plantToEdit.name || '',
-                    scientificName: plantToEdit.scientificName || '', // Carica valore esistente
-                    description: plantToEdit.description || '',
-                    image: plantToEdit.image || '', // Imposta l'URL esistente in formData
-                    idealLuxMin: plantToEdit.idealLuxMin || '',
-                    idealLuxMax: plantToEdit.idealLuxMax || '',
-                    watering: plantToEdit.watering || '',
-                    sunlight: plantToEdit.sunlight || '',
-                    category: plantToEdit.category || '',
-                    tempMax: plantToEdit.tempMax || '',
-                    tempMin: plantToEdit.tempMin || '',
-                });
-                setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
-            } else {
-                setFormData({
-                    name: '', scientificName: '', description: '', image: '',
-                    idealLuxMin: '', idealLuxMax: '', watering: '', sunlight: '',
-                    category: '', tempMax: '', tempMin: '',
-                });
-                setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
-            }
-            setSelectedFile(null); // Resetta sempre il file selezionato al mount
-        }, [plantToEdit]);
-
-        const handleChange = (e) => {
-            const { name, value } = e.target;
-            setFormData(prev => ({ ...prev, [name]: value }));
-        };
-
-        // Gestione del cambiamento del file input
-        const handleFileChange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                setSelectedFile(file);
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setImagePreviewUrl(reader.result);
-                    // IMPORTANTE: Aggiorna formData.image con l'URL temporaneo per la preview.
-                    // Questo sarà sovrascritto dall'URL di Firebase Storage dopo l'upload.
-                    setFormData(prev => ({ ...prev, image: reader.result })); 
-                };
-                reader.readAsDataURL(file);
-            } else {
-                setSelectedFile(null);
-                // Se nessun file è selezionato (input cleared), ripristina l'URL dell'immagine originale in formData
-                // e nella preview, se esisteva. Altrimenti, imposta a stringa vuota.
-                const originalImageUrl = plantToEdit ? plantToEdit.image || '' : '';
-                setImagePreviewUrl(originalImageUrl);
-                setFormData(prev => ({ ...prev, image: originalImageUrl }));
-            }
-        };
-
-
-        const handleSubmit = (e) => {
-            e.preventDefault();
-            // Converti i campi numerici
-            const dataToSend = {
-                ...formData,
-                idealLuxMin: formData.idealLuxMin !== '' ? parseFloat(formData.idealLuxMin) : null,
-                idealLuxMax: formData.idealLuxMax !== '' ? parseFloat(formData.idealLuxMax) : null,
-                tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
-                tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
-            };
-            console.log("AddEditPlantModal handleSubmit: Dati inviati per aggiornamento:", dataToSend);
-            console.log("AddEditPlantModal handleSubmit: File immagine selezionato:", selectedFile);
-            // Passa l'intero oggetto plantToEdit, non solo l'ID.
-            onSubmit(dataToSend, plantToEdit, selectedFile);
-        };
-
-        return (
-            <div className="modal-overlay">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h2 className="add-edit-modal-title">{plantToEdit ? 'Aggiorna Pianta' : 'Aggiungi Nuova Pianta'}</h2>
-                        <button
-                            onClick={onClose}
-                            className="modal-close-btn"
-                        >
-                            &times;
-                        </button>
-                    </div>
-                    <form onSubmit={handleSubmit} className="form-spacing">
-                        <div className="form-group">
-                            <label htmlFor="name">Nome Comune</label>
-                            <input
-                                type="text"
-                                name="name"
-                                id="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
-                            <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
-                            <input
-                                type="text"
-                                name="scientificName" // Il nome del campo nel database rimane scientificName
-                                id="scientificName"
-                                value={formData.scientificName}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="description">Descrizione</label>
-                            <textarea
-                                name="description"
-                                id="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                rows="3"
-                            ></textarea>
-                        </div>
-                        {/* Campo per il caricamento dell'immagine */}
-                        <div className="form-group">
-                            <label htmlFor="imageFile">Carica Immagine Pianta</label>
-                            <input
-                                type="file"
-                                name="imageFile"
-                                id="imageFile"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="form-input"
-                            />
-                            {imagePreviewUrl && (
-                                <div style={{ marginTop: '10px', textAlign: 'center' }}>
-                                    <p style={{ fontSize: '0.9em', color: '#555' }}>Anteprima Immagine:</p>
-                                    <img src={imagePreviewUrl} alt="Anteprima" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', objectFit: 'cover' }} />
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="category">Categoria</label>
-                            <select // Cambiato da input a select
-                                name="category"
-                                id="category"
-                                value={formData.category}
-                                onChange={handleChange}
-                            >
-                                <option value="">Seleziona una categoria</option>
-                                <option value="Fiori">Fiori</option>
-                                <option value="Piante">Fiori</option>
-                                <option value="Piante Grasse">Fiori</option>
-                                <option value="Piante Erbacee">Fiori</option>
-                                <option value="Alberi">Alberi</option>
-                                <option value="Arbusti">Arbusti</option>
-                                <option value="Succulente">Succulente</option>
-                                <option value="Ortaggi">Ortaggi</option>
-                                <option value="Erbe Aromatiche">Erbe Aromatiche</option>
-                                {/* Aggiungi altre opzioni qui */}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="idealLuxMin">Luce Minima (Lux)</label>
-                            <input
-                                type="number"
-                                name="idealLuxMin"
-                                id="idealLuxMin"
-                                value={formData.idealLuxMin}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="idealLuxMax">Luce Massima (Lux)</label>
-                            <input
-                                type="number"
-                                name="idealLuxMax"
-                                id="idealLuxMax"
-                                value={formData.idealLuxMax}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="watering">Frequenza Irrigazione</label>
-                            <input
-                                type="text"
-                                name="watering"
-                                id="watering"
-                                value={formData.watering}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="sunlight">Esigenza Luce Solare</label>
-                            <select
-                                name="sunlight"
-                                id="sunlight"
-                                value={formData.sunlight}
-                                onChange={handleChange}
-                            >
-                                <option value="">Seleziona</option>
-                                <option value="ombra">Ombra</option>
-                                <option value="mezzombra">Mezz'ombra</option>
-                                <option value="pienosole">Pieno Sole</option>
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="tempMin">Temperatura Minima (°C)</label>
-                            <input
-                                type="number"
-                                name="tempMin"
-                                id="tempMin"
-                                value={formData.tempMin}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="tempMax">Temperatura Massima (°C)</label>
-                            <input
-                                type="number"
-                                name="tempMax"
-                                id="tempMax"
-                                value={formData.tempMax}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="form-actions">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="form-button cancel"
-                            >
-                                <i className="fas fa-times"></i> Annulla
-                            </button>
-                            <button
-                                type="submit"
-                                className="form-button submit"
-                            >
-                                <i className="fas fa-check"></i> {plantToEdit ? 'Salva Modifiche' : 'Aggiungi Pianta'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        );
-    };
-
-    // Nuovo componente Modale di Autenticazione
-    const AuthModal = ({ onClose, onRegister, onLogin }) => {
-        const [email, setEmail] = React.useState('');
-        const [password, setPassword] = React.useState('');
-        const [isRegisterMode, setIsRegisterMode] = React.useState(true); // True per Registrazione, False per Login
-
-        const handleSubmit = (e) => {
-            e.preventDefault();
-            if (isRegisterMode) {
-                onRegister(email, password);
-            } else {
-                onLogin(email, password);
-            }
-        };
-
-        return (
-            <div className="modal-overlay">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h2 className="add-edit-modal-title">{isRegisterMode ? 'Registrazione Utente' : 'Accedi'}</h2>
-                        <button onClick={onClose} className="modal-close-btn">&times;</button>
-                    </div>
-                    <form onSubmit={handleSubmit} className="form-spacing">
-                        <div className="form-group">
-                            <label htmlFor="auth-email">Email</label>
-                            <input
-                                type="email"
-                                id="auth-email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="auth-password">Password</label>
-                            <input
-                                type="password"
-                                id="auth-password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="form-actions">
-                            <button
-                                type="button"
-                                onClick={() => setIsRegisterMode(prev => !prev)}
-                                className="form-button cancel"
-                            >
-                                {isRegisterMode ? 'Hai già un account? Accedi' : 'Non hai un account? Registrati'}
-                            </button>
-                            <button type="submit" className="form-button submit">
-                                <i className="fas fa-sign-in-alt"></i> {isRegisterMode ? 'Registrati' : 'Accedi'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        );
-    };
-
-    // Nuovo componente Modale AI Query
-    const AiQueryModal = ({ onClose, onQuerySubmit, query, setQuery, response, loading }) => {
-        // Usa React.useCallback per mantenere la stabilità della funzione di gestione del cambiamento
-        const handleTextareaChange = React.useCallback((e) => {
-            setQuery(e.target.value);
-        }, [setQuery]);
-
-        return (
-            <div className="modal-overlay">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h2 className="add-edit-modal-title">Chiedi all'AI sulle Piante</h2>
-                        <button onClick={onClose} className="modal-close-btn">&times;</button>
-                    </div>
-                    <div className="form-spacing">
-                        <div className="form-group">
-                            <label htmlFor="aiQuery" className="form-label">Fai la tua domanda, e proverò a risponderti:</label>
-                            <textarea
-                                id="aiQuery"
-                                value={query}
-                                onChange={handleTextareaChange} // Usa la funzione stabile
-                                placeholder="Ad esempio: 'Quali sono i requisiti di luce per una Monstera Deliciosa?'"
-                                rows="4"
-                                className="form-input"
-                                autoFocus // Aggiunto per dare focus automatico all'apertura del modale
-                            ></textarea>
-                        </div>
-                        <div className="form-actions">
-                            <button
-                                type="button"
-                                onClick={onQuerySubmit}
-                                className="form-button submit"
-                                disabled={loading}
-                            >
-                                {loading ? 'Caricamento...' : <><i className="fas fa-robot"></i> Ottieni la Risposta</>}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="form-button cancel"
-                            >
-                                <i className="fas fa-times"></i> Chiudi
-                            </button>
-                        </div>
-                        {response && (
-                            <div className="ai-response-box">
-                                <h3>Risposta AI:</h3>
-                                <p>{response}</p>
-                            </div>
-                        )}
-                        {loading && (
-                            <div className="loading-spinner-ai">
-                                <div className="spinner"></div>
-                                <p>Ricerca AI in corso...</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
 
     if (loading) {
         return (
@@ -1201,14 +1126,12 @@ const App = () => {
                         <button
                             onClick={scrollToMyGarden}
                             className="main-button button-blue"
-                            // disabled={!userId} RIMOSSO
                             title={!userId ? "Effettua il login per visualizzare il tuo giardino" : ""}
                         >
                             <i className="fas fa-tree"></i> Mostra il Mio Giardino
                         </button>
-                        {/* Bottone per aggiungere pianta, disabilitato se non loggato */}
                         <button
-                            onClick={() => { // Modificato per mostrare il messaggio al click
+                            onClick={() => {
                                 if (!userId) {
                                     setMessage("Devi essere loggato per aggiungere nuove piante.");
                                 } else {
@@ -1216,25 +1139,22 @@ const App = () => {
                                 }
                             }}
                             className="main-button button-purple"
-                            // disabled={!userId} RIMOSSO
                             title={!userId ? "Effettua il login per aggiungere piante" : ""}
                         >
                             <i className="fas fa-plus-circle"></i> Aggiungi Pianta
                         </button>
                         <button
-                            onClick={() => window.open('https://lens.google.com/upload', '_blank')} // Modificato per puntare al form di upload
+                            onClick={() => window.open('https://lens.google.com/upload', '_blank')}
                             className="main-button button-yellow"
                         >
                             <i className="fas fa-camera"></i> Google Lens
                         </button>
-                        {/* Nuovo pulsante per richiamare l'AI */}
                         <button
                             onClick={() => { setShowAiModal(true); setAiResponse(''); setAiQuery(''); }}
                             className="main-button button-orange"
                         >
                             <i className="fas fa-magic"></i> Chiedi all'AI
                         </button>
-                        {/* Pulsanti di autenticazione */}
                         {userId ? (
                             <button onClick={handleLogout} className="main-button button-red">
                                 <i className="fas fa-sign-out-alt"></i> Logout ({userEmail || 'Ospite'})
@@ -1246,7 +1166,6 @@ const App = () => {
                         )}
                     </div>
                 </div>
-                {/* Rimosso ID Utente come richiesto */}
             </header>
 
             {/* Messaggi utente */}
@@ -1344,6 +1263,8 @@ const App = () => {
                                     onAddOrRemoveToMyGarden={addPlantToMyGarden}
                                     onUpdatePlant={openAddEditModal}
                                     onDeletePlantPermanently={deletePlantPermanently}
+                                    userId={userId}
+                                    myGardenPlants={myGardenPlants} // Passa myGardenPlants per controllare isInMyGarden
                                 />
                             ))
                         ) : (
@@ -1368,6 +1289,8 @@ const App = () => {
                                     onAddOrRemoveToMyGarden={removePlantFromMyGarden} // In questo caso, rimuovi
                                     onUpdatePlant={openAddEditModal}
                                     onDeletePlantPermanently={deletePlantPermanently} // Ancora disponibile se l'utente è il proprietario originale
+                                    userId={userId}
+                                    myGardenPlants={myGardenPlants} // Passa myGardenPlants
                                 />
                             ))
                         ) : (
@@ -1382,8 +1305,6 @@ const App = () => {
                 <button
                     onClick={scrollToTop}
                     className="scroll-to-top-button"
-                    // Puoi aggiungere stili inline qui per debuggarne la visibilità
-                    // Esempio: style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', padding: '10px 15px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
                 >
                     ↑
                 </button>
@@ -1430,7 +1351,6 @@ const App = () => {
 // Funzione per montare l'applicazione React
 const rootElement = document.getElementById('root');
 if (rootElement) {
-    // Usa React.StrictMode e ReactDOM.createRoot
     const root = ReactDOM.createRoot(rootElement);
     root.render(
         <React.StrictMode>
@@ -1440,5 +1360,3 @@ if (rootElement) {
 } else {
     console.error("Elemento 'root' non trovato nel DOM. Impossibile montare l'applicazione React.");
 }
-
-// Non è necessario export default App; quando si usa type="text/babel" e rendering globale
