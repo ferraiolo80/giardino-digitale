@@ -6,10 +6,24 @@ const urlsToCache = [
     './index.html',
     './App.js',
     './style.css',
+    '/manifest.json',
     '/assets/icons/icon-192x192.png', // <-- VERIFICA QUESTI PERCORSI E NOMI FILE
-    '/assets/icons/icon-592x592.png', // <-- VERIFICA QUESTI PERCORSI E NOMI FILE
-    // Se hai anche icone 512x512 come suggerito nel manifest, assicurati che il nome sia corretto
-    // '/assets/icons/icon-512x512.png', // <--- Se hai questo file, DECOMMENTA E VERIFICA IL NOME ESATTO
+    '/assets/icons/icon-512x512.png', // <-- VERIFICA QUESTI PERCORSI E NOMI FILE
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css',
+    'https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js',
+    'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js',
+    'https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js'
+    '/assets/category_icons/alberi.png
+    '/assets/category_icons/arbusti.png
+    '/assets/category_icons/erbe-aromatiche.png
+    '/assets/category_icons/fiori.png
+    '/assets/category_icons/ortaggi.png
+    '/assets/category_icons/piante.png
+    '/assets/category_icons/pianta-grasse.png
+    '/assets/category_icons/succulente.png
     // Aggiungi qui anche le icone delle categorie se sono locali e non placeholder
     // Esempio: '/assets/category_icons/fiori-estivi.png',
     // Font Awesome e Firebase CDN non verranno cachati dal service worker locale,
