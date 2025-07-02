@@ -17,7 +17,7 @@ const debounce = (func, delay) => {
 const categoryIcons = {
     'Fiori': '/assets/category_icons/flower.png',
     'Piante Grasse': '/assets/category_icons/succulent.png',
-    'Piante Erbacee': '/assets/category_icons/herbaceous.png',
+    'Piante Erbacee': '/assets/category_icons/piante.png',
     'Alberi': '/assets/category_icons/tree.png',
     'Arbusti': '/assets/category_icons/shrub.png',
     'Succulente': '/assets/category_icons/succulent.png',
