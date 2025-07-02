@@ -67,46 +67,49 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-    // Intercetta solo le richieste GET per evitare problemi con POST (es. Firebase writes)
-    if (event.request.method !== 'GET') {
-        return;
-    }
+// Fetch event: serving from cache or network
+self.addEventListener('fetch', event => {
+    // IMPORTANT: Only try to cache http or https requests.
+    // Ignore chrome-extension://, data:, etc.
+    if (event.request.url.startsWith('http') || event.request.url.startsWith('https')) {
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => {
+                    // Cache hit - return response
+                    if (response) {
+                        return response;
+                    }
+                    // No cache hit - fetch from network
+                    return fetch(event.request).then(
+                        fetchResponse => {
+                            // Check if we received a valid response
+                            if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic') {
+                                return fetchResponse;
+                            }
 
-    event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // Cache hit - restituisci la risposta cachata
-                if (response) {
-                    // console.log(`[Service Worker] Serving from cache: ${event.request.url}`); // Commentato per ridurre verbosità
-                    return response;
-                }
-                // Nessuna cache hit - recupera dalla rete
-                // console.log(`[Service Worker] Fetching from network: ${event.request.url}`); // Commentato per ridurre verbosità
-                return fetch(event.request)
-                    .then((networkResponse) => {
-                        // Controlla se la risposta è valida per la cache
-                        // Non cachiamo richieste di range (es. video), estensioni chrome, ecc.
-                        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                            return networkResponse;
+                            // IMPORTANT: Clone the response. A response is a stream
+                            // and can only be consumed once. We must clone it so that
+                            // the browser can consume one and we can consume the other.
+                            const responseToCache = fetchResponse.clone();
+
+                            caches.open(CACHE_NAME)
+                                .then(cache => {
+                                    cache.put(event.request, responseToCache);
+                                });
+
+                            return fetchResponse;
                         }
-
-                        // Clona la risposta perché lo stream può essere letto solo una volta
-                        const responseToCache = networkResponse.clone();
-                        caches.open(CACHE_NAME)
-                            .then((cache) => {
-                                cache.put(event.request, responseToCache);
-                            })
-                            .catch((error) => {
-                                console.warn(`[Service Worker] Failed to cache ${event.request.url}:`, error);
-                            });
-                        return networkResponse;
-                    })
-                    .catch((error) => {
-                        console.error(`[Service Worker] Fetch failed for ${event.request.url}:`, error);
-                        // Puoi aggiungere un fallback per pagine offline qui se necessario
-                        // Esempio: return caches.match('/offline.html');
-                    });
-            })
-    );
+                    );
+                })
+                .catch(error => {
+                    console.error('Fetch failed:', error);
+                    // You could serve an offline page here
+                    // return caches.match('/offline.html');
+                })
+        );
+    } else {
+        // For non-http/https requests, just let them go to the network
+        // (or fail if they are unsupported by the browser directly)
+        return; 
+    }
 });
