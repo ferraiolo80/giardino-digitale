@@ -465,13 +465,14 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             onChange={handleChange}
                         >
                             <option value="">Seleziona</option>
-                            <option value="Alta">Alta</option>
+                            <option value="Tanta">Tanta</option>
                             <option value="Media">Media</option>
-                            <option value="Bassa">Bassa</option>
+                            <option value="Poca">Bassa</option>
+                            <option value="Prevalentemente">Prevalentemente</option>
+                            <option value="Totale">Totale</option>
                         </select>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="exposureType">Tipo di Esposizione</label>
                         <select
                             name="exposureType"
                             id="exposureType"
@@ -479,10 +480,11 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             onChange={handleChange}
                         >
                             <option value="">Seleziona</option>
-                            <option value="Sole Diretto">Sole Diretto</option>
-                            <option value="Luce Indiretta Luminosa">Luce Indiretta Luminosa</option>
+                            <option value="Luce Diretta">Luce Diretta</option>
+                            <option value="Luce Indiretta">Luce Indiretta</option>
                             <option value="Mezz'ombra">Mezz'ombra</option>
                             <option value="Ombra Totale">Ombra Totale</option>
+                            <option value="Sole Pieno">Sole Pieno</option>
                         </select>
                     </div>
 
