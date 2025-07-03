@@ -35,20 +35,6 @@ const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGa
     // Controlla se la pianta è nel giardino usando l'ID pubblico
     const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id);
 
-    // --- INIZIO LOG DI DEBUGGING ---
-    // console.log(`--- Debugging Card Pianta ---`);
-    // console.log(`Nome Pianta: ${plant.name} (ID: ${plant.id})`);
-    // console.log(`È nella vista "Mio Giardino" (prop isMyGardenPlant): ${isMyGardenPlant}`);
-    // console.log(`La pianta è già nel "Mio Giardino" (stato isInMyGarden): ${isInMyGarden}`);
-    // console.log(`ID Proprietario Pianta (plant.ownerId): ${plant.ownerId}`);
-    // console.log(`ID Utente Corrente (userId): ${userId}`);
-    // console.log(`plant.ownerId === userId? ${plant.ownerId === userId}`);
-    // console.log(`Condizione per pulsante Aggiorna (solo per "Tutte le Piante"): ${!isMyGardenPlant && (plant.ownerId === userId || isMyGardenPlant) && userId}`);
-    // console.log(`Condizione per pulsante Elimina Definitivamente: ${plant.ownerId === userId && userId}`);
-    // console.log(`--- Fine Debugging ---`);
-    // --- FINE LOG DI DEBUGGING ---
-
-
     // Funzione per generare il percorso dell'icona di categoria
     const getCategoryIconPath = (categoryName) => {
         if (!categoryName) return categoryIcons['Altro'];
@@ -101,12 +87,11 @@ const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGa
                     </button>
                 )}
 
-                {/* Bottone Aggiorna pianta (visibile per l'owner o se è nel mio giardino) */}
-                {(plant.ownerId === userId || isMyGardenPlant) && userId && (
+                {/* Bottone Aggiorna pianta: Visibile se l'utente è loggato. La logica di autorizzazione è ora in openAddEditModal. */}
+                {userId && (
                     <button
-                        onClick={() => onUpdatePlant(plant)}
+                        onClick={() => onUpdatePlant(plant, isMyGardenPlant)} // Passa la pianta e il flag isMyGardenPlant
                         className="card-action-button update"
-                        disabled={!userId} // Disabilita se non loggato
                     >
                         <i className="fas fa-edit"></i> Aggiorna pianta
                     </button>
@@ -886,10 +871,23 @@ const App = () => {
         setSelectedPlant(null);
     }, []);
 
-    const openAddEditModal = React.useCallback((plantToEdit = null) => {
+    // Modificata la logica per gestire i permessi prima di aprire la modale
+    const openAddEditModal = React.useCallback((plantToEdit = null, isMyGardenPlant = false) => {
+        if (!userId) {
+            setMessage("Devi essere loggato per modificare le piante.");
+            return;
+        }
+
+        // Se è una pianta pubblica e l'utente non è il proprietario, mostra messaggio di non autorizzazione
+        if (plantToEdit && !isMyGardenPlant && plantToEdit.ownerId !== userId) {
+            setMessage("Non sei autorizzato a modificare questa pianta pubblica.");
+            return;
+        }
+
         setEditPlantData(plantToEdit);
         setShowAddEditModal(true);
-    }, []);
+    }, [userId]); // Aggiunto userId nelle dipendenze
+
 
     const closeAddEditModal = React.useCallback(() => {
         setShowAddEditModal(false);
@@ -968,10 +966,9 @@ const App = () => {
                         await myGardenDocRef.update(finalPlantData);
                         setMessage(prev => prev + " e la copia nel tuo giardino.");
                     }
-                } else if (publicPlantSnap.exists) {
-                    setMessage("Non hai i permessi per modificare questa pianta pubblica.");
                 } else {
-                    setMessage("Errore: Pianta non trovata per l'aggiornamento.");
+                    // Questo caso dovrebbe essere già gestito da openAddEditModal, ma è un fallback di sicurezza
+                    setMessage("Non hai i permessi per modificare questa pianta pubblica.");
                 }
 
             } else {
