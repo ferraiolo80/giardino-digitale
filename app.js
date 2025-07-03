@@ -36,16 +36,16 @@ const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGa
     const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id);
 
     // --- INIZIO LOG DI DEBUGGING ---
-    console.log(`--- Debugging Card Pianta ---`);
-    console.log(`Nome Pianta: ${plant.name} (ID: ${plant.id})`);
-    console.log(`È nella vista "Mio Giardino" (prop isMyGardenPlant): ${isMyGardenPlant}`);
-    console.log(`La pianta è già nel "Mio Giardino" (stato isInMyGarden): ${isInMyGarden}`);
-    console.log(`ID Proprietario Pianta (plant.ownerId): ${plant.ownerId}`);
-    console.log(`ID Utente Corrente (userId): ${userId}`);
-    console.log(`plant.ownerId === userId? ${plant.ownerId === userId}`);
-    console.log(`Condizione per pulsante Aggiorna (solo per "Tutte le Piante"): ${!isMyGardenPlant && (plant.ownerId === userId || isMyGardenPlant) && userId}`);
-    console.log(`Condizione per pulsante Elimina Definitivamente: ${plant.ownerId === userId && userId}`);
-    console.log(`--- Fine Debugging ---`);
+    // console.log(`--- Debugging Card Pianta ---`);
+    // console.log(`Nome Pianta: ${plant.name} (ID: ${plant.id})`);
+    // console.log(`È nella vista "Mio Giardino" (prop isMyGardenPlant): ${isMyGardenPlant}`);
+    // console.log(`La pianta è già nel "Mio Giardino" (stato isInMyGarden): ${isInMyGarden}`);
+    // console.log(`ID Proprietario Pianta (plant.ownerId): ${plant.ownerId}`);
+    // console.log(`ID Utente Corrente (userId): ${userId}`);
+    // console.log(`plant.ownerId === userId? ${plant.ownerId === userId}`);
+    // console.log(`Condizione per pulsante Aggiorna (solo per "Tutte le Piante"): ${!isMyGardenPlant && (plant.ownerId === userId || isMyGardenPlant) && userId}`);
+    // console.log(`Condizione per pulsante Elimina Definitivamente: ${plant.ownerId === userId && userId}`);
+    // console.log(`--- Fine Debugging ---`);
     // --- FINE LOG DI DEBUGGING ---
 
 
@@ -665,6 +665,10 @@ const App = () => {
     const [aiResponse, setAiResponse] = React.useState('');
     const [aiLoading, setAiLoading] = React.useState(false);
 
+    // NUOVI STATI PER L'AGGIORNAMENTO DEL SERVICE WORKER
+    const [showUpdatePrompt, setShowUpdatePrompt] = React.useState(false);
+    const [waitingWorker, setWaitingWorker] = React.useState(null);
+
     const allPlantsRef = React.useRef(null);
     const myGardenRef = React.useRef(null);
 
@@ -701,6 +705,26 @@ const App = () => {
                 }
             });
 
+            // LOGICA PER L'AGGIORNAMENTO DEL SERVICE WORKER
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(reg => {
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        if (newWorker) {
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nuovo Service Worker installato e in attesa
+                                    setWaitingWorker(newWorker);
+                                    setShowUpdatePrompt(true);
+                                    setMessage("È disponibile una nuova versione dell'app! Clicca su 'Aggiorna ora' per installarla.");
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+
+
             return () => unsubscribeAuth();
         } catch (error) {
             console.error("Errore nell'inizializzazione di Firebase:", error);
@@ -717,6 +741,15 @@ const App = () => {
             return () => clearTimeout(timer);
         }
     }, [message]);
+
+    // Funzione per forzare l'aggiornamento dell'app
+    const updateApp = React.useCallback(() => {
+        if (waitingWorker) {
+            waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+            window.location.reload(); // Ricarica la pagina per applicare la nuova versione
+        }
+    }, [waitingWorker]);
+
 
     // Fetch e listener per le piante della collezione pubblica ('plants')
     React.useEffect(() => {
@@ -1304,6 +1337,20 @@ const App = () => {
                     <span className="alert-close-btn">
                         <svg onClick={() => setMessage('')} className="alert-close-icon" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.197l-2.651 2.652a1.2 1.2 0 1 1-1.697-1.697L8.303 10l-2.652-2.651a1.2 1.2 0 1 1 1.697-1.697L10 8.303l2.651-2.652a1.2 1.2 0 0 1 1.697 1.697L11.697 10l2.652 2.651a1.2 1.2 0 0 1 0 1.698z"/></svg>
                     </span>
+                </div>
+            )}
+
+            {/* Banner di aggiornamento Service Worker */}
+            {showUpdatePrompt && (
+                <div className="alert" role="alert" style={{ backgroundColor: '#d1fae5', borderColor: '#34d399', color: '#065f46', marginTop: '1rem' }}>
+                    <span>È disponibile una nuova versione dell'app!</span>
+                    <button
+                        onClick={updateApp}
+                        className="form-button submit"
+                        style={{ backgroundColor: '#10b981', color: 'white', marginLeft: '1rem', padding: '0.5rem 1rem' }}
+                    >
+                        <i className="fas fa-sync-alt"></i> Aggiorna ora
+                    </button>
                 </div>
             )}
 
