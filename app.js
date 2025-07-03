@@ -15,14 +15,15 @@ const debounce = (func, delay) => {
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 // Spostata fuori dal componente App
 const categoryIcons = {
-    'Fiori': '/assets/category_icons/flower.png',
-    'Piante Grasse': '/assets/category_icons/succulent.png',
-    'Piante Erbacee': '/assets/category_icons/herbaceous.png',
-    'Alberi': '/assets/category_icons/tree.png',
-    'Arbusti': '/assets/category_icons/shrub.png',
-    'Succulente': '/assets/category_icons/succulent.png',
-    'Ortaggi': '/assets/category_icons/vegetable.png',
-    'Erbe Aromatiche': '/assets/category_icons/aromatic-herb.png',
+    'Fiori': '/assets/category_icons/fiori.png',
+    'Piante Grasse': '/assets/category_icons/pianta-grassa.png',
+    'Piante Erbacee': '/assets/category_icons/piante.png',
+    'Alberi': '/assets/category_icons/alberi.png',
+    'Alberi da Frutto': '/assets/category_icons/piante.png
+    'Arbusti': '/assets/category_icons/arbusti.png',
+    'Succulente': '/assets/category_icons/succulente.png',
+    'Ortaggi': '/assets/category_icons/ortaggi.png',
+    'Erbe Aromatiche': '/assets/category_icons/erbe-aromatiche.png',
     'Ombra': '/assets/category_icons/shade.png',
     'Mezzombra': '/assets/category_icons/partial-shade.png',
     'Pienosole': '/assets/category_icons/full-sun.png',
@@ -376,6 +377,7 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             <option value="Piante Grasse">Piante Grasse</option>
                             <option value="Piante Erbacee">Piante Erbacee</option>
                             <option value="Alberi">Alberi</option>
+                            <option value="Alberi da Frutto">Alberi da Frutto</option>
                             <option value="Arbusti">Arbusti</option>
                             <option value="Succulente">Succulente</option>
                             <option value="Ortaggi">Ortaggi</option>
