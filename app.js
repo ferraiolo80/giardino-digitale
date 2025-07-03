@@ -15,19 +15,18 @@ const debounce = (func, delay) => {
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 // Spostata fuori dal componente App
 const categoryIcons = {
-    'Fiori': '/assets/category_icons/fiori.png',
-    'Piante Grasse': '/assets/category_icons/pianta-grassa.png',
-    'Piante Erbacee': '/assets/category_icons/.png',
-    'Alberi': '/assets/category_icons/alberi.png',
-    'Alberi da Frutto': '/assets/category_icons/piante.png,
-    'Arbusti': '/assets/category_icons/arbusti.png',
-    'Succulente': '/assets/category_icons/succulente.png',
-    'Ortaggi': '/assets/category_icons/ortaggi.png',
-    'Erbe Aromatiche': '/assets/category_icons/erbe-aromatiche.png',
+    'Fiori': '/assets/category_icons/flower.png',
+    'Piante Grasse': '/assets/category_icons/succulent.png',
+    'Piante Erbacee': '/assets/category_icons/herbaceous.png',
+    'Alberi': '/assets/category_icons/tree.png',
+    'Arbusti': '/assets/category_icons/shrub.png',
+    'Succulente': '/assets/category_icons/succulent.png',
+    'Ortaggi': '/assets/category_icons/vegetable.png',
+    'Erbe Aromatiche': '/assets/category_icons/aromatic-herb.png',
     'Ombra': '/assets/category_icons/shade.png',
     'Mezzombra': '/assets/category_icons/partial-shade.png',
     'Pienosole': '/assets/category_icons/full-sun.png',
-    'Altro': '/assets/category_icons/piante.png' // Icona di default per categorie non mappate
+    'Altro': '/assets/category_icons/default.png' // Icona di default per categorie non mappate
 };
 
 // Componente Card Pianta
@@ -166,7 +165,10 @@ const PlantDetailsModal = ({ plant, onClose }) => {
                     {(!plant.wateringValueSummer && !plant.wateringValueWinter && plant.watering) && (
                         <p><strong>Frequenza Irrigazione (Generica):</strong> {plant.watering}</p>
                     )}
-                    <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
+                    {/* Nuova visualizzazione per Quantità di Luce */}
+                    <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
+                    {/* Nuova visualizzazione per Tipo di Esposizione */}
+                    <p><strong>Tipo di Esposizione:</strong> {plant.exposureType || 'N/A'}</p>
                     <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
                     <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
                 </div>
@@ -190,7 +192,9 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
         wateringUnitSummer: 'settimana', // Default unit
         wateringValueWinter: '',
         wateringUnitWinter: 'mese', // Default unit
-        sunlight: '',
+        // Nuovi campi per la luce
+        lightQuantity: '', // Quantità di luce
+        exposureType: '',  // Tipo di esposizione
         category: '',
         tempMax: '',
         tempMin: '',
@@ -213,7 +217,10 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                 wateringUnitSummer: plantToEdit.wateringUnitSummer || 'settimana',
                 wateringValueWinter: plantToEdit.wateringValueWinter !== undefined ? plantToEdit.wateringValueWinter : '',
                 wateringUnitWinter: plantToEdit.wateringUnitWinter || 'mese',
-                sunlight: plantToEdit.sunlight || '',
+                // Inizializza i nuovi campi luce. Se la pianta ha il vecchio campo 'sunlight' (stringa),
+                // i nuovi campi saranno vuoti/di default. L'utente dovrà reinserirli.
+                lightQuantity: plantToEdit.lightQuantity || '',
+                exposureType: plantToEdit.exposureType || '',
                 category: plantToEdit.category || '',
                 tempMax: plantToEdit.tempMax || '',
                 tempMin: plantToEdit.tempMin || '',
@@ -226,7 +233,9 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                 idealLuxMin: '', idealLuxMax: '',
                 wateringValueSummer: '', wateringUnitSummer: 'settimana',
                 wateringValueWinter: '', wateringUnitWinter: 'mese',
-                sunlight: '', category: '', tempMax: '', tempMin: '',
+                lightQuantity: '', exposureType: '', // Resetta i nuovi campi luce
+                sunlight: '', // Rimuovi il vecchio campo sunlight dal reset iniziale
+                category: '', tempMax: '', tempMin: '',
             });
             setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
         }
@@ -277,7 +286,9 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
             wateringUnitSummer: formData.wateringUnitSummer || 'settimana',
             wateringValueWinter: formData.wateringValueWinter !== '' ? parseFloat(formData.wateringValueWinter) : null,
             wateringUnitWinter: formData.wateringUnitWinter || 'mese',
-            sunlight: formData.sunlight,
+            // Nuovi campi per la luce
+            lightQuantity: formData.lightQuantity || null, // Salva null se vuoto
+            exposureType: formData.exposureType || null,   // Salva null se vuoto
             category: formData.category,
             tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
             tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
@@ -365,7 +376,6 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             <option value="Piante Grasse">Piante Grasse</option>
                             <option value="Piante Erbacee">Piante Erbacee</option>
                             <option value="Alberi">Alberi</option>
-                            <option value="Alberi">Alberi da Frutto</option>
                             <option value="Arbusti">Arbusti</option>
                             <option value="Succulente">Succulente</option>
                             <option value="Ortaggi">Ortaggi</option>
@@ -443,20 +453,37 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                         </div>
                     </div>
 
+                    {/* NUOVI CAMPI PER LA LUCE */}
                     <div className="form-group">
-                        <label htmlFor="sunlight">Esigenza Luce Solare</label>
+                        <label htmlFor="lightQuantity">Quantità di Luce</label>
                         <select
-                            name="sunlight"
-                            id="sunlight"
-                            value={formData.sunlight}
+                            name="lightQuantity"
+                            id="lightQuantity"
+                            value={formData.lightQuantity}
                             onChange={handleChange}
                         >
                             <option value="">Seleziona</option>
-                            <option value="ombra">Ombra</option>
-                            <option value="mezzombra">Mezz'ombra</option>
-                            <option value="pienosole">Pieno Sole</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Media">Media</option>
+                            <option value="Bassa">Bassa</option>
                         </select>
                     </div>
+                    <div className="form-group">
+                        <label htmlFor="exposureType">Tipo di Esposizione</label>
+                        <select
+                            name="exposureType"
+                            id="exposureType"
+                            value={formData.exposureType}
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleziona</option>
+                            <option value="Sole Diretto">Sole Diretto</option>
+                            <option value="Luce Indiretta Luminosa">Luce Indiretta Luminosa</option>
+                            <option value="Mezz'ombra">Mezz'ombra</option>
+                            <option value="Ombra Totale">Ombra Totale</option>
+                        </select>
+                    </div>
+
                     <div className="form-group">
                         <label htmlFor="tempMin">Temperatura Minima (°C)</label>
                         <input
@@ -930,8 +957,9 @@ const App = () => {
         const finalPlantData = {
             ...plantData,
             image: imageUrl,
-            // Rimuovi il vecchio campo 'watering' se esiste, per evitare duplicati
+            // Rimuovi il vecchio campo 'watering' e 'sunlight' se esistono, per evitare duplicati
             watering: firebase.firestore.FieldValue.delete(),
+            sunlight: firebase.firestore.FieldValue.delete(), // Rimuovi il vecchio campo sunlight
         };
 
         try {
@@ -1081,8 +1109,9 @@ const App = () => {
                     wateringUnitSummer: plant.wateringUnitSummer || 'settimana',
                     wateringValueWinter: plant.wateringValueWinter !== undefined ? plant.wateringValueWinter : null,
                     wateringUnitWinter: plant.wateringUnitWinter || 'mese',
-                    // Rimuovi il vecchio campo 'watering' se presente nella pianta pubblica
+                    // Rimuovi il vecchio campo 'watering' e 'sunlight' se presente nella pianta pubblica
                     watering: firebase.firestore.FieldValue.delete(),
+                    sunlight: firebase.firestore.FieldValue.delete(), // Rimuovi il vecchio campo sunlight
                 });
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
@@ -1492,7 +1521,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditPlantModal // Correzione qui: da AddEditModal a AddEditPlantModal
+                <AddEditPlantModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
