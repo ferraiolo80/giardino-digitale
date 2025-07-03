@@ -45,7 +45,8 @@ const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGa
         return iconPath;
     };
 
-    const imageUrl = plant.image || getCategoryIconPath(plant.category);
+    // LOGICA AGGIORNATA PER L'IMMAGINE DELLA CARD
+    const imageUrl = isMyGardenPlant ? (plant.image || getCategoryIconPath(plant.category)) : getCategoryIconPath(plant.category);
 
     const imageOnError = (e) => {
         e.target.onerror = null; // Evita loop infiniti in caso di errore persistente
@@ -62,7 +63,8 @@ const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGa
                 onError={imageOnError}
             />
             <h3 className="plant-card-title">{plant.name}</h3>
-            <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName || 'N/A'} CM</p>
+            {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
+            <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
             <div className="plant-card-description">{plant.description || "Nessuna descrizione disponibile."}</div>
 
             <div className="card-actions">
@@ -143,7 +145,8 @@ const PlantDetailsModal = ({ plant, onClose }) => {
                     onError={imageOnError}
                 />
                 <div className="modal-details-list">
-                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'} Cm</p>
+                    {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
+                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
                     <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                     <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                     {/* Visualizzazione irrigazione estate */}
@@ -276,7 +279,8 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
         // Converti i campi numerici
         const dataToSend = {
             name: formData.name,
-            scientificName: formData.scientificName,
+            // scientificName ora è un numero per la dimensione del vaso
+            scientificName: formData.scientificName !== '' ? parseFloat(formData.scientificName) : null,
             description: formData.description,
             image: formData.image, // Questo verrà aggiornato da addOrUpdatePlant
             idealLuxMin: formData.idealLuxMin !== '' ? parseFloat(formData.idealLuxMin) : null,
@@ -324,15 +328,19 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                         />
                     </div>
                     <div className="form-group">
-                        {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
+                        {/* Modifica: scientificName ora è Dimensione Ideale Vaso - Campo numerico con "cm" */}
                         <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
-                        <input
-                            type="text"
-                            name="scientificName" // Il nome del campo nel database rimane scientificName
-                            id="scientificName"
-                            value={formData.scientificName}
-                            onChange={handleChange}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <input
+                                type="number" // CAMBIATO A TYPE="NUMBER"
+                                name="scientificName" // Il nome del campo nel database rimane scientificName
+                                id="scientificName"
+                                value={formData.scientificName}
+                                onChange={handleChange}
+                                style={{ flexGrow: 1 }}
+                            />
+                            <span>cm</span> {/* AGGIUNTA UNITA' DI MISURA */}
+                        </div>
                     </div>
                     <div className="form-group">
                         <label htmlFor="description">Descrizione</label>
@@ -469,7 +477,7 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             <option value="Media">Media</option>
                             <option value="Poca">Bassa</option>
                             <option value="Prevalentemente">Prevalentemente</option>
-                            <option value="esclusivamente">Esclusivamente</option>   
+                            <option value="esclusivamente">Esclusivamente</option>
                         </select>
                     </div>
                     <div className="form-group">
@@ -480,12 +488,13 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             value={formData.exposureType}
                             onChange={handleChange}
                         >
-                            <option value="">Seleziona</option>
+                            option value="">Seleziona</option>
                             <option value="Luce Diretta">Luce Diretta</option>
                             <option value="Luce Indiretta">Luce Indiretta</option>
                             <option value="Mezz'ombra">Mezz'ombra</option>
                             <option value="Ombra Totale">Ombra Totale</option>
                             <option value="Sole Pieno">Sole Piene</option>
+
                         </select>
                     </div>
 
@@ -961,7 +970,7 @@ const App = () => {
         // Base data for the plant
         const basePlantData = {
             name: plantData.name,
-            scientificName: plantData.scientificName,
+            scientificName: plantData.scientificName, // scientificName è già un numero o null qui
             description: plantData.description,
             image: imageUrl,
             idealLuxMin: plantData.idealLuxMin,
