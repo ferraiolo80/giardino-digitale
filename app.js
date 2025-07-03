@@ -173,7 +173,7 @@ const PlantDetailsModal = ({ plant, onClose }) => {
                     <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
                     {/* Nuova visualizzazione per Tipo di Esposizione */}
                     <p><strong></strong> {plant.exposureType || 'N/A'}</p>
-                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
+                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} °C / {plant.idealLuxMax || 'N/A'} °C</p>
                     <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
                 </div>
             </div>
