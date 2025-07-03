@@ -488,7 +488,7 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             value={formData.exposureType}
                             onChange={handleChange}
                         >
-                            option value="">Seleziona</option>
+                            <option value="">Seleziona</option>
                             <option value="Luce Diretta">Luce Diretta</option>
                             <option value="Luce Indiretta">Luce Indiretta</option>
                             <option value="Mezz'ombra">Mezz'ombra</option>
