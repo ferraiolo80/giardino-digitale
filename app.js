@@ -1490,7 +1490,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditModal
+                <AddEditPlantModal // Correzione qui: da AddEditModal a AddEditPlantModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
