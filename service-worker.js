@@ -1,4 +1,4 @@
-const CACHE_NAME = 'giardino-digitale-cache-v3'; // Incrementa la versione della cache ad ogni aggiornamento significativo
+const CACHE_NAME = 'giardino-digitale-cache-v4'; // Incrementa la versione della cache ad ogni aggiornamento significativo
 const urlsToCache = [
     '/',
     '/index.html',
@@ -38,10 +38,23 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('[Service Worker] Pre-caching assets...');
-                return cache.addAll(urlsToCache);
+                // Modificato per aggiungere ogni URL singolarmente e catturare gli errori
+                return Promise.allSettled(
+                    urlsToCache.map(url => {
+                        return cache.add(url).catch(error => {
+                            console.error(`[Service Worker] Errore nel pre-caching di ${url}:`, error);
+                            // Non rigettare la Promise qui, in modo che Promise.allSettled possa completarsi
+                            // anche se alcuni asset falliscono.
+                        });
+                    })
+                );
+            })
+            .then(() => {
+                console.log('[Service Worker] Pre-caching completato (con possibili errori individuali).');
             })
             .catch((error) => {
-                console.error('[Service Worker] Errore durante il pre-caching:', error);
+                // Questo catch catturerà solo errori che impediscono l'apertura della cache stessa
+                console.error('[Service Worker] Errore critico durante l\'apertura della cache:', error);
             })
     );
     self.skipWaiting(); // Attiva il nuovo service worker immediatamente
