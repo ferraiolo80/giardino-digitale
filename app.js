@@ -62,7 +62,7 @@ const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGa
                 onError={imageOnError}
             />
             <h3 className="plant-card-title">{plant.name}</h3>
-            <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName || 'N/A'}</p>
+            <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName || 'N/A'} CM</p>
             <div className="plant-card-description">{plant.description || "Nessuna descrizione disponibile."}</div>
 
             <div className="card-actions">
@@ -143,7 +143,7 @@ const PlantDetailsModal = ({ plant, onClose }) => {
                     onError={imageOnError}
                 />
                 <div className="modal-details-list">
-                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
+                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'} Cm</p>
                     <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                     <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                     {/* Visualizzazione irrigazione estate */}
