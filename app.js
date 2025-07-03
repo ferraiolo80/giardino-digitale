@@ -35,6 +35,20 @@ const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGa
     // Controlla se la pianta è nel giardino usando l'ID pubblico
     const isInMyGarden = myGardenPlants.some(p => p.publicPlantId === plant.id);
 
+    // --- INIZIO LOG DI DEBUGGING ---
+    console.log(`--- Debugging Card Pianta ---`);
+    console.log(`Nome Pianta: ${plant.name} (ID: ${plant.id})`);
+    console.log(`È nella vista "Mio Giardino" (prop isMyGardenPlant): ${isMyGardenPlant}`);
+    console.log(`La pianta è già nel "Mio Giardino" (stato isInMyGarden): ${isInMyGarden}`);
+    console.log(`ID Proprietario Pianta (plant.ownerId): ${plant.ownerId}`);
+    console.log(`ID Utente Corrente (userId): ${userId}`);
+    console.log(`plant.ownerId === userId? ${plant.ownerId === userId}`);
+    console.log(`Condizione per pulsante Aggiorna (solo per "Tutte le Piante"): ${!isMyGardenPlant && (plant.ownerId === userId || isMyGardenPlant) && userId}`);
+    console.log(`Condizione per pulsante Elimina Definitivamente: ${plant.ownerId === userId && userId}`);
+    console.log(`--- Fine Debugging ---`);
+    // --- FINE LOG DI DEBUGGING ---
+
+
     // Funzione per generare il percorso dell'icona di categoria
     const getCategoryIconPath = (categoryName) => {
         if (!categoryName) return categoryIcons['Altro'];
