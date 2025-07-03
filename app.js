@@ -19,6 +19,7 @@ const categoryIcons = {
     'Piante Grasse': '/assets/category_icons/pianta-grassa.png',
     'Piante Erbacee': '/assets/category_icons/.png',
     'Alberi': '/assets/category_icons/alberi.png',
+    'Alberi da Frutto': '/assets/category_icons/piante.png,
     'Arbusti': '/assets/category_icons/arbusti.png',
     'Succulente': '/assets/category_icons/succulente.png',
     'Ortaggi': '/assets/category_icons/ortaggi.png',
@@ -364,6 +365,7 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             <option value="Piante Grasse">Piante Grasse</option>
                             <option value="Piante Erbacee">Piante Erbacee</option>
                             <option value="Alberi">Alberi</option>
+                            <option value="Alberi">Alberi da Frutto</option>
                             <option value="Arbusti">Arbusti</option>
                             <option value="Succulente">Succulente</option>
                             <option value="Ortaggi">Ortaggi</option>
