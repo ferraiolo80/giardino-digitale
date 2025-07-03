@@ -19,7 +19,7 @@ const categoryIcons = {
     'Piante Grasse': '/assets/category_icons/pianta-grassa.png',
     'Piante Erbacee': '/assets/category_icons/piante.png',
     'Alberi': '/assets/category_icons/alberi.png',
-    'Alberi da Frutto': '/assets/category_icons/alberi-da-frutto.png
+    'Alberi da Frutto': '/assets/category_icons/alberi-da-frutto.png,
     'Arbusti': '/assets/category_icons/arbusti.png',
     'Succulente': '/assets/category_icons/succulente.png',
     'Ortaggi': '/assets/category_icons/ortaggi.png',
@@ -27,7 +27,7 @@ const categoryIcons = {
     'Ombra': '/assets/category_icons/shade.png',
     'Mezzombra': '/assets/category_icons/partial-shade.png',
     'Pienosole': '/assets/category_icons/full-sun.png',
-    'Altro': '/assets/category_icons/piante.png' // Icona di default per categorie non mappate
+    'Altro': '/assets/category_icons/piante.png', // Icona di default per categorie non mappate
 };
 
 // Componente Card Pianta
