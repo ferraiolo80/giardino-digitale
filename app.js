@@ -17,7 +17,7 @@ const debounce = (func, delay) => {
 const categoryIcons = {
     'Fiori': '/assets/category_icons/flower.png',
     'Piante Grasse': '/assets/category_icons/succulent.png',
-    'Piante Erbacee': '/assets/category_icons/piante.png',
+    'Piante Erbacee': '/assets/category_icons/herbaceous.png',
     'Alberi': '/assets/category_icons/tree.png',
     'Arbusti': '/assets/category_icons/shrub.png',
     'Succulente': '/assets/category_icons/succulent.png',
@@ -146,9 +146,15 @@ const PlantDetailsModal = ({ plant, onClose }) => {
                     <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
                     <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                     <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
-                    <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
+                    <p>
+                        <strong>Frequenza Irrigazione:</strong>
+                        {plant.wateringValue && plant.wateringUnit
+                            ? `${plant.wateringValue} volta/e al ${plant.wateringUnit}`
+                            : (plant.watering || 'N/A') // Fallback per il vecchio campo 'watering'
+                        }
+                    </p>
                     <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
+                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
                     <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
                 </div>
             </div>
@@ -166,7 +172,9 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
         image: '', // Campo 'image' per URL
         idealLuxMin: '',
         idealLuxMax: '',
-        watering: '',
+        // Nuovi campi per la frequenza di irrigazione
+        wateringValue: '',
+        wateringUnit: 'settimana', // Default unit
         sunlight: '',
         category: '',
         tempMax: '',
@@ -184,7 +192,10 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                 image: plantToEdit.image || '', // Imposta l'URL esistente in formData
                 idealLuxMin: plantToEdit.idealLuxMin || '',
                 idealLuxMax: plantToEdit.idealLuxMax || '',
-                watering: plantToEdit.watering || '',
+                // Inizializza i nuovi campi di irrigazione. Se la pianta ha il vecchio campo 'watering' (stringa),
+                // i nuovi campi saranno vuoti/di default. L'utente dovrà reinserirli.
+                wateringValue: plantToEdit.wateringValue !== undefined ? plantToEdit.wateringValue : '',
+                wateringUnit: plantToEdit.wateringUnit || 'settimana',
                 sunlight: plantToEdit.sunlight || '',
                 category: plantToEdit.category || '',
                 tempMax: plantToEdit.tempMax || '',
@@ -192,10 +203,11 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
             });
             setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
         } else {
+            // Reset per nuova pianta
             setFormData({
                 name: '', scientificName: '', description: '', image: '',
-                idealLuxMin: '', idealLuxMax: '', watering: '', sunlight: '',
-                category: '', tempMax: '', tempMin: '',
+                idealLuxMin: '', idealLuxMax: '', wateringValue: '', wateringUnit: 'settimana',
+                sunlight: '', category: '', tempMax: '', tempMin: '',
             });
             setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
         }
@@ -235,9 +247,16 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
         e.preventDefault();
         // Converti i campi numerici
         const dataToSend = {
-            ...formData,
+            name: formData.name,
+            scientificName: formData.scientificName,
+            description: formData.description,
+            image: formData.image, // Questo verrà aggiornato da addOrUpdatePlant
             idealLuxMin: formData.idealLuxMin !== '' ? parseFloat(formData.idealLuxMin) : null,
             idealLuxMax: formData.idealLuxMax !== '' ? parseFloat(formData.idealLuxMax) : null,
+            wateringValue: formData.wateringValue !== '' ? parseFloat(formData.wateringValue) : null, // Nuovo campo numerico
+            wateringUnit: formData.wateringUnit || 'settimana', // Nuovo campo unità
+            sunlight: formData.sunlight,
+            category: formData.category,
             tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
             tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
         };
@@ -351,14 +370,29 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="watering">Frequenza Irrigazione</label>
-                        <input
-                            type="text"
-                            name="watering"
-                            id="watering"
-                            value={formData.watering}
-                            onChange={handleChange}
-                        />
+                        <label htmlFor="wateringValue">Frequenza Irrigazione</label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                                type="number"
+                                name="wateringValue"
+                                id="wateringValue"
+                                value={formData.wateringValue}
+                                onChange={handleChange}
+                                placeholder="Valore"
+                                style={{ width: '40%' }}
+                            />
+                            <select
+                                name="wateringUnit"
+                                id="wateringUnit"
+                                value={formData.wateringUnit}
+                                onChange={handleChange}
+                                style={{ width: '60%' }}
+                            >
+                                <option value="giorno">volta/e al giorno</option>
+                                <option value="settimana">volta/e a settimana</option>
+                                <option value="mese">volta/e al mese</option>
+                            </select>
+                        </div>
                     </div>
                     <div className="form-group">
                         <label htmlFor="sunlight">Esigenza Luce Solare</label>
@@ -535,7 +569,7 @@ const AiQueryModal = ({ onClose, onQuerySubmit, query, setQuery, response, loadi
                     )}
                 </div>
             </div>
-        </div> // Questa era la graffa in più!
+        </div>
     );
 };
 
@@ -797,7 +831,13 @@ const App = () => {
             imageUrl = originalPlantObject.image;
         }
 
-        const finalPlantData = { ...plantData, image: imageUrl };
+        // Prepara i dati finali per Firestore, includendo i nuovi campi wateringValue e wateringUnit
+        const finalPlantData = {
+            ...plantData,
+            image: imageUrl,
+            // Rimuovi il vecchio campo 'watering' se esiste, per evitare duplicati
+            watering: firebase.firestore.FieldValue.delete(),
+        };
 
         try {
             const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null;
@@ -887,23 +927,33 @@ const App = () => {
         setMessage('');
 
         try {
-            await db.collection('plants').doc(plantId).delete();
+            // Ottieni la pianta per verificare l'ownerId prima di eliminare
+            const plantDocRef = db.collection('plants').doc(plantId);
+            const plantSnap = await plantDocRef.get();
 
-            const usersCollectionRef = db.collection('users');
-            const usersSnapshot = await usersCollectionRef.get();
+            if (plantSnap.exists && plantSnap.data().ownerId === userId) {
+                await plantDocRef.delete();
+                setMessage("Pianta eliminata definitivamente dalla collezione pubblica!");
 
-            for (const userDoc of usersSnapshot.docs) {
-                const currentUserId = userDoc.id;
-                const myGardenCollectionRef = db.collection(`users/${currentUserId}/gardens`);
-                const q = myGardenCollectionRef.where("publicPlantId", "==", plantId);
-                const gardenPlantsSnapshot = await q.get();
+                // Rimuovi tutte le referenze a questa pianta dal "My Garden" di tutti gli utenti
+                const usersCollectionRef = db.collection('users');
+                const usersSnapshot = await usersCollectionRef.get();
 
-                for (const gardenDoc of gardenPlantsSnapshot.docs) {
-                    await gardenDoc.ref.delete();
+                for (const userDoc of usersSnapshot.docs) {
+                    const currentUserId = userDoc.id;
+                    const myGardenCollectionRef = db.collection(`users/${currentUserId}/gardens`);
+                    // Cerca le piante nel giardino che hanno publicPlantId uguale all'ID della pianta pubblica eliminata
+                    const q = myGardenCollectionRef.where("publicPlantId", "==", plantId);
+                    const gardenPlantsSnapshot = await q.get();
+
+                    for (const gardenDoc of gardenPlantsSnapshot.docs) {
+                        await gardenDoc.ref.delete();
+                    }
                 }
+            } else {
+                setMessage("Non hai i permessi per eliminare definitivamente questa pianta pubblica.");
+                console.warn("Tentativo di eliminare pianta pubblica non propria:", plantId);
             }
-
-            setMessage("Pianta eliminata definitivamente da tutte le collezioni!");
         } catch (error) {
             console.error("Errore durante l'eliminazione definitiva della pianta:", error);
             setMessage("Errore: eliminazione definitiva della pianta fallita.");
@@ -921,14 +971,20 @@ const App = () => {
         setMessage('');
 
         try {
+            // Usa l'ID della pianta pubblica come ID del documento nel giardino
             const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plant.id);
             const docSnap = await myGardenDocRef.get();
 
             if (!docSnap.exists) {
                 await myGardenDocRef.set({
-                    ...plant,
-                    publicPlantId: plant.id,
+                    ...plant, // Copia tutti i campi della pianta pubblica
+                    publicPlantId: plant.id, // Memorizza anche l'ID della pianta pubblica per query future
                     dateAdded: firebase.firestore.FieldValue.serverTimestamp(),
+                    // Assicurati che i nuovi campi wateringValue e wateringUnit siano copiati
+                    wateringValue: plant.wateringValue !== undefined ? plant.wateringValue : null,
+                    wateringUnit: plant.wateringUnit || 'settimana',
+                    // Rimuovi il vecchio campo 'watering' se presente nella pianta pubblica
+                    watering: firebase.firestore.FieldValue.delete(),
                 });
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
@@ -1064,7 +1120,7 @@ const App = () => {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyBeg9C9fz8mVxEcp36SlYXnpyM5SaQayTA"; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -1166,6 +1222,12 @@ const App = () => {
                             </button>
                         )}
                     </div>
+                    {userId && ( // Mostra l'ID utente e l'email solo se loggato
+                        <div className="user-id-display">
+                            ID Utente: {userId} <br/>
+                            Email: {userEmail || 'N/A'}
+                        </div>
+                    )}
                 </div>
             </header>
 
