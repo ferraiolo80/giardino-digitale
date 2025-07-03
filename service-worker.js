@@ -18,8 +18,9 @@ const urlsToCache = [
     '/assets/category_icons/partial-shade.png',
     '/assets/category_icons/full-sun.png',
     '/assets/category_icons/default.png',
+    
     // CDN di terze parti (Firebase, React, Font Awesome, Tailwind)
-    'https://cdn.tailwindcss.com',
+   
     'https://unpkg.com/react@18/umd/react.production.min.js',
     'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
     'https://unpkg.com/@babel/standalone@7.24.6/babel.min.js',
