@@ -1,4 +1,4 @@
-const CACHE_NAME = 'giardino-digitale-cache-v1';
+const CACHE_NAME = 'giardino-digitale-cache-v1'; // Incrementa la versione della cache ad ogni aggiornamento significativo
 const urlsToCache = [
     '/',
     '/index.html',
@@ -98,4 +98,11 @@ self.addEventListener('fetch', (event) => {
             });
         })
     );
+});
+
+// Listener per i messaggi dall'applicazione per forzare l'attivazione del Service Worker
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
