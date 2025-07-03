@@ -15,19 +15,18 @@ const debounce = (func, delay) => {
 // Definizione delle icone generiche per categoria (per la vista "Tutte le Piante")
 // Spostata fuori dal componente App
 const categoryIcons = {
-    'Fiori': '/assets/category_icons/fiori.png',
-    'Piante Grasse': '/assets/category_icons/pianta-grassa.png',
-    'Piante Erbacee': '/assets/category_icons/piante.png',
-    'Alberi': '/assets/category_icons/alberi.png',
-    'Alberi da Frutto': '/assets/category_icons/alberi-da-frutto.png',
-    'Arbusti': '/assets/category_icons/arbusti.png',
-    'Succulente': '/assets/category_icons/succulente.png',
-    'Ortaggi': '/assets/category_icons/ortaggi.png',
-    'Erbe Aromatiche': '/assets/category_icons/erbe-aromatiche.png',
+    'Fiori': '/assets/category_icons/flower.png',
+    'Piante Grasse': '/assets/category_icons/succulent.png',
+    'Piante Erbacee': '/assets/category_icons/herbaceous.png',
+    'Alberi': '/assets/category_icons/tree.png',
+    'Arbusti': '/assets/category_icons/shrub.png',
+    'Succulente': '/assets/category_icons/succulent.png',
+    'Ortaggi': '/assets/category_icons/vegetable.png',
+    'Erbe Aromatiche': '/assets/category_icons/aromatic-herb.png',
     'Ombra': '/assets/category_icons/shade.png',
     'Mezzombra': '/assets/category_icons/partial-shade.png',
     'Pienosole': '/assets/category_icons/full-sun.png',
-    'Altro': '/assets/category_icons/piante.png', // Icona di default per categorie non mappate
+    'Altro': '/assets/category_icons/default.png' // Icona di default per categorie non mappate
 };
 
 // Componente Card Pianta
@@ -235,7 +234,6 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                 wateringValueSummer: '', wateringUnitSummer: 'settimana',
                 wateringValueWinter: '', wateringUnitWinter: 'mese',
                 lightQuantity: '', exposureType: '', // Resetta i nuovi campi luce
-                sunlight: '', // Rimuovi il vecchio campo sunlight dal reset iniziale
                 category: '', tempMax: '', tempMin: '',
             });
             setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
@@ -377,7 +375,6 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             <option value="Piante Grasse">Piante Grasse</option>
                             <option value="Piante Erbacee">Piante Erbacee</option>
                             <option value="Alberi">Alberi</option>
-                            <option value="Alberi da Frutto">Alberi da Frutto</option>
                             <option value="Arbusti">Arbusti</option>
                             <option value="Succulente">Succulente</option>
                             <option value="Ortaggi">Ortaggi</option>
@@ -465,14 +462,13 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             onChange={handleChange}
                         >
                             <option value="">Seleziona</option>
-                            <option value="Tanta">Tanta</option>
+                            <option value="Alta">Alta</option>
                             <option value="Media">Media</option>
-                            <option value="Poca">Bassa</option>
-                            <option value="Prevalentemente">Prevalentemente</option>
-                            <option value="Totale">Totale</option>
+                            <option value="Bassa">Bassa</option>
                         </select>
                     </div>
                     <div className="form-group">
+                        <label htmlFor="exposureType">Tipo di Esposizione</label>
                         <select
                             name="exposureType"
                             id="exposureType"
@@ -480,11 +476,10 @@ const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
                             onChange={handleChange}
                         >
                             <option value="">Seleziona</option>
-                            <option value="Luce Diretta">Luce Diretta</option>
-                            <option value="Luce Indiretta">Luce Indiretta</option>
+                            <option value="Sole Diretto">Sole Diretto</option>
+                            <option value="Luce Indiretta Luminosa">Luce Indiretta Luminosa</option>
                             <option value="Mezz'ombra">Mezz'ombra</option>
                             <option value="Ombra Totale">Ombra Totale</option>
-                            <option value="Sole Pieno">Sole Pieno</option>
                         </select>
                     </div>
 
@@ -952,62 +947,93 @@ const App = () => {
                 return;
             }
         } else if (originalPlantObject && !imageFile && !plantData.image) {
-            imageUrl = '';
+            imageUrl = ''; // Clear image if it was explicitly removed
         } else if (originalPlantObject && !imageFile && originalPlantObject.image) {
-            imageUrl = originalPlantObject.image;
+            imageUrl = originalPlantObject.image; // Keep existing image if no new file and not cleared
         }
 
-        // Prepara i dati finali per Firestore, includendo i nuovi campi wateringValue e wateringUnit
-        const finalPlantData = {
-            ...plantData,
+        // Base data for the plant
+        const basePlantData = {
+            name: plantData.name,
+            scientificName: plantData.scientificName,
+            description: plantData.description,
             image: imageUrl,
-            // Rimuovi il vecchio campo 'watering' e 'sunlight' se esistono, per evitare duplicati
-            watering: firebase.firestore.FieldValue.delete(),
-            sunlight: firebase.firestore.FieldValue.delete(), // Rimuovi il vecchio campo sunlight
+            idealLuxMin: plantData.idealLuxMin,
+            idealLuxMax: plantData.idealLuxMax,
+            wateringValueSummer: plantData.wateringValueSummer,
+            wateringUnitSummer: plantData.wateringUnitSummer,
+            wateringValueWinter: plantData.wateringValueWinter,
+            wateringUnitWinter: plantData.wateringUnitWinter,
+            lightQuantity: plantData.lightQuantity,
+            exposureType: plantData.exposureType,
+            category: plantData.category,
+            tempMax: plantData.tempMax,
+            tempMin: plantData.tempMin,
         };
+
+        // Prepare the final data to send to Firestore
+        let finalDataForFirestore = { ...basePlantData };
+
+        // If it's an update, explicitly delete old fields if they exist in the original object
+        // This ensures a clean migration to the new schema.
+        if (originalPlantObject) {
+            if (originalPlantObject.watering !== undefined) {
+                finalDataForFirestore.watering = firebase.firestore.FieldValue.delete();
+            }
+            if (originalPlantObject.sunlight !== undefined) {
+                finalDataForFirestore.sunlight = firebase.firestore.FieldValue.delete();
+            }
+        } else {
+            // Add ownerId and createdAt only for new plants
+            finalDataForFirestore.ownerId = userId;
+            finalDataForFirestore.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        }
+
 
         try {
             const plantIdToOperate = originalPlantObject ? originalPlantObject.id : null;
             const isEditingMyGardenPlant = originalPlantObject && myGardenPlants.some(p => p.id === originalPlantObject.id);
 
             if (plantIdToOperate && isEditingMyGardenPlant) {
+                // Update plant in user's garden
                 const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
-                await myGardenDocRef.set(finalPlantData, { merge: true });
+                await myGardenDocRef.set(finalDataForFirestore, { merge: true });
                 setMessage("Pianta nel tuo giardino aggiornata con successo!");
 
+                // Also update the public plant if the user is the owner
                 const publicPlantId = originalPlantObject.publicPlantId || plantIdToOperate;
                 const publicPlantDocRef = db.collection('plants').doc(publicPlantId);
                 const publicPlantSnap = await publicPlantDocRef.get();
 
-                // Aggiorna la versione pubblica solo se l'utente è l'owner
                 if (publicPlantSnap.exists && publicPlantSnap.data().ownerId === userId) {
-                    await publicPlantDocRef.update(finalPlantData);
+                    await publicPlantDocRef.update(finalDataForFirestore);
                     setMessage(prev => prev + " e anche la versione pubblica!");
                 }
 
             } else if (plantIdToOperate) {
+                // This branch handles updates to public plants directly (if not in my garden, or if it's the original public plant)
                 const publicPlantDocRef = db.collection('plants').doc(plantIdToOperate);
                 const publicPlantSnap = await publicPlantDocRef.get();
 
                 if (publicPlantSnap.exists && publicPlantSnap.data().ownerId === userId) {
-                    await publicPlantDocRef.update(finalPlantData);
+                    await publicPlantDocRef.update(finalDataForFirestore);
                     setMessage("Pianta pubblica aggiornata con successo!");
 
-                    // Se la pianta è anche nel mio giardino, aggiorna anche lì
+                    // If the public plant is also in the user's garden, update that copy too
                     const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plantIdToOperate);
                     const myGardenDocSnap = await myGardenDocRef.get();
                     if (myGardenDocSnap.exists) {
-                        await myGardenDocRef.update(finalPlantData);
+                        await myGardenDocRef.update(finalDataForFirestore);
                         setMessage(prev => prev + " e la copia nel tuo giardino.");
                     }
                 } else {
-                    // Questo caso dovrebbe essere già gestito da openAddEditModal, ma è un fallback di sicurezza
                     setMessage("Non hai i permessi per modificare questa pianta pubblica.");
                 }
 
             } else {
+                // Add new plant to public collection
                 const plantsCollectionRef = db.collection('plants');
-                await plantsCollectionRef.add({ ...finalPlantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                await plantsCollectionRef.add(finalDataForFirestore); // No FieldValue.delete() for new docs
                 setMessage("Nuova pianta aggiunta alla collezione pubblica con successo!");
             }
             closeAddEditModal();
@@ -1017,7 +1043,7 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    }, [db, userId, storage, closeAddEditModal, myGardenPlants, plants]);
+    }, [db, userId, storage, closeAddEditModal, myGardenPlants]);
 
     const deletePlantPermanently = React.useCallback(async (plantId) => {
         if (!db || !userId) {
@@ -1099,24 +1125,23 @@ const App = () => {
         setMessage('');
 
         try {
-            // Usa l'ID della pianta pubblica come ID del documento nel giardino
             const myGardenDocRef = db.collection(`users/${userId}/gardens`).doc(plant.id);
             const docSnap = await myGardenDocRef.get();
 
             if (!docSnap.exists) {
-                await myGardenDocRef.set({
-                    ...plant, // Copia tutti i campi della pianta pubblica
-                    publicPlantId: plant.id, // Memorizza anche l'ID della pianta pubblica per query future
+                // Create a new object for the garden plant data
+                const plantDataForGarden = {
+                    ...plant, // Copy all existing fields from the public plant
+                    publicPlantId: plant.id, // Store the public plant ID
                     dateAdded: firebase.firestore.FieldValue.serverTimestamp(),
-                    // Assicurati che i nuovi campi wateringValue e wateringUnit siano copiati
-                    wateringValueSummer: plant.wateringValueSummer !== undefined ? plant.wateringValueSummer : null,
-                    wateringUnitSummer: plant.wateringUnitSummer || 'settimana',
-                    wateringValueWinter: plant.wateringValueWinter !== undefined ? plant.wateringValueWinter : null,
-                    wateringUnitWinter: plant.wateringUnitWinter || 'mese',
-                    // Rimuovi il vecchio campo 'watering' e 'sunlight' se presente nella pianta pubblica
-                    watering: firebase.firestore.FieldValue.delete(),
-                    sunlight: firebase.firestore.FieldValue.delete(), // Rimuovi il vecchio campo sunlight
-                });
+                };
+
+                // Explicitly remove the old 'watering' and 'sunlight' fields if they exist in the source object
+                // This ensures they are not copied into the new garden document
+                delete plantDataForGarden.watering;
+                delete plantDataForGarden.sunlight;
+
+                await myGardenDocRef.set(plantDataForGarden); // Use set() for new document creation
                 setMessage("Pianta aggiunta al tuo giardino!");
             } else {
                 setMessage("Questa pianta è già nel tuo giardino.");
