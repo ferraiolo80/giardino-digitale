@@ -27,7 +27,7 @@ const categoryIcons = {
     'Ombra': '/assets/category_icons/shade.png',
     'Mezzombra': '/assets/category_icons/partial-shade.png',
     'Pienosole': '/assets/category_icons/full-sun.png',
-    'Altro': '/assets/category_icons/default.png' // Icona di default per categorie non mappate
+    'Altro': '/assets/category_icons/piante.png' // Icona di default per categorie non mappate
 };
 
 // Componente Card Pianta
