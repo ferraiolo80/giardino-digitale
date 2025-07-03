@@ -7,18 +7,18 @@ const urlsToCache = [
     '/manifest.json',
     // Aggiungi qui altri asset statici che vuoi pre-caching
     // ad esempio, le tue icone di categoria
-    '/assets/category_icons/flower.png',
-    '/assets/category_icons/succulent.png',
-    '/assets/category_icons/herbaceous.png',
-    '/assets/category_icons/tree.png',
-    '/assets/category_icons/shrub.png',
-    '/assets/category_icons/vegetable.png',
-    '/assets/category_icons/aromatic-herb.png',
+    '/assets/category_icons/fiori.png',
+    '/assets/category_icons/pianta-grassa.png',
+    '/assets/category_icons/succulente.png',
+    '/assets/category_icons/piante.png',
+    '/assets/category_icons/alberi.png',
+    '/assets/category_icons/arbusti.png',
+    '/assets/category_icons/ortaggi.png',
+    '/assets/category_icons/erbe-aromatiche.png',
     '/assets/category_icons/shade.png',
     '/assets/category_icons/partial-shade.png',
     '/assets/category_icons/full-sun.png',
-    '/assets/category_icons/default.png',
-    
+       
     // CDN di terze parti (Firebase, React, Font Awesome, Tailwind)
    
     'https://unpkg.com/react@18/umd/react.production.min.js',
