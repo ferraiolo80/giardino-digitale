@@ -1,4 +1,4 @@
-const CACHE_NAME = 'giardino-digitale-cache-v6'; // Incrementa la versione della cache ad ogni aggiornamento significativo
+const CACHE_NAME = 'giardino-digitale-cache-v7'; // Incrementa la versione della cache ad ogni aggiornamento significativo
 const urlsToCache = [
     '/',
     '/index.html',
