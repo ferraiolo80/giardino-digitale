@@ -1057,11 +1057,32 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="ombra">Ombra</option>
-                                <option value="mezzombra">Mezz'ombra</option>
-                                <option value="pienosole">Pieno Sole</option>
+                                <option value="Tanta">Alta</option>
+                                <option value="Media">Media</option>
+                                <option value="Poca">Bassa</option>
+                                <option value="Prevalentemente">Prevalentemente</option>
+                                <option value="esclusivamente">Esclusivamente</option>
                             </select>
+
+                        <label htmlFor="exposureType"> </label>
+                        <select
+                            name="exposureType"
+                            id="exposureType"
+                            value={formData.exposureType}
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleziona</option>
+                            <option value="Luce Diretta">Luce Diretta</option>
+                            <option value="Luce Indiretta">Luce Indiretta</option>
+                            <option value="Mezz'ombra">Mezz'ombra</option>
+                            <option value="Ombra Totale">Ombra Totale</option>
+                            <option value="Sole Pieno">Sole Piene</option>
+
+                        </select>
+                                    
                         </div>
+
+                                                            
                         <div className="form-group">
                             <label htmlFor="tempMin">Temperatura Minima (°C)</label>
                             <input
