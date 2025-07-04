@@ -21,7 +21,7 @@ const App = () => {
     const [manualLuxInput, setManualLuxInput] = React.useState(''); // Nuovo stato per l'input manuale
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
     const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
