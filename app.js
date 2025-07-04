@@ -802,13 +802,37 @@ const App = () => {
                     />
                     <div className="modal-details-list">
                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
-                        <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
-                        <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
-                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
-                        <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
-                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
+                        {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
+                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
+                    <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
+                    <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
+                    {/* Visualizzazione irrigazione estate */}
+                    <p>
+                        <strong>Frequenza Irrigazione (Estate):</strong>
+                        {plant.wateringValueSummer && plant.wateringUnitSummer
+                            ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
+                            : 'N/A'
+                        }
+                    </p>
+                    {/* Visualizzazione irrigazione inverno */}
+                    <p>
+                        <strong>Frequenza Irrigazione (Inverno):</strong>
+                        {plant.wateringValueWinter && plant.wateringUnitWinter
+                            ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
+                            : 'N/A'
+                        }
+                    </p>
+                    {/* Fallback per il vecchio campo 'watering' se i nuovi campi non esistono */}
+                    {(!plant.wateringValueSummer && !plant.wateringValueWinter && plant.watering) && (
+                        <p><strong>Frequenza Irrigazione (Generica):</strong> {plant.watering}</p>
+                    )}
+                    {/* Nuova visualizzazione per Quantità di Luce */}
+                    <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
+                    {/* Nuova visualizzazione per Tipo di Esposizione */}
+                    <p><strong></strong> {plant.exposureType || 'N/A'}</p>
+                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
+                    <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
+
                         {/* Aggiungi qui altri campi se necessario */}
                     </div>
                 </div>
