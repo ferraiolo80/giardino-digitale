@@ -1246,7 +1246,7 @@ const App = () => {
                                 placeholder="Ad esempio: 'Quali sono i requisiti di luce per una Monstera Deliciosa?'"
                                 rows="4"
                                 className="form-input"
-                                autoFocus // Aggiunto per dare focus automatico all'apertura del modale
+                                // autoFocus // Rimosso autoFocus
                             ></textarea>
                         </div>
                         <div className="form-actions">
@@ -1693,7 +1693,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditPlantModal
+                <AddEditModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
