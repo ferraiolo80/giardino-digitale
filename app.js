@@ -421,7 +421,7 @@ const App = () => {
             modal.innerHTML = `
                 <div class="modal-content">
                     <p class="modal-title" style="font-size: 1.25rem; font-weight: 500; text-align: center; margin-bottom: 1rem;">Sei sicuro di voler eliminare definitivamente questa pianta dalla collezione pubblica?</p>
-                    <div class="form-actions" style="justify-content: center; margin-top: 1rem;">
+                    <div class="form-actions" style="justify-content.center; margin-top: 1rem;">
                         <button id="confirmBtn" class="form-button submit" style="background-color: #ef4444; margin-right: 0.5rem;"><i class="fas fa-trash-alt"></i> Sì, elimina</button>
                         <button id="cancelBtn" class="form-button cancel"><i class="fas fa-times"></i> Annulla</button>
                     </div>
@@ -1403,16 +1403,8 @@ const App = () => {
 
             const startCamera = async () => {
                 setError('');
-                // Ensure videoRef.current is available before proceeding
-                if (!videoRef.current) {
-                    console.warn("startCamera: videoRef.current è nullo all'avvio.");
-                    setError("Errore: Elemento video non disponibile.");
-                    onIsStreamingChange(false);
-                    onLuxChange(0);
-                    return;
-                }
-
                 try {
+                    // Request stream first
                     stream = await navigator.mediaDevices.getUserMedia({
                         video: {
                             facingMode: 'environment',
@@ -1421,43 +1413,46 @@ const App = () => {
                         }
                     });
 
-                    // Re-check videoRef.current before assignment, in case it became null during async operation
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = stream;
-                        onIsStreamingChange(true);
-
-                        await new Promise((resolve) => {
-                            const videoElement = videoRef.current; // Capture for event listener
-                            if (videoElement) {
-                                videoElement.onloadedmetadata = () => {
-                                    videoElement.play().then(resolve).catch(err => {
-                                        console.error("Error playing video:", err);
-                                        setError("Impossibile riprodurre il flusso video.");
-                                        stopCameraInternal();
-                                    });
-                                };
-                            } else {
-                                console.warn("videoElement è nullo in onloadedmetadata.");
-                                resolve(); // Resolve to not block, but camera won't play
-                            }
-                        });
-
-                        setTimeout(() => {
-                            if (isStreamingInternal && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
-                                animationFrameId.current = requestAnimationFrame(processFrame);
-                            } else if (isStreamingInternal) {
-                                setError("Video non pronto per l'elaborazione dopo il ritardo.");
-                                stopCameraInternal();
-                            }
-                        }, 500);
-
-                    } else {
-                        console.warn("videoRef.current è nullo prima di impostare srcObject dopo getUserMedia.");
-                        stream.getTracks().forEach(track => track.stop()); // Stop stream if video element is gone
-                        setError("Errore: Elemento video non disponibile per lo stream.");
+                    // IMPORTANT: After awaiting getUserMedia, re-check if the videoRef.current is still valid.
+                    // The component might have unmounted or isStreamingInternal changed during the await.
+                    if (!videoRef.current || !isStreamingInternal) { // Added !isStreamingInternal here
+                        console.warn("Video element or streaming state invalid after getUserMedia. Stopping stream.");
+                        if (stream) { // Ensure stream exists before stopping its tracks
+                            stream.getTracks().forEach(track => track.stop());
+                        }
                         onIsStreamingChange(false);
                         onLuxChange(0);
+                        setError("Operazione annullata: elemento video non disponibile o streaming interrotto.");
+                        return;
                     }
+
+                    videoRef.current.srcObject = stream;
+                    onIsStreamingChange(true);
+
+                    await new Promise((resolve) => {
+                        const videoElement = videoRef.current;
+                        if (videoElement) {
+                            videoElement.onloadedmetadata = () => {
+                                videoElement.play().then(resolve).catch(err => {
+                                    console.error("Error playing video:", err);
+                                    setError("Impossibile riprodurre il flusso video.");
+                                    stopCameraInternal();
+                                });
+                            };
+                        } else {
+                            console.warn("videoElement è nullo in onloadedmetadata, stream non riprodotto.");
+                            resolve();
+                        }
+                    });
+
+                    setTimeout(() => {
+                        if (isStreamingInternal && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
+                            animationFrameId.current = requestAnimationFrame(processFrame);
+                        } else if (isStreamingInternal) {
+                            setError("Video non pronto per l'elaborazione dopo il ritardo.");
+                            stopCameraInternal();
+                        }
+                    }, 500);
 
                 } catch (err) {
                     console.error("Errore nell'accesso alla fotocamera:", err);
@@ -1495,15 +1490,13 @@ const App = () => {
                 stopCameraInternal();
             }
 
-            // Cleanup function for the effect
             return () => {
                 stopCameraInternal();
-                // Ensure any active stream is stopped if component unmounts
                 if (stream) {
                     stream.getTracks().forEach(track => track.stop());
                 }
             };
-        }, [isStreamingInternal, onIsStreamingChange, onLuxChange, processFrame]); // processFrame è una dipendenza perché è usata in startCamera
+        }, [isStreamingInternal, onIsStreamingChange, onLuxChange, processFrame]);
 
         return (
             <div className="camera-lux-sensor">
