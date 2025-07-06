@@ -21,7 +21,7 @@ const App = () => {
     const [manualLuxInput, setManualLuxInput] = React.useState(''); // Nuovo stato per l'input manuale
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
     const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
@@ -202,17 +202,6 @@ const App = () => {
             setShowScrollToTop(false);
         }
     };
-
-    // Gestione visibilità feedback lux in base all'input
-    React.useEffect(() => {
-        // Mostra il feedback se luxValue è > 0, altrimenti nascondi
-        if (luxValue > 0) {
-            setShowLuxFeedback(true);
-        } else {
-            setShowLuxFeedback(false);
-        }
-    }, [luxValue]);
-
 
     // Aggiungi e rimuovi l'event listener per lo scroll
     React.useEffect(() => {
@@ -594,9 +583,11 @@ const App = () => {
         if (!isNaN(parsedLux) && parsedLux >= 0) {
             setLuxValue(parsedLux);
             setMessage(`Valore Lux impostato manualmente a ${parsedLux}.`);
+            setShowLuxFeedback(true); // Mostra il feedback quando si applica un valore manuale valido
         } else {
             setMessage("Per favore, inserisci un numero valido per i Lux.");
             setLuxValue(0); // Resetta a 0 se l'input non è valido
+            setShowLuxFeedback(false); // Nascondi il feedback se l'input non è valido
         }
     }, [manualLuxInput]);
 
@@ -604,9 +595,9 @@ const App = () => {
         // Usa il luxValue corrente, che può provenire dalla fotocamera o dall'input manuale
         const lux = parseFloat(luxValue);
 
-        // Se il valore Lux non è valido o è 0, non possiamo dare un feedback specifico
+        // Se il valore Lux non è valido o è 0, restituisci un messaggio generico
         if (isNaN(lux) || lux <= 0) {
-            return null; // Questo verrà gestito dal blocco condizionale principale nel JSX
+            return `Inserisci un valore Lux per ottenere il feedback per la ${plant.name}.`;
         }
 
         // Verifica se i dati idealLuxMin o idealLuxMax della pianta sono mancanti o non validi
@@ -860,7 +851,7 @@ const App = () => {
                     sunlight: plantToEdit.sunlight || '',
                     category: plantToEdit.category || '',
                     tempMax: plantToEdit.tempMax || '',
-                    tempMin: plantToEdit.tempMin || '',
+                    tempMin: plantToToEdit.tempMin || '',
                 });
                 setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
             } else {
@@ -992,7 +983,7 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona una categoria</option>
-                                <option value="Fiori">Fiori</option>
+                                 <option value="Fiori">Fiori</option>
                                 <option value="Pianta">Pianta</option>    
                                 <option value="Piante Grasse">Piante Grasse</option>
                                 <option value="Piante Erbacee">Piante Erbacee</option>
@@ -1002,6 +993,7 @@ const App = () => {
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
+
                                 {/* Aggiungi altre opzioni qui */}
                             </select>
                         </div>
@@ -1214,7 +1206,7 @@ const App = () => {
     };
 
     // Nuovo componente CameraLuxSensor
-    const CameraLuxSensor = ({ onLuxChange, currentLux }) => {
+    const CameraLuxSensor = ({ onLuxChange, currentLux, setShowFeedback }) => { // Aggiunto setShowFeedback
         const videoRef = React.useRef(null);
         const canvasRef = React.useRef(null);
         const animationFrameId = React.useRef(null);
@@ -1236,6 +1228,7 @@ const App = () => {
                 videoRef.current.play();
                 setIsStreaming(true);
                 animationFrameId.current = requestAnimationFrame(processFrame);
+                setShowFeedback(true); // Mostra il feedback quando la camera si avvia
             } catch (err) {
                 console.error("Errore nell'accesso alla fotocamera:", err);
                 if (err.name === 'NotAllowedError') {
@@ -1246,6 +1239,7 @@ const App = () => {
                     setError(`Errore fotocamera: ${err.message}`);
                 }
                 setIsStreaming(false);
+                setShowFeedback(false); // Nascondi il feedback se la camera non si avvia
             }
         };
 
@@ -1261,6 +1255,7 @@ const App = () => {
             setIsStreaming(false);
             onLuxChange(0); // Resetta i lux a 0 quando la telecamera è spenta
             setError(''); // Pulisci l'errore
+            setShowFeedback(false); // Nascondi il feedback quando la camera si ferma
         };
 
         const processFrame = () => {
@@ -1456,7 +1451,7 @@ const App = () => {
                     <div className="info-card light-sensor-card">
                         <h2 className="info-card-title">Misurazione Luce</h2>
                         {/* Componente CameraLuxSensor */}
-                        <CameraLuxSensor onLuxChange={setLuxValue} currentLux={luxValue} />
+                        <CameraLuxSensor onLuxChange={setLuxValue} currentLux={luxValue} setShowFeedback={setShowLuxFeedback} />
 
                         <div className="manual-lux-input-section">
                             <h3 className="sensor-title">Inserimento Manuale Lux</h3>
@@ -1488,21 +1483,14 @@ const App = () => {
                             <div className="feedback-section">
                                 <h3 className="feedback-title">Feedback per le piante:</h3>
                                 <ul className="feedback-list">
-                                    {luxValue === 0 ? (
-                                        <li className="feedback-item">Avvia la misurazione della fotocamera o inserisci un valore manuale per un feedback sulla luce.</li>
+                                    {plants.length === 0 ? (
+                                        <li className="feedback-item">Nessuna pianta disponibile per il feedback sulla luce.</li>
                                     ) : (
-                                        plants.length === 0 ? (
-                                            <li className="feedback-item">Nessuna pianta disponibile per il feedback sulla luce.</li>
-                                        ) : (
-                                            plants.map(plant => {
-                                                const feedback = getPlantLuxFeedback(plant);
-                                                return (
-                                                    <li key={plant.id} className="feedback-item">
-                                                        {feedback}
-                                                    </li>
-                                                );
-                                            })
-                                        )
+                                        plants.map(plant => (
+                                            <li key={plant.id} className="feedback-item">
+                                                {getPlantLuxFeedback(plant)}
+                                            </li>
+                                        ))
                                     )}
                                 </ul>
                                 <button
