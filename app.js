@@ -23,7 +23,6 @@ const App = () => {
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
     const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
-    // const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // RIMOSSO: showLuxFeedback è ora gestito implicitamente da luxValue
     const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
 
     // Stati per la nuova funzionalità AI
@@ -583,11 +582,9 @@ const App = () => {
         if (!isNaN(parsedLux) && parsedLux >= 0) {
             setLuxValue(parsedLux);
             setMessage(`Valore Lux impostato manualmente a ${parsedLux}.`);
-            // setShowLuxFeedback(true); // RIMOSSO: non più necessario, la visibilità dipende da luxValue > 0
         } else {
             setMessage("Per favoré, inserisci un numero valido per i Lux.");
             setLuxValue(0); // Resetta a 0 se l'input non è valido
-            // setShowLuxFeedback(false); // RIMOSSO: non più necessario
         }
     }, [manualLuxInput]);
 
@@ -819,7 +816,7 @@ const App = () => {
     };
 
     // Componente Modale Aggiungi/Modifica Pianta
-    const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit }) => {
+    const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit, onOpenAiModal }) => { // Aggiunto onOpenAiModal
         const [formData, setFormData] = React.useState({
             name: '',
             // scientificName sarà usato per Dimensione Ideale Vaso nel database
@@ -1065,6 +1062,14 @@ const App = () => {
                                 <i className="fas fa-times"></i> Annulla
                             </button>
                             <button
+                                type="button" // Cambiato a type="button" per evitare submit del form
+                                onClick={() => onOpenAiModal()} // Chiama la funzione passata come prop
+                                className="form-button button-orange" // Stile per il pulsante AI
+                                style={{ marginRight: 'auto' }} // Sposta a sinistra
+                            >
+                                <i className="fas fa-robot"></i> Chiedi all'AI
+                            </button>
+                            <button
                                 type="submit"
                                 className="form-button submit"
                             >
@@ -1250,7 +1255,12 @@ const App = () => {
                             };
                         });
 
-                        animationFrameId.current = requestAnimationFrame(processFrame);
+                        // Aggiungi un piccolo ritardo prima di iniziare l'elaborazione dei frame
+                        // per dare tempo al flusso video di stabilizzarsi.
+                        setTimeout(() => {
+                            animationFrameId.current = requestAnimationFrame(processFrame);
+                        }, 500); // 500ms di ritardo
+
                     } catch (err) {
                         console.error("Errore nell'accesso alla fotocamera:", err);
                         if (err.name === 'NotAllowedError') {
@@ -1272,7 +1282,7 @@ const App = () => {
             return () => {
                 stopCamera();
             };
-        }, [isStreaming, videoRef, stopCamera]);
+        }, [isStreaming, videoRef, stopCamera, processFrame]); // Aggiunto processFrame alle dipendenze
 
         const processFrame = React.useCallback(() => {
             const video = videoRef.current;
@@ -1601,6 +1611,7 @@ const App = () => {
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
+                    onOpenAiModal={() => { setShowAiModal(true); setAiResponse(''); setAiQuery(''); }} // Passa la funzione per aprire il modale AI
                 />
             )}
 
