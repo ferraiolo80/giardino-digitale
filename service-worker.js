@@ -1,4 +1,4 @@
-const CACHE_NAME = 'giardino-digitale-cache-v7'; // Incrementa la versione della cache ad ogni aggiornamento significativo
+const CACHE_NAME = 'giardino-digitale-cache-v8'; // Incrementa la versione della cache ad ogni aggiornamento significativo
 const urlsToCache = [
     '/',
     '/index.html',
@@ -15,7 +15,6 @@ const urlsToCache = [
     '/assets/category_icons/arbusti.png',
     '/assets/category_icons/ortaggi.png',
     '/assets/category_icons/erbe-aromatiche.png',
-    '/assets/category_icons/shade.png',
     '/assets/category_icons/partial-shade.png',
     '/assets/category_icons/full-sun.png',
        
