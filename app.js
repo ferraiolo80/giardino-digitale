@@ -44,6 +44,10 @@ const App = () => {
     const allPlantsRef = React.useRef(null);
     const myGardenRef = React.useRef(null);
 
+    // Stati per le funzioni di unsubscribe dei listener Firestore
+    const [unsubscribePlants, setUnsubscribePlants] = React.useState(null);
+    const [unsubscribeMyGarden, setUnsubscribeMyGarden] = React.useState(null);
+
     // Configurazione Firebase fornita dall'utente
     const firebaseConfig = {
         apiKey: "AIzaSyAo8HU5vNNm_H-HvxeDa7xSsg3IEmdlE_4",
@@ -115,43 +119,50 @@ const App = () => {
         return sorted;
     }, []);
 
-    // Fetch e listener per le piante della collezione pubblica ('plants')
+    // Fetch e listener per le piante (pubbliche e del mio giardino)
     React.useEffect(() => {
         if (!db) return;
 
+        // Cleanup existing listeners if any
+        if (unsubscribePlants) unsubscribePlants();
+        if (unsubscribeMyGarden) unsubscribeMyGarden();
+
+        // Setup public plants listener (always active if db is ready)
         const plantsCollectionRef = db.collection('plants');
-        const unsubscribe = plantsCollectionRef.onSnapshot((snapshot) => {
+        const newUnsubscribePlants = plantsCollectionRef.onSnapshot((snapshot) => {
             const plantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // Applica l'ordinamento subito dopo aver ricevuto i dati
             setPlants(sortPlants(plantsData, sortOrderAllPlants));
         }, (error) => {
             console.error("Errore nel recupero delle piante pubbliche:", error);
             setMessage("Errore nel caricamento delle piante di tutti.");
         });
+        setUnsubscribePlants(() => newUnsubscribePlants); // Store the unsubscribe function
 
-        return () => unsubscribe();
-    }, [db, sortPlants, sortOrderAllPlants]); // Aggiunto sortOrderAllPlants come dipendenza
+        // Setup my garden plants listener (only if userId is present)
+        let newUnsubscribeMyGarden = null;
+        if (userId) {
+            const myGardenCollectionRef = db.collection(`users/${userId}/gardens`);
+            newUnsubscribeMyGarden = myGardenCollectionRef.onSnapshot((snapshot) => {
+                const myGardenData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    isMyGardenPlant: true
+                }));
+                setMyGardenPlants(sortPlants(myGardenData, sortOrderMyGarden));
+            }, (error) => {
+                console.error("Errore nel recupero delle piante del mio giardino:", error);
+                setMessage("Errore nel caricamento delle piante del tuo giardino.");
+            });
+        }
+        setUnsubscribeMyGarden(() => newUnsubscribeMyGarden); // Store the unsubscribe function (can be null)
 
-    // Fetch e listener per le piante del mio giardino ('users/{userId}/gardens')
-    React.useEffect(() => {
-        if (!db || !userId) return;
+        // Cleanup function for this useEffect
+        return () => {
+            if (newUnsubscribePlants) newUnsubscribePlants();
+            if (newUnsubscribeMyGarden) newUnsubscribeMyGarden();
+        };
+    }, [db, userId, sortPlants, sortOrderAllPlants, sortOrderMyGarden]); // Dependencies for this combined effect
 
-        const myGardenCollectionRef = db.collection(`users/${userId}/gardens`); // Usa db.collection()
-        const unsubscribe = myGardenCollectionRef.onSnapshot((snapshot) => {
-            const myGardenData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                isMyGardenPlant: true
-            }));
-            // Applica l'ordinamento subito dopo aver ricevuto i dati
-            setMyGardenPlants(sortPlants(myGardenData, sortOrderMyGarden));
-        }, (error) => {
-            console.error("Errore nel recupero delle piante del mio giardino:", error);
-            setMessage("Errore nel caricamento delle piante del tuo giardino.");
-        });
-
-        return () => unsubscribe();
-    }, [db, userId, sortPlants, sortOrderMyGarden]); // Aggiunto sortOrderMyGarden come dipendenza
 
     // Ottenere la geolocalizzazione
     React.useEffect(() => {
@@ -578,6 +589,16 @@ const App = () => {
         setLoading(true);
         setMessage('');
         try {
+            // Unsubscribe all Firestore listeners before signing out
+            if (unsubscribePlants) {
+                unsubscribePlants();
+                setUnsubscribePlants(null);
+            }
+            if (unsubscribeMyGarden) {
+                unsubscribeMyGarden();
+                setUnsubscribeMyGarden(null);
+            }
+
             await auth.signOut();
             setMessage("Logout effettuato con successo!");
         } catch (error) {
@@ -602,7 +623,8 @@ const App = () => {
         } else {
             setMessage("Per favoré, inserisci un numero valido per i Lux.");
             setLuxValue(0); // Resetta a 0 se l'input non è valido
-            setShowLuxFeedbackSection(false); // Nascondi la sezione feedback se il valore non è valido
+            // Non nascondere la sezione feedback qui per evitare il "flash" se l'utente ha già attivato la fotocamera
+            // setShowLuxFeedbackSection(false); 
         }
     }, [manualLuxInput]);
 
@@ -1364,31 +1386,37 @@ const App = () => {
                                 height: { ideal: 96 }
                             }
                         });
-                        videoRef.current.srcObject = stream;
-                        onIsStreamingChange(true); // Notifica il parent che lo streaming è attivo
+                        // Aggiunto controllo esplicito per videoRef.current
+                        if (videoRef.current) { 
+                            videoRef.current.srcObject = stream;
+                            onIsStreamingChange(true); // Notifica il parent che lo streaming è attivo
 
-                        // Wait for video to load metadata and start playing
-                        await new Promise((resolve) => {
-                            videoRef.current.onloadedmetadata = () => {
-                                videoRef.current.play().then(resolve).catch(err => {
-                                    console.error("Error playing video:", err);
-                                    setError("Impossibile riprodurre il flusso video.");
-                                    stopCamera(); // Stop camera on play error
-                                });
-                            };
-                        });
+                            // Wait for video to load metadata and start playing
+                            await new Promise((resolve) => {
+                                videoRef.current.onloadedmetadata = () => {
+                                    videoRef.current.play().then(resolve).catch(err => {
+                                        console.error("Error playing video:", err);
+                                        setError("Impossibile riprodurre il flusso video.");
+                                        stopCamera(); // Stop camera on play error
+                                    });
+                                };
+                            });
 
-                        // Aggiungi un piccolo ritardo prima di iniziare l'elaborazione dei frame
-                        // per dare tempo al flusso video di stabilizzarsi.
-                        setTimeout(() => {
-                            // Only start processing frames if still streaming and video is ready
-                            if (isStreamingInternal && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
-                                animationFrameId.current = requestAnimationFrame(processFrame);
-                            } else if (isStreamingInternal) { // If not ready after timeout, log and stop.
-                                setError("Video non pronto per l'elaborazione dopo il ritardo.");
-                                stopCamera();
-                            }
-                        }, 500); // 500ms di ritardo
+                            // Aggiungi un piccolo ritardo prima di iniziare l'elaborazione dei frame
+                            // per dare tempo al flusso video di stabilizzarsi.
+                            setTimeout(() => {
+                                // Only start processing frames if still streaming and video is ready
+                                if (isStreamingInternal && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
+                                    animationFrameId.current = requestAnimationFrame(processFrame);
+                                } else if (isStreamingInternal) { // If not ready after timeout, log and stop.
+                                    setError("Video non pronto per l'elaborazione dopo il ritardo.");
+                                    stopCamera();
+                                }
+                            }, 500); // 500ms di ritardo
+                        } else {
+                            console.warn("videoRef.current è nullo dopo aver ottenuto lo stream.");
+                            stopCamera();
+                        }
 
                     } catch (err) {
                         console.error("Errore nell'accesso alla fotocamera:", err);
@@ -1738,7 +1766,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditModal
+                <AddEditPlantModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
