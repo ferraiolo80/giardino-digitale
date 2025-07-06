@@ -630,7 +630,7 @@ const App = () => {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyBeg9C9fz8mVxEcp36SlYXnpyM5SaQayTA"; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -800,40 +800,27 @@ const App = () => {
                         onError={imageOnError}
                     />
                     <div className="modal-details-list">
-                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
-                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
-                    <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
-                    <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                    {/* Visualizzazione irrigazione estate */}
-                    <p>
-                        <strong>Frequenza Irrigazione (Estate):</strong>
-                        {plant.wateringValueSummer && plant.wateringUnitSummer
-                            ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
-                            : 'N/A'
-                        }
-                    </p>
-                    {/* Visualizzazione irrigazione inverno */}
-                    <p>
-                        <strong>Frequenza Irrigazione (Inverno):</strong>
-                        {plant.wateringValueWinter && plant.wateringUnitWinter
-                            ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
-                            : 'N/A'
-                        }
-                    </p>
-                    {/* Fallback per il vecchio campo 'watering' se i nuovi campi non esistono */}
-                    {(!plant.wateringValueSummer && !plant.wateringValueWinter && plant.watering) && (
-                        <p><strong>Frequenza Irrigazione (Generica):</strong> {plant.watering}</p>
-                    )}
-                    {/* Nuova visualizzazione per Quantità di Luce */}
-                    <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
-                    {/* Nuova visualizzazione per Tipo di Esposizione */}
-                    <p><strong></strong> {plant.exposureType || 'N/A'}</p>
-                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
-                    <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
-
-                        {/* Aggiungi qui altri campi se necessario */}
-
+                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
+                        <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
+                        <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
+                        <p>
+                            <strong>Frequenza Irrigazione (Estate):</strong>
+                            {plant.wateringValueSummer && plant.wateringUnitSummer
+                                ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
+                                : 'N/A'
+                            }
+                        </p>
+                        <p>
+                            <strong>Frequenza Irrigazione (Inverno):</strong>
+                            {plant.wateringValueWinter && plant.wateringUnitWinter
+                                ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
+                                : 'N/A'
+                            }
+                        </p>
+                        <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
+                        <p><strong>Tipo di Esposizione:</strong> {plant.exposureType || 'N/A'}</p>
+                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
+                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
                     </div>
                 </div>
             </div>
@@ -844,47 +831,60 @@ const App = () => {
     const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit, onOpenAiModal }) => { // Aggiunto onOpenAiModal
         const [formData, setFormData] = React.useState({
             name: '',
-            // scientificName sarà usato per Dimensione Ideale Vaso nel database
-            scientificName: '', // Campo 'scientificName' ora per Dimensione Ideale Vaso
+            scientificName: '', // Dimensione Ideale Vaso
             description: '',
-            image: '', // Campo 'image' per URL
+            image: '',
             idealLuxMin: '',
-            priorità: '',
             idealLuxMax: '',
-            watering: '',
-            sunlight: '',
-            category: '', // Questo sarà ora un dropdown
+            // Nuovi campi per l'irrigazione
+            wateringValueSummer: '',
+            wateringUnitSummer: 'settimana', // Default unit
+            wateringValueWinter: '',
+            wateringUnitWinter: 'settimana', // Default unit
+            // Nuovi campi per la luce
+            lightQuantity: '', // Ex 'sunlight'
+            exposureType: '', // Nuovo campo
+            category: '',
             tempMax: '',
             tempMin: '',
         });
-        const [selectedFile, setSelectedFile] = React.useState(null); // Stato per il file selezionato
-        const [imagePreviewUrl, setImagePreviewUrl] = React.useState(''); // Stato per l'anteprima immagine
+        const [selectedFile, setSelectedFile] = React.useState(null);
+        const [imagePreviewUrl, setImagePreviewUrl] = React.useState('');
 
         React.useEffect(() => {
             if (plantToEdit) {
                 setFormData({
                     name: plantToEdit.name || '',
-                    scientificName: plantToEdit.scientificName || '', // Carica valore esistente
+                    scientificName: plantToEdit.scientificName || '',
                     description: plantToEdit.description || '',
-                    image: plantToEdit.image || '', // Imposta l'URL esistente in formData
+                    image: plantToEdit.image || '',
                     idealLuxMin: plantToEdit.idealLuxMin || '',
                     idealLuxMax: plantToEdit.idealLuxMax || '',
-                    watering: plantToEdit.watering || '',
-                    sunlight: plantToEdit.sunlight || '',
+                    // Carica i nuovi campi per l'irrigazione
+                    wateringValueSummer: plantToEdit.wateringValueSummer || '',
+                    wateringUnitSummer: plantToEdit.wateringUnitSummer || 'settimana',
+                    wateringValueWinter: plantToEdit.wateringValueWinter || '',
+                    wateringUnitWinter: plantToEdit.wateringUnitWinter || 'settimana',
+                    // Carica i nuovi campi per la luce
+                    lightQuantity: plantToEdit.lightQuantity || '',
+                    exposureType: plantToEdit.exposureType || '',
                     category: plantToEdit.category || '',
                     tempMax: plantToEdit.tempMax || '',
                     tempMin: plantToEdit.tempMin || '',
                 });
-                setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
+                setImagePreviewUrl(plantToEdit.image || '');
             } else {
                 setFormData({
                     name: '', scientificName: '', description: '', image: '',
-                    idealLuxMin: '', idealLuxMax: '', watering: '', sunlight: '',
+                    idealLuxMin: '', idealLuxMax: '',
+                    wateringValueSummer: '', wateringUnitSummer: 'settimana',
+                    wateringValueWinter: '', wateringUnitWinter: 'settimana',
+                    lightQuantity: '', exposureType: '',
                     category: '', tempMax: '', tempMin: '',
                 });
-                setImagePreviewUrl(''); // Resetta l'anteprima per nuova pianta
+                setImagePreviewUrl('');
             }
-            setSelectedFile(null); // Resetta sempre il file selezionato al mount
+            setSelectedFile(null);
         }, [plantToEdit]);
 
         const handleChange = (e) => {
@@ -892,7 +892,6 @@ const App = () => {
             setFormData(prev => ({ ...prev, [name]: value }));
         };
 
-        // Gestione del cambiamento del file input
         const handleFileChange = (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -900,35 +899,30 @@ const App = () => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     setImagePreviewUrl(reader.result);
-                    // IMPORTANTE: Aggiorna formData.image con l'URL temporaneo per la preview.
-                    // Questo sarà sovrascritto dall'URL di Firebase Storage dopo l'upload.
-                    setFormData(prev => ({ ...prev, image: reader.result })); 
+                    setFormData(prev => ({ ...prev, image: reader.result }));
                 };
                 reader.readAsDataURL(file);
             } else {
                 setSelectedFile(null);
-                // Se nessun file è selezionato (input cleared), ripristina l'URL dell'immagine originale in formData
-                // e nella preview, se esisteva. Altrimenti, imposta a stringa vuota.
                 const originalImageUrl = plantToEdit ? plantToEdit.image || '' : '';
                 setImagePreviewUrl(originalImageUrl);
                 setFormData(prev => ({ ...prev, image: originalImageUrl }));
             }
         };
 
-
         const handleSubmit = (e) => {
             e.preventDefault();
-            // Converti i campi numerici
             const dataToSend = {
                 ...formData,
                 idealLuxMin: formData.idealLuxMin !== '' ? parseFloat(formData.idealLuxMin) : null,
                 idealLuxMax: formData.idealLuxMax !== '' ? parseFloat(formData.idealLuxMax) : null,
                 tempMax: formData.tempMax !== '' ? parseFloat(formData.tempMax) : null,
                 tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
+                wateringValueSummer: formData.wateringValueSummer !== '' ? parseFloat(formData.wateringValueSummer) : null,
+                wateringValueWinter: formData.wateringValueWinter !== '' ? parseFloat(formData.wateringValueWinter) : null,
             };
             console.log("AddEditPlantModal handleSubmit: Dati inviati per aggiornamento:", dataToSend);
             console.log("AddEditPlantModal handleSubmit: File immagine selezionato:", selectedFile);
-            // Passa l'intero oggetto plantToEdit, non solo l'ID.
             onSubmit(dataToSend, plantToEdit, selectedFile);
         };
 
@@ -957,11 +951,10 @@ const App = () => {
                             />
                         </div>
                         <div className="form-group">
-                            {/* Modifica: scientificName ora è Dimensione Ideale Vaso */}
-                            <label htmlFor="scientificName">Dimensione Ideale Vaso</label>
+                            <label htmlFor="scientificName">Dimensione Ideale Vaso (cm)</label>
                             <input
-                                type="text"
-                                name="scientificName" // Il nome del campo nel database rimane scientificName
+                                type="number"
+                                name="scientificName"
                                 id="scientificName"
                                 value={formData.scientificName}
                                 onChange={handleChange}
@@ -977,7 +970,6 @@ const App = () => {
                                 rows="3"
                             ></textarea>
                         </div>
-                        {/* Campo per il caricamento dell'immagine */}
                         <div className="form-group">
                             <label htmlFor="imageFile">Carica Immagine Pianta</label>
                             <input
@@ -998,7 +990,7 @@ const App = () => {
 
                         <div className="form-group">
                             <label htmlFor="category">Categoria</label>
-                            <select // Cambiato da input a select
+                            <select
                                 name="category"
                                 id="category"
                                 value={formData.category}
@@ -1015,8 +1007,6 @@ const App = () => {
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
-                                {/* Aggiungi altre opzioni qui */}
-
                             </select>
                         </div>
                         <div className="form-group">
@@ -1039,47 +1029,89 @@ const App = () => {
                                 onChange={handleChange}
                             />
                         </div>
+
                         <div className="form-group">
-                            <label htmlFor="watering">Frequenza Irrigazione</label>
-                            <input
-                                type="text"
-                                name="watering"
-                                id="watering"
-                                value={formData.watering}
-                                onChange={handleChange}
-                            />
+                            <label htmlFor="wateringValueSummer">Frequenza Irrigazione (Estate)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input
+                                    type="number"
+                                    name="wateringValueSummer"
+                                    id="wateringValueSummer"
+                                    value={formData.wateringValueSummer}
+                                    onChange={handleChange}
+                                    placeholder="Volte"
+                                    style={{ flex: 1 }}
+                                />
+                                <select
+                                    name="wateringUnitSummer"
+                                    id="wateringUnitSummer"
+                                    value={formData.wateringUnitSummer}
+                                    onChange={handleChange}
+                                    style={{ flex: 1 }}
+                                >
+                                    <option value="giorno">al giorno</option>
+                                    <option value="settimana">a settimana</option>
+                                    <option value="mese">al mese</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="sunlight">Esigenza Luce Solare</label>
+                            <label htmlFor="wateringValueWinter">Frequenza Irrigazione (Inverno)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input
+                                    type="number"
+                                    name="wateringValueWinter"
+                                    id="wateringValueWinter"
+                                    value={formData.wateringValueWinter}
+                                    onChange={handleChange}
+                                    placeholder="Volte"
+                                    style={{ flex: 1 }}
+                                />
+                                <select
+                                    name="wateringUnitWinter"
+                                    id="wateringUnitWinter"
+                                    value={formData.wateringUnitWinter}
+                                    onChange={handleChange}
+                                    style={{ flex: 1 }}
+                                >
+                                    <option value="giorno">al giorno</option>
+                                    <option value="settimana">a settimana</option>
+                                    <option value="mese">al mese</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="lightQuantity">Quantità di Luce</label>
                             <select
-                                name="sunlight"
-                                id="sunlight"
-                                value={formData.sunlight}
+                                name="lightQuantity"
+                                id="lightQuantity"
+                                value={formData.lightQuantity}
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="Tanta">Alta</option>
+                                <option value="Alta">Alta</option>
                                 <option value="Media">Media</option>
-                                <option value="Poca">Bassa</option>
-                                <option value="Prevalentemente">Prevalentemente</option>
-                                <option value="esclusivamente">Esclusivamente</option>
-                            </select>
-
-                        <label htmlFor="exposureType"> </label>
-                        <select
-                            name="exposureType"
-                            id="exposureType"
-                            value={formData.exposureType}
-                            onChange={handleChange}
-                        >
-                            <option value="">Seleziona</option>
-                            <option value="Luce Diretta">Luce Diretta</option>
-                            <option value="Luce Indiretta">Luce Indiretta</option>
-                            <option value="Mezz'ombra">Mezz'ombra</option>
-                            <option value="Ombra Totale">Ombra Totale</option>
-                            <option value="Sole Pieno">Sole Piene</option>
+                                <option value="Bassa">Bassa</option>
                             </select>
                         </div>
+                        <div className="form-group">
+                            <label htmlFor="exposureType">Tipo di Esposizione</label>
+                            <select
+                                name="exposureType"
+                                id="exposureType"
+                                value={formData.exposureType}
+                                onChange={handleChange}
+                            >
+                                <option value="">Seleziona</option>
+                                <option value="Luce Diretta">Luce Diretta</option>
+                                <option value="Luce Indiretta">Luce Indiretta</option>
+                                <option value="Mezz'ombra">Mezz'ombra</option>
+                                <option value="Ombra Totale">Ombra Totale</option>
+                                <option value="Sole Pieno">Sole Pieno</option>
+                            </select>
+                        </div>
+
                         <div className="form-group">
                             <label htmlFor="tempMin">Temperatura Minima (°C)</label>
                             <input
@@ -1297,7 +1329,7 @@ const App = () => {
                                 videoRef.current.play().then(resolve).catch(err => {
                                     console.error("Error playing video:", err);
                                     setError("Impossibile riprodurre il flusso video.");
-                                    stopCamera();
+                                    stopCamera(); // Stop camera on play error
                                 });
                             };
                         });
@@ -1305,7 +1337,13 @@ const App = () => {
                         // Aggiungi un piccolo ritardo prima di iniziare l'elaborazione dei frame
                         // per dare tempo al flusso video di stabilizzarsi.
                         setTimeout(() => {
-                            animationFrameId.current = requestAnimationFrame(processFrame);
+                            // Only start processing frames if still streaming and video is ready
+                            if (isStreaming && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
+                                animationFrameId.current = requestAnimationFrame(processFrame);
+                            } else if (isStreaming) { // If not ready after timeout, log and stop.
+                                setError("Video non pronto per l'elaborazione dopo il ritardo.");
+                                stopCamera();
+                            }
                         }, 500); // 500ms di ritardo
 
                     } catch (err) {
@@ -1329,12 +1367,13 @@ const App = () => {
             return () => {
                 stopCamera();
             };
-        }, [isStreaming, videoRef, stopCamera, processFrame]); // Aggiunto processFrame alle dipendenze
+        }, [isStreaming, videoRef, stopCamera, processFrame]);
 
         const processFrame = React.useCallback(() => {
             const video = videoRef.current;
             const canvas = canvasRef.current;
-            if (!video || !canvas || video.paused || video.ended || !isStreaming) { // Added !isStreaming check
+            // Ensure video and canvas are available and streaming is active
+            if (!video || !canvas || video.paused || video.ended || !isStreaming) {
                 animationFrameId.current = null;
                 return;
             }
@@ -1360,29 +1399,29 @@ const App = () => {
                 const averageLuminance = sumLuminance / (data.length / 4);
 
                 // Mappa la luminanza (0-255) a un range di Lux stimato.
-                // Questo è un mapping molto grezzo e deve essere interpretato come una stima.
-                // Esempio: 0-255 luminanza -> 0-10000 Lux.
-                // I valori reali di Lux possono andare molto più in alto (es. luce solare diretta ~100.000 Lux).
-                // Questa scala è più adatta per ambienti interni o ombreggiati.
-                const estimatedLux = Math.round((averageLuminance / 255) * 10000); // Scala a 10.000 Lux max
+                const estimatedLux = Math.round((averageLuminance / 255) * 10000);
 
                 onLuxChange(estimatedLux);
 
             } catch (e) {
-                console.error("Errore nell'elaborazione del frame:", e);
-                setError("Errore nell'elaborazione della luminosità.");
-                stopCamera();
+                console.error("Errore nell'elaborazione del frame, continuando:", e);
+                // Non chiamare stopCamera qui. Logga l'errore e continua a provare.
             }
 
-            animationFrameId.current = requestAnimationFrame(processFrame);
-        }, [onLuxChange, stopCamera, isStreaming]); // Added isStreaming to dependencies
+            // Continua il ciclo di animazione solo se lo streaming è ancora attivo
+            if (isStreaming) {
+                animationFrameId.current = requestAnimationFrame(processFrame);
+            } else {
+                animationFrameId.current = null;
+            }
+        }, [onLuxChange, isStreaming]);
 
         return (
             <div className="camera-lux-sensor">
                 <h3 className="sensor-title">Misurazione con Fotocamera</h3>
                 <div className="camera-controls">
                     {!isStreaming ? (
-                        <button onClick={() => setIsStreaming(true)} className="form-button submit"> {/* Only set state */}
+                        <button onClick={() => setIsStreaming(true)} className="form-button submit">
                             <i className="fas fa-video"></i> Avvia Misurazione
                         </button>
                     ) : (
