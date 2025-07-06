@@ -1201,7 +1201,7 @@ const App = () => {
     };
 
     // Nuovo componente CameraLuxSensor
-    const CameraLuxSensor = ({ onLuxChange, currentLux }) => { // RIMOSSO: setShowFeedback dal prop
+    const CameraLuxSensor = ({ onLuxChange, currentLux }) => {
         const videoRef = React.useRef(null);
         const canvasRef = React.useRef(null);
         const animationFrameId = React.useRef(null);
@@ -1222,8 +1222,7 @@ const App = () => {
             setIsStreaming(false);
             onLuxChange(0); // Reset lux to 0 when camera is off
             setError(''); // Clear error
-            // setShowFeedback(false); // RIMOSSO: non più necessario
-        }, [onLuxChange]); // Dependencies for useCallback
+        }, [onLuxChange]);
 
         // Effect to start/stop camera based on isStreaming state
         React.useEffect(() => {
@@ -1239,9 +1238,19 @@ const App = () => {
                             }
                         });
                         videoRef.current.srcObject = stream;
-                        videoRef.current.play();
+
+                        // Wait for video to load metadata and start playing
+                        await new Promise((resolve) => {
+                            videoRef.current.onloadedmetadata = () => {
+                                videoRef.current.play().then(resolve).catch(err => {
+                                    console.error("Error playing video:", err);
+                                    setError("Impossibile riprodurre il flusso video.");
+                                    stopCamera();
+                                });
+                            };
+                        });
+
                         animationFrameId.current = requestAnimationFrame(processFrame);
-                        // setShowFeedback(true); // RIMOSSO: non più necessario
                     } catch (err) {
                         console.error("Errore nell'accesso alla fotocamera:", err);
                         if (err.name === 'NotAllowedError') {
@@ -1263,12 +1272,12 @@ const App = () => {
             return () => {
                 stopCamera();
             };
-        }, [isStreaming, videoRef, stopCamera]); // Rimosso setShowFeedback dalle dipendenze
+        }, [isStreaming, videoRef, stopCamera]);
 
-        const processFrame = React.useCallback(() => { // Make processFrame a useCallback
+        const processFrame = React.useCallback(() => {
             const video = videoRef.current;
             const canvas = canvasRef.current;
-            if (!video || !canvas || video.paused || video.ended) {
+            if (!video || !canvas || video.paused || video.ended || !isStreaming) { // Added !isStreaming check
                 animationFrameId.current = null;
                 return;
             }
@@ -1309,7 +1318,7 @@ const App = () => {
             }
 
             animationFrameId.current = requestAnimationFrame(processFrame);
-        }, [onLuxChange, stopCamera]); // Dependencies for useCallback
+        }, [onLuxChange, stopCamera, isStreaming]); // Added isStreaming to dependencies
 
         return (
             <div className="camera-lux-sensor">
