@@ -1349,103 +1349,18 @@ const App = () => {
     };
 
     // Nuovo componente CameraLuxSensor
-    const CameraLuxSensor = ({ onLuxChange, currentLux, onIsStreamingChange }) => { // Aggiunto onIsStreamingChange
+    const CameraLuxSensor = ({ onLuxChange, currentLux, onIsStreamingChange }) => {
         const videoRef = React.useRef(null);
         const canvasRef = React.useRef(null);
         const animationFrameId = React.useRef(null);
-        const [isStreamingInternal, setIsStreamingInternal] = React.useState(false); // Stato interno per lo streaming
+        const [isStreamingInternal, setIsStreamingInternal] = React.useState(false);
         const [error, setError] = React.useState('');
 
-        // Function to stop the camera stream and clean up
-        const stopCamera = React.useCallback(() => {
-            if (videoRef.current && videoRef.current.srcObject) {
-                const tracks = videoRef.current.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-                videoRef.current.srcObject = null;
-            }
-            if (animationFrameId.current) {
-                cancelAnimationFrame(animationFrameId.current);
-                animationFrameId.current = null; // Reset animation frame ID
-            }
-            setIsStreamingInternal(false); // Aggiorna stato interno
-            onIsStreamingChange(false); // Notifica il parent che lo streaming è fermo
-            onLuxChange(0); // Reset lux to 0 when camera is off
-            setError(''); // Clear error
-        }, [onLuxChange, onIsStreamingChange]);
-
-        // Effect to start/stop camera based on isStreamingInternal state
-        React.useEffect(() => {
-            if (isStreamingInternal && videoRef.current) {
-                const startStream = async () => {
-                    setError('');
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({
-                            video: {
-                                facingMode: 'environment',
-                                width: { ideal: 128 },
-                                height: { ideal: 96 }
-                            }
-                        });
-                        // Aggiunto controllo esplicito per videoRef.current
-                        if (videoRef.current) { 
-                            videoRef.current.srcObject = stream;
-                            onIsStreamingChange(true); // Notifica il parent che lo streaming è attivo
-
-                            // Wait for video to load metadata and start playing
-                            await new Promise((resolve) => {
-                                videoRef.current.onloadedmetadata = () => {
-                                    videoRef.current.play().then(resolve).catch(err => {
-                                        console.error("Error playing video:", err);
-                                        setError("Impossibile riprodurre il flusso video.");
-                                        stopCamera(); // Stop camera on play error
-                                    });
-                                };
-                            });
-
-                            // Aggiungi un piccolo ritardo prima di iniziare l'elaborazione dei frame
-                            // per dare tempo al flusso video di stabilizzarsi.
-                            setTimeout(() => {
-                                // Only start processing frames if still streaming and video is ready
-                                if (isStreamingInternal && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
-                                    animationFrameId.current = requestAnimationFrame(processFrame);
-                                } else if (isStreamingInternal) { // If not ready after timeout, log and stop.
-                                    setError("Video non pronto per l'elaborazione dopo il ritardo.");
-                                    stopCamera();
-                                }
-                            }, 500); // 500ms di ritardo
-                        } else {
-                            console.warn("videoRef.current è nullo dopo aver ottenuto lo stream.");
-                            stopCamera();
-                        }
-
-                    } catch (err) {
-                        console.error("Errore nell'accesso alla fotocamera:", err);
-                        if (err.name === 'NotAllowedError') {
-                            setError("Permesso fotocamera negato. Abilitalo nelle impostazioni del browser.");
-                        } else if (err.name === 'NotFoundError') {
-                            setError("Nessuna fotocamera trovata o disponibile.");
-                        } else {
-                            setError(`Errore fotocamera: ${err.message}`);
-                        }
-                        stopCamera(); // Stop streaming state if error occurs
-                    }
-                };
-                startStream();
-            } else if (!isStreamingInternal) {
-                stopCamera(); // Ensure camera is stopped if isStreamingInternal becomes false
-            }
-
-            // Cleanup function for the effect
-            return () => {
-                stopCamera();
-            };
-        }, [isStreamingInternal, videoRef, stopCamera, processFrame, onIsStreamingChange]); // Aggiunto onIsStreamingChange
-
+        // Memoize processFrame to avoid re-creation on every render
         const processFrame = React.useCallback(() => {
             const video = videoRef.current;
             const canvas = canvasRef.current;
-            // Ensure video and canvas are available and streaming is active
-            if (!video || !canvas || video.paused || video.ended || !isStreamingInternal) { // Usa isStreamingInternal
+            if (!video || !canvas || video.paused || video.ended || !isStreamingInternal) {
                 animationFrameId.current = null;
                 return;
             }
@@ -1469,41 +1384,143 @@ const App = () => {
                 }
 
                 const averageLuminance = sumLuminance / (data.length / 4);
-
-                // Mappa la luminanza (0-255) a un range di Lux stimato.
                 const estimatedLux = Math.round((averageLuminance / 255) * 10000);
-
                 onLuxChange(estimatedLux);
 
             } catch (e) {
-                console.error("Errore nell'elaborazione del frame, continuando:", e);
-                // Non chiamare stopCamera qui. Logga l'errore e continua a provare.
+                console.error("Errore nell'elaborazione del frame:", e);
             }
 
-            // Continua il ciclo di animazione solo se lo streaming è ancora attivo
-            if (isStreamingInternal) { // Usa isStreamingInternal
+            if (isStreamingInternal) {
                 animationFrameId.current = requestAnimationFrame(processFrame);
             } else {
                 animationFrameId.current = null;
             }
-        }, [onLuxChange, isStreamingInternal]); // Usa isStreamingInternal
+        }, [onLuxChange, isStreamingInternal]);
+
+        React.useEffect(() => {
+            let stream = null; // To hold the MediaStream object for cleanup
+
+            const startCamera = async () => {
+                setError('');
+                // Ensure videoRef.current is available before proceeding
+                if (!videoRef.current) {
+                    console.warn("startCamera: videoRef.current è nullo all'avvio.");
+                    setError("Errore: Elemento video non disponibile.");
+                    onIsStreamingChange(false);
+                    onLuxChange(0);
+                    return;
+                }
+
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'environment',
+                            width: { ideal: 128 },
+                            height: { ideal: 96 }
+                        }
+                    });
+
+                    // Re-check videoRef.current before assignment, in case it became null during async operation
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = stream;
+                        onIsStreamingChange(true);
+
+                        await new Promise((resolve) => {
+                            const videoElement = videoRef.current; // Capture for event listener
+                            if (videoElement) {
+                                videoElement.onloadedmetadata = () => {
+                                    videoElement.play().then(resolve).catch(err => {
+                                        console.error("Error playing video:", err);
+                                        setError("Impossibile riprodurre il flusso video.");
+                                        stopCameraInternal();
+                                    });
+                                };
+                            } else {
+                                console.warn("videoElement è nullo in onloadedmetadata.");
+                                resolve(); // Resolve to not block, but camera won't play
+                            }
+                        });
+
+                        setTimeout(() => {
+                            if (isStreamingInternal && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
+                                animationFrameId.current = requestAnimationFrame(processFrame);
+                            } else if (isStreamingInternal) {
+                                setError("Video non pronto per l'elaborazione dopo il ritardo.");
+                                stopCameraInternal();
+                            }
+                        }, 500);
+
+                    } else {
+                        console.warn("videoRef.current è nullo prima di impostare srcObject dopo getUserMedia.");
+                        stream.getTracks().forEach(track => track.stop()); // Stop stream if video element is gone
+                        setError("Errore: Elemento video non disponibile per lo stream.");
+                        onIsStreamingChange(false);
+                        onLuxChange(0);
+                    }
+
+                } catch (err) {
+                    console.error("Errore nell'accesso alla fotocamera:", err);
+                    if (err.name === 'NotAllowedError') {
+                        setError("Permesso fotocamera negato. Abilitalo nelle impostazioni del browser.");
+                    } else if (err.name === 'NotFoundError') {
+                        setError("Nessuna fotocamera trovata o disponibile.");
+                    } else {
+                        setError(`Errore fotocamera: ${err.message}`);
+                    }
+                    onIsStreamingChange(false);
+                    onLuxChange(0);
+                }
+            };
+
+            const stopCameraInternal = () => {
+                if (videoRef.current && videoRef.current.srcObject) {
+                    const tracks = videoRef.current.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                    videoRef.current.srcObject = null;
+                }
+                if (animationFrameId.current) {
+                    cancelAnimationFrame(animationFrameId.current);
+                    animationFrameId.current = null;
+                }
+                setIsStreamingInternal(false);
+                onIsStreamingChange(false);
+                onLuxChange(0);
+                setError('');
+            };
+
+            if (isStreamingInternal) {
+                startCamera();
+            } else {
+                stopCameraInternal();
+            }
+
+            // Cleanup function for the effect
+            return () => {
+                stopCameraInternal();
+                // Ensure any active stream is stopped if component unmounts
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            };
+        }, [isStreamingInternal, onIsStreamingChange, onLuxChange, processFrame]); // processFrame è una dipendenza perché è usata in startCamera
 
         return (
             <div className="camera-lux-sensor">
                 <h3 className="sensor-title">Misurazione con Fotocamera</h3>
                 <div className="camera-controls">
-                    {!isStreamingInternal ? ( // Usa isStreamingInternal
+                    {!isStreamingInternal ? (
                         <button onClick={() => setIsStreamingInternal(true)} className="form-button submit">
                             <i className="fas fa-video"></i> Avvia Misurazione
                         </button>
                     ) : (
-                        <button onClick={stopCamera} className="form-button cancel">
+                        <button onClick={() => setIsStreamingInternal(false)} className="form-button cancel"> {/* Modificato per usare setIsStreamingInternal */}
                             <i className="fas fa-stop-circle"></i> Ferma Misurazione
                         </button>
                     )}
                 </div>
                 {error && <p className="error-message">{error}</p>}
-                {isStreamingInternal && ( // Usa isStreamingInternal
+                {isStreamingInternal && (
                     <div className="camera-preview-container">
                         <video ref={videoRef} className="camera-preview" autoPlay playsInline muted></video>
                         <canvas ref={canvasRef} className="camera-canvas"></canvas>
