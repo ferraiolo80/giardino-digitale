@@ -27,9 +27,12 @@ const App = () => {
 
     // Stati per la nuova funzionalità AI
     const [showAiModal, setShowAiModal] = React.useState(false);
-    const [aiQuery, setAiQuery] = React.useState('');
+    const [aiQuery, setAiQuery] = React.useState(''); // Questo stato ora conterrà la query SOTTOMESSA
     const [aiResponse, setAiResponse] = React.useState('');
     const [aiLoading, setAiLoading] = React.useState(false);
+
+    // Nuovo stato per controllare la visibilità della sezione feedback Lux
+    const [showLuxFeedbackSection, setShowLuxFeedbackSection] = React.useState(false);
 
     // Stati per l'ordinamento
     const [sortOrderAllPlants, setSortOrderAllPlants] = React.useState('asc'); // 'asc' per A-Z, 'desc' per Z-A
@@ -581,10 +584,12 @@ const App = () => {
         const parsedLux = parseFloat(manualLuxInput);
         if (!isNaN(parsedLux) && parsedLux >= 0) {
             setLuxValue(parsedLux);
+            setShowLuxFeedbackSection(true); // Mostra la sezione feedback quando il Lux manuale è applicato
             setMessage(`Valore Lux impostato manualmente a ${parsedLux}.`);
         } else {
             setMessage("Per favoré, inserisci un numero valido per i Lux.");
             setLuxValue(0); // Resetta a 0 se l'input non è valido
+            setShowLuxFeedbackSection(false); // Nascondi la sezione feedback se il valore non è valido
         }
     }, [manualLuxInput]);
 
@@ -617,8 +622,8 @@ const App = () => {
     }, [luxValue]);
 
     // Funzione per richiamare l'AI per la ricerca di informazioni
-    const handleAiQuery = React.useCallback(async () => {
-        if (!aiQuery.trim()) {
+    const handleAiQuery = React.useCallback(async (submittedQuery) => { // Accetta la query sottomessa
+        if (!submittedQuery.trim()) {
             setAiResponse("Per favoré, inserisci una domanda.");
             return;
         }
@@ -628,7 +633,7 @@ const App = () => {
 
         try {
             let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
+            chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${submittedQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
             const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -663,7 +668,20 @@ const App = () => {
         } finally {
             setAiLoading(false);
         }
-    }, [aiQuery]);
+    }, []);
+
+    // Callback per la misurazione Lux della fotocamera
+    const handleCameraLuxChange = React.useCallback((lux) => {
+        setLuxValue(lux);
+        if (lux > 0) {
+            setShowLuxFeedbackSection(true); // Mostra la sezione feedback se la fotocamera fornisce un valore > 0
+        } else {
+            // Se la fotocamera restituisce 0, non nascondere immediatamente,
+            // a meno che non sia l'unico modo per ottenere il valore.
+            // Per evitare il flash, la sezione rimane visibile finché non viene chiusa manualmente
+            // o la misurazione della fotocamera viene interrotta.
+        }
+    }, []);
 
     // Componente Card Pianta
     const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGarden, onUpdatePlant, onDeletePlantPermanently }) => {
@@ -1223,11 +1241,16 @@ const App = () => {
     };
 
     // Nuovo componente Modale AI Query
-    const AiQueryModal = ({ onClose, onQuerySubmit, query, setQuery, response, loading }) => {
-        // Usa React.useCallback per mantenere la stabilità della funzione di gestione del cambiamento
+    const AiQueryModal = ({ onClose, onQuerySubmit, response, loading }) => { // Rimosso 'query' e 'setQuery' dai props
+        const [inputValue, setInputValue] = React.useState(''); // Stato interno per l'input
+
         const handleTextareaChange = React.useCallback((e) => {
-            setQuery(e.target.value);
-        }, [setQuery]);
+            setInputValue(e.target.value);
+        }, []); // Non dipende da setQuery esterno
+
+        const handleSubmitClick = () => {
+            onQuerySubmit(inputValue); // Passa il valore interno alla funzione di submit del parent
+        };
 
         return (
             <div className="modal-overlay">
@@ -1241,18 +1264,17 @@ const App = () => {
                             <label htmlFor="aiQuery" className="form-label">La tua domanda:</label>
                             <textarea
                                 id="aiQuery"
-                                value={query}
-                                onChange={handleTextareaChange} // Usa la funzione stabile
+                                value={inputValue} // Usa lo stato interno
+                                onChange={handleTextareaChange}
                                 placeholder="Ad esempio: 'Quali sono i requisiti di luce per una Monstera Deliciosa?'"
                                 rows="4"
                                 className="form-input"
-                                // autoFocus // Rimosso autoFocus
                             ></textarea>
                         </div>
                         <div className="form-actions">
                             <button
                                 type="button"
-                                onClick={onQuerySubmit}
+                                onClick={handleSubmitClick} // Chiama la funzione di submit interna
                                 className="form-button submit"
                                 disabled={loading}
                             >
@@ -1554,7 +1576,7 @@ const App = () => {
                     <div className="info-card light-sensor-card">
                         <h2 className="info-card-title">Misurazione Luce</h2>
                         {/* Componente CameraLuxSensor */}
-                        <CameraLuxSensor onLuxChange={setLuxValue} currentLux={luxValue} />
+                        <CameraLuxSensor onLuxChange={handleCameraLuxChange} currentLux={luxValue} />
 
                         <div className="manual-lux-input-section">
                             <h3 className="sensor-title">Inserimento Manuale Lux</h3>
@@ -1582,7 +1604,8 @@ const App = () => {
                             <p className="current-overall-lux-display">Lux Attuali Usati per Feedback: <strong>{luxValue}</strong></p>
                         )}
 
-                        {luxValue > 0 && ( /* Condizionale per mostrare il feedback basato solo su luxValue */
+                        {/* Condizionale per mostrare il feedback basato su showLuxFeedbackSection */}
+                        {showLuxFeedbackSection && ( 
                             <div className="feedback-section">
                                 <h3 className="feedback-title">Feedback per le piante:</h3>
                                 <ul className="feedback-list">
@@ -1597,7 +1620,7 @@ const App = () => {
                                     )}
                                 </ul>
                                 <button
-                                    onClick={() => { setLuxValue(0); setManualLuxInput(''); }} /* Resetta input e nascondi */
+                                    onClick={() => { setLuxValue(0); setManualLuxInput(''); setShowLuxFeedbackSection(false); }} /* Resetta input e nascondi */
                                     className="close-lux-feedback-btn"
                                 >
                                     <i className="fas fa-times-circle"></i> Chiudi Feedback
@@ -1693,7 +1716,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditModal
+                <AddEditPlantModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
@@ -1715,8 +1738,7 @@ const App = () => {
                 <AiQueryModal
                     onClose={() => setShowAiModal(false)}
                     onQuerySubmit={handleAiQuery}
-                    query={aiQuery}
-                    setQuery={setAiQuery}
+                    // Non passiamo più 'query' e 'setQuery' direttamente al modale AI
                     response={aiResponse}
                     loading={aiLoading}
                 />
