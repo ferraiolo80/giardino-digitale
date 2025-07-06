@@ -1,6 +1,6 @@
 {
     "name": "Il Mio Giardino Digitale",
-    "short_name": "Giardino",
+    "short_name": "Giardino Digitale",
     "description": "Gestisci le tue piante e il tuo giardino digitale con facilità.",
     "start_url": "./",
     "display": "standalone",
