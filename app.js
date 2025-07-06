@@ -585,7 +585,7 @@ const App = () => {
             setMessage(`Valore Lux impostato manualmente a ${parsedLux}.`);
             setShowLuxFeedback(true); // Mostra il feedback quando si applica un valore manuale valido
         } else {
-            setMessage("Per favore, inserisci un numero valido per i Lux.");
+            setMessage("Per favoré, inserisci un numero valido per i Lux.");
             setLuxValue(0); // Resetta a 0 se l'input non è valido
             setShowLuxFeedback(false); // Nascondi il feedback se l'input non è valido
         }
@@ -803,8 +803,9 @@ const App = () => {
                         onError={imageOnError}
                     />
                     <div className="modal-details-list">
-                        {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
+                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
+                        {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
+                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
                     <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                     <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                     {/* Visualizzazione irrigazione estate */}
@@ -835,6 +836,7 @@ const App = () => {
                     <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
 
                         {/* Aggiungi qui altri campi se necessario */}
+
                     </div>
                 </div>
             </div>
@@ -874,7 +876,7 @@ const App = () => {
                     sunlight: plantToEdit.sunlight || '',
                     category: plantToEdit.category || '',
                     tempMax: plantToEdit.tempMax || '',
-                    tempMin: plantToToEdit.tempMin || '',
+                    tempMin: plantToEdit.tempMin || '',
                 });
                 setImagePreviewUrl(plantToEdit.image || ''); // Mostra l'anteprima dell'immagine esistente
             } else {
@@ -1006,7 +1008,7 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona una categoria</option>
-                                 <option value="Fiori">Fiori</option>
+                                <option value="Fiori">Fiori</option>
                                 <option value="Pianta">Pianta</option>    
                                 <option value="Piante Grasse">Piante Grasse</option>
                                 <option value="Piante Erbacee">Piante Erbacee</option>
@@ -1016,8 +1018,8 @@ const App = () => {
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
-
                                 {/* Aggiungi altre opzioni qui */}
+
                             </select>
                         </div>
                         <div className="form-group">
@@ -1236,37 +1238,8 @@ const App = () => {
         const [isStreaming, setIsStreaming] = React.useState(false);
         const [error, setError] = React.useState('');
 
-        const startCamera = async () => {
-            setError('');
-            try {
-                // Richiedi l'accesso alla fotocamera posteriore (environment)
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'environment', // Preferisce la fotocamera posteriore
-                        width: { ideal: 128 }, // Risoluzione bassa per performance
-                        height: { ideal: 96 }
-                    }
-                });
-                videoRef.current.srcObject = stream;
-                videoRef.current.play();
-                setIsStreaming(true);
-                animationFrameId.current = requestAnimationFrame(processFrame);
-                setShowFeedback(true); // Mostra il feedback quando la camera si avvia
-            } catch (err) {
-                console.error("Errore nell'accesso alla fotocamera:", err);
-                if (err.name === 'NotAllowedError') {
-                    setError("Permesso fotocamera negato. Abilitalo nelle impostazioni del browser.");
-                } else if (err.name === 'NotFoundError') {
-                    setError("Nessuna fotocamera trovata o disponibile.");
-                } else {
-                    setError(`Errore fotocamera: ${err.message}`);
-                }
-                setIsStreaming(false);
-                setShowFeedback(false); // Nascondi il feedback se la camera non si avvia
-            }
-        };
-
-        const stopCamera = () => {
+        // Function to stop the camera stream and clean up
+        const stopCamera = React.useCallback(() => {
             if (videoRef.current && videoRef.current.srcObject) {
                 const tracks = videoRef.current.srcObject.getTracks();
                 tracks.forEach(track => track.stop());
@@ -1274,14 +1247,55 @@ const App = () => {
             }
             if (animationFrameId.current) {
                 cancelAnimationFrame(animationFrameId.current);
+                animationFrameId.current = null; // Reset animation frame ID
             }
             setIsStreaming(false);
-            onLuxChange(0); // Resetta i lux a 0 quando la telecamera è spenta
-            setError(''); // Pulisci l'errore
-            setShowFeedback(false); // Nascondi il feedback quando la camera si ferma
-        };
+            onLuxChange(0); // Reset lux to 0 when camera is off
+            setError(''); // Clear error
+            setShowFeedback(false); // Hide feedback when camera stops
+        }, [onLuxChange, setShowFeedback]); // Dependencies for useCallback
 
-        const processFrame = () => {
+        // Effect to start/stop camera based on isStreaming state
+        React.useEffect(() => {
+            if (isStreaming && videoRef.current) {
+                const startStream = async () => {
+                    setError('');
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: {
+                                facingMode: 'environment',
+                                width: { ideal: 128 },
+                                height: { ideal: 96 }
+                            }
+                        });
+                        videoRef.current.srcObject = stream;
+                        videoRef.current.play();
+                        animationFrameId.current = requestAnimationFrame(processFrame);
+                        setShowFeedback(true);
+                    } catch (err) {
+                        console.error("Errore nell'accesso alla fotocamera:", err);
+                        if (err.name === 'NotAllowedError') {
+                            setError("Permesso fotocamera negato. Abilitalo nelle impostazioni del browser.");
+                        } else if (err.name === 'NotFoundError') {
+                            setError("Nessuna fotocamera trovata o disponibile.");
+                        } else {
+                            setError(`Errore fotocamera: ${err.message}`);
+                        }
+                        stopCamera(); // Stop streaming state if error occurs
+                    }
+                };
+                startStream();
+            } else if (!isStreaming) {
+                stopCamera(); // Ensure camera is stopped if isStreaming becomes false
+            }
+
+            // Cleanup function for the effect
+            return () => {
+                stopCamera();
+            };
+        }, [isStreaming, videoRef, stopCamera, setShowFeedback]); // Add videoRef and stopCamera to dependencies
+
+        const processFrame = React.useCallback(() => { // Make processFrame a useCallback
             const video = videoRef.current;
             const canvas = canvasRef.current;
             if (!video || !canvas || video.paused || video.ended) {
@@ -1299,12 +1313,10 @@ const App = () => {
                 const data = imageData.data;
                 let sumLuminance = 0;
 
-                // Calcola la luminanza media (approssimazione del Lux)
                 for (let i = 0; i < data.length; i += 4) {
                     const r = data[i];
                     const g = data[i + 1];
                     const b = data[i + 2];
-                    // Formula per la luminanza (per pixel)
                     const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
                     sumLuminance += luminance;
                 }
@@ -1318,30 +1330,23 @@ const App = () => {
                 // Questa scala è più adatta per ambienti interni o ombreggiati.
                 const estimatedLux = Math.round((averageLuminance / 255) * 10000); // Scala a 10.000 Lux max
 
-                onLuxChange(estimatedLux); // Aggiorna lo stato Lux nell'App principale
+                onLuxChange(estimatedLux);
 
             } catch (e) {
                 console.error("Errore nell'elaborazione del frame:", e);
                 setError("Errore nell'elaborazione della luminosità.");
-                stopCamera(); // Ferma la telecamera in caso di errore di elaborazione
+                stopCamera();
             }
 
             animationFrameId.current = requestAnimationFrame(processFrame);
-        };
-
-        React.useEffect(() => {
-            // Pulizia quando il componente viene smontato
-            return () => {
-                stopCamera();
-            };
-        }, []); // Esegui solo al mount/unmount
+        }, [onLuxChange, stopCamera]); // Dependencies for useCallback
 
         return (
             <div className="camera-lux-sensor">
                 <h3 className="sensor-title">Misurazione con Fotocamera</h3>
                 <div className="camera-controls">
                     {!isStreaming ? (
-                        <button onClick={startCamera} className="form-button submit">
+                        <button onClick={() => setIsStreaming(true)} className="form-button submit"> {/* Only set state */}
                             <i className="fas fa-video"></i> Avvia Misurazione
                         </button>
                     ) : (
@@ -1613,7 +1618,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditPlantModal
+                <AddEditModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
