@@ -603,15 +603,26 @@ const App = () => {
     const getPlantLuxFeedback = React.useCallback((plant) => {
         // Usa il luxValue corrente, che può provenire dalla fotocamera o dall'input manuale
         const lux = parseFloat(luxValue);
-        // Restituisce null o stringa vuota se lux non è un numero valido o mancano i dati della pianta
-        if (isNaN(lux) || lux <= 0 || !plant.idealLuxMin || !plant.idealLuxMax) {
-            return null; // Non mostra feedback specifico se lux non è valido o 0
+
+        // Se il valore Lux non è valido o è 0, non possiamo dare un feedback specifico
+        if (isNaN(lux) || lux <= 0) {
+            return null; // Questo verrà gestito dal blocco condizionale principale nel JSX
         }
 
-        if (lux < plant.idealLuxMin) {
-            return `Poca luce per la ${plant.name} (minimo ${plant.idealLuxMin} Lux)`;
-        } else if (lux > plant.idealLuxMax) {
-            return `Troppa luce per la ${plant.name} (massimo ${plant.idealLuxMax} Lux)`;
+        // Verifica se i dati idealLuxMin o idealLuxMax della pianta sono mancanti o non validi
+        if (plant.idealLuxMin === undefined || plant.idealLuxMax === undefined ||
+            plant.idealLuxMin === null || plant.idealLuxMax === null ||
+            isNaN(parseFloat(plant.idealLuxMin)) || isNaN(parseFloat(plant.idealLuxMax))) {
+            return `Dati Lux ideali mancanti o non validi per la ${plant.name}.`;
+        }
+
+        const idealMin = parseFloat(plant.idealLuxMin);
+        const idealMax = parseFloat(plant.idealLuxMax);
+
+        if (lux < idealMin) {
+            return `Poca luce per la ${plant.name} (minimo ${idealMin} Lux)`;
+        } else if (lux > idealMax) {
+            return `Troppa luce per la ${plant.name} (massimo ${idealMax} Lux)`;
         } else {
             return `Luce ottimale per la ${plant.name}!`;
         }
@@ -631,7 +642,7 @@ const App = () => {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyBeg9C9fz8mVxEcp36SlYXnpyM5SaQayTA"; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -802,37 +813,13 @@ const App = () => {
                     />
                     <div className="modal-details-list">
                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
-                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
-                    <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
-                    <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                    {/* Visualizzazione irrigazione estate */}
-                    <p>
-                        <strong>Frequenza Irrigazione (Estate):</strong>
-                        {plant.wateringValueSummer && plant.wateringUnitSummer
-                            ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
-                            : 'N/A'
-                        }
-                    </p>
-                    {/* Visualizzazione irrigazione inverno */}
-                    <p>
-                        <strong>Frequenza Irrigazione (Inverno):</strong>
-                        {plant.wateringValueWinter && plant.wateringUnitWinter
-                            ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
-                            : 'N/A'
-                        }
-                    </p>
-                    {/* Fallback per il vecchio campo 'watering' se i nuovi campi non esistono */}
-                    {(!plant.wateringValueSummer && !plant.wateringValueWinter && plant.watering) && (
-                        <p><strong>Frequenza Irrigazione (Generica):</strong> {plant.watering}</p>
-                    )}
-                    {/* Nuova visualizzazione per Quantità di Luce */}
-                    <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
-                    {/* Nuova visualizzazione per Tipo di Esposizione */}
-                    <p><strong></strong> {plant.exposureType || 'N/A'}</p>
-                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
-                    <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
-
+                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
+                        <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
+                        <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
+                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
+                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
+                        <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
+                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
                         {/* Aggiungi qui altri campi se necessario */}
                     </div>
                 </div>
@@ -1006,11 +993,7 @@ const App = () => {
                             >
                                 <option value="">Seleziona una categoria</option>
                                 <option value="Fiori">Fiori</option>
-                                <option value="Pianta">Pianta</option>    
-                                <option value="Piante Grasse">Piante Grasse</option>
-                                <option value="Piante Erbacee">Piante Erbacee</option>
                                 <option value="Alberi">Alberi</option>
-                                <option value="Alberi da Frutto">Alberi da Frutto</option>
                                 <option value="Arbusti">Arbusti</option>
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
@@ -1057,32 +1040,11 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="Tanta">Alta</option>
-                                <option value="Media">Media</option>
-                                <option value="Poca">Bassa</option>
-                                <option value="Prevalentemente">Prevalentemente</option>
-                                <option value="esclusivamente">Esclusivamente</option>
+                                <option value="ombra">Ombra</option>
+                                <option value="mezzombra">Mezz'ombra</option>
+                                <option value="pienosole">Pieno Sole</option>
                             </select>
-
-                        <label htmlFor="exposureType"> </label>
-                        <select
-                            name="exposureType"
-                            id="exposureType"
-                            value={formData.exposureType}
-                            onChange={handleChange}
-                        >
-                            <option value="">Seleziona</option>
-                            <option value="Luce Diretta">Luce Diretta</option>
-                            <option value="Luce Indiretta">Luce Indiretta</option>
-                            <option value="Mezz'ombra">Mezz'ombra</option>
-                            <option value="Ombra Totale">Ombra Totale</option>
-                            <option value="Sole Pieno">Sole Piene</option>
-
-                        </select>
-                                    
                         </div>
-
-                                                            
                         <div className="form-group">
                             <label htmlFor="tempMin">Temperatura Minima (°C)</label>
                             <input
@@ -1513,23 +1475,30 @@ const App = () => {
                             </button>
                         </div>
 
+                        {/* Display the current luxValue being used for feedback */}
+                        {luxValue > 0 && (
+                            <p className="current-overall-lux-display">Lux Attuali Usati per Feedback: <strong>{luxValue}</strong></p>
+                        )}
+
                         {showLuxFeedback && ( /* Condizionale per mostrare il feedback */
                             <div className="feedback-section">
                                 <h3 className="feedback-title">Feedback per le piante:</h3>
                                 <ul className="feedback-list">
-                                    {plants.map(plant => {
-                                        const feedback = getPlantLuxFeedback(plant);
-                                        return feedback ? ( // Mostra l'elemento <li> solo se c'è un feedback specifico
-                                            <li key={plant.id} className="feedback-item">
-                                                {feedback}
-                                            </li>
-                                        ) : null;
-                                    })}
-                                    {luxValue === 0 && ( // Messaggio se Lux è 0 (telecamera spenta o errore)
+                                    {luxValue === 0 ? (
                                         <li className="feedback-item">Avvia la misurazione della fotocamera o inserisci un valore manuale per un feedback sulla luce.</li>
-                                    )}
-                                    {luxValue > 0 && plants.every(plant => getPlantLuxFeedback(plant) === null) && (
-                                        <li className="feedback-item">Nessun feedback specifico disponibile per il valore Lux attuale. Verifica i dati Lux delle piante.</li>
+                                    ) : (
+                                        plants.length === 0 ? (
+                                            <li className="feedback-item">Nessuna pianta disponibile per il feedback sulla luce.</li>
+                                        ) : (
+                                            plants.map(plant => {
+                                                const feedback = getPlantLuxFeedback(plant);
+                                                return (
+                                                    <li key={plant.id} className="feedback-item">
+                                                        {feedback}
+                                                    </li>
+                                                );
+                                            })
+                                        )
                                     )}
                                 </ul>
                                 <button
