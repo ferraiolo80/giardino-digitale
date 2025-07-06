@@ -21,10 +21,9 @@ const App = () => {
     const [manualLuxInput, setManualLuxInput] = React.useState(''); // Nuovo stato per l'input manuale
     const [userLocation, setUserLocation] = React.useState(null); // { lat, lon } per il meteo
     const [weatherData, setWeatherData] = React.useState(null); // Dati meteo
-    const [weatherApiKey, setWeatherApiKey] = React.useState('0575afa377367478348aa48bfc9936ba'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
+    const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
-    const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // Nuovo stato per mostrare/nascondere il feedback lux
-    const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
+    // const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // RIMOSSO: showLuxFeedback è ora gestito implicitamente da luxValue
 
     // Stati per la nuova funzionalità AI
     const [showAiModal, setShowAiModal] = React.useState(false);
@@ -583,11 +582,11 @@ const App = () => {
         if (!isNaN(parsedLux) && parsedLux >= 0) {
             setLuxValue(parsedLux);
             setMessage(`Valore Lux impostato manualmente a ${parsedLux}.`);
-            setShowLuxFeedback(true); // Mostra il feedback quando si applica un valore manuale valido
+            // setShowLuxFeedback(true); // RIMOSSO: non più necessario, la visibilità dipende da luxValue > 0
         } else {
             setMessage("Per favoré, inserisci un numero valido per i Lux.");
             setLuxValue(0); // Resetta a 0 se l'input non è valido
-            setShowLuxFeedback(false); // Nascondi il feedback se l'input non è valido
+            // setShowLuxFeedback(false); // RIMOSSO: non più necessario
         }
     }, [manualLuxInput]);
 
@@ -633,7 +632,7 @@ const App = () => {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyBeg9C9fz8mVxEcp36SlYXnpyM5SaQayTA"; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -803,40 +802,15 @@ const App = () => {
                         onError={imageOnError}
                     />
                     <div className="modal-details-list">
-                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
-                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
-                    <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
-                    <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                    {/* Visualizzazione irrigazione estate */}
-                    <p>
-                        <strong>Frequenza Irrigazione (Estate):</strong>
-                        {plant.wateringValueSummer && plant.wateringUnitSummer
-                            ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
-                            : 'N/A'
-                        }
-                    </p>
-                    {/* Visualizzazione irrigazione inverno */}
-                    <p>
-                        <strong>Frequenza Irrigazione (Inverno):</strong>
-                        {plant.wateringValueWinter && plant.wateringUnitWinter
-                            ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
-                            : 'N/A'
-                        }
-                    </p>
-                    {/* Fallback per il vecchio campo 'watering' se i nuovi campi non esistono */}
-                    {(!plant.wateringValueSummer && !plant.wateringValueWinter && plant.watering) && (
-                        <p><strong>Frequenza Irrigazione (Generica):</strong> {plant.watering}</p>
-                    )}
-                    {/* Nuova visualizzazione per Quantità di Luce */}
-                    <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
-                    {/* Nuova visualizzazione per Tipo di Esposizione */}
-                    <p><strong></strong> {plant.exposureType || 'N/A'}</p>
-                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
-                    <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
-
+                        {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
+                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
+                        <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
+                        <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
+                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
+                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
+                        <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
+                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
                         {/* Aggiungi qui altri campi se necessario */}
-
                     </div>
                 </div>
             </div>
@@ -1009,17 +983,12 @@ const App = () => {
                             >
                                 <option value="">Seleziona una categoria</option>
                                 <option value="Fiori">Fiori</option>
-                                <option value="Pianta">Pianta</option>    
-                                <option value="Piante Grasse">Piante Grasse</option>
-                                <option value="Piante Erbacee">Piante Erbacee</option>
                                 <option value="Alberi">Alberi</option>
-                                <option value="Alberi da Frutto">Alberi da Frutto</option>
                                 <option value="Arbusti">Arbusti</option>
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
                                 {/* Aggiungi altre opzioni qui */}
-
                             </select>
                         </div>
                         <div className="form-group">
@@ -1231,7 +1200,7 @@ const App = () => {
     };
 
     // Nuovo componente CameraLuxSensor
-    const CameraLuxSensor = ({ onLuxChange, currentLux, setShowFeedback }) => { // Aggiunto setShowFeedback
+    const CameraLuxSensor = ({ onLuxChange, currentLux }) => { // RIMOSSO: setShowFeedback dal prop
         const videoRef = React.useRef(null);
         const canvasRef = React.useRef(null);
         const animationFrameId = React.useRef(null);
@@ -1252,8 +1221,8 @@ const App = () => {
             setIsStreaming(false);
             onLuxChange(0); // Reset lux to 0 when camera is off
             setError(''); // Clear error
-            setShowFeedback(false); // Hide feedback when camera stops
-        }, [onLuxChange, setShowFeedback]); // Dependencies for useCallback
+            // setShowFeedback(false); // RIMOSSO: non più necessario
+        }, [onLuxChange]); // Dependencies for useCallback
 
         // Effect to start/stop camera based on isStreaming state
         React.useEffect(() => {
@@ -1271,7 +1240,7 @@ const App = () => {
                         videoRef.current.srcObject = stream;
                         videoRef.current.play();
                         animationFrameId.current = requestAnimationFrame(processFrame);
-                        setShowFeedback(true);
+                        // setShowFeedback(true); // RIMOSSO: non più necessario
                     } catch (err) {
                         console.error("Errore nell'accesso alla fotocamera:", err);
                         if (err.name === 'NotAllowedError') {
@@ -1293,7 +1262,7 @@ const App = () => {
             return () => {
                 stopCamera();
             };
-        }, [isStreaming, videoRef, stopCamera, setShowFeedback]); // Add videoRef and stopCamera to dependencies
+        }, [isStreaming, videoRef, stopCamera]); // Rimosso setShowFeedback dalle dipendenze
 
         const processFrame = React.useCallback(() => { // Make processFrame a useCallback
             const video = videoRef.current;
@@ -1479,7 +1448,7 @@ const App = () => {
                     <div className="info-card light-sensor-card">
                         <h2 className="info-card-title">Misurazione Luce</h2>
                         {/* Componente CameraLuxSensor */}
-                        <CameraLuxSensor onLuxChange={setLuxValue} currentLux={luxValue} setShowFeedback={setShowLuxFeedback} />
+                        <CameraLuxSensor onLuxChange={setLuxValue} currentLux={luxValue} /> {/* RIMOSSO: setShowFeedback dal prop */}
 
                         <div className="manual-lux-input-section">
                             <h3 className="sensor-title">Inserimento Manuale Lux</h3>
@@ -1507,7 +1476,7 @@ const App = () => {
                             <p className="current-overall-lux-display">Lux Attuali Usati per Feedback: <strong>{luxValue}</strong></p>
                         )}
 
-                        {showLuxFeedback && ( /* Condizionale per mostrare il feedback */
+                        {luxValue > 0 && ( /* Condizionale per mostrare il feedback basato solo su luxValue */
                             <div className="feedback-section">
                                 <h3 className="feedback-title">Feedback per le piante:</h3>
                                 <ul className="feedback-list">
@@ -1522,7 +1491,7 @@ const App = () => {
                                     )}
                                 </ul>
                                 <button
-                                    onClick={() => { setLuxValue(0); setManualLuxInput(''); setShowLuxFeedback(false); }} /* Resetta input e nascondi */
+                                    onClick={() => { setLuxValue(0); setManualLuxInput(''); }} /* Resetta input e nascondi */
                                     className="close-lux-feedback-btn"
                                 >
                                     <i className="fas fa-times-circle"></i> Chiudi Feedback
