@@ -630,7 +630,7 @@ const App = () => {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: `Fornisci informazioni concise e utili su: ${aiQuery}. Concentrati su nome comune, nome scientifico, requisiti di luce (Lux min/max), frequenza di irrigazione, esigenza di luce solare, temperatura (min/max °C) e una breve descrizione. Formatta la risposta come testo leggibile.` }] });
             const payload = { contents: chatHistory };
-            const apiKey = ""; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
+            const apiKey = "AIzaSyBeg9C9fz8mVxEcp36SlYXnpyM5SaQayTA"; // Lascia vuoto, l'API key sarà fornita dall'ambiente Canvas
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -800,15 +800,40 @@ const App = () => {
                         onError={imageOnError}
                     />
                     <div className="modal-details-list">
-                        {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName || 'N/A'}</p>
-                        <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
-                        <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
-                        <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} / {plant.idealLuxMax || 'N/A'}</p>
-                        <p><strong>Frequenza Irrigazione:</strong> {plant.watering || 'N/A'}</p>
-                        <p><strong>Esigenza Luce:</strong> {plant.sunlight || 'N/A'}</p>
-                        <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} / {plant.tempMax || 'N/A'}</p>
+                         {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
+                        {/* AGGIUNTA "cm" ALLA DIMENSIONE VASO */}
+                    <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
+                    <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
+                    <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
+                    {/* Visualizzazione irrigazione estate */}
+                    <p>
+                        <strong>Frequenza Irrigazione (Estate):</strong>
+                        {plant.wateringValueSummer && plant.wateringUnitSummer
+                            ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
+                            : 'N/A'
+                        }
+                    </p>
+                    {/* Visualizzazione irrigazione inverno */}
+                    <p>
+                        <strong>Frequenza Irrigazione (Inverno):</strong>
+                        {plant.wateringValueWinter && plant.wateringUnitWinter
+                            ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
+                            : 'N/A'
+                        }
+                    </p>
+                    {/* Fallback per il vecchio campo 'watering' se i nuovi campi non esistono */}
+                    {(!plant.wateringValueSummer && !plant.wateringValueWinter && plant.watering) && (
+                        <p><strong>Frequenza Irrigazione (Generica):</strong> {plant.watering}</p>
+                    )}
+                    {/* Nuova visualizzazione per Quantità di Luce */}
+                    <p><strong>Quantità di Luce:</strong> {plant.lightQuantity || 'N/A'}</p>
+                    {/* Nuova visualizzazione per Tipo di Esposizione */}
+                    <p><strong></strong> {plant.exposureType || 'N/A'}</p>
+                    <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
+                    <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
+
                         {/* Aggiungi qui altri campi se necessario */}
+
                     </div>
                 </div>
             </div>
@@ -981,12 +1006,17 @@ const App = () => {
                             >
                                 <option value="">Seleziona una categoria</option>
                                 <option value="Fiori">Fiori</option>
+                                <option value="Pianta">Pianta</option>    
+                                <option value="Piante Grasse">Piante Grasse</option>
+                                <option value="Piante Erbacee">Piante Erbacee</option>
                                 <option value="Alberi">Alberi</option>
+                                <option value="Alberi da Frutto">Alberi da Frutto</option>
                                 <option value="Arbusti">Arbusti</option>
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
                                 <option value="Erbe Aromatiche">Erbe Aromatiche</option>
                                 {/* Aggiungi altre opzioni qui */}
+
                             </select>
                         </div>
                         <div className="form-group">
@@ -1028,9 +1058,26 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="ombra">Ombra</option>
-                                <option value="mezzombra">Mezz'ombra</option>
-                                <option value="pienosole">Pieno Sole</option>
+                                <option value="Tanta">Alta</option>
+                                <option value="Media">Media</option>
+                                <option value="Poca">Bassa</option>
+                                <option value="Prevalentemente">Prevalentemente</option>
+                                <option value="esclusivamente">Esclusivamente</option>
+                            </select>
+
+                        <label htmlFor="exposureType"> </label>
+                        <select
+                            name="exposureType"
+                            id="exposureType"
+                            value={formData.exposureType}
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleziona</option>
+                            <option value="Luce Diretta">Luce Diretta</option>
+                            <option value="Luce Indiretta">Luce Indiretta</option>
+                            <option value="Mezz'ombra">Mezz'ombra</option>
+                            <option value="Ombra Totale">Ombra Totale</option>
+                            <option value="Sole Pieno">Sole Piene</option>
                             </select>
                         </div>
                         <div className="form-group">
