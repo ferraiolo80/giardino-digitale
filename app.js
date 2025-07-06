@@ -24,6 +24,7 @@ const App = () => {
     const [weatherApiKey, setWeatherApiKey] = React.useState('YOUR_OPENWEATHERMAP_API_KEY'); // <-- INSERISCI QUI LA TUA API KEY DI OPENWEATHERMAP
     const [showScrollToTop, setShowScrollToTop] = React.useState(false); // Stato per il tasto "scroll to top"
     // const [showLuxFeedback, setShowLuxFeedback] = React.useState(false); // RIMOSSO: showLuxFeedback è ora gestito implicitamente da luxValue
+    const [showAuthModal, setShowAuthModal] = React.useState(false); // Nuovo stato per mostrare/nascondere il modale di autenticazione
 
     // Stati per la nuova funzionalità AI
     const [showAiModal, setShowAiModal] = React.useState(false);
@@ -1448,7 +1449,7 @@ const App = () => {
                     <div className="info-card light-sensor-card">
                         <h2 className="info-card-title">Misurazione Luce</h2>
                         {/* Componente CameraLuxSensor */}
-                        <CameraLuxSensor onLuxChange={setLuxValue} currentLux={luxValue} /> {/* RIMOSSO: setShowFeedback dal prop */}
+                        <CameraLuxSensor onLuxChange={setLuxValue} currentLux={luxValue} />
 
                         <div className="manual-lux-input-section">
                             <h3 className="sensor-title">Inserimento Manuale Lux</h3>
@@ -1587,7 +1588,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditModal
+                <AddEditPlantModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
