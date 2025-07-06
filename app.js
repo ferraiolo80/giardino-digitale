@@ -993,7 +993,11 @@ const App = () => {
                             >
                                 <option value="">Seleziona una categoria</option>
                                 <option value="Fiori">Fiori</option>
+                                <option value="Pianta">Pianta</option>    
+                                <option value="Piante Grasse">Piante Grasse</option>
+                                <option value="Piante Erbacee">Piante Erbacee</option>
                                 <option value="Alberi">Alberi</option>
+                                <option value="Alberi da Frutto">Alberi da Frutto</option>
                                 <option value="Arbusti">Arbusti</option>
                                 <option value="Succulente">Succulente</option>
                                 <option value="Ortaggi">Ortaggi</option>
