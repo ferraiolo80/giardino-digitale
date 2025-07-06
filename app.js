@@ -33,6 +33,8 @@ const App = () => {
 
     // Nuovo stato per controllare la visibilità della sezione feedback Lux
     const [showLuxFeedbackSection, setShowLuxFeedbackSection] = React.useState(false);
+    // Nuovo stato per indicare se la fotocamera è attiva (sta tentando di misurare)
+    const [isCameraActive, setIsCameraActive] = React.useState(false);
 
     // Stati per l'ordinamento
     const [sortOrderAllPlants, setSortOrderAllPlants] = React.useState('asc'); // 'asc' per A-Z, 'desc' per Z-A
@@ -371,6 +373,17 @@ const App = () => {
             } else {
                 // Scenario 3: Aggiunta di una nuova pianta pubblica
                 const plantsCollectionRef = db.collection('plants');
+
+                // NEW: Check for duplicate plant name before adding
+                const existingPlantQuery = plantsCollectionRef.where('name', '==', finalPlantData.name);
+                const existingPlantSnapshot = await existingPlantQuery.get();
+
+                if (!existingPlantSnapshot.empty) {
+                    setMessage(`Errore: Una pianta con il nome "${finalPlantData.name}" esiste già nella collezione pubblica.`);
+                    setLoading(false);
+                    return; // Stop the operation
+                }
+
                 await plantsCollectionRef.add({ ...finalPlantData, ownerId: userId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 setMessage("Nuova pianta aggiunta alla collezione pubblica con successo!");
                 console.log("Aggiunta nuova pianta pubblica.");
@@ -673,13 +686,20 @@ const App = () => {
     // Callback per la misurazione Lux della fotocamera
     const handleCameraLuxChange = React.useCallback((lux) => {
         setLuxValue(lux);
+        // La sezione feedback è mostrata se lux > 0 O se la fotocamera è attiva
+        // Questo evita il "flash" quando il lux è 0 ma la fotocamera sta ancora elaborando.
         if (lux > 0) {
-            setShowLuxFeedbackSection(true); // Mostra la sezione feedback se la fotocamera fornisce un valore > 0
-        } else {
-            // Se la fotocamera restituisce 0, non nascondere immediatamente,
-            // a meno che non sia l'unico modo per ottenere il valore.
-            // Per evitare il flash, la sezione rimane visibile finché non viene chiusa manualmente
-            // o la misurazione della fotocamera viene interrotta.
+            setShowLuxFeedbackSection(true);
+        }
+    }, []);
+
+    // Callback per lo stato di streaming della fotocamera
+    const handleIsCameraActiveChange = React.useCallback((active) => {
+        setIsCameraActive(active);
+        setShowLuxFeedbackSection(active); // Controlla la visibilità della sezione feedback in base allo stato attivo della fotocamera
+        if (!active) {
+            setLuxValue(0); // Resetta lux quando la fotocamera è fermata
+            setManualLuxInput(''); // Pulisci anche l'input manuale per coerenza
         }
     }, []);
 
@@ -1307,11 +1327,11 @@ const App = () => {
     };
 
     // Nuovo componente CameraLuxSensor
-    const CameraLuxSensor = ({ onLuxChange, currentLux }) => {
+    const CameraLuxSensor = ({ onLuxChange, currentLux, onIsStreamingChange }) => { // Aggiunto onIsStreamingChange
         const videoRef = React.useRef(null);
         const canvasRef = React.useRef(null);
         const animationFrameId = React.useRef(null);
-        const [isStreaming, setIsStreaming] = React.useState(false);
+        const [isStreamingInternal, setIsStreamingInternal] = React.useState(false); // Stato interno per lo streaming
         const [error, setError] = React.useState('');
 
         // Function to stop the camera stream and clean up
@@ -1325,14 +1345,15 @@ const App = () => {
                 cancelAnimationFrame(animationFrameId.current);
                 animationFrameId.current = null; // Reset animation frame ID
             }
-            setIsStreaming(false);
+            setIsStreamingInternal(false); // Aggiorna stato interno
+            onIsStreamingChange(false); // Notifica il parent che lo streaming è fermo
             onLuxChange(0); // Reset lux to 0 when camera is off
             setError(''); // Clear error
-        }, [onLuxChange]);
+        }, [onLuxChange, onIsStreamingChange]);
 
-        // Effect to start/stop camera based on isStreaming state
+        // Effect to start/stop camera based on isStreamingInternal state
         React.useEffect(() => {
-            if (isStreaming && videoRef.current) {
+            if (isStreamingInternal && videoRef.current) {
                 const startStream = async () => {
                     setError('');
                     try {
@@ -1344,6 +1365,7 @@ const App = () => {
                             }
                         });
                         videoRef.current.srcObject = stream;
+                        onIsStreamingChange(true); // Notifica il parent che lo streaming è attivo
 
                         // Wait for video to load metadata and start playing
                         await new Promise((resolve) => {
@@ -1360,9 +1382,9 @@ const App = () => {
                         // per dare tempo al flusso video di stabilizzarsi.
                         setTimeout(() => {
                             // Only start processing frames if still streaming and video is ready
-                            if (isStreaming && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
+                            if (isStreamingInternal && videoRef.current && videoRef.current.readyState >= videoRef.current.HAVE_ENOUGH_DATA) {
                                 animationFrameId.current = requestAnimationFrame(processFrame);
-                            } else if (isStreaming) { // If not ready after timeout, log and stop.
+                            } else if (isStreamingInternal) { // If not ready after timeout, log and stop.
                                 setError("Video non pronto per l'elaborazione dopo il ritardo.");
                                 stopCamera();
                             }
@@ -1381,21 +1403,21 @@ const App = () => {
                     }
                 };
                 startStream();
-            } else if (!isStreaming) {
-                stopCamera(); // Ensure camera is stopped if isStreaming becomes false
+            } else if (!isStreamingInternal) {
+                stopCamera(); // Ensure camera is stopped if isStreamingInternal becomes false
             }
 
             // Cleanup function for the effect
             return () => {
                 stopCamera();
             };
-        }, [isStreaming, videoRef, stopCamera, processFrame]);
+        }, [isStreamingInternal, videoRef, stopCamera, processFrame, onIsStreamingChange]); // Aggiunto onIsStreamingChange
 
         const processFrame = React.useCallback(() => {
             const video = videoRef.current;
             const canvas = canvasRef.current;
             // Ensure video and canvas are available and streaming is active
-            if (!video || !canvas || video.paused || video.ended || !isStreaming) {
+            if (!video || !canvas || video.paused || video.ended || !isStreamingInternal) { // Usa isStreamingInternal
                 animationFrameId.current = null;
                 return;
             }
@@ -1431,19 +1453,19 @@ const App = () => {
             }
 
             // Continua il ciclo di animazione solo se lo streaming è ancora attivo
-            if (isStreaming) {
+            if (isStreamingInternal) { // Usa isStreamingInternal
                 animationFrameId.current = requestAnimationFrame(processFrame);
             } else {
                 animationFrameId.current = null;
             }
-        }, [onLuxChange, isStreaming]);
+        }, [onLuxChange, isStreamingInternal]); // Usa isStreamingInternal
 
         return (
             <div className="camera-lux-sensor">
                 <h3 className="sensor-title">Misurazione con Fotocamera</h3>
                 <div className="camera-controls">
-                    {!isStreaming ? (
-                        <button onClick={() => setIsStreaming(true)} className="form-button submit">
+                    {!isStreamingInternal ? ( // Usa isStreamingInternal
+                        <button onClick={() => setIsStreamingInternal(true)} className="form-button submit">
                             <i className="fas fa-video"></i> Avvia Misurazione
                         </button>
                     ) : (
@@ -1453,7 +1475,7 @@ const App = () => {
                     )}
                 </div>
                 {error && <p className="error-message">{error}</p>}
-                {isStreaming && (
+                {isStreamingInternal && ( // Usa isStreamingInternal
                     <div className="camera-preview-container">
                         <video ref={videoRef} className="camera-preview" autoPlay playsInline muted></video>
                         <canvas ref={canvasRef} className="camera-canvas"></canvas>
@@ -1576,7 +1598,7 @@ const App = () => {
                     <div className="info-card light-sensor-card">
                         <h2 className="info-card-title">Misurazione Luce</h2>
                         {/* Componente CameraLuxSensor */}
-                        <CameraLuxSensor onLuxChange={handleCameraLuxChange} currentLux={luxValue} />
+                        <CameraLuxSensor onLuxChange={handleCameraLuxChange} currentLux={luxValue} onIsStreamingChange={handleIsCameraActiveChange} />
 
                         <div className="manual-lux-input-section">
                             <h3 className="sensor-title">Inserimento Manuale Lux</h3>
@@ -1600,7 +1622,7 @@ const App = () => {
                         </div>
 
                         {/* Display the current luxValue being used for feedback */}
-                        {luxValue > 0 && (
+                        {showLuxFeedbackSection && ( // Mostra il valore Lux se la sezione feedback è attiva
                             <p className="current-overall-lux-display">Lux Attuali Usati per Feedback: <strong>{luxValue}</strong></p>
                         )}
 
@@ -1620,7 +1642,7 @@ const App = () => {
                                     )}
                                 </ul>
                                 <button
-                                    onClick={() => { setLuxValue(0); setManualLuxInput(''); setShowLuxFeedbackSection(false); }} /* Resetta input e nascondi */
+                                    onClick={() => { setLuxValue(0); setManualLuxInput(''); setShowLuxFeedbackSection(false); setIsCameraActive(false); }} /* Resetta input e nascondi */
                                     className="close-lux-feedback-btn"
                                 >
                                     <i className="fas fa-times-circle"></i> Chiudi Feedback
@@ -1716,7 +1738,7 @@ const App = () => {
 
             {/* Modale Aggiungi/Modifica Pianta */}
             {showAddEditModal && (
-                <AddEditPlantModal
+                <AddEditModal
                     plantToEdit={editPlantData}
                     onClose={closeAddEditModal}
                     onSubmit={addOrUpdatePlant}
