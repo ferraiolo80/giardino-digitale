@@ -642,28 +642,34 @@ const App = () => {
         const lux = parseFloat(luxValue);
         console.log(`Feedback per ${plant.name}: Lux attuali=${lux}, Min=${plant.idealLuxMin}, Max=${plant.idealLuxMax}`); // Debugging
 
+        let message = '';
+        let className = 'feedback-error'; // Default to error color
+
         // Se il valore Lux non è valido o è 0, restituisci un messaggio generico
         if (isNaN(lux) || lux <= 0) {
-            return `Inserisci un valore Lux per ottenere il feedback per la ${plant.name}.`;
-        }
-
-        // Verifica se i dati idealLuxMin o idealLuxMax della pianta sono mancanti o non validi
-        if (plant.idealLuxMin === undefined || plant.idealLuxMax === undefined ||
+            message = `Inserisci un valore Lux per ottenere il feedback per la ${plant.name}.`;
+            className = 'feedback-error';
+        } else if (plant.idealLuxMin === undefined || plant.idealLuxMax === undefined ||
             plant.idealLuxMin === null || plant.idealLuxMax === null ||
             isNaN(parseFloat(plant.idealLuxMin)) || isNaN(parseFloat(plant.idealLuxMax))) {
-            return `Dati Lux ideali mancanti o non validi per la ${plant.name}.`;
-        }
-
-        const idealMin = parseFloat(plant.idealLuxMin);
-        const idealMax = parseFloat(plant.idealLuxMax);
-
-        if (lux < idealMin) {
-            return `Poca luce per la ${plant.name} (minimo ${idealMin} Lux)`;
-        } else if (lux > idealMax) {
-            return `Troppa luce per la ${plant.name} (massimo ${idealMax} Lux)`;
+            message = `Dati Lux ideali mancanti o non validi per la ${plant.name}.`;
+            className = 'feedback-error';
         } else {
-            return `Luce ottimale per la ${plant.name}!`;
+            const idealMin = parseFloat(plant.idealLuxMin);
+            const idealMax = parseFloat(plant.idealLuxMax);
+
+            if (lux < idealMin) {
+                message = `Poca luce per la ${plant.name} (minimo ${idealMin} Lux)`;
+                className = 'feedback-low';
+            } else if (lux > idealMax) {
+                message = `Troppa luce per la ${plant.name} (massimo ${idealMax} Lux)`;
+                className = 'feedback-high';
+            } else {
+                message = `Luce ottimale per la ${plant.name}!`;
+                className = 'feedback-optimal';
+            }
         }
+        return { message, className };
     }, [luxValue]); // Aggiunto luxValue come dipendenza
 
     // Funzione per richiamare l'AI per la ricerca di informazioni
@@ -1570,7 +1576,7 @@ const App = () => {
             <header className="header">
                 <div className="header-content">
                     <h1 className="app-title">
-                        Il Mio Giardino Digitale n°4
+                        Il Mio Giardino Digitale
                     </h1>
                     <div className="main-buttons">
                         <button
@@ -1704,13 +1710,16 @@ const App = () => {
                                 <h3 className="feedback-title">Feedback per le piante:</h3>
                                 <ul className="feedback-list">
                                     {plants.length === 0 ? (
-                                        <li className="feedback-item">Nessuna pianta disponibile per il feedback sulla luce.</li>
+                                        <li className="feedback-item feedback-error">Nessuna pianta disponibile per il feedback sulla luce.</li>
                                     ) : (
-                                        plants.map(plant => (
-                                            <li key={plant.id} className="feedback-item">
-                                                {getPlantLuxFeedback(plant)}
-                                            </li>
-                                        ))
+                                        plants.map(plant => {
+                                            const { message: feedbackMessage, className: feedbackClassName } = getPlantLuxFeedback(plant);
+                                            return (
+                                                <li key={plant.id} className={`feedback-item ${feedbackClassName}`}>
+                                                    {feedbackMessage}
+                                                </li>
+                                            );
+                                        })
                                     )}
                                 </ul>
                                 <button
