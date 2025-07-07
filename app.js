@@ -783,7 +783,7 @@ const App = () => {
                 />
                 <h3 className="plant-card-title">{plant.name}</h3>
                 {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName || 'N/A'}</p>
+                <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName} cm` : 'N/A'}</p>
                 <div className="plant-card-description">{plant.description || "Nessuna descrizione disponibile."}</div>
 
                 <div className="card-actions">
