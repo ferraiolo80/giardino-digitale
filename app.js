@@ -1164,7 +1164,7 @@ const App = () => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="lightQuantity">Quantità di Luce</label>
+                            <label htmlFor="lightQuantity">Tipo di Esposizione</label>
                             <select
                                 name="lightQuantity"
                                 id="lightQuantity"
@@ -1172,13 +1172,15 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="Alta">Alta</option>
+                                <option value="Tanta">Alta</option>
                                 <option value="Media">Media</option>
-                                <option value="Bassa">Bassa</option>
+                                <option value="Poca">Bassa</option>
+                                <option value="Prevalentemente">Prevalentemente</option>
+                                <option value="esclusivamente">Esclusivamente</option>
                             </select>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="exposureType">Tipo di Esposizione</label>
+                            <label htmlFor="exposureType"> </label>
                             <select
                                 name="exposureType"
                                 id="exposureType"
