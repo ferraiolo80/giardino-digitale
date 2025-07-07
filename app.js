@@ -1365,11 +1365,10 @@ const App = () => {
     };
 
     // Nuovo componente CameraLuxSensor
-    const CameraLuxSensor = ({ onLuxChange, currentLux, onIsStreamingChange, isManualModeActive }) => {
+    const CameraLuxSensor = ({ onLuxChange, currentLux, isCameraActive, onSetIsCameraActive, isManualModeActive }) => {
         const videoRef = React.useRef(null);
         const canvasRef = React.useRef(null);
         const animationFrameId = React.useRef(null);
-        const [isStreamingInternal, setIsStreamingInternal] = React.useState(false); // Stato interno per la fotocamera attiva/inattiva
         const [error, setError] = React.useState('');
         const streamRef = React.useRef(null); // Per mantenere il riferimento all'oggetto MediaStream per una pulizia affidabile
 
@@ -1377,8 +1376,8 @@ const App = () => {
         const processFrame = React.useCallback(() => {
             const video = videoRef.current;
             const canvas = canvasRef.current;
-            // Se l'input manuale è attivo, non elaborare il frame dalla fotocamera
-            if (isManualModeActive || !video || !canvas || video.paused || video.ended || !isStreamingInternal) {
+            // Solo elabora il frame se la fotocamera è attiva e la modalità manuale NON è attiva
+            if (!isCameraActive || isManualModeActive || !video || !canvas || video.paused || video.ended) {
                 animationFrameId.current = null;
                 return;
             }
@@ -1407,18 +1406,20 @@ const App = () => {
 
             } catch (e) {
                 console.error("Errore nell'elaborazione del frame:", e);
+                // Se l'elaborazione fallisce, ferma la fotocamera e notifica il parent
+                onSetIsCameraActive(false);
             }
 
-            if (isStreamingInternal && !isManualModeActive) { // Continua solo se streaming e non in modalità manuale
+            if (isCameraActive && !isManualModeActive) { // Continua solo se la fotocamera è attiva e non in modalità manuale
                 animationFrameId.current = requestAnimationFrame(processFrame);
             } else {
                 animationFrameId.current = null;
             }
-        }, [onLuxChange, isStreamingInternal, isManualModeActive]); // Aggiunto isManualModeActive alle dipendenze
+        }, [onLuxChange, isCameraActive, isManualModeActive, onSetIsCameraActive]); // Dipendenze aggiornate
 
         // Funzione per fermare il flusso della fotocamera e pulire
         const stopCameraInternal = React.useCallback(() => {
-            console.log("stopCameraInternal called. isStreamingInternal was:", isStreamingInternal); 
+            console.log("stopCameraInternal called.");
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(track => track.stop());
                 streamRef.current = null;
@@ -1430,21 +1431,19 @@ const App = () => {
                 cancelAnimationFrame(animationFrameId.current);
                 animationFrameId.current = null;
             }
-            setIsStreamingInternal(false);
-            onIsStreamingChange(false); // Notifica il parent
-            // Non resettare lux a 0 qui, lascia che il parent decida in base a isManualLuxActive
             setError('');
-        }, [onIsStreamingChange, isStreamingInternal]); // Rimosso onLuxChange dalle dipendenze, non deve resettare il lux
+        }, []);
 
-        // Effetto per avviare/fermare la fotocamera in base allo stato isStreamingInternal
+        // Effetto per avviare/fermare la fotocamera in base alla prop isCameraActive del parent
         React.useEffect(() => {
-            if (isStreamingInternal) {
+            if (isCameraActive) { // Questa prop ora ci dice se la fotocamera dovrebbe essere attiva
                 const startStream = async () => {
                     setError('');
+                    // Controlla videoRef.current immediatamente prima di getUserMedia
                     if (!videoRef.current) {
                         console.warn("startCamera: videoRef.current è nullo all'avvio dell'effetto.");
                         setError("Errore: Elemento video non disponibile.");
-                        stopCameraInternal(); 
+                        onSetIsCameraActive(false); // Notifica il parent che la fotocamera non è potuta partire
                         return;
                     }
 
@@ -1458,19 +1457,19 @@ const App = () => {
                         });
                         streamRef.current = mediaStream;
 
+                        // Cruciale: Controlla videoRef.current di nuovo DOPO await, poiché potrebbe essere smontato
                         if (videoRef.current) {
                             videoRef.current.srcObject = mediaStream;
-                            onIsStreamingChange(true);
-
-                            // Usa onloadedmetadata per assicurarti che il video sia pronto
                             videoRef.current.onloadedmetadata = () => {
-                                videoRef.current.play().then(() => {
-                                    animationFrameId.current = requestAnimationFrame(processFrame);
-                                }).catch(err => {
-                                    console.error("Errore nella riproduzione del video:", err);
-                                    setError("Impossibile riprodurre il flusso video.");
-                                    stopCameraInternal();
-                                });
+                                if (videoRef.current) { // Controllo finale prima di riprodurre e richiedere il frame
+                                    videoRef.current.play().then(() => {
+                                        animationFrameId.current = requestAnimationFrame(processFrame);
+                                    }).catch(err => {
+                                        console.error("Errore nella riproduzione del video:", err);
+                                        setError("Impossibile riprodurre il flusso video.");
+                                        onSetIsCameraActive(false); // Notifica il parent di fermare
+                                    });
+                                }
                             };
                             // Fallback se onloadedmetadata non si attiva o per browser che lo gestiscono diversamente
                             setTimeout(() => {
@@ -1480,22 +1479,23 @@ const App = () => {
                                     }).catch(err => {
                                         console.error("Errore nella riproduzione del video (timeout fallback):", err);
                                         setError("Impossibile riprodurre il flusso video (fallback).");
-                                        stopCameraInternal();
+                                        onSetIsCameraActive(false); // Notifica il parent di fermare
                                     });
                                 } else if (videoRef.current && videoRef.current.readyState < videoRef.current.HAVE_ENOUGH_DATA) {
                                     console.warn("Video non pronto per la riproduzione dopo il ritardo.");
                                     setError("Video non pronto per l'elaborazione. Riprova.");
-                                    stopCameraInternal();
+                                    onSetIsCameraActive(false); // Notifica il parent di fermare
                                 }
-                            }, 500); // Ritardo aumentato a 500ms per maggiore robustezza
+                            }, 500);
 
                         } else {
-                            console.warn("videoRef.current è nullo prima di impostare srcObject dopo getUserMedia.");
-                            if (mediaStream) {
+                            // Questo caso è quello che l'utente sta vedendo nei log
+                            console.warn("videoRef.current è nullo dopo getUserMedia ma prima di impostare srcObject. Componente probabilmente smontato/rimontato.");
+                            if (mediaStream) { // Assicurati che il flusso sia fermato se il ref è nullo
                                 mediaStream.getTracks().forEach(track => track.stop());
                             }
                             setError("Errore: Elemento video non disponibile per il flusso.");
-                            stopCameraInternal();
+                            onSetIsCameraActive(false); // Notifica il parent di fermare
                         }
 
                     } catch (err) {
@@ -1507,35 +1507,36 @@ const App = () => {
                         } else {
                             setError(`Errore fotocamera: ${err.message}`);
                         }
-                        stopCameraInternal();
+                        onSetIsCameraActive(false); // Notifica il parent di fermare
                     }
                 };
                 startStream();
             } else {
+                // Se isCameraActive è false, ferma la fotocamera
                 stopCameraInternal();
             }
 
             return () => {
                 stopCameraInternal();
             };
-        }, [isStreamingInternal, onIsStreamingChange, processFrame, stopCameraInternal]); // Rimosso onLuxChange dalle dipendenze
+        }, [isCameraActive, processFrame, stopCameraInternal, onSetIsCameraActive]); // isCameraActive è la dipendenza principale
 
         return (
             <div className="camera-lux-sensor">
                 <h3 className="sensor-title">Misurazione con Fotocamera</h3>
                 <div className="camera-controls">
-                    {!isStreamingInternal ? (
-                        <button onClick={() => setIsStreamingInternal(true)} className="form-button submit">
+                    {!isCameraActive ? ( // Usa la prop per determinare il testo del pulsante
+                        <button onClick={() => onSetIsCameraActive(true)} className="form-button submit">
                             <i className="fas fa-video"></i> Avvia Misurazione
                         </button>
                     ) : (
-                        <button onClick={() => setIsStreamingInternal(false)} className="form-button cancel">
+                        <button onClick={() => onSetIsCameraActive(false)} className="form-button cancel">
                             <i className="fas fa-stop-circle"></i> Ferma Misurazione
                         </button>
                     )}
                 </div>
                 {error && <p className="error-message">{error}</p>}
-                {isStreamingInternal && (
+                {isCameraActive && ( // Mostra l'anteprima solo se la fotocamera è attiva
                     <div className="camera-preview-container">
                         <video ref={videoRef} className="camera-preview" autoPlay playsInline muted></video>
                         <canvas ref={canvasRef} className="camera-canvas"></canvas>
@@ -1569,7 +1570,7 @@ const App = () => {
             <header className="header">
                 <div className="header-content">
                     <h1 className="app-title">
-                        Il Mio Giardino Digitale n°3
+                        Il Mio Giardino Digitale n°4
                     </h1>
                     <div className="main-buttons">
                         <button
@@ -1662,7 +1663,13 @@ const App = () => {
                     <div className="info-card light-sensor-card">
                         <h2 className="info-card-title">Misurazione Luce</h2>
                         {/* Componente CameraLuxSensor è ora sempre montato */}
-                        <CameraLuxSensor onLuxChange={handleCameraLuxChange} currentLux={luxValue} onIsStreamingChange={handleIsCameraActiveChange} isManualModeActive={isManualLuxActive} />
+                        <CameraLuxSensor
+                            onLuxChange={handleCameraLuxChange}
+                            currentLux={luxValue}
+                            isCameraActive={isCameraActive} // Passa lo stato
+                            onSetIsCameraActive={setIsCameraActive} // Passa il setter
+                            isManualModeActive={isManualLuxActive}
+                        />
 
                         <div className="manual-lux-input-section">
                             <h3 className="sensor-title">Inserimento Manuale Lux</h3>
