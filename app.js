@@ -1553,7 +1553,7 @@ const App = () => {
             <header className="header">
                 <div className="header-content">
                     <h1 className="app-title">
-                        Il Mio Giardino Digitale
+                        Il Mio Giardino Digitale n°1
                     </h1>
                     <div className="main-buttons">
                         <button
