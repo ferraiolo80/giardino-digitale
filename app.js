@@ -36,6 +36,8 @@ const App = () => {
     const [showLuxFeedbackSection, setShowLuxFeedbackSection] = React.useState(false);
     // Nuovo stato per indicare se la fotocamera è attiva (sta tentando di misurare) - passato da CameraLuxSensor
     const [isCameraActive, setIsCameraActive] = React.useState(false);
+    // NUOVO STATO: indica se il valore Lux è stato impostato manualmente
+    const [isManualLuxActive, setIsManualLuxActive] = React.useState(false);
 
     // Stati per l'ordinamento
     const [sortOrderAllPlants, setSortOrderAllPlants] = React.useState('asc'); // 'asc' per A-Z, 'desc' per Z-A
@@ -622,6 +624,7 @@ const App = () => {
             setLuxValue(parsedLux);
             console.log("applyManualLux: luxValue impostato a", parsedLux); // Nuovo log
             setShowLuxFeedbackSection(true); // Mostra la sezione feedback quando il Lux manuale è applicato
+            setIsManualLuxActive(true); // Imposta lo stato per indicare che il Lux è manuale
             setMessage(`Valore Lux impostato manualmente a ${parsedLux}.`);
             // Assicurati che la fotocamera sia fermata se si usa l'input manuale
             setIsCameraActive(false); // Questo attiverà CameraLuxSensor per fermare il suo flusso interno
@@ -629,6 +632,7 @@ const App = () => {
             setMessage("Per favoré, inserisci un numero valido per i Lux.");
             setLuxValue(0); // Resetta a 0 se l'input non è valido
             console.log("applyManualLux: luxValue resettato a 0 (input non valido)"); // Nuovo log
+            setIsManualLuxActive(false); // Resetta lo stato manuale se l'input non è valido
             // Non nascondere la sezione feedback qui per evitare il "flash" se l'utente ha già attivato la fotocamera
         }
     }, [manualLuxInput]);
@@ -713,26 +717,29 @@ const App = () => {
 
     // Callback per la misurazione Lux della fotocamera
     const handleCameraLuxChange = React.useCallback((lux) => {
-        setLuxValue(lux);
-        console.log("handleCameraLuxChange: luxValue impostato a", lux); // Nuovo log
-        // La sezione feedback è mostrata se lux > 0 O se la fotocamera è attiva
-        // Questo evita il "flash" quando il lux è 0 ma la fotocamera sta ancora elaborando.
-        if (lux > 0) {
-            setShowLuxFeedbackSection(true);
+        // Aggiorna luxValue solo se l'input manuale NON è attivo
+        if (!isManualLuxActive) {
+            setLuxValue(lux);
+            console.log("handleCameraLuxChange: luxValue impostato a", lux); // Nuovo log
+            if (lux > 0) {
+                setShowLuxFeedbackSection(true);
+            }
+        } else {
+            console.log("handleCameraLuxChange: Ignorato aggiornamento Lux dalla fotocamera (manuale attivo). Lux ricevuto:", lux);
         }
-    }, []);
+    }, [isManualLuxActive]); // Dipende da isManualLuxActive
 
     // Callback per lo stato di streaming della fotocamera
     const handleIsCameraActiveChange = React.useCallback((active) => {
         setIsCameraActive(active);
         // Se la fotocamera diventa inattiva e non c'è input manuale, resetta lux e nascondi feedback
-        if (!active && manualLuxInput === '') { // Nascondi solo se non c'è input manuale
+        if (!active && !isManualLuxActive) { // Nascondi solo se non c'è input manuale
             setLuxValue(0);
             setShowLuxFeedbackSection(false);
         } else if (active) {
             setShowLuxFeedbackSection(true); // Mostra sempre il feedback se la fotocamera è attiva
         }
-    }, [manualLuxInput]); // Aggiunto manualLuxInput come dipendenza
+    }, [isManualLuxActive]); // Aggiunto isManualLuxActive come dipendenza
 
     // Componente Card Pianta
     const PlantCard = ({ plant, isMyGardenPlant, onDetailsClick, onAddOrRemoveToMyGarden, onUpdatePlant, onDeletePlantPermanently }) => {
@@ -1358,7 +1365,7 @@ const App = () => {
     };
 
     // Nuovo componente CameraLuxSensor
-    const CameraLuxSensor = ({ onLuxChange, currentLux, onIsStreamingChange }) => {
+    const CameraLuxSensor = ({ onLuxChange, currentLux, onIsStreamingChange, isManualModeActive }) => {
         const videoRef = React.useRef(null);
         const canvasRef = React.useRef(null);
         const animationFrameId = React.useRef(null);
@@ -1370,7 +1377,8 @@ const App = () => {
         const processFrame = React.useCallback(() => {
             const video = videoRef.current;
             const canvas = canvasRef.current;
-            if (!video || !canvas || video.paused || video.ended || !isStreamingInternal) {
+            // Se l'input manuale è attivo, non elaborare il frame dalla fotocamera
+            if (isManualModeActive || !video || !canvas || video.paused || video.ended || !isStreamingInternal) {
                 animationFrameId.current = null;
                 return;
             }
@@ -1401,15 +1409,16 @@ const App = () => {
                 console.error("Errore nell'elaborazione del frame:", e);
             }
 
-            if (isStreamingInternal) {
+            if (isStreamingInternal && !isManualModeActive) { // Continua solo se streaming e non in modalità manuale
                 animationFrameId.current = requestAnimationFrame(processFrame);
             } else {
                 animationFrameId.current = null;
             }
-        }, [onLuxChange, isStreamingInternal]);
+        }, [onLuxChange, isStreamingInternal, isManualModeActive]); // Aggiunto isManualModeActive alle dipendenze
 
         // Funzione per fermare il flusso della fotocamera e pulire
         const stopCameraInternal = React.useCallback(() => {
+            console.log("stopCameraInternal called. isStreamingInternal was:", isStreamingInternal); 
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(track => track.stop());
                 streamRef.current = null;
@@ -1423,9 +1432,9 @@ const App = () => {
             }
             setIsStreamingInternal(false);
             onIsStreamingChange(false); // Notifica il parent
-            onLuxChange(0); // Resetta lux a 0
+            // Non resettare lux a 0 qui, lascia che il parent decida in base a isManualLuxActive
             setError('');
-        }, [onLuxChange, onIsStreamingChange]);
+        }, [onIsStreamingChange, isStreamingInternal]); // Rimosso onLuxChange dalle dipendenze, non deve resettare il lux
 
         // Effetto per avviare/fermare la fotocamera in base allo stato isStreamingInternal
         React.useEffect(() => {
@@ -1509,7 +1518,7 @@ const App = () => {
             return () => {
                 stopCameraInternal();
             };
-        }, [isStreamingInternal, onIsStreamingChange, onLuxChange, processFrame, stopCameraInternal]);
+        }, [isStreamingInternal, onIsStreamingChange, processFrame, stopCameraInternal]); // Rimosso onLuxChange dalle dipendenze
 
         return (
             <div className="camera-lux-sensor">
@@ -1560,7 +1569,7 @@ const App = () => {
             <header className="header">
                 <div className="header-content">
                     <h1 className="app-title">
-                        Il Mio Giardino Digitale n°2
+                        Il Mio Giardino Digitale n°3
                     </h1>
                     <div className="main-buttons">
                         <button
@@ -1653,7 +1662,7 @@ const App = () => {
                     <div className="info-card light-sensor-card">
                         <h2 className="info-card-title">Misurazione Luce</h2>
                         {/* Componente CameraLuxSensor è ora sempre montato */}
-                        <CameraLuxSensor onLuxChange={handleCameraLuxChange} currentLux={luxValue} onIsStreamingChange={handleIsCameraActiveChange} />
+                        <CameraLuxSensor onLuxChange={handleCameraLuxChange} currentLux={luxValue} onIsStreamingChange={handleIsCameraActiveChange} isManualModeActive={isManualLuxActive} />
 
                         <div className="manual-lux-input-section">
                             <h3 className="sensor-title">Inserimento Manuale Lux</h3>
@@ -1702,6 +1711,7 @@ const App = () => {
                                         setLuxValue(0);
                                         setManualLuxInput('');
                                         setShowLuxFeedbackSection(false);
+                                        setIsManualLuxActive(false); // Resetta lo stato manuale
                                         // Assicurati che la fotocamera sia fermata se è attiva
                                         if (isCameraActive) {
                                             setIsCameraActive(false); // Questo attiverà stopCameraInternal in CameraLuxSensor
