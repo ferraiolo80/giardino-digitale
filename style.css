@@ -2785,3 +2785,23 @@ body {
     text-align: center;
 }
 
+/* Feedback Colors */
+.feedback-item.feedback-optimal {
+    color: #16a34a; /* Green */
+    font-weight: bold;
+}
+
+.feedback-item.feedback-low {
+    color: #facc15; /* Yellow */
+    font-weight: bold;
+}
+
+.feedback-item.feedback-high {
+    color: #ef4444; /* Red */
+    font-weight: bold;
+}
+
+.feedback-item.feedback-error {
+    color: #dc2626; /* Darker Red for errors */
+    font-weight: bold;
+}
