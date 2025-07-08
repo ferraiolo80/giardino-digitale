@@ -1034,13 +1034,28 @@ const App = () => {
                         </div>
                         <div className="form-group">
                             <label htmlFor="scientificName">Dimensione Ideale Vaso (cm)</label>
-                            <input
-                                type="number"
-                                name="scientificName"
-                                id="scientificName"
-                                value={formData.scientificName}
-                                onChange={handleChange}
-                            />
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <input
+                                    type="number"
+                                    name="potSizeMin"
+                                    id="potSizeMin"
+                                    value={formData.potSizeMin}
+                                    onChange={handleChange}
+                                    placeholder="Min"
+                                    style={{ flex: 1 }}
+                                />
+                                <span className="text-gray-700">-</span>
+                                <input
+                                    type="number"
+                                    name="potSizeMax"
+                                    id="potSizeMax"
+                                    value={formData.potSizeMax}
+                                    onChange={handleChange}
+                                    placeholder="Max"
+                                    style={{ flex: 1 }}
+                                />
+                                <span className="text-gray-700">cm</span>
+                            </div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="description">Descrizione</label>
@@ -1124,6 +1139,7 @@ const App = () => {
                                     placeholder="Volte"
                                     style={{ flex: 1 }}
                                 />
+                                <span className="text-gray-700"> volta/e </span>
                                 <select
                                     name="wateringUnitSummer"
                                     id="wateringUnitSummer"
