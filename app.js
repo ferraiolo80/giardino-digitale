@@ -782,8 +782,18 @@ const App = () => {
                     style={{ width: '100%', height: 'auto', objectFit: 'cover' }} // Stili aggiunti per ridimensionamento automatico
                 />
                 <h3 className="plant-card-title">{plant.name}</h3>
-                {/* Modifica: scientificName ora visualizza Dimensione Ideale Vaso */}
-                <p className="plant-card-pot-size">Dimensione Ideale Vaso: {plant.scientificName} cm` : 'N/A'}</p>
+                {/* Visualizzazione Dimensione Ideale Vaso come range */}
+                <p className="plant-card-pot-size">
+                    Dimensione Ideale Vaso: {
+                        plant.potSizeMin && plant.potSizeMax
+                            ? `${plant.potSizeMin} - ${plant.potSizeMax} cm`
+                            : plant.potSizeMin
+                                ? `${plant.potSizeMin} cm`
+                                : plant.potSizeMax
+                                    ? `${plant.potSizeMax} cm`
+                                    : 'N/A'
+                    }
+                </p>
                 <div className="plant-card-description">{plant.description || "Nessuna descrizione disponibile."}</div>
 
                 <div className="card-actions">
@@ -882,29 +892,39 @@ const App = () => {
                         onError={imageOnError}
                     />
                     <div className="modal-details-list">
-                        <p><strong>Dimensione Ideale Vaso:</strong> {plant.scientificName ? `${plant.scientificName} cm` : 'N/A'}</p>
+                        <p>
+                            <strong>Dimensione Ideale Vaso:</strong> {
+                                plant.potSizeMin && plant.potSizeMax
+                                    ? `${plant.potSizeMin} - ${plant.potSizeMax} cm`
+                                    : plant.potSizeMin
+                                        ? `${plant.potSizeMin} cm`
+                                        : plant.potSizeMax
+                                            ? `${plant.potSizeMax} cm`
+                                            : 'N/A'
+                            }
+                        </p>
                         <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                         <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                         <p>
-                            <strong>Frequenza Irrigazione (Estate): </strong>
+                            <strong>Frequenza Irrigazione (Estate):</strong>
                             {plant.wateringValueSummer && plant.wateringUnitSummer
-                                ? `${plant.wateringValueSummer}  volta/e al ${plant.wateringUnitSummer}`
+                                ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
                                 : 'N/A'
                             }
                         </p>
                         <p>
-                            <strong>Frequenza Irrigazione (Inverno): </strong>
+                            <strong>Frequenza Irrigazione (Inverno):</strong>
                             {plant.wateringValueWinter && plant.wateringUnitWinter
-                                ? `${plant.wateringValueWinter}  volta/e al ${plant.wateringUnitWinter}`
+                                ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
                                 : 'N/A'
                             }
                         </p>
+                        {/* Unito Quantità di Luce e Tipo di Esposizione in un'unica riga */}
                         <p>
-                            <strong>Tipo di Esposizione:</strong> {plant.lightQuantity || 'N/A'}
-                            {plant.lightQuantity && plant.exposureType && '  '}
+                            <strong>Luce:</strong> {plant.lightQuantity || 'N/A'}
+                            {plant.lightQuantity && plant.exposureType && ', '}
                             {plant.exposureType || ''}
                         </p>
-                        
                         <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
                         <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
                     </div>
@@ -917,7 +937,6 @@ const App = () => {
     const AddEditPlantModal = ({ plantToEdit, onClose, onSubmit, onOpenAiModal }) => { // Aggiunto onOpenAiModal
         const [formData, setFormData] = React.useState({
             name: '',
-            scientificName: '', // Dimensione Ideale Vaso
             description: '',
             image: '',
             idealLuxMin: '',
@@ -933,15 +952,26 @@ const App = () => {
             category: '',
             tempMax: '',
             tempMin: '',
+            // Nuovi campi per la dimensione del vaso
+            potSizeMin: '',
+            potSizeMax: '',
         });
         const [selectedFile, setSelectedFile] = React.useState(null);
         const [imagePreviewUrl, setImagePreviewUrl] = React.useState('');
 
         React.useEffect(() => {
             if (plantToEdit) {
+                // Gestione della retrocompatibilità per potSizeMin/Max da scientificName
+                const oldPotSize = parseFloat(plantToEdit.scientificName);
+                const initialPotSizeMin = plantToEdit.potSizeMin !== undefined && plantToEdit.potSizeMin !== null
+                                        ? plantToEdit.potSizeMin
+                                        : (!isNaN(oldPotSize) ? oldPotSize : '');
+                const initialPotSizeMax = plantToEdit.potSizeMax !== undefined && plantToEdit.potSizeMax !== null
+                                        ? plantToEdit.potSizeMax
+                                        : (!isNaN(oldPotSize) ? oldPotSize : '');
+
                 setFormData({
                     name: plantToEdit.name || '',
-                    scientificName: plantToEdit.scientificName || '',
                     description: plantToEdit.description || '',
                     image: plantToEdit.image || '',
                     idealLuxMin: plantToEdit.idealLuxMin || '',
@@ -957,16 +987,20 @@ const App = () => {
                     category: plantToEdit.category || '',
                     tempMax: plantToEdit.tempMax || '',
                     tempMin: plantToEdit.tempMin || '',
+                    // Carica i nuovi campi per la dimensione del vaso, con fallback da scientificName
+                    potSizeMin: initialPotSizeMin,
+                    potSizeMax: initialPotSizeMax,
                 });
                 setImagePreviewUrl(plantToEdit.image || '');
             } else {
                 setFormData({
-                    name: '', scientificName: '', description: '', image: '',
+                    name: '', description: '', image: '',
                     idealLuxMin: '', idealLuxMax: '',
                     wateringValueSummer: '', wateringUnitSummer: 'settimana',
                     wateringValueWinter: '', wateringUnitWinter: 'settimana',
                     lightQuantity: '', exposureType: '',
                     category: '', tempMax: '', tempMin: '',
+                    potSizeMin: '', potSizeMax: '',
                 });
                 setImagePreviewUrl('');
             }
@@ -1006,7 +1040,12 @@ const App = () => {
                 tempMin: formData.tempMin !== '' ? parseFloat(formData.tempMin) : null,
                 wateringValueSummer: formData.wateringValueSummer !== '' ? parseFloat(formData.wateringValueSummer) : null,
                 wateringValueWinter: formData.wateringValueWinter !== '' ? parseFloat(formData.wateringValueWinter) : null,
+                potSizeMin: formData.potSizeMin !== '' ? parseFloat(formData.potSizeMin) : null,
+                potSizeMax: formData.potSizeMax !== '' ? parseFloat(formData.potSizeMax) : null,
             };
+            // Rimuovi scientificName se non è più usato per la dimensione del vaso e non ha un altro scopo
+            delete dataToSend.scientificName; 
+
             console.log("AddEditPlantModal handleSubmit: Dati inviati per aggiornamento:", dataToSend);
             console.log("AddEditPlantModal handleSubmit: File immagine selezionato:", selectedFile);
             onSubmit(dataToSend, plantToEdit, selectedFile);
@@ -1036,8 +1075,9 @@ const App = () => {
                                 required
                             />
                         </div>
+                        {/* Campo Dimensione Ideale Vaso diviso in Min e Max */}
                         <div className="form-group">
-                            <label htmlFor="scientificName">Dimensione Ideale Vaso (cm)</label>
+                            <label>Dimensione Ideale Vaso (cm)</label>
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                 <input
                                     type="number"
@@ -1133,7 +1173,7 @@ const App = () => {
 
                         <div className="form-group">
                             <label htmlFor="wateringValueSummer">Frequenza Irrigazione (Estate)</label>
-                            <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                 <input
                                     type="number"
                                     name="wateringValueSummer"
@@ -1143,7 +1183,7 @@ const App = () => {
                                     placeholder="Volte"
                                     style={{ flex: 1 }}
                                 />
-                                <span className="text-gray-700"> volta/e </span>
+                                <span className="text-gray-700" style={{ verticalAlign: 'middle' }}>volta/e</span>
                                 <select
                                     name="wateringUnitSummer"
                                     id="wateringUnitSummer"
@@ -1159,7 +1199,7 @@ const App = () => {
                         </div>
                         <div className="form-group">
                             <label htmlFor="wateringValueWinter">Frequenza Irrigazione (Inverno)</label>
-                            <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                 <input
                                     type="number"
                                     name="wateringValueWinter"
@@ -1169,7 +1209,7 @@ const App = () => {
                                     placeholder="Volte"
                                     style={{ flex: 1 }}
                                 />
-                                <span className="text-gray-700" style={{ verticalAlign: 'middle' }}>volta/e</span> 
+                                <span className="text-gray-700" style={{ verticalAlign: 'middle' }}>volta/e</span>
                                 <select
                                     name="wateringUnitWinter"
                                     id="wateringUnitWinter"
@@ -1185,7 +1225,7 @@ const App = () => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="lightQuantity">Tipo di Esposizione</label>
+                            <label htmlFor="lightQuantity">Quantità di Luce</label>
                             <select
                                 name="lightQuantity"
                                 id="lightQuantity"
@@ -1193,15 +1233,13 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="Tanta">Alta</option>
+                                <option value="Alta">Alta</option>
                                 <option value="Media">Media</option>
-                                <option value="Poca">Bassa</option>
-                                <option value="Prevalentemente">Prevalentemente</option>
-                                <option value="esclusivamente">Esclusivamente</option>
+                                <option value="Bassa">Bassa</option>
                             </select>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="exposureType"> </label>
+                            <label htmlFor="exposureType">Tipo di Esposizione</label>
                             <select
                                 name="exposureType"
                                 id="exposureType"
