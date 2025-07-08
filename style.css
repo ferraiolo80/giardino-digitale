@@ -47,21 +47,28 @@ body {
 .app-title-text {
     font-size: 2.5rem; /* Dimensione del testo del titolo */
     font-weight: 800;
-    color: #1a202c; /* Colore scuro per il testo */
     line-height: 1; /* Rimuove spazio extra sopra/sotto */
+    /* --- NUOVO: Gradiente di colore per il testo --- */
+    background: linear-gradient(to right, #16a34a, #34d399); /* Sfumatura dal verde scuro al verde chiaro */
+    -webkit-background-clip: text; /* Applica il gradiente solo al testo */
+    -webkit-text-fill-color: transparent; /* Rende il testo trasparente per mostrare il gradiente */
+    color: #1a202c; /* Fallback per browser non compatibili */
+    /* --- FINE NUOVO --- */
 }
 
 .title-part-regular {
     font-weight: 600;
-    color: #4a5568; /* Colore leggermente più chiaro per "Il Mio" */
+    /* --- MODIFICATO: Colore più chiaro per "Il Mio" se il gradiente non è supportato o per dare una base --- */
+    color: #4CAF50; /* Un verde più chiaro per "Il Mio" */
 }
 
 .title-part-bold {
     font-weight: 800;
+    /* Questo colore sarà visibile solo come fallback se il gradiente non funziona */
     color: #16a34a; /* green-600 per "Giardino Digitale" */
 }
 
-/* --- NUOVO: Stili per le icone Font Awesome nel titolo --- */
+/* Stili per le icone Font Awesome nel titolo */
 .title-icon {
     font-size: 2.8rem; /* Rendi l'icona più grande */
     color: #16a34a; /* Colore verde per le icone */
@@ -75,7 +82,6 @@ body {
 .title-icon:last-child {
     transform: rotate(15deg); /* Leggera rotazione per la seconda icona */
 }
-/* --- FINE NUOVO --- */
 
 
 /* Main Buttons Container */
