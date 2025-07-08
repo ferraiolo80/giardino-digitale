@@ -47,7 +47,8 @@ body {
 .app-title-text {
     font-size: 2.5rem; /* Dimensione del testo del titolo */
     font-weight: 800;
-    line-height: 1; /* Rimuove spazio extra sopra/sotto */
+    line-height: 1.2; /* MODIFICATO: Aumentato line-height per dare più spazio verticale */
+    padding-bottom: 2px; /* AGGIUNTO: Piccolo padding in basso per sicurezza */
     /* --- NUOVO: Gradiente di colore per il testo --- */
     background: linear-gradient(to right, #16a34a, #34d399); /* Sfumatura dal verde scuro al verde chiaro */
     -webkit-background-clip: text; /* Applica il gradiente solo al testo */
@@ -73,6 +74,7 @@ body {
     font-size: 2.8rem; /* Rendi l'icona più grande */
     color: #16a34a; /* Colore verde per le icone */
     transition: transform 0.3s ease-in-out;
+    vertical-align: middle; /* AGGIUNTO: Allinea verticalmente le icone con il testo */
 }
 
 .title-icon:first-child {
