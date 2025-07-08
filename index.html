@@ -6,14 +6,14 @@
     <title>Il Mio Giardino Digitale</title>
     <!-- Collega il tuo file CSS personalizzato -->
     <link rel="stylesheet" href="./style.css">
-    <!-- NUOVO: Collega il Web App Manifest -->
+    <!-- Collega il Web App Manifest -->
     <link rel="manifest" href="/manifest.json">
     <!-- Importa React e ReactDOM dalla CDN -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <!-- Importa Babel standalone per transpilare JSX nel browser -->
     <script crossorigin src="https://unpkg.com/@babel/standalone@7.24.6/babel.min.js"></script>
-    <!-- Importa le librerie Firebase dalla CDN per l'accesso globale -->
+    <!-- Importa le librerie Firebase dalla CDN per l'accesso globale (compat versions) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -26,35 +26,13 @@
 </head>
 <body>
     <div id="root">
-        <!-- Qui verrà montata la tua app React -->
-        <!-- Esempio di come il titolo dovrebbe essere strutturato nel tuo componente Header o direttamente -->
-        <div class="header">
-            <div class="header-content">
-                <div class="app-title-container">
-                    <!-- Icona iniziale (foglia stilizzata) -->
-                    <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17 8C17 5.23858 14.7614 3 12 3C9.23858 3 7 5.23858 7 8C7 10.7614 9.23858 13 12 13C14.7614 13 17 10.7614 17 8ZM12 11C10.3431 11 9 9.65685 9 8C9 6.34315 10.3431 5 12 5C13.6569 5 15 6.34315 15 8C15 9.65685 13.6569 11 12 11ZM12 15C8.68629 15 6 17.6863 6 21H18C18 17.6863 15.3137 15 12 15Z" fill="currentColor"/>
-                    </svg>
-                    <span class="app-title-text">
-                        <span class="title-part-regular">Il Mio</span>
-                        <span class="title-part-bold"> Giardino Digitale</span>
-                    </span>
-                    <!-- Icona finale (foglia stilizzata) -->
-                    <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17 8C17 5.23858 14.7614 3 12 3C9.23858 3 7 5.23858 7 8C7 10.7614 9.23858 13 12 13C14.7614 13 17 10.7614 17 8ZM12 11C10.3431 11 9 9.65685 9 8C9 6.34315 10.3431 5 12 5C13.6569 5 15 6.34315 15 8C15 9.65685 13.6569 11 12 11ZM12 15C8.68629 15 6 17.6863 6 21H18C18 17.6863 15.3137 15 12 15Z" fill="currentColor"/>
-                    </svg>
-                </div>
-                <!-- Il resto dei tuoi bottoni e elementi dell'header andrà qui -->
-                <div class="main-buttons">
-                    <!-- ... i tuoi bottoni attuali ... -->
-                </div>
-            </div>
-        </div>
+        <!-- L'applicazione React verrà montata qui. -->
+        <!-- Il titolo abbellito sarà renderizzato direttamente dal componente App.js. -->
     </div>
     <!-- Carica il tuo script React principale (App.js) con type="text/babel" -->
     <script type="text/babel" src="./App.js"></script>
 
-    <!-- NUOVO: Script per registrare il service worker -->
+    <!-- Script per registrare il service worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
