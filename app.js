@@ -1149,6 +1149,7 @@ const App = () => {
                                     placeholder="Volte"
                                     style={{ flex: 1 }}
                                 />
+                                <span className="text-gray-700"> volta/e </span>
                                 <select
                                     name="wateringUnitWinter"
                                     id="wateringUnitWinter"
