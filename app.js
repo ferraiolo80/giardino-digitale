@@ -886,22 +886,22 @@ const App = () => {
                         <p><strong>Descrizione:</strong> {plant.description || 'Nessuna descrizione.'}</p>
                         <p><strong>Categoria:</strong> {plant.category || 'N/A'}</p>
                         <p>
-                            <strong>Frequenza Irrigazione (Estate):</strong>
+                            <strong>Frequenza Irrigazione (Estate): </strong>
                             {plant.wateringValueSummer && plant.wateringUnitSummer
-                                ? `${plant.wateringValueSummer} volta/e al ${plant.wateringUnitSummer}`
+                                ? `${plant.wateringValueSummer}  volta/e al ${plant.wateringUnitSummer}`
                                 : 'N/A'
                             }
                         </p>
                         <p>
-                            <strong>Frequenza Irrigazione (Inverno):</strong>
+                            <strong>Frequenza Irrigazione (Inverno): </strong>
                             {plant.wateringValueWinter && plant.wateringUnitWinter
-                                ? `${plant.wateringValueWinter} volta/e al ${plant.wateringUnitWinter}`
+                                ? `${plant.wateringValueWinter}  volta/e al ${plant.wateringUnitWinter}`
                                 : 'N/A'
                             }
                         </p>
                         <p>
                             <strong>Tipo di Esposizione:</strong> {plant.lightQuantity || 'N/A'}
-                            {plant.lightQuantity && plant.exposureType && ', '}
+                            {plant.lightQuantity && plant.exposureType && '  '}
                             {plant.exposureType || ''}
                         </p>
                         
