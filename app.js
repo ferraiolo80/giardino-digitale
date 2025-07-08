@@ -1636,9 +1636,23 @@ const App = () => {
             {/* Header */}
             <header className="header">
                 <div className="header-content">
-                    <h1 className="app-title">
-                        Il Mio Giardino Digitale
-                    </h1>
+                    {/* --- NUOVO: Qui è dove il titolo abbellito viene renderizzato da React --- */}
+                    <div className="app-title-container">
+                        {/* Icona iniziale (foglia stilizzata) */}
+                        <svg className="title-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 8C17 5.23858 14.7614 3 12 3C9.23858 3 7 5.23858 7 8C7 10.7614 9.23858 13 12 13C14.7614 13 17 10.7614 17 8ZM12 11C10.3431 11 9 9.65685 9 8C9 6.34315 10.3431 5 12 5C13.6569 5 15 6.34315 15 8C15 9.65685 13.6569 11 12 11ZM12 15C8.68629 15 6 17.6863 6 21H18C18 17.6863 15.3137 15 12 15Z" fill="currentColor"/>
+                        </svg>
+                        <span className="app-title-text">
+                            <span className="title-part-regular">Il Mio</span>
+                            <span className="title-part-bold"> Giardino Digitale</span>
+                        </span>
+                        {/* Icona finale (foglia stilizzata) */}
+                        <svg className="title-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 8C17 5.23858 14.7614 3 12 3C9.23858 3 7 5.23858 7 8C7 10.7614 9.23858 13 12 13C14.7614 13 17 10.7614 17 8ZM12 11C10.3431 11 9 9.65685 9 8C9 6.34315 10.3431 5 12 5C13.6569 5 15 6.34315 15 8C15 9.65685 13.6569 11 12 11ZM12 15C8.68629 15 6 17.6863 6 21H18C18 17.6863 15.3137 15 12 15Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    {/* --- FINE NUOVO TITOLO --- */}
+
                     <div className="main-buttons">
                         <button
                             onClick={scrollToAllPlants}
