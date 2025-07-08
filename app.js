@@ -1639,7 +1639,7 @@ const App = () => {
                     {/* --- NUOVO: Qui è dove il titolo abbellito viene renderizzato da React --- */}
                     <div className="app-title-container">
                         {/* Icona iniziale (Font Awesome Leaf) */}
-                        <i className="fas fa-leaf title-icon"></i>
+                        <i className="fas-light fa-sun-plant-wilt title-icon"></i> 
                         <span className="app-title-text">
                             <span className="title-part-regular">Il Mio</span>
                             <span className="title-part-bold"> Giardino Digitale</span>
