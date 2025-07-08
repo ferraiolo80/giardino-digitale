@@ -899,7 +899,11 @@ const App = () => {
                                 : 'N/A'
                             }
                         </p>
-                        <p><strong>Tipo di Esposizione:</strong> {plant.lightQuantity || 'N/A'}</p> <p><strong> </strong> {plant.exposureType || 'N/A'}</p>
+                        <p>
+                            <strong>Tipo di Esposizione:</strong> {plant.lightQuantity || 'N/A'}
+                            {plant.lightQuantity && plant.exposureType && ', '}
+                            {plant.exposureType || ''}
+                        </p>
                         
                         <p><strong>Luce (Min/Max Lux):</strong> {plant.idealLuxMin || 'N/A'} Lx / {plant.idealLuxMax || 'N/A'} Lx</p>
                         <p><strong>Temperatura (Min/Max °C):</strong> {plant.tempMin || 'N/A'} °C / {plant.tempMax || 'N/A'} °C</p>
