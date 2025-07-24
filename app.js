@@ -1233,9 +1233,9 @@ const App = () => {
                                 onChange={handleChange}
                             >
                                 <option value="">Seleziona</option>
-                                <option value="Alta">Alta</option>
-                                <option value="Media">Media</option>
-                                <option value="Bassa">Bassa</option>
+                                <option value="Alta">Molta </option>
+                                <option value="Media">Media </option>
+                                <option value="Bassa">Poca </option>
                             </select>
                         </div>
                         <div className="form-group">
@@ -1251,7 +1251,7 @@ const App = () => {
                                 <option value="Luce Indiretta">Luce Indiretta</option>
                                 <option value="Mezz'ombra">Mezz'ombra</option>
                                 <option value="Ombra Totale">Ombra Totale</option>
-                                <option value="Sole Pieno">Sole Pieno</option>
+                                
                             </select>
                         </div>
 
